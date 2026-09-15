@@ -27,5 +27,9 @@
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"
+    },
+    "dependencies": {
+        "react-is": "^19.3.0",
+        "recharts": "^3.10.1"
     }
 }

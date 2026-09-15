@@ -56,18 +56,12 @@ export default function DirectoryIndex({ employees, departments, filters }: any)
                                 <div className="h-24 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
                                 <div className="px-6 pb-6 relative flex-grow flex flex-col items-center text-center">
                                     <div className="h-20 w-20 rounded-full bg-white p-1 absolute -top-10 shadow-sm border-2 border-white">
-                                        <div className="h-full w-full rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                                            {employee.photo ? (
-                                                <img src={`/storage/${employee.photo}`} alt={employee.user?.name} className="h-full w-full object-cover" />
-                                            ) : (
-                                                <span className="text-2xl font-bold text-gray-500">
-                                                    {employee.first_name?.[0]}{employee.last_name?.[0]}
-                                                </span>
-                                            )}
+                                        <div className="h-full w-full rounded-full overflow-hidden flex items-center justify-center">
+                                            <img src={employee.user?.profile_photo_url} alt={employee.user?.name} className="h-full w-full object-cover" />
                                         </div>
                                     </div>
                                     <div className="mt-12">
-                                        <h3 className="text-lg font-bold text-gray-900">{employee.user?.name || `${employee.first_name} ${employee.last_name}`}</h3>
+                                        <h3 className="text-lg font-bold text-gray-900">{employee.user?.name || employee.employee_number}</h3>
                                         <p className="text-sm font-medium text-indigo-600">{employee.user?.roles?.[0]?.name || 'Employee'}</p>
                                         <p className="text-xs text-gray-500 mt-1">{employee.department?.name || 'No Department'}</p>
                                     </div>
@@ -77,13 +71,13 @@ export default function DirectoryIndex({ employees, departments, filters }: any)
                                             <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
-                                            <a href={`mailto:${employee.email}`} className="hover:text-indigo-600 truncate">{employee.email}</a>
+                                            <a href={`mailto:${employee.user?.email}`} className="hover:text-indigo-600 truncate">{employee.user?.email}</a>
                                         </div>
                                         <div className="flex items-center text-sm text-gray-600 justify-center">
                                             <svg className="w-4 h-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
-                                            <a href={`tel:${employee.phone_number}`} className="hover:text-indigo-600 truncate">{employee.phone_number || '-'}</a>
+                                            <a href={`tel:${employee.user?.phone_number || employee.phone_number}`} className="hover:text-indigo-600 truncate">{employee.user?.phone_number || employee.phone_number || '-'}</a>
                                         </div>
                                     </div>
                                 </div>

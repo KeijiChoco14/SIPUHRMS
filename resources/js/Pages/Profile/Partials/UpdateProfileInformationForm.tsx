@@ -17,16 +17,19 @@ export default function UpdateProfileInformation({
 }) {
     const user = usePage().props.auth.user;
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
+    const { data, setData, post, errors, processing, recentlySuccessful } =
         useForm({
+            _method: 'patch',
             name: user.name,
             email: user.email,
+            phone_number: user.phone_number || '',
+            photo: null as File | null,
         });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        post(route('profile.update'));
     };
 
     return (
@@ -42,6 +45,27 @@ export default function UpdateProfileInformation({
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
+                <div>
+                    <InputLabel htmlFor="photo" value="Profile Photo (Face required)" />
+                    
+                    {user.profile_photo_url && (
+                        <div className="mt-2 mb-4">
+                            <img src={user.profile_photo_url} alt={user.name} className="h-20 w-20 object-cover rounded-full shadow-sm" />
+                        </div>
+                    )}
+
+                    <input
+                        id="photo"
+                        type="file"
+                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        onChange={(e) => setData('photo', e.target.files ? e.target.files[0] : null)}
+                        accept="image/*"
+                        required={!user.profile_photo_path}
+                    />
+
+                    <InputError className="mt-2" message={errors.photo} />
+                </div>
+
                 <div>
                     <InputLabel htmlFor="name" value="Name" />
 
@@ -72,6 +96,21 @@ export default function UpdateProfileInformation({
                     />
 
                     <InputError className="mt-2" message={errors.email} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="phone_number" value="Phone Number" />
+
+                    <TextInput
+                        id="phone_number"
+                        type="tel"
+                        className="mt-1 block w-full"
+                        value={data.phone_number}
+                        onChange={(e) => setData('phone_number', e.target.value)}
+                        autoComplete="tel"
+                    />
+
+                    <InputError className="mt-2" message={errors.phone_number as string | undefined} />
                 </div>
 
                 {mustVerifyEmail && user.email_verified_at === null && (

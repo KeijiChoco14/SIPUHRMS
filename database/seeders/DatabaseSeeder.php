@@ -103,6 +103,8 @@ class DatabaseSeeder extends Seeder
             'phone_number' => '081234567890',
         ]);
 
+        // === START OF DUMMY DATA (COMMENTED OUT FOR CLEAN SLATE) ===
+        /*
         // General Manager
         $gm = $createEmployee('Ahmad Rizky Pratama', 'gm@swissbelhotel.com', 'SBH-002', 'Front Office', 'Front Office Manager', 'General Manager');
 
@@ -598,7 +600,7 @@ class DatabaseSeeder extends Seeder
             'title' => 'General Meeting September 2026',
             'message' => 'Kepada seluruh karyawan Swiss-Belhotel SKA Pekanbaru, diwajibkan menghadiri General Meeting yang akan dilaksanakan pada hari Jumat, 12 September 2026 pukul 14:00 WIB di Grand Ballroom. Agenda: evaluasi performa Q3 dan rencana program akhir tahun.',
             'target_audience' => 'All',
-            'created_by' => $gmUser->id,
+            'created_by' => $gmUser->id ?? $adminUser->id,
             'published_at' => Carbon::now()->subDays(2),
         ]);
 
@@ -606,7 +608,7 @@ class DatabaseSeeder extends Seeder
             'title' => 'Jadwal Cuti Bersama Akhir Tahun 2026',
             'message' => 'Informasi jadwal cuti bersama akhir tahun 2026: 24-26 Desember dan 31 Desember - 1 Januari 2027. Karyawan yang bertugas shift pada tanggal tersebut akan mendapatkan kompensasi sesuai kebijakan. Silakan koordinasi dengan HoD masing-masing.',
             'target_audience' => 'All',
-            'created_by' => $hrdUser->id,
+            'created_by' => $hrdUser->id ?? $adminUser->id,
             'published_at' => Carbon::now()->subDays(1),
         ]);
 
@@ -614,7 +616,7 @@ class DatabaseSeeder extends Seeder
             'title' => 'Reminder: Update Data Karyawan',
             'message' => 'Kepada seluruh karyawan, mohon untuk memperbarui data pribadi (alamat, nomor kontak darurat, dan rekening bank) melalui sistem HRD paling lambat tanggal 15 September 2026.',
             'target_audience' => 'All',
-            'created_by' => $hrdUser->id,
+            'created_by' => $hrdUser->id ?? $adminUser->id,
             'published_at' => Carbon::now(),
         ]);
 
@@ -644,7 +646,7 @@ class DatabaseSeeder extends Seeder
             $taskWeightScore = round(rand(60, 95), 2);
 
             // Supervisor assessment
-            $supervisorId = $staffEmp->supervisor_id ?? $gm->id;
+            $supervisorId = $staffEmp->supervisor_id ?? $adminEmployee->id;
             $workQuality = rand(3, 5);
             $accuracy = rand(3, 5);
             $responsibility = rand(3, 5);
@@ -695,5 +697,7 @@ class DatabaseSeeder extends Seeder
                 'category' => $category,
             ]);
         }
+        */
+        // === END OF DUMMY DATA ===
     }
 }

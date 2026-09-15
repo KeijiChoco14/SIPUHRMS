@@ -10,8 +10,10 @@ export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
+        phone_number: '',
         password: '',
         password_confirmation: '',
+        photo: null as File | null,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -59,6 +61,37 @@ export default function Register() {
                     />
 
                     <InputError message={errors.email} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="phone_number" value="Phone Number" />
+
+                    <TextInput
+                        id="phone_number"
+                        type="tel"
+                        name="phone_number"
+                        value={data.phone_number}
+                        className="mt-1 block w-full"
+                        onChange={(e) => setData('phone_number', e.target.value)}
+                        required
+                    />
+
+                    <InputError message={errors.phone_number as string | undefined} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="photo" value="Profile Photo (Face Required)" />
+                    
+                    <input
+                        id="photo"
+                        type="file"
+                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        onChange={(e) => setData('photo', e.target.files ? e.target.files[0] : null)}
+                        accept="image/*"
+                        required
+                    />
+
+                    <InputError message={errors.photo} className="mt-2" />
                 </div>
 
                 <div className="mt-4">

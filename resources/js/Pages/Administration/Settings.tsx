@@ -25,7 +25,7 @@ export default function Settings({ auth }: PageProps) {
                                     </div>
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">Organization</dt>
-                                        <dd className="mt-1 text-sm text-gray-900">Swiss-Belhotel SKA Pekanbaru</dd>
+                                        <dd className="mt-1 text-sm text-gray-900">Swiss-Belinn SKA Pekanbaru</dd>
                                     </div>
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">Version</dt>

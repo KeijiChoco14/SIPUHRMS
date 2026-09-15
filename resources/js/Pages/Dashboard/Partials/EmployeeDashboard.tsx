@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const statCards = [
     { key: 'todo', label: 'To Do', gradient: 'from-slate-500 to-slate-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
@@ -16,16 +17,42 @@ const priorityColors: Record<string, string> = {
     Low: 'bg-gray-100 text-gray-600 border-gray-200',
 };
 
+const activityIcons: Record<string, { bg: string; icon: JSX.Element }> = {
+    created: {
+        bg: 'bg-emerald-100 text-emerald-600',
+        icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>,
+    },
+    updated: {
+        bg: 'bg-blue-100 text-blue-600',
+        icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>,
+    },
+    commented: {
+        bg: 'bg-purple-100 text-purple-600',
+        icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>,
+    },
+    status_changed: {
+        bg: 'bg-amber-100 text-amber-600',
+        icon: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>,
+    },
+};
+
 export default function EmployeeDashboard({ data }: { data: any }) {
     const summary = data?.tasksSummary || { todo: 0, in_progress: 0, review: 0, done: 0, overdue: 0 };
     const upcomingTasks = data?.upcomingTasks || [];
     const announcements = data?.announcements || [];
+    const attendance = data?.attendanceSummary || { present: 0, late: 0, absent: 0, total_days: 0 };
+    const leaveStats = data?.leaveStats || { pending: 0, approved: 0 };
+    const recentActivities = data?.recentActivities || [];
+
+    const attendanceRate = attendance.total_days > 0
+        ? Math.round(((attendance.present + attendance.late) / attendance.total_days) * 100)
+        : 0;
 
     return (
         <div className="space-y-6">
             {/* Announcement Banner */}
             {announcements.length > 0 && (
-                <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 p-5 text-white shadow-lg">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 p-6 text-white shadow-lg hover:shadow-indigo-500/20 transition-all duration-300">
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvc3ZnPg==')] opacity-40" />
                     <div className="relative flex items-start gap-4">
                         <div className="flex-shrink-0 rounded-lg bg-white/10 p-2.5 backdrop-blur-sm">
@@ -44,14 +71,117 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                 </div>
             )}
 
-            {/* Task Summary Cards */}
+            {/* Today's Shift */}
+            <div>
+                {data?.todaySchedule ? (
+                    <div className="flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl shadow-sm border-l-4" style={{ borderLeftColor: data.todaySchedule.shift.color }}>
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-lg bg-gray-50 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-900 leading-tight">Today's Shift: {data.todaySchedule.shift.name}</h3>
+                                <p className="text-sm text-gray-500 font-medium">
+                                    {data.todaySchedule.shift.start_time.substring(0, 5)} - {data.todaySchedule.shift.end_time.substring(0, 5)}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <span className="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700">Scheduled</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-4 bg-white border border-gray-200 p-4 rounded-xl shadow-sm border-l-4 border-l-gray-300">
+                        <div className="p-3 rounded-lg bg-gray-50">
+                            <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-900 leading-tight">No Shift Today</h3>
+                            <p className="text-sm text-gray-500 font-medium">Enjoy your day off!</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Attendance + Leave Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Attendance Summary */}
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/80 p-6">
+                    <div className="flex items-center justify-between mb-5">
+                        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                            <svg className="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Attendance This Month
+                        </h3>
+                        <span className={`text-lg font-bold ${attendanceRate >= 90 ? 'text-emerald-600' : attendanceRate >= 75 ? 'text-amber-600' : 'text-red-600'}`}>
+                            {attendanceRate}%
+                        </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-gray-100 overflow-hidden mb-4">
+                        <div
+                            className={`h-full rounded-full transition-all duration-700 ${attendanceRate >= 90 ? 'bg-emerald-500' : attendanceRate >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}
+                            style={{ width: `${attendanceRate}%` }}
+                        />
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                        <div className="text-center p-3 rounded-lg bg-emerald-50">
+                            <div className="text-xl font-bold text-emerald-700">{attendance.present}</div>
+                            <div className="text-[10px] font-semibold text-emerald-600 uppercase">Hadir</div>
+                        </div>
+                        <div className="text-center p-3 rounded-lg bg-amber-50">
+                            <div className="text-xl font-bold text-amber-700">{attendance.late}</div>
+                            <div className="text-[10px] font-semibold text-amber-600 uppercase">Telat</div>
+                        </div>
+                        <div className="text-center p-3 rounded-lg bg-red-50">
+                            <div className="text-xl font-bold text-red-700">{attendance.absent}</div>
+                            <div className="text-[10px] font-semibold text-red-600 uppercase">Absen</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Leave Status */}
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/80 p-6">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2 mb-5">
+                        <svg className="w-5 h-5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        Leave Status
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-amber-100">
+                                    <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-amber-700">{leaveStats.pending}</div>
+                                    <div className="text-xs font-medium text-amber-600">Pending</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-100">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-emerald-100">
+                                    <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-emerald-700">{leaveStats.approved}</div>
+                                    <div className="text-xs font-medium text-emerald-600">Approved (Year)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <Link href={route('leave.index')} className="mt-4 inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                        View Leave Requests →
+                    </Link>
+                </div>
+            </div>
+
+            {/* Task Overview */}
             <div>
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Task Overview</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     {statCards.map(card => (
-                        <div key={card.key} className="group relative overflow-hidden rounded-xl bg-white border border-gray-100 p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
-                            <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl ${card.gradient} opacity-5 rounded-bl-full group-hover:opacity-10 transition-opacity`} />
-                            <div className={`inline-flex rounded-lg bg-gradient-to-br ${card.gradient} p-2 text-white shadow-sm mb-3`}>
+                        <div key={card.key} className="group relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-100/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer">
+                            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${card.gradient} opacity-5 rounded-bl-full group-hover:opacity-10 transition-opacity`} />
+                            <div className={`inline-flex rounded-xl bg-gradient-to-br ${card.gradient} p-2.5 text-white shadow-sm mb-4`}>
                                 {card.icon}
                             </div>
                             <div className="text-2xl font-bold text-gray-800">{(summary as any)[card.key]}</div>
@@ -61,11 +191,11 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                 </div>
             </div>
 
-            {/* Two-column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Three-column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Upcoming Deadlines */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/80 overflow-hidden">
+                    <div className="px-6 py-5 border-b border-gray-50/50 flex items-center justify-between">
                         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                             <svg className="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             Upcoming Deadlines
@@ -109,8 +239,8 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                 </div>
 
                 {/* Performance Card */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="px-5 py-4 border-b border-gray-50">
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/80 overflow-hidden">
+                    <div className="px-6 py-5 border-b border-gray-50/50">
                         <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                             <svg className="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                             My Performance
@@ -159,6 +289,92 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                             <p className="mt-3 text-sm text-gray-400 text-center">No performance data available yet</p>
                         </div>
                     )}
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/80 overflow-hidden">
+                    <div className="px-6 py-5 border-b border-gray-50/50">
+                        <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                            <svg className="w-5 h-5 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            Recent Activity
+                        </h3>
+                    </div>
+                    <div className="divide-y divide-gray-50">
+                        {recentActivities.length > 0 ? recentActivities.map((activity: any) => {
+                            const actIcon = activityIcons[activity.action] || activityIcons.updated;
+                            return (
+                                <div key={activity.id} className="px-5 py-3.5 hover:bg-gray-50/50 transition-colors">
+                                    <div className="flex items-start gap-3">
+                                        <div className={`flex-shrink-0 rounded-full p-1.5 mt-0.5 ${actIcon.bg}`}>
+                                            {actIcon.icon}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm text-gray-700">
+                                                <span className="font-medium capitalize">{activity.action.replace('_', ' ')}</span>
+                                                {activity.task && (
+                                                    <span className="text-gray-500"> on <span className="font-medium text-gray-700">{activity.task.title}</span></span>
+                                                )}
+                                            </p>
+                                            {activity.description && (
+                                                <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{activity.description}</p>
+                                            )}
+                                            <p className="text-[10px] text-gray-300 mt-1">
+                                                {new Date(activity.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} · {new Date(activity.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        }) : (
+                            <div className="px-5 py-8 text-center">
+                                <svg className="mx-auto w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                <p className="mt-2 text-sm text-gray-400">No recent activity</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Task Distribution Chart */}
+            <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/80 overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-50/50">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
+                        Task Distribution
+                    </h3>
+                </div>
+                <div className="p-6 flex justify-center items-center h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie
+                                data={[
+                                    { name: 'To Do', value: summary.todo, color: '#64748b' },
+                                    { name: 'In Progress', value: summary.in_progress, color: '#3b82f6' },
+                                    { name: 'Review', value: summary.review, color: '#f59e0b' },
+                                    { name: 'Completed', value: summary.done, color: '#10b981' },
+                                ].filter(d => d.value > 0)}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={80}
+                                paddingAngle={5}
+                                dataKey="value"
+                            >
+                                {
+                                    [
+                                        { name: 'To Do', value: summary.todo, color: '#64748b' },
+                                        { name: 'In Progress', value: summary.in_progress, color: '#3b82f6' },
+                                        { name: 'Review', value: summary.review, color: '#f59e0b' },
+                                        { name: 'Completed', value: summary.done, color: '#10b981' },
+                                    ].filter(d => d.value > 0).map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))
+                                }
+                            </Pie>
+                            <Tooltip formatter={(value) => [`${value} tasks`, 'Count']} />
+                            <Legend />
+                        </PieChart>
+                    </ResponsiveContainer>
                 </div>
             </div>
         </div>

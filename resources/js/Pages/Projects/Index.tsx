@@ -14,14 +14,14 @@ export default function Index({ projects }: any) {
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h2 className="font-bold text-xl text-gray-900">Projects</h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Manage and monitor all projects</p>
+                <div className="flex items-center justify-between w-full gap-4">
+                    <div className="min-w-0">
+                        <h2 className="font-bold text-xl text-gray-900 truncate">Projects</h2>
+                        <p className="text-sm text-gray-500 mt-0.5 truncate">Manage and monitor all projects</p>
                     </div>
                     <Link 
                         href={route('projects.create')} 
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex-shrink-0"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                         New Project

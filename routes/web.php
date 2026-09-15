@@ -8,6 +8,10 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\LeaveRequestController;
+use App\Http\Controllers\OvertimeRequestController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\WorkScheduleController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\ProfileController;
@@ -62,6 +66,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/performance/{employee}/{period}', [PerformanceController::class, 'show'])->name('performance.show');
     Route::get('/performance/{employee}/{period}/assess', [PerformanceController::class, 'assess'])->name('performance.assess');
     Route::post('/performance/{employee}/{period}/assess', [PerformanceController::class, 'storeAssessment'])->name('performance.storeAssessment');
+
+    // Leave Routes
+    Route::get('/leave', [LeaveRequestController::class, 'index'])->name('leave.index');
+    Route::post('/leave', [LeaveRequestController::class, 'store'])->name('leave.store');
+    Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
+        Route::patch('/leave/{leaveRequest}/status', [LeaveRequestController::class, 'updateStatus'])->name('leave.status');
+    });
+
+    // Overtime Routes
+    Route::get('/overtime', [OvertimeRequestController::class, 'index'])->name('overtime.index');
+    Route::post('/overtime', [OvertimeRequestController::class, 'store'])->name('overtime.store');
+    Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
+        Route::patch('/overtime/{overtimeRequest}/status', [OvertimeRequestController::class, 'updateStatus'])->name('overtime.status');
+    });
+
+    // Shift & Schedule Routes
+    Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
+        Route::resource('/shifts', ShiftController::class)->except(['create', 'show', 'edit']);
+        Route::get('/schedules', [WorkScheduleController::class, 'index'])->name('schedules.index');
+        Route::post('/schedules', [WorkScheduleController::class, 'store'])->name('schedules.store');
+        Route::delete('/schedules/{schedule}', [WorkScheduleController::class, 'destroy'])->name('schedules.destroy');
+    });
 
     // Attendance Routes
     Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('attendance.my');

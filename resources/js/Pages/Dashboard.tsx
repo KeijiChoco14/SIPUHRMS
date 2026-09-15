@@ -13,6 +13,15 @@ function getGreeting(): string {
     return 'Selamat Malam';
 }
 
+function getTodayDate(): string {
+    return new Date().toLocaleDateString('id-ID', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
+}
+
 export default function Dashboard({ role, employeeData, supervisorData, hrData, managerData, announcements }: any) {
     const renderDashboard = () => {
         if (role === 'Staff / Employee') {
@@ -42,7 +51,7 @@ export default function Dashboard({ role, employeeData, supervisorData, hrData, 
                         {getGreeting()} 👋
                     </h2>
                     <p className="text-sm text-gray-500 mt-0.5">
-                        Here's what's happening today
+                        {getTodayDate()}
                     </p>
                 </div>
             }

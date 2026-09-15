@@ -3,6 +3,10 @@ export interface User {
     name: string;
     email: string;
     email_verified_at?: string;
+    phone_number?: string;
+    profile_photo_url?: string;
+    profile_photo_path?: string;
+    roles?: any[];
 }
 
 export type PageProps<
