@@ -10,8 +10,13 @@ use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
-return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(
+$app = Application::configure(basePath: dirname(__DIR__));
+
+if (isset($_ENV['APP_STORAGE'])) {
+    $app->useStoragePath($_ENV['APP_STORAGE']);
+}
+
+return $app->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
