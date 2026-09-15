@@ -10,13 +10,8 @@ use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
-$app = Application::configure(basePath: dirname(__DIR__));
-
-if (isset($_ENV['APP_STORAGE'])) {
-    $app->useStoragePath($_ENV['APP_STORAGE']);
-}
-
-return $app->withRouting(
+$app = Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
@@ -38,3 +33,9 @@ return $app->withRouting(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
     })->create();
+
+if (isset($_ENV['APP_STORAGE'])) {
+    $app->useStoragePath($_ENV['APP_STORAGE']);
+}
+
+return $app;
