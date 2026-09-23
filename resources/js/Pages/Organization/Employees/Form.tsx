@@ -94,7 +94,7 @@ export default function EmployeeForm({ auth, employee, currentRole, departments,
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700">Employee Number <span className="text-red-500">*</span></label>
-                                        <input type="text" value={data.employee_number} onChange={e => setData('employee_number', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" required />
+                                        <input type="text" value={data.employee_number} readOnly className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100 cursor-not-allowed text-gray-600" required />
                                         {errors.employee_number && <p className="text-red-500 text-xs mt-1">{errors.employee_number}</p>}
                                     </div>
                                     <div>
