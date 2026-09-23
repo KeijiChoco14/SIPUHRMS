@@ -3,13 +3,14 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { PageProps } from '@/types';
 
-export default function EmployeeForm({ auth, employee, currentRole, departments, positions, roles, supervisors }: PageProps<{
+export default function EmployeeForm({ auth, employee, currentRole, departments, positions, roles, supervisors, suggestedEmployeeNumber }: PageProps<{
     employee?: any,
     currentRole?: string,
     departments: any[],
     positions: any[],
     roles: string[],
     supervisors: { id: number, name: string }[],
+    suggestedEmployeeNumber?: string,
 }>) {
     const isEditing = !!employee;
 
@@ -17,7 +18,7 @@ export default function EmployeeForm({ auth, employee, currentRole, departments,
         name: employee?.user?.name || '',
         email: employee?.user?.email || '',
         password: '',
-        employee_number: employee?.employee_number || '',
+        employee_number: employee?.employee_number || suggestedEmployeeNumber || '',
         phone_number: employee?.phone_number || '',
         department_id: employee?.department_id?.toString() || '',
         position_id: employee?.position_id?.toString() || '',

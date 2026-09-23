@@ -51,7 +51,19 @@ class EmployeeController extends Controller
      */
     public function create()
     {
+        $latestEmployee = Employee::orderBy('id', 'desc')->first();
+        $nextNumber = 1;
+        
+        if ($latestEmployee && preg_match('/-(\d+)$/', $latestEmployee->employee_number, $matches)) {
+            $nextNumber = intval($matches[1]) + 1;
+        } else {
+            $nextNumber = (Employee::max('id') ?? 0) + 1;
+        }
+        
+        $suggestedEmployeeNumber = 'SBH-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
         return Inertia::render('Organization/Employees/Form', [
+            'suggestedEmployeeNumber' => $suggestedEmployeeNumber,
             'departments' => Department::all(),
             'positions' => Position::all(),
             'roles' => Role::pluck('name'),
