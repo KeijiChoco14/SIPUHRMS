@@ -14,6 +14,7 @@ export default function Show({
     employees,
     projectStatuses,
     departments,
+    canEdit,
 }: PageProps<{
     project: any;
     statuses: any[];
@@ -21,6 +22,7 @@ export default function Show({
     employees: any[];
     projectStatuses?: any[];
     departments?: any[];
+    canEdit?: boolean;
 }>) {
     const [showTaskModal, setShowTaskModal] = useState(false);
     const [showEditProjectModal, setShowEditProjectModal] = useState(false);
@@ -120,6 +122,12 @@ export default function Show({
     const pStyle = projectStatusStyle(project.status);
     const isOverdue = project.deadline && new Date(project.deadline) < new Date() && project.status !== 'Completed';
 
+    const isProjectCreator = canEdit ?? Boolean(
+        project.created_by === auth.user?.id 
+        || (project.owner_id && auth.user?.employee?.id === project.owner_id) 
+        || auth.user?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name))
+    );
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -138,16 +146,18 @@ export default function Show({
                     </div>
                     
                     <div className="flex items-center gap-2 shrink-0">
-                        <button
-                            type="button"
-                            onClick={() => setShowEditProjectModal(true)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                        >
-                            <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            Edit Project
-                        </button>
+                        {isProjectCreator && (
+                            <button
+                                type="button"
+                                onClick={() => setShowEditProjectModal(true)}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                            >
+                                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Edit Project
+                            </button>
+                        )}
                         <button
                             type="button"
                             onClick={() => setShowTaskModal(true)}
@@ -316,6 +326,7 @@ export default function Show({
                 <TaskDetailModal
                     task={selectedTask}
                     currentUser={auth.user}
+                    project={project}
                     onClose={() => setSelectedTask(null)}
                     employees={employees}
                     statuses={statuses}
@@ -324,14 +335,16 @@ export default function Show({
             )}
 
             {/* Edit Project Modal */}
-            <EditProjectModal
-                show={showEditProjectModal}
-                onClose={() => setShowEditProjectModal(false)}
-                project={project}
-                departments={departments || []}
-                employees={employees}
-                projectStatuses={projectStatuses}
-            />
+            {isProjectCreator && (
+                <EditProjectModal
+                    show={showEditProjectModal}
+                    onClose={() => setShowEditProjectModal(false)}
+                    project={project}
+                    departments={departments || []}
+                    employees={employees}
+                    projectStatuses={projectStatuses}
+                />
+            )}
 
             {/* Task Creation Modal */}
             {showTaskModal && (

@@ -6,6 +6,7 @@ interface TaskDetailModalProps {
     task: any;
     onClose: () => void;
     currentUser: any;
+    project?: any;
     employees?: any[];
     statuses?: any[];
     priorities?: any[];
@@ -21,6 +22,7 @@ export default function TaskDetailModal({
     task,
     onClose,
     currentUser,
+    project,
     employees = [],
     statuses = [],
     priorities = [],
@@ -146,6 +148,14 @@ export default function TaskDetailModal({
     const isAssignee = task.assignees?.some((a: any) => a.user?.id === currentUser?.id);
     const hasAcknowledged = task.assignees?.find((a: any) => a.user?.id === currentUser?.id)?.pivot?.acknowledged_at !== null;
 
+    const canEditTask = Boolean(
+        (task?.created_by && task.created_by === currentUser?.id) ||
+        (task?.project && task.project.created_by === currentUser?.id) ||
+        (project && project.created_by === currentUser?.id) ||
+        (project?.owner_id && currentUser?.employee?.id === project.owner_id) ||
+        currentUser?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name))
+    );
+
     const availableStatuses = statuses.length > 0
         ? statuses.map(s => typeof s === 'string' ? s : s.value || s.name)
         : ['To Do', 'In Progress', 'Review', 'Done'];
@@ -222,7 +232,7 @@ export default function TaskDetailModal({
 
                         {/* Action buttons in header */}
                         <div className="flex items-center gap-2 shrink-0">
-                            {!isEditing ? (
+                            {canEditTask && (!isEditing ? (
                                 <button
                                     type="button"
                                     onClick={() => setIsEditing(true)}
@@ -243,7 +253,7 @@ export default function TaskDetailModal({
                                 >
                                     Batal Edit
                                 </button>
-                            )}
+                            ))}
                             <button
                                 onClick={onClose}
                                 className="text-gray-400 hover:text-gray-600 rounded-lg p-1 hover:bg-gray-100 transition-colors"
@@ -436,14 +446,16 @@ export default function TaskDetailModal({
                                         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                                             <div className="flex items-center justify-between mb-3">
                                                 <h4 className="font-semibold text-gray-900 text-sm">Orang yang Ditugaskan (Assignees)</h4>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setIsEditing(true)}
-                                                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-full border border-indigo-200 inline-flex items-center gap-1 transition-colors"
-                                                >
-                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                                                    Tambah / Kelola Assignee
-                                                </button>
+                                                {canEditTask && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsEditing(true)}
+                                                        className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-full border border-indigo-200 inline-flex items-center gap-1 transition-colors"
+                                                    >
+                                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                                        Tambah / Kelola Assignee
+                                                    </button>
+                                                )}
                                             </div>
 
                                             <div className="flex flex-wrap gap-2">
@@ -493,16 +505,18 @@ export default function TaskDetailModal({
                                         )}
 
                                         {/* Bottom Action Cards */}
-                                        <div className="flex justify-end gap-2 pt-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsEditing(true)}
-                                                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center gap-1.5"
-                                            >
-                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                                Edit Informasi & Assignee
-                                            </button>
-                                        </div>
+                                        {canEditTask && (
+                                            <div className="flex justify-end gap-2 pt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsEditing(true)}
+                                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center gap-1.5"
+                                                >
+                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                                    Edit Informasi & Assignee
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 

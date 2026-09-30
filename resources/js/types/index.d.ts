@@ -7,6 +7,7 @@ export interface User {
     profile_photo_url?: string;
     profile_photo_path?: string;
     roles?: any[];
+    employee?: any;
 }
 
 export type PageProps<

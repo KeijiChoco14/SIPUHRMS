@@ -14,11 +14,11 @@ class TaskController extends Controller
     public function index()
     {
         $user = Auth::user();
-        if (! $user->employee) {
+        if (! $user->employee && ! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
             abort(403, 'Only employees can have tasks.');
         }
 
-        $tasks = Task::with([
+        $query = Task::with([
             'project', 
             'assignees.user', 
             'assignees.department', 
@@ -27,12 +27,20 @@ class TaskController extends Controller
             'attachments.employee.user', 
             'checklists', 
             'activities.employee.user'
-        ])
-            ->whereHas('assignees', function ($q) use ($user) {
-                $q->where('employee_id', $user->employee->id);
-            })
-            ->orderBy('deadline', 'asc')
-            ->get();
+        ]);
+
+        if (! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+            $query->where(function ($q) use ($user) {
+                if ($user->employee) {
+                    $q->whereHas('assignees', function ($sq) use ($user) {
+                        $sq->where('employee_id', $user->employee->id);
+                    });
+                }
+                $q->orWhere('created_by', $user->id);
+            });
+        }
+
+        $tasks = $query->orderBy('deadline', 'asc')->get();
 
         return Inertia::render('Tasks/Index', [
             'tasks' => $tasks,
@@ -45,11 +53,11 @@ class TaskController extends Controller
     public function kanban()
     {
         $user = Auth::user();
-        if (! $user->employee) {
+        if (! $user->employee && ! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
             abort(403, 'Only employees can have tasks.');
         }
 
-        $tasks = Task::with([
+        $query = Task::with([
             'project', 
             'assignees.user', 
             'assignees.department', 
@@ -58,11 +66,20 @@ class TaskController extends Controller
             'attachments.employee.user', 
             'checklists', 
             'activities.employee.user'
-        ])
-            ->whereHas('assignees', function ($q) use ($user) {
-                $q->where('employee_id', $user->employee->id);
-            })
-            ->get();
+        ]);
+
+        if (! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+            $query->where(function ($q) use ($user) {
+                if ($user->employee) {
+                    $q->whereHas('assignees', function ($sq) use ($user) {
+                        $sq->where('employee_id', $user->employee->id);
+                    });
+                }
+                $q->orWhere('created_by', $user->id);
+            });
+        }
+
+        $tasks = $query->get();
 
         return Inertia::render('Tasks/Kanban', [
             'tasks' => $tasks,
@@ -107,6 +124,26 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
+        $user = Auth::user();
+        $isCreator = $task->created_by === $user->id 
+            || ($task->project && $task->project->created_by === $user->id)
+            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+        
+        $isAssignee = $user->employee && $task->assignees()->where('employee_id', $user->employee->id)->exists();
+
+        // Check if this is exclusively a status change (e.g. from Kanban drag/drop or status select)
+        $isOnlyStatusUpdate = $request->has('status') && !$request->hasAny(['title', 'description', 'priority', 'deadline', 'assignees']);
+
+        if ($isOnlyStatusUpdate) {
+            if (!$isCreator && !$isAssignee) {
+                abort(403, 'Anda tidak memiliki akses untuk mengubah status task ini.');
+            }
+        } else {
+            if (!$isCreator) {
+                abort(403, 'Hanya pembuat task yang dapat mengubah informasi atau penugasan task ini.');
+            }
+        }
+
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -161,6 +198,15 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
+        $user = Auth::user();
+        $isCreator = $task->created_by === $user->id 
+            || ($task->project && $task->project->created_by === $user->id)
+            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+
+        if (!$isCreator) {
+            abort(403, 'Hanya pembuat task yang dapat menghapus task ini.');
+        }
+
         $task->delete();
 
         return back()->with('success', 'Task deleted successfully.');

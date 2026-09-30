@@ -118,13 +118,26 @@ export default function Index({ auth, tasks, employees, statuses, priorities }: 
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setSelectedTask(task)}
-                                                                className="text-xs font-semibold text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-md transition-colors"
-                                                            >
-                                                                Detail & Edit
-                                                            </button>
+                                                            {(() => {
+                                                                const canEditThisTask = Boolean(
+                                                                    (task.created_by && task.created_by === auth.user?.id) ||
+                                                                    (task.project && task.project.created_by === auth.user?.id) ||
+                                                                    auth.user?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name))
+                                                                );
+                                                                return (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setSelectedTask(task)}
+                                                                        className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${
+                                                                            canEditThisTask 
+                                                                                ? 'text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100' 
+                                                                                : 'text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200'
+                                                                        }`}
+                                                                    >
+                                                                        {canEditThisTask ? 'Detail & Edit' : 'Detail'}
+                                                                    </button>
+                                                                );
+                                                            })()}
                                                             {task.project_id ? (
                                                                 <Link href={route('projects.show', task.project_id)} className="text-xs text-gray-400 hover:text-gray-600">Board</Link>
                                                             ) : (

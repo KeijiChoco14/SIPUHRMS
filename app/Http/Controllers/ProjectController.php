@@ -96,8 +96,14 @@ class ProjectController extends Controller
             'tasks.activities.employee.user',
         ]);
 
+        $user = Auth::user();
+        $canEdit = $project->created_by === $user->id 
+            || ($project->owner_id && $user->employee && $project->owner_id === $user->employee->id)
+            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+
         return Inertia::render('Projects/Show', [
             'project' => $project,
+            'canEdit' => $canEdit,
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
             'projectStatuses' => ProjectStatus::cases(),
@@ -106,9 +112,21 @@ class ProjectController extends Controller
         ]);
     }
 
+    private function checkEditAccess(Project $project)
+    {
+        $user = Auth::user();
+        $isCreator = $project->created_by === $user->id 
+            || ($project->owner_id && $user->employee && $project->owner_id === $user->employee->id)
+            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+
+        if (!$isCreator) {
+            abort(403, 'Hanya pembuat project yang dapat mengubah atau menghapus project ini.');
+        }
+    }
+
     public function edit(Project $project)
     {
-        $this->checkAccess($project);
+        $this->checkEditAccess($project);
 
         return Inertia::render('Projects/Edit', [
             'project' => $project->load(['owner.user', 'department']),
@@ -120,7 +138,7 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        $this->checkAccess($project);
+        $this->checkEditAccess($project);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -139,7 +157,7 @@ class ProjectController extends Controller
 
     public function destroy(Project $project)
     {
-        $this->checkAccess($project);
+        $this->checkEditAccess($project);
 
         $project->delete();
 
