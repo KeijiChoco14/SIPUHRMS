@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'SIPU Management') }}</title>
         <link rel="icon" type="image/jpeg" href="/logo/logoswissbell.jpg">
         <link rel="manifest" href="/manifest.json">
         <meta name="theme-color" content="#4f46e5">

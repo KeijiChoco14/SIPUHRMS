@@ -29,6 +29,26 @@ class TaskObserver
                 'priority' => $task->priority,
             ]);
         }
+
+        if ($task->isDirty('title')) {
+            $this->logActivity($task, 'title_changed', 'Task title updated', [
+                'title' => $task->getOriginal('title'),
+            ], [
+                'title' => $task->title,
+            ]);
+        }
+
+        if ($task->isDirty('deadline')) {
+            $this->logActivity($task, 'deadline_changed', 'Task deadline updated', [
+                'deadline' => $task->getOriginal('deadline'),
+            ], [
+                'deadline' => $task->deadline?->format('Y-m-d'),
+            ]);
+        }
+
+        if ($task->isDirty('description')) {
+            $this->logActivity($task, 'description_changed', 'Task description updated');
+        }
     }
 
     private function logActivity(Task $task, string $action, string $description, ?array $old = null, ?array $new = null)

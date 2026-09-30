@@ -88,9 +88,22 @@ export default function Index({ projects }: any) {
                                     ) : (
                                         <span className="text-xs text-gray-300">No deadline</span>
                                     )}
-                                    <span className="text-xs text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                                        View Board →
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <Link
+                                            href={route('projects.edit', project.id)}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="text-xs font-semibold text-gray-500 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 px-2.5 py-1 rounded-md border border-gray-200 hover:border-indigo-200 transition-colors inline-flex items-center gap-1"
+                                            title="Edit Project"
+                                        >
+                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            Edit
+                                        </Link>
+                                        <span className="text-xs text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                                            Board →
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </Link>

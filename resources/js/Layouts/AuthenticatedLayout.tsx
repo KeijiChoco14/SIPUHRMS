@@ -119,8 +119,8 @@ export default function Authenticated({
                             <ApplicationLogo className="h-full w-full object-cover" />
                         </div>
                         <div className="ml-3">
-                            <span className="font-bold text-white text-sm tracking-tight">Swiss-Belinn SKA Pekanbaru</span>
-                            <span className="block text-[10px] text-indigo-200 leading-none">Internal Management</span>
+                            <span className="font-bold text-white text-sm tracking-tight">SIPU Management</span>
+                            <span className="block text-[10px] text-indigo-200 leading-none">Swiss-Belinn SKA Pekanbaru</span>
                         </div>
                     </Link>
                 </div>
@@ -193,7 +193,7 @@ export default function Authenticated({
                                 <div className="h-7 w-7 rounded-lg bg-indigo-600 flex items-center justify-center overflow-hidden">
                                     <ApplicationLogo className="h-full w-full object-cover" />
                                 </div>
-                                <span className="ml-2 font-bold text-gray-800 text-sm">Swiss-Belinn SKA Pekanbaru</span>
+                                <span className="ml-2 font-bold text-gray-800 text-sm">SIPU Management</span>
                             </Link>
                         </div>
 

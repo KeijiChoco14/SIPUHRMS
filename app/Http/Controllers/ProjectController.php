@@ -54,8 +54,9 @@ class ProjectController extends Controller
     public function create()
     {
         return Inertia::render('Projects/Create', [
-            'employees' => Employee::with('user')->get(),
+            'employees' => Employee::with(['user', 'department'])->get(),
             'departments' => Department::all(),
+            'projectStatuses' => ProjectStatus::cases(),
         ]);
     }
 
@@ -67,15 +68,16 @@ class ProjectController extends Controller
             'owner_id' => 'nullable|exists:employees,id',
             'department_id' => 'nullable|exists:departments,id',
             'start_date' => 'nullable|date',
-            'deadline' => 'nullable|date|after_or_equal:start_date',
+            'deadline' => 'nullable|date' . ($request->filled('start_date') ? '|after_or_equal:start_date' : ''),
+            'status' => 'nullable|string',
         ]);
 
         $validated['created_by'] = Auth::id();
-        $validated['status'] = ProjectStatus::Planning->value;
+        $validated['status'] = $validated['status'] ?? ProjectStatus::Planning->value;
 
-        Project::create($validated);
+        $project = Project::create($validated);
 
-        return redirect()->route('projects.index')->with('success', 'Project created successfully.');
+        return redirect()->route('projects.show', $project)->with('success', 'Project created successfully.');
     }
 
     public function show(Project $project)
@@ -83,10 +85,11 @@ class ProjectController extends Controller
         $this->checkAccess($project);
 
         $project->load([
-            'owner',
+            'owner.user',
             'department',
-            'members',
+            'members.user',
             'tasks.assignees.user',
+            'tasks.assignees.department',
             'tasks.comments.employee.user',
             'tasks.attachments.employee.user',
             'tasks.checklists',
@@ -97,7 +100,9 @@ class ProjectController extends Controller
             'project' => $project,
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
-            'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
+            'projectStatuses' => ProjectStatus::cases(),
+            'departments' => Department::all(),
+            'employees' => Employee::with(['user', 'department'])->get(),
         ]);
     }
 
@@ -106,9 +111,10 @@ class ProjectController extends Controller
         $this->checkAccess($project);
 
         return Inertia::render('Projects/Edit', [
-            'project' => $project,
-            'employees' => Employee::with('user')->get(),
+            'project' => $project->load(['owner.user', 'department']),
+            'employees' => Employee::with(['user', 'department'])->get(),
             'departments' => Department::all(),
+            'projectStatuses' => ProjectStatus::cases(),
         ]);
     }
 
@@ -122,7 +128,7 @@ class ProjectController extends Controller
             'owner_id' => 'nullable|exists:employees,id',
             'department_id' => 'nullable|exists:departments,id',
             'start_date' => 'nullable|date',
-            'deadline' => 'nullable|date|after_or_equal:start_date',
+            'deadline' => 'nullable|date' . ($request->filled('start_date') ? '|after_or_equal:start_date' : ''),
             'status' => 'required|string',
         ]);
 

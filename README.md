@@ -1,6 +1,6 @@
-# Swiss-Belinn HR Management System (HRMS)
+# SIPU Management
 
-A comprehensive, intuitive, and modern Human Resources Management System designed specifically for hospitality excellence. This platform streamlines task assignments, attendance tracking, payroll, and performance assessments in one unified workspace.
+A comprehensive, intuitive, and modern internal office management system designed for Swiss-Belinn SKA Pekanbaru. This platform streamlines project and task assignments, attendance tracking, payroll, and performance assessments in one unified workspace.
 
 ## 🚀 Features
 

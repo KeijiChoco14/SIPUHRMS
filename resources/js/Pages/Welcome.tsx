@@ -8,7 +8,7 @@ export default function Welcome({
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
     return (
         <>
-            <Head title="Welcome - Swiss-Belinn HR System" />
+            <Head title="Welcome - SIPU Management" />
             <div className="min-h-screen bg-gray-50 flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
                 
                 {/* Navbar */}
@@ -19,7 +19,7 @@ export default function Welcome({
                                 <div className="h-10 w-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-200">
                                     SB
                                 </div>
-                                <span className="font-bold text-xl tracking-tight text-gray-900">Swiss-Belinn HRMS</span>
+                                <span className="font-bold text-xl tracking-tight text-gray-900">SIPU Management</span>
                             </a>
                         </div>
                         <div className="flex flex-1 justify-end gap-x-4">
@@ -65,10 +65,10 @@ export default function Welcome({
                                 </div>
                             </div>
                             <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                                Empower your workforce with Swiss-Belinn HRMS
+                                Empower your workforce with SIPU Management
                             </h1>
                             <p className="mt-6 text-lg leading-8 text-gray-600">
-                                A comprehensive, intuitive, and modern human resources management system designed specifically for hospitality excellence. Streamline task assignments, attendance tracking, and performance assessments in one place.
+                                Internal office management system designed for Swiss-Belinn SKA Pekanbaru. Streamline task assignments, attendance tracking, and performance assessments in one place.
                             </p>
                             <div className="mt-10 flex items-center justify-center gap-x-6">
                                 {auth.user ? (
@@ -160,7 +160,7 @@ export default function Welcome({
                     <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
                         <div className="mt-8 md:order-1 md:mt-0 flex justify-center md:justify-start gap-4">
                             <p className="text-center text-xs leading-5 text-gray-500">
-                                &copy; {new Date().getFullYear()} Swiss-Belinn Hospitality. All rights reserved.
+                                &copy; {new Date().getFullYear()} Swiss-Belinn SKA Pekanbaru - SIPU Management. All rights reserved.
                             </p>
                             <span className="text-gray-300">|</span>
                             <p className="text-center text-xs leading-5 text-gray-400">

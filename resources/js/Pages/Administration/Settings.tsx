@@ -21,7 +21,7 @@ export default function Settings({ auth }: PageProps) {
                                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">Application Name</dt>
-                                        <dd className="mt-1 text-sm text-gray-900">Internal Management System</dd>
+                                        <dd className="mt-1 text-sm text-gray-900">SIPU Management</dd>
                                     </div>
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">Organization</dt>

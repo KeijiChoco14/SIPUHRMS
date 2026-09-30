@@ -217,6 +217,9 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees }:
                     task={selectedTask} 
                     currentUser={auth.user} 
                     onClose={() => setSelectedTask(null)} 
+                    employees={employees}
+                    statuses={statuses}
+                    priorities={priorities}
                 />
             )}
 

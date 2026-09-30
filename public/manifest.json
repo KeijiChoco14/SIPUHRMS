@@ -1,7 +1,7 @@
 {
-  "name": "HRMS Swiss-Belinn",
-  "short_name": "HRMS",
-  "description": "Swiss-Belinn SKA Pekanbaru Internal Management System",
+  "name": "SIPU Management",
+  "short_name": "SIPU Management",
+  "description": "SIPU Management - Internal Office Swiss-Belinn SKA Pekanbaru",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8fafc",

@@ -21,6 +21,7 @@ class TaskController extends Controller
         $tasks = Task::with([
             'project', 
             'assignees.user', 
+            'assignees.department', 
             'creator',
             'comments.employee.user', 
             'attachments.employee.user', 
@@ -51,6 +52,7 @@ class TaskController extends Controller
         $tasks = Task::with([
             'project', 
             'assignees.user', 
+            'assignees.department', 
             'creator', 
             'comments.employee.user', 
             'attachments.employee.user', 
@@ -85,7 +87,7 @@ class TaskController extends Controller
 
         $validated['created_by'] = Auth::id();
 
-        $task = Task::create($validated);
+        $task = Task::create(collect($validated)->except('assignees')->toArray());
 
         if (! empty($validated['assignees'])) {
             $task->assignees()->sync($validated['assignees']);
@@ -115,21 +117,42 @@ class TaskController extends Controller
             'assignees.*' => 'exists:employees,id',
         ]);
 
-        $task->update($validated);
+        $taskData = collect($validated)->except('assignees')->toArray();
+        if (!empty($taskData)) {
+            $task->update($taskData);
+        }
 
         if ($request->has('assignees')) {
             $changes = $task->assignees()->sync($validated['assignees'] ?? []);
 
             if (!empty($changes['attached'])) {
-                $newUsers = \App\Models\Employee::whereIn('id', $changes['attached'])
+                $newEmployees = \App\Models\Employee::whereIn('id', $changes['attached'])
                     ->with('user')
-                    ->get()
-                    ->pluck('user')
-                    ->filter();
+                    ->get();
                 
+                $names = $newEmployees->map(fn($e) => $e->user?->name ?? $e->employee_number)->implode(', ');
+                $task->activities()->create([
+                    'employee_id' => Auth::user()?->employee?->id,
+                    'action' => 'assignee_added',
+                    'description' => "Added assignee(s): {$names}",
+                ]);
+
+                $newUsers = $newEmployees->pluck('user')->filter();
                 if ($newUsers->isNotEmpty()) {
                     \Illuminate\Support\Facades\Notification::send($newUsers, new \App\Notifications\TaskAssigned($task));
                 }
+            }
+
+            if (!empty($changes['detached'])) {
+                $removedEmployees = \App\Models\Employee::whereIn('id', $changes['detached'])
+                    ->with('user')
+                    ->get();
+                $names = $removedEmployees->map(fn($e) => $e->user?->name ?? $e->employee_number)->implode(', ');
+                $task->activities()->create([
+                    'employee_id' => Auth::user()?->employee?->id,
+                    'action' => 'assignee_removed',
+                    'description' => "Removed assignee(s): {$names}",
+                ]);
             }
         }
 
