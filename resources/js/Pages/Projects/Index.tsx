@@ -31,6 +31,14 @@ export default function Index({ projects, auth, filters }: any) {
         }
     };
 
+    const handleDelete = (e: React.MouseEvent, projectId: number, projectName: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (confirm(`Apakah Anda yakin ingin menghapus project "${projectName}"? Semua task di dalamnya akan terhapus secara permanen.`)) {
+            router.delete(route('projects.destroy', projectId), { preserveScroll: true });
+        }
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -236,6 +244,18 @@ export default function Index({ projects, auth, filters }: any) {
                                                     </svg>
                                                     Edit
                                                 </Link>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => handleDelete(e, project.id, project.name)}
+                                                    className="text-xs font-semibold text-red-600 hover:text-red-700 bg-gray-50 hover:bg-red-50 px-2 py-1 rounded-md border border-gray-200 hover:border-red-200 transition-colors inline-flex items-center gap-1"
+                                                    title="Hapus Project Permanen"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    Hapus
+                                                </button>
                                             </>
                                         )}
                                         <span className="text-xs text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">

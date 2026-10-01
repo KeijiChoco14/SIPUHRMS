@@ -179,9 +179,10 @@ class ProjectController extends Controller
     {
         $this->checkEditAccess($project);
 
+        $name = $project->name;
         $project->delete();
 
-        return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
+        return redirect()->route('projects.index')->with('success', "Project '{$name}' berhasil dihapus.");
     }
 
     public function archive(Project $project)

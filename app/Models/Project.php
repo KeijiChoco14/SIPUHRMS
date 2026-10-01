@@ -30,6 +30,16 @@ class Project extends Model
         'deadline' => 'date',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Project $project) {
+            foreach ($project->tasks as $task) {
+                $task->delete();
+            }
+            $project->members()->detach();
+        });
+    }
+
     protected function progress(): Attribute
     {
         return Attribute::make(

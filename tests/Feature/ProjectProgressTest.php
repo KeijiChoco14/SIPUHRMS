@@ -141,4 +141,31 @@ class ProjectProgressTest extends TestCase
                 ->where('projects.data.0.completed_tasks', 1)
         );
     }
+
+    public function test_authorized_user_can_delete_project_and_its_tasks()
+    {
+        $role = Role::create(['name' => 'Super Admin']);
+        $user = User::factory()->create();
+        $user->assignRole($role);
+
+        $project = Project::create([
+            'name' => 'Project to Delete',
+            'status' => ProjectStatus::Active->value,
+            'created_by' => $user->id,
+        ]);
+
+        $task = Task::create([
+            'title' => 'Task under project',
+            'project_id' => $project->id,
+            'created_by' => $user->id,
+            'priority' => TaskPriority::Normal->value,
+            'status' => TaskStatus::ToDo->value,
+        ]);
+
+        $response = $this->actingAs($user)->delete(route('projects.destroy', $project->id));
+
+        $response->assertRedirect(route('projects.index'));
+        $this->assertDatabaseMissing('projects', ['id' => $project->id]);
+        $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+    }
 }

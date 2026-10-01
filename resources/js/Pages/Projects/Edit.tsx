@@ -1,6 +1,6 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, router } from '@inertiajs/react';
 import { PageProps } from '@/types';
 
 interface EditProps extends PageProps {
@@ -42,6 +42,12 @@ export default function Edit({
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         put(route('projects.update', project.id));
+    };
+
+    const handleDelete = () => {
+        if (confirm(`Apakah Anda yakin ingin menghapus project "${project.name}"? Semua task di dalamnya akan terhapus secara permanen.`)) {
+            router.delete(route('projects.destroy', project.id));
+        }
     };
 
     return (
@@ -183,20 +189,32 @@ export default function Edit({
                                 {errors.description && <div className="text-red-500 text-xs mt-1">{errors.description}</div>}
                             </div>
 
-                            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                                <Link
-                                    href={route('projects.show', project.id)}
-                                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                                >
-                                    Batal
-                                </Link>
+                            <div className="flex items-center justify-between gap-3 pt-4 border-t border-gray-100">
                                 <button
-                                    type="submit"
-                                    disabled={processing}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg text-sm shadow-sm transition-colors disabled:opacity-50"
+                                    type="button"
+                                    onClick={handleDelete}
+                                    className="text-sm text-red-600 hover:text-red-800 font-semibold px-4 py-2 rounded-lg border border-red-200 hover:bg-red-50 transition-colors inline-flex items-center gap-1.5"
                                 >
-                                    {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                    <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Hapus Project
                                 </button>
+                                <div className="flex items-center gap-3">
+                                    <Link
+                                        href={route('projects.show', project.id)}
+                                        className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                    >
+                                        Batal
+                                    </Link>
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg text-sm shadow-sm transition-colors disabled:opacity-50"
+                                    >
+                                        {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
