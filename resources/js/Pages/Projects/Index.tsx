@@ -126,12 +126,13 @@ export default function Index({ projects, auth, filters }: any) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-2">
                 {projects.data.map((project: any) => {
-                    const status = statusConfig[project.status] || statusConfig['Planning'];
                     const progressPercent = project.total_tasks > 0 
                         ? Math.round(((project.completed_tasks || 0) / project.total_tasks) * 100) 
                         : (project.progress || 0);
-                    const progressColor = progressPercent >= 75 ? 'bg-emerald-500' : progressPercent >= 40 ? 'bg-blue-500' : progressPercent >= 20 ? 'bg-amber-500' : 'bg-gray-300';
-                    const isOverdue = project.deadline && new Date(project.deadline) < new Date() && project.status !== 'Completed' && project.status !== 'Archived';
+                    const isCompleted = project.status === 'Completed' || (project.total_tasks > 0 && (project.completed_tasks || 0) >= project.total_tasks) || progressPercent >= 100;
+                    const status = statusConfig[isCompleted && project.status !== 'Archived' ? 'Completed' : project.status] || statusConfig['Planning'];
+                    const progressColor = isCompleted ? 'bg-emerald-500' : progressPercent >= 75 ? 'bg-emerald-500' : progressPercent >= 40 ? 'bg-blue-500' : progressPercent >= 20 ? 'bg-amber-500' : 'bg-gray-300';
+                    const isOverdue = project.deadline && new Date(project.deadline) < new Date() && !isCompleted && project.status !== 'Archived' && project.status !== 'Cancelled';
                     const isProjectCreator = project.created_by === auth?.user?.id 
                         || (project.owner_id && auth?.user?.employee?.id === project.owner_id) 
                         || auth?.user?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name));
@@ -186,10 +187,11 @@ export default function Index({ projects, auth, filters }: any) {
                                 {/* Footer */}
                                 <div className="flex items-center justify-between pt-3 border-t border-gray-50 gap-2">
                                     {project.deadline ? (
-                                        <span className={`text-xs font-medium flex items-center gap-1 ${isOverdue ? 'text-red-500' : 'text-gray-400'}`}>
+                                        <span className={`text-xs font-medium flex items-center gap-1 ${isOverdue ? 'text-red-500' : isCompleted ? 'text-emerald-600 font-semibold' : 'text-gray-400'}`}>
                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                             {new Date(project.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             {isOverdue && <span className="ml-1 text-red-500 font-semibold">• Overdue</span>}
+                                            {isCompleted && <span className="ml-1 text-emerald-600 font-semibold">• Selesai</span>}
                                         </span>
                                     ) : (
                                         <span className="text-xs text-gray-300">No deadline</span>

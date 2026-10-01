@@ -63,7 +63,21 @@ class Project extends Model
         $completed = $this->tasks()->where('status', TaskStatus::Done->value)->count();
         $progress = $total > 0 ? (int) round(($completed / $total) * 100) : 0;
 
-        $this->updateQuietly(['progress' => $progress]);
+        $updates = ['progress' => $progress];
+
+        $currentStatus = $this->status instanceof \BackedEnum ? $this->status->value : (string) $this->status;
+
+        // If all tasks are completed, automatically mark project as Completed (if currently Active or Planning)
+        if ($total > 0 && $completed === $total && in_array($currentStatus, [ProjectStatus::Active->value, ProjectStatus::Planning->value])) {
+            $updates['status'] = ProjectStatus::Completed->value;
+            $this->status = ProjectStatus::Completed;
+        } elseif ($progress < 100 && $currentStatus === ProjectStatus::Completed->value) {
+            // If tasks are reopened or incomplete, revert back to Active
+            $updates['status'] = ProjectStatus::Active->value;
+            $this->status = ProjectStatus::Active;
+        }
+
+        $this->updateQuietly($updates);
 
         return $progress;
     }

@@ -78,10 +78,22 @@ class ProjectProgressTest extends TestCase
         // Update task2 to Done -> 4 of 4 -> 100%
         $task2->update(['status' => TaskStatus::Done->value]);
         $this->assertEquals(100, $project->fresh()->progress);
+        $this->assertEquals(ProjectStatus::Completed, $project->fresh()->status);
+
+        // Reopen task2 -> 3 of 4 -> 75% -> status reverts to Active
+        $task2->update(['status' => TaskStatus::InProgress->value]);
+        $this->assertEquals(75, $project->fresh()->progress);
+        $this->assertEquals(ProjectStatus::Active, $project->fresh()->status);
+
+        // Done again
+        $task2->update(['status' => TaskStatus::Done->value]);
+        $this->assertEquals(100, $project->fresh()->progress);
+        $this->assertEquals(ProjectStatus::Completed, $project->fresh()->status);
 
         // Delete task4 -> 3 of 3 -> 100%
         $task4->delete();
         $this->assertEquals(100, $project->fresh()->progress);
+        $this->assertEquals(ProjectStatus::Completed, $project->fresh()->status);
 
         // Delete remaining tasks -> 0 tasks -> 0%
         $task1->delete();

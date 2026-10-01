@@ -120,8 +120,9 @@ export default function Show({
     const totalTasks = project.tasks?.length || 0;
     const completedTasks = project.tasks?.filter((t: any) => t.status === 'Done')?.length || 0;
     const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0);
-    const pStyle = projectStatusStyle(project.status);
-    const isOverdue = project.deadline && new Date(project.deadline) < new Date() && project.status !== 'Completed' && project.status !== 'Archived';
+    const isCompleted = project.status === 'Completed' || (totalTasks > 0 && completedTasks >= totalTasks) || progressPercent >= 100;
+    const pStyle = projectStatusStyle(isCompleted && project.status !== 'Archived' ? 'Completed' : project.status);
+    const isOverdue = project.deadline && new Date(project.deadline) < new Date() && !isCompleted && project.status !== 'Archived' && project.status !== 'Cancelled';
 
     const isProjectCreator = canEdit ?? Boolean(
         project.created_by === auth.user?.id 
@@ -272,11 +273,11 @@ export default function Show({
                                 <div className="w-full sm:w-48">
                                     <div className="flex items-center justify-between text-xs mb-1">
                                         <span className="font-medium text-gray-500">Progress Task</span>
-                                        <span className="font-bold text-gray-800">{progressPercent}%</span>
+                                        <span className={`font-bold ${isCompleted ? 'text-emerald-600' : 'text-gray-800'}`}>{progressPercent}%</span>
                                     </div>
                                     <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                                         <div
-                                            className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+                                            className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-indigo-600'}`}
                                             style={{ width: `${progressPercent}%` }}
                                         />
                                     </div>
@@ -290,9 +291,10 @@ export default function Show({
                                         <span>Mulai: {new Date(project.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                     )}
                                     {project.deadline && (
-                                        <span className={`font-medium flex items-center gap-1 ${isOverdue ? 'text-red-600 font-bold' : 'text-gray-600'}`}>
+                                        <span className={`font-medium flex items-center gap-1 ${isOverdue ? 'text-red-600 font-bold' : isCompleted ? 'text-emerald-600 font-semibold' : 'text-gray-600'}`}>
                                             Deadline: {new Date(project.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             {isOverdue && ' (Overdue)'}
+                                            {isCompleted && ' (Selesai)'}
                                         </span>
                                     )}
                                 </div>

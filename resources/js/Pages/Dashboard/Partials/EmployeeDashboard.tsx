@@ -180,7 +180,7 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                     </div>
                     <div className="divide-y divide-gray-50">
                         {upcomingTasks.length > 0 ? upcomingTasks.map((task: any) => {
-                            const isOverdue = new Date(task.deadline) < new Date();
+                            const isOverdue = new Date(task.deadline) < new Date() && task.status !== 'Done';
                             const daysLeft = Math.ceil((new Date(task.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                             return (
                                 <div key={task.id} className="px-5 py-3.5 hover:bg-gray-50/50 transition-colors">
