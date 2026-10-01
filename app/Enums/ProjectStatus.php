@@ -9,4 +9,5 @@ enum ProjectStatus: string
     case OnHold = 'On Hold';
     case Completed = 'Completed';
     case Cancelled = 'Cancelled';
+    case Archived = 'Archived';
 }

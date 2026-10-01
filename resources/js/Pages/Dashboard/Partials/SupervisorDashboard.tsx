@@ -17,11 +17,46 @@ export default function SupervisorDashboard({ data }: { data: any }) {
     const projectProgress = data?.projectProgress || [];
 
     const statItems = [
-        { label: 'Active Projects', value: stats.activeProjects, gradient: 'from-indigo-500 to-indigo-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> },
-        { label: 'Total Tasks', value: stats.totalTasks, gradient: 'from-blue-500 to-blue-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg> },
-        { label: 'Completed', value: stats.completedTasks, gradient: 'from-emerald-500 to-emerald-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-        { label: 'Overdue', value: stats.overdueTasks, gradient: 'from-red-500 to-rose-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> },
-        { label: 'Pending Review', value: stats.pendingReview, gradient: 'from-amber-500 to-amber-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> },
+        { 
+            label: 'Active Projects', 
+            value: stats.activeProjects, 
+            gradient: 'from-indigo-500 to-indigo-600', 
+            href: route('projects.index', { status: 'Active' }),
+            hint: 'Lihat proyek aktif',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> 
+        },
+        { 
+            label: 'Total Tasks', 
+            value: stats.totalTasks, 
+            gradient: 'from-blue-500 to-blue-600', 
+            href: route('tasks.index'),
+            hint: 'Lihat semua task',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg> 
+        },
+        { 
+            label: 'Completed', 
+            value: stats.completedTasks, 
+            gradient: 'from-emerald-500 to-emerald-600', 
+            href: route('tasks.index', { filter: 'completed' }),
+            hint: 'Lihat task selesai',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> 
+        },
+        { 
+            label: 'Overdue', 
+            value: stats.overdueTasks, 
+            gradient: 'from-red-500 to-rose-600', 
+            href: route('tasks.index', { filter: 'overdue' }),
+            hint: 'Lihat task lewat deadline',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> 
+        },
+        { 
+            label: 'Pending Review', 
+            value: stats.pendingReview, 
+            gradient: 'from-amber-500 to-amber-600', 
+            href: route('tasks.index', { status: 'Review' }),
+            hint: 'Lihat task butuh review',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> 
+        },
     ];
 
     const chartData = teamWorkload.map((emp: any) => ({
@@ -66,14 +101,24 @@ export default function SupervisorDashboard({ data }: { data: any }) {
             {/* Summary Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {statItems.map((stat, idx) => (
-                    <div key={idx} className="group relative overflow-hidden rounded-xl bg-white border border-gray-100 p-4 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
-                        <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl ${stat.gradient} opacity-5 rounded-bl-full group-hover:opacity-10 transition-opacity`} />
-                        <div className={`inline-flex rounded-lg bg-gradient-to-br ${stat.gradient} p-2 text-white shadow-sm mb-3`}>
-                            {stat.icon}
+                    <Link
+                        key={idx}
+                        href={stat.href}
+                        className="group relative overflow-hidden rounded-xl bg-white border border-gray-100 p-4 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-200 hover:-translate-y-1 block cursor-pointer"
+                        title={stat.hint}
+                    >
+                        <div className={`absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl ${stat.gradient} opacity-5 rounded-bl-full group-hover:opacity-15 transition-opacity`} />
+                        <div className="flex items-center justify-between mb-3">
+                            <div className={`inline-flex rounded-lg bg-gradient-to-br ${stat.gradient} p-2 text-white shadow-sm`}>
+                                {stat.icon}
+                            </div>
+                            <span className="text-[11px] font-semibold text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                Buka →
+                            </span>
                         </div>
-                        <div className="text-2xl font-bold text-gray-800">{stat.value}</div>
+                        <div className="text-2xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">{stat.value}</div>
                         <div className="text-xs font-medium text-gray-500 mt-0.5">{stat.label}</div>
-                    </div>
+                    </Link>
                 ))}
             </div>
 

@@ -30,6 +30,25 @@ class Task extends Model
         'start_date' => 'date',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function (Task $task) {
+            if ($task->project_id) {
+                $task->project?->recalculateProgress();
+            }
+
+            if ($task->wasChanged('project_id') && ($oldProjectId = $task->getOriginal('project_id'))) {
+                Project::find($oldProjectId)?->recalculateProgress();
+            }
+        });
+
+        static::deleted(function (Task $task) {
+            if ($task->project_id) {
+                $task->project?->recalculateProgress();
+            }
+        });
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

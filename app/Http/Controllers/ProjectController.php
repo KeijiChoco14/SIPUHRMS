@@ -29,10 +29,28 @@ class ProjectController extends Controller
             abort(403, 'Anda tidak memiliki akses ke project ini.');
         }
     }
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $query = Project::with(['owner.user', 'department'])->latest();
+        $query = Project::with(['owner.user', 'department'])
+            ->withCount([
+                'tasks as total_tasks',
+                'tasks as completed_tasks' => function ($query) {
+                    $query->where('status', 'Done');
+                },
+            ])
+            ->latest();
+
+        if ($request->filled('status')) {
+            if ($request->status === 'all') {
+                $query->where('status', '!=', ProjectStatus::Archived->value);
+            } else {
+                $query->where('status', $request->status);
+            }
+        } else {
+            // Default: sembunyikan proyek yang diarsipkan agar tidak menumpuk
+            $query->where('status', '!=', ProjectStatus::Archived->value);
+        }
 
         if (!$user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager', 'Supervisor', 'Head of Department'])) {
             $employeeId = $user->employee->id ?? null;
@@ -44,10 +62,12 @@ class ProjectController extends Controller
             });
         }
 
-        $projects = $query->paginate(10);
+        $projects = $query->paginate(10)->withQueryString();
 
         return Inertia::render('Projects/Index', [
             'projects' => $projects,
+            'filters' => $request->only(['status']),
+            'projectStatuses' => ProjectStatus::cases(),
         ]);
     }
 
@@ -162,5 +182,23 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
+    }
+
+    public function archive(Project $project)
+    {
+        $this->checkEditAccess($project);
+
+        $project->update(['status' => ProjectStatus::Archived->value]);
+
+        return back()->with('success', 'Project berhasil diarsipkan.');
+    }
+
+    public function restore(Project $project)
+    {
+        $this->checkEditAccess($project);
+
+        $project->update(['status' => ProjectStatus::Active->value]);
+
+        return back()->with('success', 'Project berhasil dipulihkan.');
     }
 }

@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 import CreateTaskModal from '@/Components/CreateTaskModal';
 import TaskDetailModal from '../Projects/TaskDetailModal';
 
-export default function Index({ auth, tasks, employees, statuses, priorities }: any) {
+export default function Index({ auth, tasks, employees, statuses, priorities, filters }: any) {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
 
@@ -28,6 +28,16 @@ export default function Index({ auth, tasks, employees, statuses, priorities }: 
         const weightB = priorityWeight[b.priority] || 99;
         return weightA - weightB;
     });
+
+    const activeFilterLabel = filters?.filter === 'active' 
+        ? 'Aktif' 
+        : filters?.filter === 'completed' 
+        ? 'Selesai' 
+        : filters?.filter === 'overdue' 
+        ? 'Lewat Deadline' 
+        : filters?.status 
+        ? `Status: ${filters.status}` 
+        : null;
 
     return (
         <AuthenticatedLayout
@@ -53,9 +63,73 @@ export default function Index({ auth, tasks, employees, statuses, priorities }: 
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100">
                         <div className="p-6 text-gray-900">
+                            {/* Filter Tabs */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
+                                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl border border-gray-200/60">
+                                    <Link
+                                        href={route('tasks.index')}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            !filters?.filter && !filters?.status
+                                                ? 'bg-white text-indigo-700 shadow-sm'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                        }`}
+                                    >
+                                        Semua Task
+                                    </Link>
+                                    <Link
+                                        href={route('tasks.index', { filter: 'active' })}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            filters?.filter === 'active'
+                                                ? 'bg-white text-blue-700 shadow-sm'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                        }`}
+                                    >
+                                        Aktif
+                                    </Link>
+                                    <Link
+                                        href={route('tasks.index', { filter: 'completed' })}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            filters?.filter === 'completed'
+                                                ? 'bg-white text-emerald-700 shadow-sm'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                        }`}
+                                    >
+                                        Selesai
+                                    </Link>
+                                    <Link
+                                        href={route('tasks.index', { filter: 'overdue' })}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            filters?.filter === 'overdue'
+                                                ? 'bg-white text-red-700 shadow-sm'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                        }`}
+                                    >
+                                        Lewat Deadline
+                                    </Link>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    {activeFilterLabel && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-500">
+                                                Filter: <span className="font-semibold text-indigo-600">{activeFilterLabel}</span>
+                                            </span>
+                                            <Link
+                                                href={route('tasks.index')}
+                                                className="text-xs font-semibold text-gray-600 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-2.5 py-1 rounded-md transition-colors border border-gray-200"
+                                            >
+                                                ✕ Reset
+                                            </Link>
+                                        </div>
+                                    )}
+                                    <span className="text-xs text-gray-400 font-medium">Total: {sortedTasks.length} task</span>
+                                </div>
+                            </div>
+
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-base font-bold text-gray-800">Task List</h3>
-                                <span className="text-xs text-gray-500">Total: {sortedTasks.length} task</span>
+                                <h3 className="text-base font-bold text-gray-800">
+                                    {activeFilterLabel ? `Daftar Task (${activeFilterLabel})` : 'Task List'}
+                                </h3>
                             </div>
                             
                             {tasks.length > 0 ? (

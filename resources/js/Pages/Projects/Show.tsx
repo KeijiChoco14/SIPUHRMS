@@ -110,6 +110,7 @@ export default function Show({
             case 'On Hold': return { bg: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500' };
             case 'Completed': return { bg: 'bg-gray-100 text-gray-700 border-gray-200', dot: 'bg-gray-500' };
             case 'Cancelled': return { bg: 'bg-red-50 text-red-700 border-red-200', dot: 'bg-red-500' };
+            case 'Archived': return { bg: 'bg-purple-50 text-purple-700 border-purple-200', dot: 'bg-purple-500' };
             default: return { bg: 'bg-gray-100 text-gray-700 border-gray-200', dot: 'bg-gray-400' };
         }
     };
@@ -120,7 +121,7 @@ export default function Show({
     const completedTasks = project.tasks?.filter((t: any) => t.status === 'Done')?.length || 0;
     const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0);
     const pStyle = projectStatusStyle(project.status);
-    const isOverdue = project.deadline && new Date(project.deadline) < new Date() && project.status !== 'Completed';
+    const isOverdue = project.deadline && new Date(project.deadline) < new Date() && project.status !== 'Completed' && project.status !== 'Archived';
 
     const isProjectCreator = canEdit ?? Boolean(
         project.created_by === auth.user?.id 
@@ -147,16 +148,52 @@ export default function Show({
                     
                     <div className="flex items-center gap-2 shrink-0">
                         {isProjectCreator && (
-                            <button
-                                type="button"
-                                onClick={() => setShowEditProjectModal(true)}
-                                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                            >
-                                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                Edit Project
-                            </button>
+                            <>
+                                {project.status === 'Archived' ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (confirm('Pulihkan project ini kembali ke status Aktif?')) {
+                                                router.post(route('projects.restore', project.id));
+                                            }
+                                        }}
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                                        title="Pulihkan Project ke Status Aktif"
+                                    >
+                                        <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Pulihkan Project
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (confirm('Arsipkan project ini? Project yang diarsipkan akan disembunyikan dari daftar aktif agar tidak menumpuk.')) {
+                                                router.post(route('projects.archive', project.id));
+                                            }
+                                        }}
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                                        title="Arsipkan Project agar tidak menumpuk"
+                                    >
+                                        <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                        </svg>
+                                        Arsipkan
+                                    </button>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEditProjectModal(true)}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                                >
+                                    <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Edit Project
+                                </button>
+                            </>
                         )}
                         <button
                             type="button"
@@ -176,6 +213,32 @@ export default function Show({
 
             <div className="py-6">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                    {/* Archived Notice Banner */}
+                    {project.status === 'Archived' && (
+                        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center justify-between gap-3 text-purple-900 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl">📦</span>
+                                <div>
+                                    <p className="font-bold text-sm">Project ini Sedang Diarsipkan</p>
+                                    <p className="text-xs text-purple-700 mt-0.5">Project ini disembunyikan dari daftar proyek aktif agar tidak menumpuk. Anda dapat memulihkannya kapan saja ke status Aktif.</p>
+                                </div>
+                            </div>
+                            {isProjectCreator && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (confirm('Pulihkan project ini kembali ke status Aktif?')) {
+                                            router.post(route('projects.restore', project.id));
+                                        }
+                                    }}
+                                    className="px-3.5 py-1.5 bg-purple-700 hover:bg-purple-800 text-white rounded-lg text-xs font-semibold shrink-0 transition-colors shadow-sm"
+                                >
+                                    Pulihkan Project
+                                </button>
+                            )}
+                        </div>
+                    )}
+
                     {/* Project Overview Card */}
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 sm:p-6">
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">

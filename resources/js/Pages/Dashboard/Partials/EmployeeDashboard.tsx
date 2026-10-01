@@ -2,13 +2,7 @@ import React from 'react';
 import { Link } from '@inertiajs/react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const statCards = [
-    { key: 'todo', label: 'To Do', gradient: 'from-slate-500 to-slate-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
-    { key: 'in_progress', label: 'In Progress', gradient: 'from-blue-500 to-blue-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
-    { key: 'review', label: 'Review', gradient: 'from-amber-500 to-amber-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> },
-    { key: 'done', label: 'Completed', gradient: 'from-emerald-500 to-emerald-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-    { key: 'overdue', label: 'Overdue', gradient: 'from-red-500 to-rose-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> },
-];
+
 
 const priorityColors: Record<string, string> = {
     Urgent: 'bg-red-100 text-red-700 border-red-200',
@@ -42,6 +36,14 @@ export default function EmployeeDashboard({ data }: { data: any }) {
     const announcements = data?.announcements || [];
     const leaveStats = data?.leaveStats || { pending: 0, approved: 0 };
     const recentActivities = data?.recentActivities || [];
+
+    const statCards = [
+        { key: 'todo', label: 'To Do', gradient: 'from-slate-500 to-slate-600', href: route('tasks.index', { status: 'To Do' }), hint: 'Lihat task To Do', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
+        { key: 'in_progress', label: 'In Progress', gradient: 'from-blue-500 to-blue-600', href: route('tasks.index', { status: 'In Progress' }), hint: 'Lihat task sedang dikerjakan', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
+        { key: 'review', label: 'Review', gradient: 'from-amber-500 to-amber-600', href: route('tasks.index', { status: 'Review' }), hint: 'Lihat task tahap review', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> },
+        { key: 'done', label: 'Completed', gradient: 'from-emerald-500 to-emerald-600', href: route('tasks.index', { filter: 'completed' }), hint: 'Lihat task selesai', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+        { key: 'overdue', label: 'Overdue', gradient: 'from-red-500 to-rose-600', href: route('tasks.index', { filter: 'overdue' }), hint: 'Lihat task lewat deadline', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> },
+    ];
 
     return (
         <div className="space-y-6">
@@ -143,14 +145,24 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                 <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Task Overview</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                     {statCards.map(card => (
-                        <div key={card.key} className="group relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-100/80 p-5 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 cursor-pointer">
-                            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${card.gradient} opacity-5 rounded-bl-full group-hover:opacity-10 transition-opacity`} />
-                            <div className={`inline-flex rounded-xl bg-gradient-to-br ${card.gradient} p-2.5 text-white shadow-sm mb-4`}>
-                                {card.icon}
+                        <Link
+                            key={card.key}
+                            href={card.href}
+                            title={card.hint}
+                            className="group relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-100/80 p-5 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 hover:-translate-y-1.5 block cursor-pointer"
+                        >
+                            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${card.gradient} opacity-5 rounded-bl-full group-hover:opacity-15 transition-opacity`} />
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={`inline-flex rounded-xl bg-gradient-to-br ${card.gradient} p-2.5 text-white shadow-sm`}>
+                                    {card.icon}
+                                </div>
+                                <span className="text-[11px] font-semibold text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Buka →
+                                </span>
                             </div>
-                            <div className="text-2xl font-bold text-gray-800">{(summary as any)[card.key]}</div>
+                            <div className="text-2xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">{(summary as any)[card.key]}</div>
                             <div className="text-xs font-medium text-gray-500 mt-0.5">{card.label}</div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>

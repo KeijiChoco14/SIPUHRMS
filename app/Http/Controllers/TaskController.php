@@ -11,7 +11,7 @@ use Inertia\Inertia;
 
 class TaskController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         if (! $user->employee && ! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
@@ -40,10 +40,23 @@ class TaskController extends Controller
             });
         }
 
+        if ($request->filled('filter')) {
+            if ($request->filter === 'active') {
+                $query->whereNotIn('status', [TaskStatus::Done->value, TaskStatus::Cancelled->value]);
+            } elseif ($request->filter === 'completed') {
+                $query->where('status', TaskStatus::Done->value);
+            } elseif ($request->filter === 'overdue') {
+                $query->where('deadline', '<', now())->whereNotIn('status', [TaskStatus::Done->value, TaskStatus::Cancelled->value]);
+            }
+        } elseif ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
         $tasks = $query->orderBy('deadline', 'asc')->get();
 
         return Inertia::render('Tasks/Index', [
             'tasks' => $tasks,
+            'filters' => $request->only(['filter', 'status']),
             'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),

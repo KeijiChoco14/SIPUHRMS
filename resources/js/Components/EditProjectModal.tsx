@@ -54,7 +54,7 @@ export default function EditProjectModal({
 
     const availableStatuses = projectStatuses?.length
         ? projectStatuses.map((s) => (typeof s === 'string' ? s : s.value || s.name))
-        : ['Planning', 'Active', 'On Hold', 'Completed', 'Cancelled'];
+        : ['Planning', 'Active', 'On Hold', 'Completed', 'Cancelled', 'Archived'];
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

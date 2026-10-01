@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ProjectStatus;
+use App\Enums\TaskStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -27,6 +29,44 @@ class Project extends Model
         'start_date' => 'date',
         'deadline' => 'date',
     ];
+
+    protected function progress(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if ($this->relationLoaded('tasks')) {
+                    $total = $this->tasks->count();
+                    if ($total > 0) {
+                        $completed = $this->tasks->filter(function ($t) {
+                            $status = $t->status instanceof TaskStatus ? $t->status->value : $t->status;
+                            return $status === TaskStatus::Done->value;
+                        })->count();
+                        return (int) round(($completed / $total) * 100);
+                    }
+                    return 0;
+                }
+
+                if (array_key_exists('total_tasks', $this->attributes)) {
+                    $total = (int) $this->attributes['total_tasks'];
+                    $completed = (int) ($this->attributes['completed_tasks'] ?? 0);
+                    return $total > 0 ? (int) round(($completed / $total) * 100) : 0;
+                }
+
+                return (int) ($value ?? 0);
+            }
+        );
+    }
+
+    public function recalculateProgress(): int
+    {
+        $total = $this->tasks()->count();
+        $completed = $this->tasks()->where('status', TaskStatus::Done->value)->count();
+        $progress = $total > 0 ? (int) round(($completed / $total) * 100) : 0;
+
+        $this->updateQuietly(['progress' => $progress]);
+
+        return $progress;
+    }
 
     public function owner(): BelongsTo
     {

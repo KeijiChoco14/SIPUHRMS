@@ -20,10 +20,38 @@ export default function ManagerDashboard({ data }: { data: any }) {
     const departmentPerformance = data?.departmentPerformance || [];
 
     const statItems = [
-        { label: 'Active Projects', value: stats.activeProjects, gradient: 'from-indigo-500 to-indigo-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> },
-        { label: 'Active Tasks', value: stats.activeTasks, gradient: 'from-blue-500 to-blue-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
-        { label: 'Completed (Month)', value: stats.completedThisMonth, gradient: 'from-emerald-500 to-emerald-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-        { label: 'Overdue Tasks', value: stats.overdueTasks, gradient: 'from-red-500 to-rose-600', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> },
+        { 
+            label: 'Active Projects', 
+            value: stats.activeProjects, 
+            gradient: 'from-indigo-500 to-indigo-600', 
+            href: route('projects.index', { status: 'Active' }),
+            hint: 'Lihat proyek aktif',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> 
+        },
+        { 
+            label: 'Active Tasks', 
+            value: stats.activeTasks, 
+            gradient: 'from-blue-500 to-blue-600', 
+            href: route('tasks.index', { filter: 'active' }),
+            hint: 'Lihat task aktif',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> 
+        },
+        { 
+            label: 'Completed (Month)', 
+            value: stats.completedThisMonth, 
+            gradient: 'from-emerald-500 to-emerald-600', 
+            href: route('tasks.index', { filter: 'completed' }),
+            hint: 'Lihat task selesai bulan ini',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> 
+        },
+        { 
+            label: 'Overdue Tasks', 
+            value: stats.overdueTasks, 
+            gradient: 'from-red-500 to-rose-600', 
+            href: route('tasks.index', { filter: 'overdue' }),
+            hint: 'Lihat task lewat deadline',
+            icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> 
+        },
     ];
 
     const statusColor = (status: string) => {
@@ -72,14 +100,24 @@ export default function ManagerDashboard({ data }: { data: any }) {
             {/* Executive Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {statItems.map((stat, idx) => (
-                    <div key={idx} className="group relative overflow-hidden rounded-xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
-                        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${stat.gradient} opacity-5 rounded-bl-full group-hover:opacity-10 transition-opacity`} />
-                        <div className={`inline-flex rounded-lg bg-gradient-to-br ${stat.gradient} p-2 text-white shadow-sm mb-3`}>
-                            {stat.icon}
+                    <Link
+                        key={idx}
+                        href={stat.href}
+                        className="group relative overflow-hidden rounded-xl bg-white border border-gray-100 p-5 shadow-sm hover:shadow-lg hover:border-indigo-200 transition-all duration-200 hover:-translate-y-1 block cursor-pointer"
+                        title={stat.hint}
+                    >
+                        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl ${stat.gradient} opacity-5 rounded-bl-full group-hover:opacity-15 transition-opacity`} />
+                        <div className="flex items-center justify-between mb-3">
+                            <div className={`inline-flex rounded-lg bg-gradient-to-br ${stat.gradient} p-2 text-white shadow-sm`}>
+                                {stat.icon}
+                            </div>
+                            <span className="text-xs font-semibold text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                                Buka →
+                            </span>
                         </div>
-                        <div className="text-3xl font-bold text-gray-800">{stat.value}</div>
+                        <div className="text-3xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">{stat.value}</div>
                         <div className="text-xs font-medium text-gray-500 mt-0.5">{stat.label}</div>
-                    </div>
+                    </Link>
                 ))}
             </div>
 
