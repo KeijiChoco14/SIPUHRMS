@@ -75,11 +75,23 @@ class PerformanceController extends Controller
             ->with('supervisor.user')
             ->first();
 
+        $tasks = $employee->tasks()
+            ->select('tasks.*')
+            ->where(function ($q) use ($period) {
+                $q->whereBetween('tasks.deadline', [$period->start_date, $period->end_date])
+                    ->orWhereBetween('tasks.updated_at', [$period->start_date, $period->end_date])
+                    ->orWhereBetween('tasks.created_at', [$period->start_date, $period->end_date]);
+            })
+            ->with('project')
+            ->orderBy('tasks.created_at', 'desc')
+            ->get();
+
         return Inertia::render('Performance/Show', [
             'employee' => $employee,
             'period' => $period,
             'score' => $score,
             'assessment' => $assessment,
+            'tasks' => $tasks,
         ]);
     }
 

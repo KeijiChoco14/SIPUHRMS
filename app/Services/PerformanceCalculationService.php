@@ -12,41 +12,55 @@ class PerformanceCalculationService
 {
     public function calculateForEmployee(Employee $employee, PerformancePeriod $period)
     {
-        // 1. Fetch Assigned Tasks in this period
-        // For simplicity, we consider a task assigned in this period if it was created during the period.
-        // Or we could consider tasks that were closed/due during this period.
-        // Let's use tasks where the deadline falls within the period or they were completed within the period.
-        $tasks = Task::whereHas('assignees', function ($q) use ($employee) {
-            $q->where('employee_id', $employee->id);
-        })
+        // 1. Fetch Assigned Tasks in this period for this employee
+        // Using $employee->tasks() ensures pivot data (including acknowledged_at) is loaded
+        $tasks = $employee->tasks()
+            ->select('tasks.*')
             ->where(function ($q) use ($period) {
-                $q->whereBetween('deadline', [$period->start_date, $period->end_date])
-                    ->orWhereBetween('updated_at', [$period->start_date, $period->end_date]);
+                $q->whereBetween('tasks.deadline', [$period->start_date, $period->end_date])
+                    ->orWhereBetween('tasks.updated_at', [$period->start_date, $period->end_date])
+                    ->orWhereBetween('tasks.created_at', [$period->start_date, $period->end_date]);
             })
             ->get();
 
         $assignedTasks = $tasks->count();
+
+        // A task is only considered completed for THIS employee if:
+        // 1) The task status is 'Done'
+        // 2) The employee acknowledged the task (acknowledged_at is not null)
         $completedTasks = $tasks->filter(function ($task) {
             $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
-            return $status === 'Done';
+            $isAcknowledged = ! empty($task->pivot?->acknowledged_at);
+
+            return $status === 'Done' && $isAcknowledged;
         })->count();
 
+        // Completed on-time requires: Done + Acknowledged + completed on or before deadline
         $completedOnTimeTasks = $tasks->filter(function ($task) {
             $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
-            if ($status !== 'Done') {
+            $isAcknowledged = ! empty($task->pivot?->acknowledged_at);
+
+            if ($status !== 'Done' || ! $isAcknowledged) {
                 return false;
             }
+
             if (! $task->deadline) {
                 return true;
             }
+
             return $task->updated_at <= $task->deadline;
         })->count();
 
+        // Overdue tasks:
+        // If deadline has passed and task is either not done or not acknowledged by this employee
         $overdueTasks = $tasks->filter(function ($task) {
             $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
-            if ($status === 'Done') {
+            $isAcknowledged = ! empty($task->pivot?->acknowledged_at);
+
+            if ($status === 'Done' && $isAcknowledged) {
                 return false;
             }
+
             return $task->deadline && $task->deadline < now();
         })->count();
 

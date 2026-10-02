@@ -71,7 +71,7 @@ class PerformanceCalculationTest extends TestCase
             'deadline' => Carbon::now()->endOfMonth(),
             'updated_at' => Carbon::now()->subDays(5),
         ]);
-        $task1->assignees()->attach($employee->id);
+        $task1->assignees()->attach($employee->id, ['acknowledged_at' => Carbon::now()->subDays(6)]);
 
         // Task 2: Done, Late, Normal Priority (Weight: 2)
         $task2 = Task::create([
@@ -83,7 +83,7 @@ class PerformanceCalculationTest extends TestCase
             'deadline' => Carbon::now()->subDays(10), // Passed deadline
             'updated_at' => Carbon::now()->subDays(2), // Finished after deadline
         ]);
-        $task2->assignees()->attach($employee->id);
+        $task2->assignees()->attach($employee->id, ['acknowledged_at' => Carbon::now()->subDays(12)]);
 
         // Task 3: In Progress, Urgent Priority (Weight: 4)
         $task3 = Task::create([
@@ -94,7 +94,7 @@ class PerformanceCalculationTest extends TestCase
             'status' => 'In Progress',
             'deadline' => Carbon::now()->endOfMonth(),
         ]);
-        $task3->assignees()->attach($employee->id);
+        $task3->assignees()->attach($employee->id, ['acknowledged_at' => Carbon::now()]);
 
         // Task 4: In Progress, Overdue, High Priority (Weight: 3)
         $task4 = Task::create([
@@ -105,7 +105,7 @@ class PerformanceCalculationTest extends TestCase
             'status' => 'In Progress',
             'deadline' => Carbon::now()->subDays(5),
         ]);
-        $task4->assignees()->attach($employee->id);
+        $task4->assignees()->attach($employee->id, ['acknowledged_at' => Carbon::now()]);
 
         // Supervisor Assessment: Max is 20. Let's give: 4 + 4 + 5 + 3 = 16. Score = 16/20 = 80%
         SupervisorAssessment::create([
@@ -153,5 +153,75 @@ class PerformanceCalculationTest extends TestCase
 
         $this->assertEquals(60.88, round($score->final_epi, 2));
         $this->assertEquals('Needs Improvement', $score->category);
+    }
+
+    public function test_assignee_who_never_acknowledged_task_does_not_receive_completion_credit()
+    {
+        $employeeA = Employee::create([
+            'employee_number' => 'EMP-ACK-001',
+            'first_name' => 'Albert',
+            'last_name' => 'Active',
+            'email' => 'albert@test.com',
+            'employment_status' => 'Active',
+            'account_status' => 'Active',
+        ]);
+
+        $employeeB = Employee::create([
+            'employee_number' => 'EMP-ACK-002',
+            'first_name' => 'Bob',
+            'last_name' => 'Passive',
+            'email' => 'bob@test.com',
+            'employment_status' => 'Active',
+            'account_status' => 'Active',
+        ]);
+
+        $period = PerformancePeriod::create([
+            'name' => 'October 2026',
+            'start_date' => Carbon::now()->startOfMonth(),
+            'end_date' => Carbon::now()->endOfMonth(),
+            'type' => 'Monthly',
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => 'Creator',
+            'email' => 'creator@test.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        $project = Project::create([
+            'name' => 'Shared Project',
+            'status' => 'Active',
+        ]);
+
+        // A shared task marked Done
+        $task = Task::create([
+            'title' => 'Shared Collaborative Task',
+            'project_id' => $project->id,
+            'created_by' => $user->id,
+            'priority' => 'Normal',
+            'status' => 'Done',
+            'deadline' => Carbon::now()->endOfMonth(),
+            'updated_at' => Carbon::now()->subDay(),
+        ]);
+
+        // Albert acknowledged the task
+        $task->assignees()->attach($employeeA->id, ['acknowledged_at' => Carbon::now()->subDays(2)]);
+        // Bob was assigned, but NEVER acknowledged (acknowledged_at is null)
+        $task->assignees()->attach($employeeB->id, ['acknowledged_at' => null]);
+
+        $service = new PerformanceCalculationService;
+        $scoreA = $service->calculateForEmployee($employeeA, $period);
+        $scoreB = $service->calculateForEmployee($employeeB, $period);
+
+        // Albert has 1 assigned and 1 completed task
+        $this->assertEquals(1, $scoreA->assigned_tasks);
+        $this->assertEquals(1, $scoreA->completed_tasks);
+        $this->assertEquals(100.0, $scoreA->completion_rate);
+
+        // Bob has 1 assigned task, but 0 completed tasks because he never acknowledged it!
+        $this->assertEquals(1, $scoreB->assigned_tasks);
+        $this->assertEquals(0, $scoreB->completed_tasks);
+        $this->assertEquals(0.0, $scoreB->completion_rate);
+        $this->assertGreaterThan($scoreB->final_epi, $scoreA->final_epi);
     }
 }
