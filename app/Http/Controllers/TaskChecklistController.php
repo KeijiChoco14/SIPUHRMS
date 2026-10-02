@@ -19,6 +19,13 @@ class TaskChecklistController extends Controller
             'title' => $validated['title'],
         ]);
 
+        $employeeId = Auth::user()->employee?->id;
+        $task->activities()->create([
+            'employee_id' => $employeeId,
+            'action' => 'checklist_added',
+            'description' => "Menambahkan checklist: \"{$validated['title']}\"",
+        ]);
+
         return back()->with('success', 'Checklist item added.');
     }
 
@@ -33,12 +40,32 @@ class TaskChecklistController extends Controller
             'completed_by' => $validated['is_completed'] ? Auth::user()->employee?->id : null,
         ]);
 
+        $employeeId = Auth::user()->employee?->id;
+        $statusText = $validated['is_completed'] ? 'menyelesaikan' : 'membatalkan penyelesaian';
+        $checklist->task?->activities()->create([
+            'employee_id' => $employeeId,
+            'action' => 'checklist_updated',
+            'description' => "Telah {$statusText} checklist: \"{$checklist->title}\"",
+        ]);
+
         return back()->with('success', 'Checklist updated.');
     }
 
     public function destroy(TaskChecklist $checklist)
     {
+        $task = $checklist->task;
+        $title = $checklist->title;
+        $employeeId = Auth::user()->employee?->id;
+
         $checklist->delete();
+
+        if ($task) {
+            $task->activities()->create([
+                'employee_id' => $employeeId,
+                'action' => 'checklist_deleted',
+                'description' => "Menghapus checklist: \"{$title}\"",
+            ]);
+        }
 
         return back()->with('success', 'Checklist item deleted.');
     }

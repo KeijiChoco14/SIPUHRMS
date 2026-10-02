@@ -27,6 +27,10 @@ use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
 Route::get('/', function () {
+    if (Illuminate\Support\Facades\Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -73,6 +77,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
         Route::get('/performance', [PerformanceController::class, 'index'])->name('performance.index');
         Route::post('/performance/calculate', [PerformanceController::class, 'calculate'])->name('performance.calculate');
+        Route::post('/performance/periods', [PerformanceController::class, 'storePeriod'])->name('performance.periods.store');
+        Route::delete('/performance/periods/{period}', [PerformanceController::class, 'destroyPeriod'])->name('performance.periods.destroy');
     });
     Route::get('/performance/{employee}/{period}', [PerformanceController::class, 'show'])->name('performance.show');
     Route::get('/performance/{employee}/{period}/assess', [PerformanceController::class, 'assess'])->name('performance.assess');

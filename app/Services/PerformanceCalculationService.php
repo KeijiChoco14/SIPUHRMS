@@ -26,14 +26,28 @@ class PerformanceCalculationService
             ->get();
 
         $assignedTasks = $tasks->count();
-        $completedTasks = $tasks->where('status', 'Done')->count();
+        $completedTasks = $tasks->filter(function ($task) {
+            $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
+            return $status === 'Done';
+        })->count();
 
         $completedOnTimeTasks = $tasks->filter(function ($task) {
-            return $task->status === 'Done' && $task->updated_at <= $task->deadline;
+            $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
+            if ($status !== 'Done') {
+                return false;
+            }
+            if (! $task->deadline) {
+                return true;
+            }
+            return $task->updated_at <= $task->deadline;
         })->count();
 
         $overdueTasks = $tasks->filter(function ($task) {
-            return $task->deadline < now() && $task->status !== 'Done';
+            $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
+            if ($status === 'Done') {
+                return false;
+            }
+            return $task->deadline && $task->deadline < now();
         })->count();
 
         // 2. Calculate Rates
@@ -44,7 +58,8 @@ class PerformanceCalculationService
         $weightMap = ['Low' => 1, 'Normal' => 2, 'High' => 3, 'Urgent' => 4];
         $totalWeight = 0;
         foreach ($tasks as $task) {
-            $totalWeight += $weightMap[$task->priority] ?? 2;
+            $priority = $task->priority instanceof \App\Enums\TaskPriority ? $task->priority->value : (string) $task->priority;
+            $totalWeight += $weightMap[$priority] ?? 2;
         }
         $avgWeight = $assignedTasks > 0 ? $totalWeight / $assignedTasks : 0;
         // Normalize to 0-100 scale (max average is 4)

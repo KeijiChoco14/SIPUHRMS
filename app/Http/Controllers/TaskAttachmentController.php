@@ -31,6 +31,12 @@ class TaskAttachmentController extends Controller
             'file_size' => $file->getSize(),
         ]);
 
+        $task->activities()->create([
+            'employee_id' => $employee->id,
+            'action' => 'attachment_uploaded',
+            'description' => "Mengunggah berkas lampiran: {$file->getClientOriginalName()}",
+        ]);
+
         return back()->with('success', 'Attachment uploaded.');
     }
 
@@ -40,8 +46,20 @@ class TaskAttachmentController extends Controller
             abort(403);
         }
 
+        $task = $attachment->task;
+        $fileName = $attachment->file_name;
+        $employeeId = Auth::user()->employee?->id;
+
         Storage::disk('public')->delete($attachment->file_path);
         $attachment->delete();
+
+        if ($task) {
+            $task->activities()->create([
+                'employee_id' => $employeeId,
+                'action' => 'attachment_deleted',
+                'description' => "Menghapus berkas lampiran: {$fileName}",
+            ]);
+        }
 
         return back()->with('success', 'Attachment deleted.');
     }

@@ -4,11 +4,14 @@ namespace App\Models;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
+use App\Observers\TaskObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([TaskObserver::class])]
 class Task extends Model
 {
     protected $fillable = [
@@ -83,6 +86,6 @@ class Task extends Model
 
     public function activities(): HasMany
     {
-        return $this->hasMany(TaskActivity::class);
+        return $this->hasMany(TaskActivity::class)->latest();
     }
 }

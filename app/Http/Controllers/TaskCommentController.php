@@ -25,6 +25,12 @@ class TaskCommentController extends Controller
             'content' => $validated['content'],
         ]);
 
+        $task->activities()->create([
+            'employee_id' => $employee->id,
+            'action' => 'comment_added',
+            'description' => 'Menambahkan komentar: "' . \Illuminate\Support\Str::limit($validated['content'], 40) . '"',
+        ]);
+
         return back()->with('success', 'Comment added.');
     }
 
@@ -34,7 +40,18 @@ class TaskCommentController extends Controller
             abort(403);
         }
 
+        $task = $comment->task;
+        $employeeId = Auth::user()->employee?->id;
+
         $comment->delete();
+
+        if ($task) {
+            $task->activities()->create([
+                'employee_id' => $employeeId,
+                'action' => 'comment_deleted',
+                'description' => 'Menghapus komentar',
+            ]);
+        }
 
         return back()->with('success', 'Comment deleted.');
     }

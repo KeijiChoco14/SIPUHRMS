@@ -47,6 +47,12 @@ class PerformanceCalculationTest extends TestCase
             'type' => 'Monthly',
         ]);
 
+        $user = \App\Models\User::create([
+            'name' => 'Jane Supervisor',
+            'email' => 'jane.user@test.com',
+            'password' => bcrypt('password'),
+        ]);
+
         $project = Project::create([
             'name' => 'Test Project',
             'description' => 'Test',
@@ -59,7 +65,7 @@ class PerformanceCalculationTest extends TestCase
         $task1 = Task::create([
             'title' => 'Task 1',
             'project_id' => $project->id,
-            'created_by' => $supervisor->id,
+            'created_by' => $user->id,
             'priority' => 'Low',
             'status' => 'Done',
             'deadline' => Carbon::now()->endOfMonth(),
@@ -71,7 +77,7 @@ class PerformanceCalculationTest extends TestCase
         $task2 = Task::create([
             'title' => 'Task 2',
             'project_id' => $project->id,
-            'created_by' => $supervisor->id,
+            'created_by' => $user->id,
             'priority' => 'Normal',
             'status' => 'Done',
             'deadline' => Carbon::now()->subDays(10), // Passed deadline
@@ -83,7 +89,7 @@ class PerformanceCalculationTest extends TestCase
         $task3 = Task::create([
             'title' => 'Task 3',
             'project_id' => $project->id,
-            'created_by' => $supervisor->id,
+            'created_by' => $user->id,
             'priority' => 'Urgent',
             'status' => 'In Progress',
             'deadline' => Carbon::now()->endOfMonth(),
@@ -94,7 +100,7 @@ class PerformanceCalculationTest extends TestCase
         $task4 = Task::create([
             'title' => 'Task 4',
             'project_id' => $project->id,
-            'created_by' => $supervisor->id,
+            'created_by' => $user->id,
             'priority' => 'High',
             'status' => 'In Progress',
             'deadline' => Carbon::now()->subDays(5),

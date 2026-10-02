@@ -275,7 +275,7 @@ export default function TaskDetailModal({
                                     { id: 'checklists', label: `Checklists (${task.checklists?.length || 0})` },
                                     { id: 'attachments', label: `Attachments (${task.attachments?.length || 0})` },
                                     { id: 'comments', label: `Comments (${task.comments?.length || 0})` },
-                                    { id: 'activity', label: 'Activity' },
+                                    { id: 'activity', label: `Activity (${task.activities?.length || 0})` },
                                 ].map((tab) => (
                                     <button
                                         key={tab.id}

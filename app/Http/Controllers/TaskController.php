@@ -236,6 +236,12 @@ class TaskController extends Controller
             'acknowledged_at' => now(),
         ]);
 
+        $task->activities()->create([
+            'employee_id' => $employee->id,
+            'action' => 'task_acknowledged',
+            'description' => "Telah mengonfirmasi dan menerima tugas",
+        ]);
+
         return back()->with('success', 'Task acknowledged successfully.');
     }
 }

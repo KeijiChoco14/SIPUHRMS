@@ -14,14 +14,25 @@ export default function Login({
     status?: string;
     canResetPassword: boolean;
 }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
+    const rememberedEmail = typeof window !== 'undefined' ? localStorage.getItem('remember_email') || '' : '';
+    const { data, setData, post, processing, errors, reset } = useForm<{
+        email: string;
+        password: string;
+        remember: boolean;
+    }>({
+        email: rememberedEmail,
         password: '',
-        remember: false as boolean,
+        remember: !!rememberedEmail,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+
+        if (data.remember) {
+            localStorage.setItem('remember_email', data.email);
+        } else {
+            localStorage.removeItem('remember_email');
+        }
 
         post(route('login'), {
             onFinish: () => reset('password'),
@@ -72,23 +83,19 @@ export default function Login({
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData(
-                                    'remember',
-                                    (e.target.checked || false) as false,
-                                )
-                            }
-                        />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
+                    <div className="mt-4 block">
+                        <label htmlFor="remember" className="flex items-center cursor-pointer">
+                            <Checkbox
+                                id="remember"
+                                name="remember"
+                                checked={data.remember}
+                                onChange={(e) => setData('remember', e.target.checked)}
+                            />
+                            <span className="ms-2 text-sm text-gray-600">
+                                Remember me
+                            </span>
+                        </label>
+                    </div>
 
                 <div className="mt-4 flex items-center justify-end">
 
