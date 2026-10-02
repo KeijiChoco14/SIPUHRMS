@@ -29,7 +29,9 @@ class TaskController extends Controller
             'activities.employee.user'
         ]);
 
-        if (! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+        // "My Tasks" should only show tasks assigned to the user or created by the user,
+        // unless the user is Super Admin who has global oversight.
+        if (! $user->hasRole('Super Admin')) {
             $query->where(function ($q) use ($user) {
                 if ($user->employee) {
                     $q->whereHas('assignees', function ($sq) use ($user) {
@@ -81,7 +83,7 @@ class TaskController extends Controller
             'activities.employee.user'
         ]);
 
-        if (! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+        if (! $user->hasRole('Super Admin')) {
             $query->where(function ($q) use ($user) {
                 if ($user->employee) {
                     $q->whereHas('assignees', function ($sq) use ($user) {
@@ -140,7 +142,8 @@ class TaskController extends Controller
         $user = Auth::user();
         $isCreator = $task->created_by === $user->id 
             || ($task->project && $task->project->created_by === $user->id)
-            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+            || ($task->project && $task->project->owner_id && $user->employee && $task->project->owner_id === $user->employee->id)
+            || $user->hasRole('Super Admin');
         
         $isAssignee = $user->employee && $task->assignees()->where('employee_id', $user->employee->id)->exists();
 
@@ -214,10 +217,11 @@ class TaskController extends Controller
         $user = Auth::user();
         $isCreator = $task->created_by === $user->id 
             || ($task->project && $task->project->created_by === $user->id)
-            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+            || ($task->project && $task->project->owner_id && $user->employee && $task->project->owner_id === $user->employee->id)
+            || $user->hasRole('Super Admin');
 
         if (!$isCreator) {
-            abort(403, 'Hanya pembuat task yang dapat menghapus task ini.');
+            abort(403, 'Hanya pembuat task, pemilik project, atau Super Admin yang dapat menghapus task ini.');
         }
 
         $task->delete();

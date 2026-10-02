@@ -84,13 +84,16 @@ export default function Show({
 
     const canEditTaskStatus = (task: any) => {
         const userRoles = auth.user?.roles?.map((r: any) => r.name) || [];
-        if (userRoles.some((role: string) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(role))) {
+        if (userRoles.some((role: string) => ['Super Admin'].includes(role))) {
             return true;
         }
-        if (project.owner_id === auth.user?.id) {
+        if (project.owner_id && auth.user?.employee?.id === project.owner_id) {
             return true;
         }
-        return task.assignees?.some((a: any) => a.user?.id === auth.user?.id);
+        if (project.created_by === auth.user?.id) {
+            return true;
+        }
+        return task.assignees?.some((a: any) => a.user?.id === auth.user?.id || a.id === auth.user?.employee?.id);
     };
 
     const getStatusColor = (status: string) => {
@@ -127,7 +130,7 @@ export default function Show({
     const isProjectCreator = canEdit ?? Boolean(
         project.created_by === auth.user?.id 
         || (project.owner_id && auth.user?.employee?.id === project.owner_id) 
-        || auth.user?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name))
+        || auth.user?.roles?.some((r: any) => ['Super Admin'].includes(r.name))
     );
 
     return (

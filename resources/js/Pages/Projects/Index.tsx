@@ -143,7 +143,7 @@ export default function Index({ projects, auth, filters }: any) {
                     const isOverdue = project.deadline && new Date(project.deadline) < new Date() && !isCompleted && project.status !== 'Archived' && project.status !== 'Cancelled';
                     const isProjectCreator = project.created_by === auth?.user?.id 
                         || (project.owner_id && auth?.user?.employee?.id === project.owner_id) 
-                        || auth?.user?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name));
+                        || auth?.user?.roles?.some((r: any) => ['Super Admin'].includes(r.name));
                     
                     return (
                         <Link 

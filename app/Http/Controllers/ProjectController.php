@@ -17,15 +17,16 @@ class ProjectController extends Controller
     private function checkAccess(Project $project)
     {
         $user = Auth::user();
-        if ($user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager', 'Supervisor', 'Head of Department'])) {
+        if ($user->hasAnyRole(['Super Admin', 'General Manager'])) {
             return;
         }
 
         $employeeId = $user->employee->id ?? null;
-        $isOwner = $project->owner_id == $employeeId;
-        $isMember = $project->members()->where('employee_id', $employeeId)->exists();
+        $isOwner = $project->owner_id && $employeeId && $project->owner_id == $employeeId;
+        $isMember = $employeeId && $project->members()->where('employee_id', $employeeId)->exists();
+        $isCreator = $project->created_by === $user->id;
 
-        if (!$isOwner && !$isMember) {
+        if (!$isOwner && !$isMember && !$isCreator) {
             abort(403, 'Anda tidak memiliki akses ke project ini.');
         }
     }
@@ -52,13 +53,16 @@ class ProjectController extends Controller
             $query->where('status', '!=', ProjectStatus::Archived->value);
         }
 
-        if (!$user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager', 'Supervisor', 'Head of Department'])) {
+        if (!$user->hasAnyRole(['Super Admin', 'General Manager'])) {
             $employeeId = $user->employee->id ?? null;
-            $query->where(function ($q) use ($employeeId) {
-                $q->where('owner_id', $employeeId)
-                  ->orWhereHas('members', function ($q2) use ($employeeId) {
-                      $q2->where('employee_id', $employeeId);
-                  });
+            $query->where(function ($q) use ($employeeId, $user) {
+                $q->where('created_by', $user->id);
+                if ($employeeId) {
+                    $q->orWhere('owner_id', $employeeId)
+                      ->orWhereHas('members', function ($q2) use ($employeeId) {
+                          $q2->where('employee_id', $employeeId);
+                      });
+                }
             });
         }
 
@@ -119,7 +123,7 @@ class ProjectController extends Controller
         $user = Auth::user();
         $canEdit = $project->created_by === $user->id 
             || ($project->owner_id && $user->employee && $project->owner_id === $user->employee->id)
-            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+            || $user->hasRole('Super Admin');
 
         return Inertia::render('Projects/Show', [
             'project' => $project,
@@ -137,10 +141,10 @@ class ProjectController extends Controller
         $user = Auth::user();
         $isCreator = $project->created_by === $user->id 
             || ($project->owner_id && $user->employee && $project->owner_id === $user->employee->id)
-            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+            || $user->hasRole('Super Admin');
 
         if (!$isCreator) {
-            abort(403, 'Hanya pembuat project yang dapat mengubah atau menghapus project ini.');
+            abort(403, 'Hanya pembuat project, pemilik project, atau Super Admin yang dapat mengubah atau menghapus project ini.');
         }
     }
 

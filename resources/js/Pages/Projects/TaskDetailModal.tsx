@@ -153,7 +153,8 @@ export default function TaskDetailModal({
         (task?.project && task.project.created_by === currentUser?.id) ||
         (project && project.created_by === currentUser?.id) ||
         (project?.owner_id && currentUser?.employee?.id === project.owner_id) ||
-        currentUser?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name))
+        (task?.project?.owner_id && currentUser?.employee?.id === task.project.owner_id) ||
+        currentUser?.roles?.some((r: any) => ['Super Admin'].includes(r.name))
     );
 
     const availableStatuses = statuses.length > 0

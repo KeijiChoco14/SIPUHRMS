@@ -196,7 +196,8 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                                 const canEditThisTask = Boolean(
                                                                     (task.created_by && task.created_by === auth.user?.id) ||
                                                                     (task.project && task.project.created_by === auth.user?.id) ||
-                                                                    auth.user?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name))
+                                                                    (task.project && task.project.owner_id && auth.user?.employee?.id === task.project.owner_id) ||
+                                                                    auth.user?.roles?.some((r: any) => ['Super Admin'].includes(r.name))
                                                                 );
                                                                 return (
                                                                     <button
