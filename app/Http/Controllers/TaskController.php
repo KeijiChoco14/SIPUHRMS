@@ -219,7 +219,7 @@ class TaskController extends Controller
         $isAssignee = $user->employee && $task->assignees()->where('employee_id', $user->employee->id)->exists();
 
         // Check if this is exclusively a status or schedule change (e.g. from Kanban/Calendar drag/drop)
-        $isStatusOrScheduleUpdate = !$request->hasAny(['title', 'description', 'priority'])
+        $isStatusOrScheduleUpdate = !$request->hasAny(['title', 'description', 'priority', 'assignees'])
             && $request->hasAny(['status', 'deadline', 'start_date', 'estimated_duration']);
 
         if ($isStatusOrScheduleUpdate) {
