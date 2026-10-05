@@ -60,7 +60,7 @@ class TaskController extends Controller
             'tasks' => $tasks,
             'filters' => $request->only(['filter', 'status']),
             'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
-            'projects' => \App\Models\Project::select('id', 'name', 'status', 'color')->get(),
+            'projects' => \App\Models\Project::select('id', 'name', 'status')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);
@@ -100,7 +100,7 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Kanban', [
             'tasks' => $tasks,
             'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
-            'projects' => \App\Models\Project::select('id', 'name', 'status', 'color')->get(),
+            'projects' => \App\Models\Project::select('id', 'name', 'status')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);
@@ -158,7 +158,7 @@ class TaskController extends Controller
         $employees = \App\Models\Employee::with(['user', 'department', 'position'])
             ->get();
 
-        $projects = \App\Models\Project::select('id', 'name', 'status', 'color')
+        $projects = \App\Models\Project::select('id', 'name', 'status')
             ->orderBy('name')
             ->get();
 
