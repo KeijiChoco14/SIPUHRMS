@@ -38,11 +38,17 @@ class TaskCommentController extends Controller
         $currentUserId = (int)Auth::id();
         $taggedUserIds = array_values(array_unique(array_filter($taggedUserIds, fn($id) => $id !== $currentUserId)));
 
-        $comment = $task->comments()->create([
+        $commentData = [
             'employee_id' => $employee->id,
             'content' => $validated['content'],
-            'tagged_user_ids' => $taggedUserIds,
-        ]);
+        ];
+
+        // Guard against databases where migration has not run yet
+        if (\Illuminate\Support\Facades\Schema::hasColumn('task_comments', 'tagged_user_ids')) {
+            $commentData['tagged_user_ids'] = $taggedUserIds;
+        }
+
+        $comment = $task->comments()->create($commentData);
 
         // Send notification to tagged users
         if (!empty($taggedUserIds)) {
