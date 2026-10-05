@@ -156,7 +156,6 @@ class TaskController extends Controller
         $tasks = $query->get();
 
         $employees = \App\Models\Employee::with(['user', 'department', 'position'])
-            ->where('status', 'active')
             ->get();
 
         $projects = \App\Models\Project::select('id', 'name', 'status', 'color')
