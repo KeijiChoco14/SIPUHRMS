@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, router, Link } from '@inertiajs/react';
 import { PageProps } from '@/types';
@@ -27,24 +27,32 @@ export default function Show({
     const [showTaskModal, setShowTaskModal] = useState(false);
     const [showEditProjectModal, setShowEditProjectModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
+    const [localTasks, setLocalTasks] = useState<any[]>(project.tasks || []);
+    const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null);
+    const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null);
+    const isDraggingRef = useRef(false);
 
-    // Sync selectedTask when project props update (e.g. after adding comment/checklist/edit)
     useEffect(() => {
-        if (selectedTask && project.tasks) {
-            const updated = project.tasks.find((t: any) => t.id === selectedTask.id);
+        setLocalTasks(project.tasks || []);
+    }, [project.tasks]);
+
+    // Sync selectedTask when localTasks update (e.g. after adding comment/checklist/edit)
+    useEffect(() => {
+        if (selectedTask && localTasks) {
+            const updated = localTasks.find((t: any) => t.id === selectedTask.id);
             if (updated) setSelectedTask(updated);
         }
-    }, [project.tasks]);
+    }, [localTasks]);
 
     // Open task from URL query param if present (e.g. from notification)
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const taskIdParam = params.get('task_id') || params.get('taskId');
-        if (taskIdParam && project?.tasks) {
-            const found = project.tasks.find((t: any) => String(t.id) === String(taskIdParam));
+        if (taskIdParam && localTasks) {
+            const found = localTasks.find((t: any) => String(t.id) === String(taskIdParam));
             if (found) setSelectedTask(found);
         }
-    }, [project.tasks]);
+    }, [localTasks]);
 
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
@@ -66,12 +74,28 @@ export default function Show({
         });
     };
 
-    const updateTaskStatus = (taskId: number, newStatus: string) => {
+    const handleDropTask = (taskId: number, newStatus: string) => {
+        const currentTask = localTasks.find((t: any) => t.id === taskId);
+        if (!currentTask || currentTask.status === newStatus) return;
+        if (!canEditTaskStatus(currentTask)) return;
+
+        const previousTasks = [...localTasks];
+        setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+
         router.put(route('tasks.update', taskId), {
             status: newStatus,
         }, {
             preserveScroll: true,
+            preserveState: true,
+            onError: (errs) => {
+                setLocalTasks(previousTasks);
+                console.error('Failed to update task status:', errs);
+            }
         });
+    };
+
+    const updateTaskStatus = (taskId: number, newStatus: string) => {
+        handleDropTask(taskId, newStatus);
     };
 
     // Group tasks by status for the kanban board and sort by priority
@@ -83,7 +107,7 @@ export default function Show({
             'Low': 4,
         };
 
-        const filteredTasks = project.tasks?.filter((t: any) => t.status === statusValue) || [];
+        const filteredTasks = localTasks?.filter((t: any) => t.status === statusValue) || [];
 
         return filteredTasks.sort((a: any, b: any) => {
             const weightA = priorityWeight[a.priority] || 99;
@@ -129,9 +153,10 @@ export default function Show({
     };
 
     const kanbanColumns = ['To Do', 'In Progress', 'Review', 'Done'];
+    const draggedTask = localTasks.find((t: any) => t.id === draggedTaskId);
 
-    const totalTasks = project.tasks?.length || 0;
-    const completedTasks = project.tasks?.filter((t: any) => t.status === 'Done')?.length || 0;
+    const totalTasks = localTasks?.length || 0;
+    const completedTasks = localTasks?.filter((t: any) => t.status === 'Done')?.length || 0;
     const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : (project.progress || 0);
     const isCompleted = project.status === 'Completed' || (totalTasks > 0 && completedTasks >= totalTasks) || progressPercent >= 100;
     const pStyle = projectStatusStyle(isCompleted && project.status !== 'Archived' ? 'Completed' : project.status);
@@ -333,84 +358,177 @@ export default function Show({
 
                     {/* Kanban Board */}
                     <div className="flex flex-nowrap overflow-x-auto gap-5 pb-4">
-                        {kanbanColumns.map((status) => (
-                            <div key={status} className="flex-shrink-0 w-80 bg-gray-100/80 rounded-xl p-4 flex flex-col max-h-[75vh] border border-gray-200/60">
-                                <div className="flex items-center justify-between mb-3 px-1">
-                                    <h3 className="font-bold text-sm text-gray-800 flex items-center gap-2">
-                                        <span>{status}</span>
-                                        <span className="text-xs px-2 py-0.5 rounded-full bg-white text-gray-600 border border-gray-200 font-semibold">
-                                            {getTasksByStatus(status).length}
-                                        </span>
-                                    </h3>
-                                </div>
+                        {kanbanColumns.map((status) => {
+                            const columnTasks = getTasksByStatus(status);
+                            const isColumnDraggedOver = draggedOverColumn === status && draggedTask && draggedTask.status !== status;
 
-                                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                                    {getTasksByStatus(status).map((task: any) => (
-                                        <div
-                                            key={task.id}
-                                            className="bg-white p-4 rounded-xl shadow-sm border border-gray-200/80 cursor-pointer hover:shadow-md hover:border-indigo-300 transition-all duration-200"
-                                            onClick={() => setSelectedTask(task)}
-                                        >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="font-semibold text-gray-900 text-sm leading-snug hover:text-indigo-600 transition-colors">
-                                                    {task.title}
-                                                </h4>
+                            return (
+                                <div 
+                                    key={status} 
+                                    className={`flex-shrink-0 w-80 bg-gray-100/80 rounded-xl p-4 flex flex-col max-h-[75vh] border transition-all ${
+                                        isColumnDraggedOver ? 'border-indigo-400 bg-indigo-50/50 ring-2 ring-indigo-400/40' : 'border-gray-200/60'
+                                    }`}
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        e.dataTransfer.dropEffect = 'move';
+                                        if (draggedOverColumn !== status) {
+                                            setDraggedOverColumn(status);
+                                        }
+                                    }}
+                                    onDragEnter={(e) => {
+                                        e.preventDefault();
+                                        setDraggedOverColumn(status);
+                                    }}
+                                    onDragLeave={(e) => {
+                                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                                            if (draggedOverColumn === status) {
+                                                setDraggedOverColumn(null);
+                                            }
+                                        }
+                                    }}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        setDraggedOverColumn(null);
+                                        const taskIdStr = e.dataTransfer.getData('text/plain');
+                                        const taskId = Number(taskIdStr) || draggedTaskId;
+                                        if (taskId) {
+                                            handleDropTask(taskId, status);
+                                        }
+                                    }}
+                                >
+                                    <div className="flex items-center justify-between mb-3 px-1">
+                                        <h3 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                                            <span>{status}</span>
+                                            <span className="text-xs px-2 py-0.5 rounded-full bg-white text-gray-600 border border-gray-200 font-semibold">
+                                                {columnTasks.length}
+                                            </span>
+                                        </h3>
+                                    </div>
+
+                                    <div className="flex-1 overflow-y-auto space-y-3 pr-1 min-h-[140px]">
+                                        {/* Drop placeholder preview */}
+                                        {isColumnDraggedOver && (
+                                            <div className="border-2 border-dashed border-indigo-400 bg-indigo-100/70 rounded-xl p-3 text-center text-xs font-semibold text-indigo-700 flex items-center justify-center gap-2 shadow-sm animate-pulse">
+                                                <svg className="w-4 h-4 text-indigo-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                </svg>
+                                                <span>Lepaskan ke {status}</span>
                                             </div>
+                                        )}
 
-                                            {task.description && (
-                                                <p className="text-xs text-gray-500 line-clamp-2 mb-3">
-                                                    {task.description}
-                                                </p>
-                                            )}
+                                        {columnTasks.map((task: any) => {
+                                            const isBeingDragged = draggedTaskId === task.id;
+                                            const canDrag = canEditTaskStatus(task);
 
-                                            {/* Assignees avatars / chips */}
-                                            {task.assignees?.length > 0 && (
-                                                <div className="flex flex-wrap gap-1 mb-3">
-                                                    {task.assignees.map((a: any) => (
-                                                        <span key={a.id} className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full font-medium border border-indigo-100">
-                                                            {a.user?.name || a.employee_number}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            return (
+                                                <div
+                                                    key={task.id}
+                                                    draggable={canDrag}
+                                                    onDragStart={(e) => {
+                                                        if (!canDrag) return;
+                                                        isDraggingRef.current = true;
+                                                        setDraggedTaskId(task.id);
+                                                        e.dataTransfer.setData('text/plain', String(task.id));
+                                                        e.dataTransfer.effectAllowed = 'move';
+                                                    }}
+                                                    onDragEnd={() => {
+                                                        setDraggedTaskId(null);
+                                                        setDraggedOverColumn(null);
+                                                        setTimeout(() => {
+                                                            isDraggingRef.current = false;
+                                                        }, 100);
+                                                    }}
+                                                    onClick={() => {
+                                                        if (!isDraggingRef.current) {
+                                                            setSelectedTask(task);
+                                                        }
+                                                    }}
+                                                    className={`group bg-white p-4 rounded-xl shadow-sm border transition-all duration-200 ${
+                                                        canDrag ? 'cursor-grab active:cursor-grabbing select-none' : 'cursor-pointer'
+                                                    } ${
+                                                        isBeingDragged
+                                                            ? 'opacity-30 scale-95 border-dashed border-2 border-indigo-400 bg-indigo-50/50 rotate-1 shadow-inner'
+                                                            : 'border-gray-200/80 hover:shadow-md hover:border-indigo-300'
+                                                    }`}
+                                                >
+                                                    <div className="flex justify-between items-start mb-2 gap-2">
+                                                        <h4 className="font-semibold text-gray-900 text-sm leading-snug group-hover:text-indigo-600 transition-colors">
+                                                            {task.title}
+                                                        </h4>
+                                                        {canDrag && (
+                                                            <span 
+                                                                className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
+                                                                title="Geser kartu task"
+                                                            >
+                                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                    <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-12a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+                                                                </svg>
+                                                            </span>
+                                                        )}
+                                                    </div>
 
-                                            <div className="flex justify-between items-center pt-2 border-t border-gray-50 mt-2" onClick={(e) => e.stopPropagation()}>
-                                                <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold border
-                                                    ${task.priority === 'Urgent' ? 'bg-red-50 text-red-700 border-red-200' : ''}
-                                                    ${task.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' : ''}
-                                                    ${task.priority === 'Normal' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                                                    ${task.priority === 'Low' ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
-                                                `}>
-                                                    {task.priority}
-                                                </span>
+                                                    {task.description && (
+                                                        <p className="text-xs text-gray-500 line-clamp-2 mb-3">
+                                                            {task.description}
+                                                        </p>
+                                                    )}
 
-                                                {canEditTaskStatus(task) ? (
-                                                    <select
-                                                        className={`text-[10px] font-semibold border rounded-md py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-indigo-500`}
-                                                        value={task.status}
-                                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                    {/* Assignees avatars / chips */}
+                                                    {task.assignees?.length > 0 && (
+                                                        <div className="flex flex-wrap gap-1 mb-3">
+                                                            {task.assignees.map((a: any) => (
+                                                                <span key={a.id} className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full font-medium border border-indigo-100">
+                                                                    {a.user?.name || a.employee_number}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    <div 
+                                                        className="flex justify-between items-center pt-2 border-t border-gray-50 mt-2" 
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        onMouseDown={(e) => e.stopPropagation()}
                                                     >
-                                                        {kanbanColumns.map((col) => (
-                                                            <option key={col} value={col}>{col}</option>
-                                                        ))}
-                                                    </select>
-                                                ) : (
-                                                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border ${getStatusColor(task.status)}`}>
-                                                        {task.status}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))}
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold border
+                                                            ${task.priority === 'Urgent' ? 'bg-red-50 text-red-700 border-red-200' : ''}
+                                                            ${task.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' : ''}
+                                                            ${task.priority === 'Normal' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                                                            ${task.priority === 'Low' ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                                                        `}>
+                                                            {task.priority}
+                                                        </span>
 
-                                    {getTasksByStatus(status).length === 0 && (
-                                        <div className="text-center py-6 text-xs text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
-                                            Tidak ada task
-                                        </div>
-                                    )}
+                                                        {canEditTaskStatus(task) ? (
+                                                            <select
+                                                                className={`text-[10px] font-semibold border rounded-md py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-indigo-500`}
+                                                                value={task.status}
+                                                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                                onClick={(e) => e.stopPropagation()}
+                                                                onMouseDown={(e) => e.stopPropagation()}
+                                                            >
+                                                                {kanbanColumns.map((col) => (
+                                                                    <option key={col} value={col}>{col}</option>
+                                                                ))}
+                                                            </select>
+                                                        ) : (
+                                                            <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border ${getStatusColor(task.status)}`}>
+                                                                {task.status}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+
+                                        {columnTasks.length === 0 && !isColumnDraggedOver && (
+                                            <div className="text-center py-6 text-xs text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
+                                                Tidak ada task
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </div>

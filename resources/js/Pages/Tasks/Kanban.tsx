@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import TaskDetailModal from '../Projects/TaskDetailModal';
@@ -32,26 +32,35 @@ const priorityConfig: Record<string, { bg: string; text: string }> = {
 };
 
 export default function Kanban({ auth, tasks, statuses, priorities, employees, projects = [] }: any) {
+    const [localTasks, setLocalTasks] = useState<any[]>(tasks || []);
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null);
+    const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null);
+    const isDraggingRef = useRef(false);
 
-    // Sync selectedTask when tasks props update (e.g. after adding comment/checklist)
+    // Keep localTasks in sync with Inertia tasks prop updates
     useEffect(() => {
-        if (selectedTask && tasks) {
-            const updated = tasks.find((t: any) => t.id === selectedTask.id);
+        setLocalTasks(tasks || []);
+    }, [tasks]);
+
+    // Sync selectedTask when localTasks update (e.g. after adding comment/checklist)
+    useEffect(() => {
+        if (selectedTask && localTasks) {
+            const updated = localTasks.find((t: any) => t.id === selectedTask.id);
             if (updated) setSelectedTask(updated);
         }
-    }, [tasks]);
+    }, [localTasks]);
 
     // Open task from URL query param if present (e.g. from notification)
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const taskIdParam = params.get('task_id') || params.get('taskId');
-        if (taskIdParam && tasks) {
-            const found = tasks.find((t: any) => String(t.id) === String(taskIdParam));
+        if (taskIdParam && localTasks) {
+            const found = localTasks.find((t: any) => String(t.id) === String(taskIdParam));
             if (found) setSelectedTask(found);
         }
-    }, [tasks]);
+    }, [localTasks]);
 
     const getStatusColor = (status: string) => {
         switch(status) {
@@ -63,12 +72,30 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
         }
     };
 
-    const updateTaskStatus = (taskId: number, newStatus: string) => {
+    const handleDropTask = (taskId: number, newStatus: string) => {
+        const currentTask = localTasks.find((t: any) => t.id === taskId);
+        if (!currentTask || currentTask.status === newStatus) return;
+
+        const previousTasks = [...localTasks];
+
+        // Optimistic UI update for instantaneous snappy feedback
+        setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+
         router.put(route('tasks.update', taskId), {
             status: newStatus
         }, {
-            preserveScroll: true
+            preserveScroll: true,
+            preserveState: true,
+            onError: (errs) => {
+                // Revert if error occurs
+                setLocalTasks(previousTasks);
+                console.error('Failed to update task status:', errs);
+            }
         });
+    };
+
+    const updateTaskStatus = (taskId: number, newStatus: string) => {
+        handleDropTask(taskId, newStatus);
     };
 
     // Group tasks by status for the kanban board and sort by priority
@@ -80,7 +107,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
             'Low': 4
         };
 
-        const filteredTasks = tasks?.filter((t: any) => t.status === statusValue) || [];
+        const filteredTasks = localTasks?.filter((t: any) => t.status === statusValue) || [];
         
         return filteredTasks.sort((a: any, b: any) => {
             const weightA = priorityWeight[a.priority] || 99;
@@ -90,6 +117,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
     };
 
     const kanbanColumns = ['To Do', 'In Progress', 'Review', 'Done'];
+    const draggedTask = localTasks.find((t: any) => t.id === draggedTaskId);
 
     return (
         <AuthenticatedLayout
@@ -97,7 +125,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 className="font-bold text-xl text-gray-900">My Kanban Board</h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Drag tasks across columns to update status</p>
+                        <p className="text-sm text-gray-500 mt-0.5">Geser kartu task (drag & drop) antar kolom untuk mengubah status secara langsung</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <TaskViewSwitcher current="kanban" />
@@ -119,11 +147,44 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                     {kanbanColumns.map(status => {
                         const config = columnConfig[status];
                         const columnTasks = getTasksByStatus(status);
+                        const isColumnDraggedOver = draggedOverColumn === status && draggedTask && draggedTask.status !== status;
 
                         return (
-                            <div key={status} className="flex-shrink-0 w-80">
+                            <div 
+                                key={status} 
+                                className="flex-shrink-0 w-80 flex flex-col"
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    e.dataTransfer.dropEffect = 'move';
+                                    if (draggedOverColumn !== status) {
+                                        setDraggedOverColumn(status);
+                                    }
+                                }}
+                                onDragEnter={(e) => {
+                                    e.preventDefault();
+                                    setDraggedOverColumn(status);
+                                }}
+                                onDragLeave={(e) => {
+                                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                                        if (draggedOverColumn === status) {
+                                            setDraggedOverColumn(null);
+                                        }
+                                    }
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setDraggedOverColumn(null);
+                                    const taskIdStr = e.dataTransfer.getData('text/plain');
+                                    const taskId = Number(taskIdStr) || draggedTaskId;
+                                    if (taskId) {
+                                        handleDropTask(taskId, status);
+                                    }
+                                }}
+                            >
                                 {/* Column Header */}
-                                <div className={`flex items-center gap-2 px-3 py-2.5 rounded-t-xl ${config.bg} border ${config.border} border-b-0`}>
+                                <div className={`flex items-center gap-2 px-3 py-2.5 rounded-t-xl ${config.bg} border ${config.border} border-b-0 transition-all ${
+                                    isColumnDraggedOver ? 'ring-2 ring-indigo-400 border-indigo-400' : ''
+                                }`}>
                                     <span className={config.color}>{config.icon}</span>
                                     <h3 className={`font-bold text-sm ${config.color}`}>{status}</h3>
                                     <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${config.bg} ${config.color} border ${config.border}`}>
@@ -132,8 +193,24 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                 </div>
                                 
                                 {/* Task Cards Container */}
-                                <div className={`border ${config.border} border-t-0 rounded-b-xl bg-gray-50/50 p-2.5 space-y-2.5 min-h-[200px] max-h-[70vh] overflow-y-auto`}>
+                                <div className={`border ${
+                                    isColumnDraggedOver 
+                                        ? 'border-indigo-400 bg-indigo-50/40 ring-2 ring-indigo-400/30' 
+                                        : `${config.border} bg-gray-50/50`
+                                } border-t-0 rounded-b-xl p-2.5 space-y-2.5 min-h-[260px] max-h-[72vh] overflow-y-auto transition-all duration-150`}>
+                                    
+                                    {/* Drop Target Preview Banner */}
+                                    {isColumnDraggedOver && (
+                                        <div className="border-2 border-dashed border-indigo-400 bg-indigo-100/70 rounded-xl p-3 text-center text-xs font-semibold text-indigo-700 flex items-center justify-center gap-2 shadow-sm animate-pulse">
+                                            <svg className="w-4 h-4 text-indigo-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                            </svg>
+                                            <span>Lepaskan ke kolom {status}</span>
+                                        </div>
+                                    )}
+
                                     {columnTasks.map((task: any) => {
+                                        const isBeingDragged = draggedTaskId === task.id;
                                         const priority = priorityConfig[task.priority] || priorityConfig['Normal'];
                                         const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'Done';
                                         const assigneeNames = task.assignees?.map((a: any) => a.user?.name || 'Unknown') || [];
@@ -141,12 +218,46 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                         return (
                                             <div 
                                                 key={task.id} 
-                                                className={`bg-white rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 ${isOverdue ? 'border-red-200 ring-1 ring-red-100' : 'border-gray-100'}`}
-                                                onClick={() => setSelectedTask(task)}
+                                                draggable
+                                                onDragStart={(e) => {
+                                                    isDraggingRef.current = true;
+                                                    setDraggedTaskId(task.id);
+                                                    e.dataTransfer.setData('text/plain', String(task.id));
+                                                    e.dataTransfer.effectAllowed = 'move';
+                                                }}
+                                                onDragEnd={() => {
+                                                    setDraggedTaskId(null);
+                                                    setDraggedOverColumn(null);
+                                                    setTimeout(() => {
+                                                        isDraggingRef.current = false;
+                                                    }, 100);
+                                                }}
+                                                onClick={() => {
+                                                    if (!isDraggingRef.current) {
+                                                        setSelectedTask(task);
+                                                    }
+                                                }}
+                                                className={`group bg-white rounded-xl shadow-sm border transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
+                                                    isBeingDragged
+                                                        ? 'opacity-30 scale-95 border-dashed border-2 border-indigo-400 bg-indigo-50/50 rotate-1 shadow-inner'
+                                                        : 'hover:shadow-md hover:-translate-y-0.5 border-gray-200/80 hover:border-indigo-300'
+                                                } ${isOverdue && !isBeingDragged ? 'border-red-200 ring-1 ring-red-100' : ''}`}
                                             >
                                                 <div className="p-3.5">
-                                                    {/* Task Title */}
-                                                    <h4 className="font-medium text-sm text-gray-900 leading-snug mb-1.5">{task.title}</h4>
+                                                    {/* Task Title + Drag Handle Icon */}
+                                                    <div className="flex items-start justify-between gap-2 mb-1.5">
+                                                        <h4 className="font-semibold text-sm text-gray-900 leading-snug group-hover:text-indigo-600 transition-colors">
+                                                            {task.title}
+                                                        </h4>
+                                                        <span 
+                                                            className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
+                                                            title="Tahan dan geser kartu task"
+                                                        >
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-12a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
                                                     
                                                     {/* Project Name */}
                                                     <p className="text-[11px] text-gray-400 mb-2.5 truncate">{task.project?.name}</p>
@@ -165,7 +276,11 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                     </div>
 
                                                     {/* Footer */}
-                                                    <div className="flex items-center justify-between pt-2.5 border-t border-gray-50" onClick={e => e.stopPropagation()}>
+                                                    <div 
+                                                        className="flex items-center justify-between pt-2.5 border-t border-gray-50" 
+                                                        onClick={e => e.stopPropagation()}
+                                                        onMouseDown={e => e.stopPropagation()}
+                                                    >
                                                         {/* Assignee Avatars */}
                                                         <div className="flex -space-x-2">
                                                             {assigneeNames.slice(0, 3).map((name: string, idx: number) => (
@@ -198,6 +313,8 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                                 className={`text-[10px] border rounded font-semibold py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-indigo-500`}
                                                                 value={task.status}
                                                                 onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                                onClick={e => e.stopPropagation()}
+                                                                onMouseDown={e => e.stopPropagation()}
                                                             >
                                                                 {kanbanColumns.map(col => (
                                                                     <option key={col} value={col}>{col}</option>
@@ -210,12 +327,13 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                         );
                                     })}
                                     
-                                    {columnTasks.length === 0 && (
-                                        <div className="flex flex-col items-center justify-center py-8 text-center">
-                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                                    {columnTasks.length === 0 && !isColumnDraggedOver && (
+                                        <div className="flex flex-col items-center justify-center py-10 text-center">
+                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-2 text-gray-300">
                                                 <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
                                             </div>
-                                            <p className="text-xs text-gray-400">No tasks</p>
+                                            <p className="text-xs text-gray-400">Belum ada task</p>
+                                            <p className="text-[11px] text-gray-400/80 mt-0.5">Tarik task ke sini</p>
                                         </div>
                                     )}
                                 </div>
@@ -224,6 +342,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                     })}
                 </div>
             </div>
+
 
             {/* Task Detail Modal */}
             {selectedTask && (
