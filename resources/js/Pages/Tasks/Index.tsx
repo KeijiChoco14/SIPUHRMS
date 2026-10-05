@@ -16,6 +16,16 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
         }
     }, [tasks]);
 
+    // Open task from URL query param if present (e.g. from notification)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const taskIdParam = params.get('task_id') || params.get('taskId');
+        if (taskIdParam && tasks) {
+            const found = tasks.find((t: any) => String(t.id) === String(taskIdParam));
+            if (found) setSelectedTask(found);
+        }
+    }, [tasks]);
+
     // Sort tasks by priority
     const sortedTasks = [...(tasks || [])].sort((a: any, b: any) => {
         const priorityWeight: Record<string, number> = {

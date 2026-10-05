@@ -232,12 +232,33 @@ export default function Authenticated({
                                                         preserveState: true,
                                                     });
                                                 };
+                                                const isMention = notif.data?.type === 'comment_mention';
 
                                                 const content = (
-                                                    <div className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group flex justify-between items-start gap-2">
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm text-gray-800">{notif.data.message}</p>
-                                                            <p className="text-[10px] text-gray-400 mt-1">{new Date(notif.created_at).toLocaleString()}</p>
+                                                    <div className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group flex justify-between items-start gap-2.5 ${isMention ? 'bg-indigo-50/20' : ''}`}>
+                                                        <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                                                            {isMention ? (
+                                                                <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+                                                                    @
+                                                                </div>
+                                                            ) : (
+                                                                <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                                    </svg>
+                                                                </div>
+                                                            )}
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-xs text-gray-800 leading-snug font-medium line-clamp-2">{notif.data.message}</p>
+                                                                <div className="flex items-center gap-1.5 mt-1">
+                                                                    {isMention && (
+                                                                        <span className="text-[9px] bg-indigo-100 text-indigo-700 font-semibold px-1 rounded">
+                                                                            Ditandai
+                                                                        </span>
+                                                                    )}
+                                                                    <span className="text-[10px] text-gray-400">{new Date(notif.created_at).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <button 
                                                             onClick={handleDeleteNotification}

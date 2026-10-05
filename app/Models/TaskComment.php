@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaskComment extends Model
 {
-    protected $fillable = ['task_id', 'employee_id', 'content'];
+    protected $fillable = ['task_id', 'employee_id', 'content', 'tagged_user_ids'];
+
+    protected $casts = [
+        'tagged_user_ids' => 'array',
+    ];
 
     public function task(): BelongsTo
     {

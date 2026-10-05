@@ -36,6 +36,16 @@ export default function Show({
         }
     }, [project.tasks]);
 
+    // Open task from URL query param if present (e.g. from notification)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const taskIdParam = params.get('task_id') || params.get('taskId');
+        if (taskIdParam && project?.tasks) {
+            const found = project.tasks.find((t: any) => String(t.id) === String(taskIdParam));
+            if (found) setSelectedTask(found);
+        }
+    }, [project.tasks]);
+
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
         description: '',

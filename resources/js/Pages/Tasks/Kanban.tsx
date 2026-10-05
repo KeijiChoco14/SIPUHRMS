@@ -42,6 +42,16 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees }:
         }
     }, [tasks]);
 
+    // Open task from URL query param if present (e.g. from notification)
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const taskIdParam = params.get('task_id') || params.get('taskId');
+        if (taskIdParam && tasks) {
+            const found = tasks.find((t: any) => String(t.id) === String(taskIdParam));
+            if (found) setSelectedTask(found);
+        }
+    }, [tasks]);
+
     const getStatusColor = (status: string) => {
         switch(status) {
             case 'To Do': return 'bg-slate-100 text-slate-700 border-slate-200';

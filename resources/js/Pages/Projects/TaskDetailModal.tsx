@@ -10,6 +10,7 @@ interface TaskDetailModalProps {
     employees?: any[];
     statuses?: any[];
     priorities?: any[];
+    initialTab?: 'details' | 'checklists' | 'attachments' | 'comments' | 'activity';
 }
 
 const formatDate = (d: any) => {
@@ -26,8 +27,14 @@ export default function TaskDetailModal({
     employees = [],
     statuses = [],
     priorities = [],
+    initialTab,
 }: TaskDetailModalProps) {
-    const [activeTab, setActiveTab] = useState<'details' | 'checklists' | 'attachments' | 'comments' | 'activity'>('details');
+    const urlTab = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null;
+    const defaultTab = (urlTab && ['details', 'checklists', 'attachments', 'comments', 'activity'].includes(urlTab))
+        ? (urlTab as 'details' | 'checklists' | 'attachments' | 'comments' | 'activity')
+        : (initialTab || 'details');
+
+    const [activeTab, setActiveTab] = useState<'details' | 'checklists' | 'attachments' | 'comments' | 'activity'>(defaultTab);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [editError, setEditError] = useState('');
@@ -58,9 +65,237 @@ export default function TaskDetailModal({
         title: '',
     });
 
-    const commentForm = useForm({
+    const commentForm = useForm<{
+        content: string;
+        tagged_user_ids: number[];
+    }>({
         content: '',
+        tagged_user_ids: [],
     });
+
+    const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+    const [showMentionMenu, setShowMentionMenu] = useState(false);
+    const [mentionIndex, setMentionIndex] = useState(0);
+    const [showTagPicker, setShowTagPicker] = useState(false);
+    const commentTextareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+    const mentionableUsers = React.useMemo(() => {
+        const list: Array<{
+            userId: number;
+            employeeId: number;
+            name: string;
+            departmentName?: string;
+            profilePhoto?: string;
+            isAssignee: boolean;
+        }> = [];
+        const seenUserIds = new Set<number>();
+
+        // 1. Task assignees first (priority)
+        if (task?.assignees && Array.isArray(task.assignees)) {
+            task.assignees.forEach((assignee: any) => {
+                const uId = assignee.user?.id || assignee.user_id;
+                const name = assignee.user?.name;
+                if (uId && name && !seenUserIds.has(uId)) {
+                    seenUserIds.add(uId);
+                    list.push({
+                        userId: uId,
+                        employeeId: assignee.id,
+                        name,
+                        departmentName: assignee.department?.name,
+                        profilePhoto: assignee.user?.profile_photo_url || assignee.profile_photo,
+                        isAssignee: true,
+                    });
+                }
+            });
+        }
+
+        // 2. All other employees
+        if (employees && Array.isArray(employees)) {
+            employees.forEach((emp: any) => {
+                const uId = emp.user?.id || emp.user_id;
+                const name = emp.user?.name;
+                if (uId && name && !seenUserIds.has(uId)) {
+                    seenUserIds.add(uId);
+                    list.push({
+                        userId: uId,
+                        employeeId: emp.id,
+                        name,
+                        departmentName: emp.department?.name,
+                        profilePhoto: emp.user?.profile_photo_url || emp.profile_photo,
+                        isAssignee: false,
+                    });
+                }
+            });
+        }
+
+        return list;
+    }, [employees, task?.assignees]);
+
+    const filteredMentions = React.useMemo(() => {
+        if (mentionQuery === null) return [];
+        const q = mentionQuery.toLowerCase().trim();
+        if (!q) return mentionableUsers.slice(0, 8);
+        return mentionableUsers.filter(u => 
+            u.name.toLowerCase().includes(q) || 
+            (u.departmentName && u.departmentName.toLowerCase().includes(q))
+        ).slice(0, 8);
+    }, [mentionQuery, mentionableUsers]);
+
+    const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const val = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        
+        const textBeforeCursor = val.slice(0, cursorPos);
+        const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+        
+        if (lastAtIndex !== -1) {
+            const textAfterAt = textBeforeCursor.slice(lastAtIndex + 1);
+            if (!textAfterAt.includes('\n') && textAfterAt.length <= 25) {
+                if (lastAtIndex === 0 || /\s/.test(textBeforeCursor[lastAtIndex - 1])) {
+                    setMentionQuery(textAfterAt);
+                    setShowMentionMenu(true);
+                    setMentionIndex(0);
+                    commentForm.setData('content', val);
+                    return;
+                }
+            }
+        }
+
+        setShowMentionMenu(false);
+        setMentionQuery(null);
+        commentForm.setData('content', val);
+    };
+
+    const insertMention = (user: { userId: number; name: string }) => {
+        const textarea = commentTextareaRef.current;
+        const currentVal = commentForm.data.content;
+        const cursorPos = textarea ? textarea.selectionStart : currentVal.length;
+        const textBeforeCursor = currentVal.slice(0, cursorPos);
+        const textAfterCursor = currentVal.slice(cursorPos);
+
+        const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+        let newContent = '';
+        if (lastAtIndex !== -1 && (lastAtIndex === 0 || /\s/.test(textBeforeCursor[lastAtIndex - 1]))) {
+            const beforeAt = textBeforeCursor.slice(0, lastAtIndex);
+            newContent = `${beforeAt}@${user.name} ${textAfterCursor}`;
+        } else {
+            newContent = currentVal.trim() ? `${currentVal} @${user.name} ` : `@${user.name} `;
+        }
+
+        const nextTagged = Array.from(new Set([...(commentForm.data.tagged_user_ids || []), user.userId]));
+        commentForm.setData({
+            content: newContent,
+            tagged_user_ids: nextTagged,
+        });
+
+        setShowMentionMenu(false);
+        setMentionQuery(null);
+        setShowTagPicker(false);
+
+        setTimeout(() => {
+            if (textarea) {
+                textarea.focus();
+            }
+        }, 50);
+    };
+
+    const removeTaggedUser = (userId: number) => {
+        const targetUser = mentionableUsers.find(u => u.userId === userId);
+        const nextTagged = (commentForm.data.tagged_user_ids || []).filter(id => id !== userId);
+        
+        let newContent = commentForm.data.content;
+        if (targetUser) {
+            newContent = newContent.replace(new RegExp(`@${targetUser.name}\\s*`, 'g'), '').trim();
+        }
+
+        commentForm.setData({
+            content: newContent,
+            tagged_user_ids: nextTagged,
+        });
+    };
+
+    const handleCommentKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (showMentionMenu && filteredMentions.length > 0) {
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setMentionIndex((prev) => (prev + 1) % filteredMentions.length);
+                return;
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setMentionIndex((prev) => (prev - 1 + filteredMentions.length) % filteredMentions.length);
+                return;
+            }
+            if (e.key === 'Enter' || e.key === 'Tab') {
+                e.preventDefault();
+                if (filteredMentions[mentionIndex]) {
+                    insertMention(filteredMentions[mentionIndex]);
+                }
+                return;
+            }
+            if (e.key === 'Escape') {
+                setShowMentionMenu(false);
+                return;
+            }
+        }
+    };
+
+    const renderCommentContent = (content: string) => {
+        if (!content) return null;
+
+        const knownNames = mentionableUsers.map(u => u.name).filter(Boolean);
+        const escapedNames = knownNames.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        
+        const pattern = escapedNames.length > 0
+            ? new RegExp(`@(${escapedNames.join('|')}|[a-zA-Z0-9_.-]+(?:\\s+[a-zA-Z0-9_.-]+)?)`, 'g')
+            : /@([a-zA-Z0-9_.-]+(?:\s+[a-zA-Z0-9_.-]+)?)/g;
+
+        const parts = [];
+        let lastIndex = 0;
+        let match;
+
+        while ((match = pattern.exec(content)) !== null) {
+            const matchStart = match.index;
+            const matchEnd = pattern.lastIndex;
+            const mentionedName = match[1];
+
+            if (matchStart > lastIndex) {
+                parts.push(content.slice(lastIndex, matchStart));
+            }
+
+            const isCurrentUser = currentUser && (
+                currentUser.name?.toLowerCase() === mentionedName.toLowerCase() ||
+                currentUser.name?.toLowerCase().includes(mentionedName.toLowerCase())
+            );
+
+            parts.push(
+                <span
+                    key={`${matchStart}-${mentionedName}`}
+                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-semibold mx-0.5 align-baseline shadow-xs ${
+                        isCurrentUser
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300 ring-1 ring-amber-400/50'
+                            : 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 hover:bg-indigo-100/80'
+                    }`}
+                >
+                    <span className="text-indigo-400 font-bold">@</span>
+                    <span>{mentionedName}</span>
+                    {isCurrentUser && (
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-200/70 px-1 rounded ml-0.5">
+                            Anda
+                        </span>
+                    )}
+                </span>
+            );
+
+            lastIndex = matchEnd;
+        }
+
+        if (lastIndex < content.length) {
+            parts.push(content.slice(lastIndex));
+        }
+
+        return parts;
+    };
 
     const attachmentForm = useForm({
         file: null as File | null,
@@ -86,10 +321,25 @@ export default function TaskDetailModal({
 
     const addComment = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!commentForm.data.content.trim()) return;
+
         commentForm.post(route('tasks.comments.store', task.id), {
-            onSuccess: () => commentForm.reset(),
+            onSuccess: () => {
+                commentForm.reset();
+                setShowMentionMenu(false);
+                setMentionQuery(null);
+                setShowTagPicker(false);
+            },
             preserveScroll: true,
         });
+    };
+
+    const deleteComment = (commentId: number) => {
+        if (confirm('Apakah Anda yakin ingin menghapus komentar ini?')) {
+            router.delete(route('tasks.comments.destroy', commentId), {
+                preserveScroll: true,
+            });
+        }
     };
 
     const uploadAttachment = (e: React.FormEvent) => {
@@ -636,43 +886,247 @@ export default function TaskDetailModal({
                                 {activeTab === 'comments' && (
                                     <div className="flex flex-col h-full space-y-4">
                                         <div className="flex-1 space-y-3">
-                                            {task.comments?.map((comment: any) => (
-                                                <div key={comment.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                                                    <div className="flex justify-between items-start mb-1.5">
-                                                        <div className="font-semibold text-xs text-gray-900">
-                                                            {comment.employee?.user?.name || 'Karyawan'}
+                                            {task.comments?.map((comment: any) => {
+                                                const isUserTagged = (comment.tagged_user_ids && Array.isArray(comment.tagged_user_ids) && currentUser?.id && comment.tagged_user_ids.includes(currentUser.id)) ||
+                                                    (currentUser?.name && comment.content?.toLowerCase().includes(`@${currentUser.name.toLowerCase()}`));
+                                                
+                                                const canDelete = currentUser?.employee?.id === comment.employee_id || 
+                                                    currentUser?.id === comment.employee?.user_id;
+
+                                                return (
+                                                    <div 
+                                                        key={comment.id} 
+                                                        className={`p-4 rounded-xl shadow-sm border transition-all duration-200 ${
+                                                            isUserTagged 
+                                                                ? 'bg-amber-50/50 border-amber-200 ring-1 ring-amber-300/60' 
+                                                                : 'bg-white border-gray-200'
+                                                        }`}
+                                                    >
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <div className="flex items-center gap-2.5">
+                                                                <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+                                                                    {comment.employee?.user?.profile_photo_url ? (
+                                                                        <img src={comment.employee.user.profile_photo_url} alt="" className="h-full w-full object-cover" />
+                                                                    ) : (
+                                                                        (comment.employee?.user?.name || 'K').charAt(0).toUpperCase()
+                                                                    )}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-semibold text-xs text-gray-900">
+                                                                            {comment.employee?.user?.name || 'Karyawan'}
+                                                                        </span>
+                                                                        {comment.employee?.department?.name && (
+                                                                            <span className="text-[10px] text-gray-400 hidden sm:inline">
+                                                                                • {comment.employee.department.name}
+                                                                            </span>
+                                                                        )}
+                                                                        {isUserTagged && (
+                                                                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                                                                                <svg className="w-2.5 h-2.5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                                                                                </svg>
+                                                                                Menandai Anda
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-[10px] text-gray-400">
+                                                                        {new Date(comment.created_at).toLocaleString('id-ID', {
+                                                                            day: 'numeric',
+                                                                            month: 'short',
+                                                                            year: 'numeric',
+                                                                            hour: '2-digit',
+                                                                            minute: '2-digit'
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {canDelete && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => deleteComment(comment.id)}
+                                                                    className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1 rounded-md transition-colors"
+                                                                    title="Hapus Komentar"
+                                                                >
+                                                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                        <div className="text-[10px] text-gray-400">
-                                                            {new Date(comment.created_at).toLocaleString('id-ID')}
+                                                        <div className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed pl-9">
+                                                            {renderCommentContent(comment.content)}
                                                         </div>
                                                     </div>
-                                                    <p className="text-xs text-gray-700 whitespace-pre-wrap">{comment.content}</p>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                             {task.comments?.length === 0 && (
                                                 <div className="text-center py-8 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
-                                                    Belum ada komentar. Mulai diskusi di bawah!
+                                                    Belum ada komentar. Mulai diskusi dan gunakan <span className="font-semibold text-indigo-600">@</span> untuk menandai rekan kerja!
                                                 </div>
                                             )}
                                         </div>
 
-                                        <form onSubmit={addComment} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                            <textarea
-                                                value={commentForm.data.content}
-                                                onChange={(e) => commentForm.setData('content', e.target.value)}
-                                                rows={3}
-                                                placeholder="Tuliskan komentar atau pembaruan status..."
-                                                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs sm:text-sm mb-2"
-                                            />
-                                            <div className="flex justify-end">
-                                                <button
-                                                    type="submit"
-                                                    disabled={commentForm.processing || !commentForm.data.content.trim()}
-                                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50"
-                                                >
-                                                    Kirim Komentar
-                                                </button>
+                                        <form onSubmit={addComment} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
+                                            {/* Autocomplete Popup when typing @ */}
+                                            {showMentionMenu && filteredMentions.length > 0 && (
+                                                <div className="absolute bottom-full mb-2 left-4 right-4 sm:left-4 sm:right-auto sm:w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-100">
+                                                    <div className="p-2 bg-indigo-50/80 border-b border-indigo-100 flex items-center justify-between">
+                                                        <span className="text-[11px] font-semibold text-indigo-900 flex items-center gap-1.5">
+                                                            <span className="flex h-2 w-2 relative">
+                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                                                            </span>
+                                                            Pilih Rekan untuk Ditandai (@)
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-400">↑↓ navigasi • Enter pilih</span>
+                                                    </div>
+                                                    <div className="max-h-52 overflow-y-auto py-1">
+                                                        {filteredMentions.map((user, idx) => (
+                                                            <button
+                                                                key={user.userId}
+                                                                type="button"
+                                                                onClick={() => insertMention(user)}
+                                                                className={`w-full text-left px-3 py-2 flex items-center gap-2.5 transition-colors ${
+                                                                    idx === mentionIndex ? 'bg-indigo-50 text-indigo-900' : 'hover:bg-gray-50 text-gray-700'
+                                                                }`}
+                                                            >
+                                                                <div className="h-7 w-7 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
+                                                                    {user.profilePhoto ? (
+                                                                        <img src={user.profilePhoto} alt="" className="h-full w-full object-cover" />
+                                                                    ) : (
+                                                                        user.name.charAt(0).toUpperCase()
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <span className="text-xs font-semibold truncate">{user.name}</span>
+                                                                        {user.isAssignee && (
+                                                                            <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium shrink-0">
+                                                                                Ditugaskan
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    {user.departmentName && (
+                                                                        <p className="text-[10px] text-gray-400 truncate">{user.departmentName}</p>
+                                                                    )}
+                                                                </div>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Textarea */}
+                                            <div className="relative">
+                                                <textarea
+                                                    ref={commentTextareaRef}
+                                                    value={commentForm.data.content}
+                                                    onChange={handleCommentChange}
+                                                    onKeyDown={handleCommentKeyDown}
+                                                    rows={3}
+                                                    placeholder="Tuliskan komentar... Ketik @ untuk menandai rekan kerja agar mendapat notifikasi"
+                                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs sm:text-sm mb-2"
+                                                />
                                             </div>
+
+                                            {/* Quick Mention / Tag bar */}
+                                            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-gray-100">
+                                                <div className="flex flex-wrap items-center gap-1.5">
+                                                    <span className="text-[11px] font-medium text-gray-500 flex items-center gap-1">
+                                                        <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                                        </svg>
+                                                        Tag:
+                                                    </span>
+
+                                                    {/* Quick Assignees chips */}
+                                                    {mentionableUsers.filter(u => u.isAssignee).map(user => {
+                                                        const isTagged = (commentForm.data.tagged_user_ids || []).includes(user.userId) || 
+                                                            commentForm.data.content.includes(`@${user.name}`);
+                                                        return (
+                                                            <button
+                                                                key={user.userId}
+                                                                type="button"
+                                                                onClick={() => insertMention(user)}
+                                                                className={`text-[11px] px-2 py-0.5 rounded-full border transition-all flex items-center gap-1 ${
+                                                                    isTagged 
+                                                                        ? 'bg-indigo-100 text-indigo-800 border-indigo-300 font-semibold' 
+                                                                        : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-indigo-50 hover:text-indigo-600'
+                                                                }`}
+                                                                title={`Tag ${user.name}`}
+                                                            >
+                                                                <span>@{user.name.split(' ')[0]}</span>
+                                                                {isTagged && <span className="text-indigo-600 font-bold">✓</span>}
+                                                            </button>
+                                                        );
+                                                    })}
+
+                                                    {/* Button to show tag picker dropdown for other employees */}
+                                                    <div className="relative">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowTagPicker(!showTagPicker)}
+                                                            className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-gray-500 hover:text-indigo-600 hover:border-indigo-400 bg-white transition-colors flex items-center gap-1"
+                                                        >
+                                                            <span>+ Pilih Karyawan</span>
+                                                        </button>
+
+                                                        {showTagPicker && (
+                                                            <div className="absolute bottom-full mb-2 left-0 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-2">
+                                                                <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-gray-100">
+                                                                    <span className="text-xs font-semibold text-gray-800">Tag Rekan Kerja</span>
+                                                                    <button 
+                                                                        type="button" 
+                                                                        onClick={() => setShowTagPicker(false)}
+                                                                        className="text-gray-400 hover:text-gray-600 text-xs"
+                                                                    >
+                                                                        ✕
+                                                                    </button>
+                                                                </div>
+                                                                <div className="max-h-44 overflow-y-auto space-y-1">
+                                                                    {mentionableUsers.map(user => (
+                                                                        <button
+                                                                            key={user.userId}
+                                                                            type="button"
+                                                                            onClick={() => insertMention(user)}
+                                                                            className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-indigo-50 text-xs flex items-center justify-between transition-colors group"
+                                                                        >
+                                                                            <span className="truncate group-hover:text-indigo-700">{user.name}</span>
+                                                                            {user.departmentName && (
+                                                                                <span className="text-[10px] text-gray-400 ml-1 shrink-0">{user.departmentName}</span>
+                                                                            )}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Submit Button */}
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        type="submit"
+                                                        disabled={commentForm.processing || !commentForm.data.content.trim()}
+                                                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-1.5 shadow-sm transition-colors"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                        </svg>
+                                                        <span>Kirim Komentar</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Tagged users summary banner */}
+                                            {(commentForm.data.tagged_user_ids?.length > 0 || commentForm.data.content.includes('@')) && (
+                                                <div className="mt-2 text-[11px] text-indigo-700 bg-indigo-50/70 border border-indigo-100 rounded-lg p-2 flex items-center gap-1.5">
+                                                    <svg className="w-3.5 h-3.5 text-indigo-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                                    </svg>
+                                                    <span>Rekan yang ditandai (@) akan otomatis menerima notifikasi dan email agar tidak tertinggal info ini.</span>
+                                                </div>
+                                            )}
                                         </form>
                                     </div>
                                 )}
