@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes indeterminate {
+    0% {
+        transform: translateX(-100%);
+    }
+    50% {
+        transform: translateX(20%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.animate-indeterminate {
+    animation: indeterminate 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}

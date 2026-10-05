@@ -3,7 +3,7 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage, router } from '@inertiajs/react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import { PropsWithChildren, ReactNode, useState, useEffect } from 'react';
 
 const icons: Record<string, JSX.Element> = {
     Dashboard: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" /></svg>,
@@ -45,6 +45,35 @@ export default function Authenticated({
 }: PropsWithChildren<{ header?: ReactNode, user?: any }>) {
     const user = usePage().props.auth.user as any;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [navigatingMethod, setNavigatingMethod] = useState<'get' | 'post' | 'put' | 'patch' | 'delete'>('get');
+
+    useEffect(() => {
+        const removeStart = router.on('start', (event: any) => {
+            setIsNavigating(true);
+            const method = (event.detail?.visit?.method || 'get').toLowerCase();
+            setNavigatingMethod(method as any);
+        });
+
+        const removeFinish = router.on('finish', () => {
+            setIsNavigating(false);
+        });
+
+        const removeError = router.on('error', () => {
+            setIsNavigating(false);
+        });
+
+        const removeCancel = router.on('cancel', () => {
+            setIsNavigating(false);
+        });
+
+        return () => {
+            removeStart();
+            removeFinish();
+            removeError();
+            removeCancel();
+        };
+    }, []);
 
     const userRole = user.roles?.[0]?.name ?? 'Staff / Employee';
 
@@ -359,6 +388,28 @@ export default function Authenticated({
                     </div>
                 </main>
             </div>
+
+            {/* Global Loading Top Bar & Floating Notification */}
+            {isNavigating && (
+                <>
+                    <div className="fixed top-0 left-0 right-0 h-1 z-[99999] overflow-hidden bg-indigo-100/60 pointer-events-none">
+                        <div className="h-full w-1/2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-full animate-indeterminate" />
+                    </div>
+
+                    <div className="fixed bottom-6 right-6 z-[99999] flex items-center gap-3 px-4 py-2.5 rounded-xl bg-gray-900/90 text-white backdrop-blur-md shadow-2xl border border-white/10 pointer-events-none transition-all duration-200">
+                        <svg className="animate-spin h-4 w-4 text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        <span className="text-xs font-medium tracking-wide">
+                            {navigatingMethod === 'delete' && 'Menghapus data...'}
+                            {(navigatingMethod === 'put' || navigatingMethod === 'patch') && 'Menyimpan perubahan...'}
+                            {navigatingMethod === 'post' && 'Memproses data...'}
+                            {navigatingMethod === 'get' && 'Memuat halaman...'}
+                        </span>
+                    </div>
+                </>
+            )}
         </div>
     );
 }
