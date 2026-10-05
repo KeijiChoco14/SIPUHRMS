@@ -50,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/projects/{project}/archive', [ProjectController::class, 'archive'])->name('projects.archive');
     Route::post('/projects/{project}/restore', [ProjectController::class, 'restore'])->name('projects.restore');
     Route::get('/tasks/kanban', [TaskController::class, 'kanban'])->name('tasks.kanban');
+    Route::get('/tasks/calendar', [TaskController::class, 'calendar'])->name('tasks.calendar');
     Route::resource('tasks', TaskController::class);
 
     // Collaboration Routes

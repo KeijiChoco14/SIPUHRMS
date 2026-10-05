@@ -3,8 +3,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import CreateTaskModal from '@/Components/CreateTaskModal';
 import TaskDetailModal from '../Projects/TaskDetailModal';
+import TaskViewSwitcher from '@/Components/TaskViewSwitcher';
 
-export default function Index({ auth, tasks, employees, statuses, priorities, filters }: any) {
+export default function Index({ auth, tasks, employees, statuses, priorities, filters, projects = [] }: any) {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState<any>(null);
 
@@ -53,17 +54,20 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <div className="flex justify-between items-center">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 className="font-bold text-xl text-gray-900 leading-tight">My Tasks</h2>
                         <p className="text-sm text-gray-500 mt-0.5">Daftar semua tugas dan pekerjaan yang ditugaskan</p>
                     </div>
-                    <button 
-                        onClick={() => setShowCreateModal(true)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg text-sm shadow-sm transition-colors"
-                    >
-                        + Create Task
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <TaskViewSwitcher current="list" />
+                        <button 
+                            onClick={() => setShowCreateModal(true)}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition-colors"
+                        >
+                            + Create Task
+                        </button>
+                    </div>
                 </div>
             }
         >
@@ -269,6 +273,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                 employees={employees}
                 statuses={statuses}
                 priorities={priorities}
+                projects={projects}
                 defaultProjectId={null}
             />
         </AuthenticatedLayout>

@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import TaskDetailModal from '../Projects/TaskDetailModal';
 import CreateTaskModal from '@/Components/CreateTaskModal';
+import TaskViewSwitcher from '@/Components/TaskViewSwitcher';
 
 const columnConfig: Record<string, { color: string; bg: string; border: string; icon: JSX.Element }> = {
     'To Do': {
@@ -30,7 +31,7 @@ const priorityConfig: Record<string, { bg: string; text: string }> = {
     'Low': { bg: 'bg-gray-100', text: 'text-gray-600' },
 };
 
-export default function Kanban({ auth, tasks, statuses, priorities, employees }: any) {
+export default function Kanban({ auth, tasks, statuses, priorities, employees, projects = [] }: any) {
     const [selectedTask, setSelectedTask] = useState<any>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
 
@@ -93,17 +94,20 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees }:
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex justify-between items-center">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 className="font-bold text-xl text-gray-900">My Kanban Board</h2>
                         <p className="text-sm text-gray-500 mt-0.5">Drag tasks across columns to update status</p>
                     </div>
-                    <button 
-                        onClick={() => setShowCreateModal(true)}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded text-sm"
-                    >
-                        + Create Task
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <TaskViewSwitcher current="kanban" />
+                        <button 
+                            onClick={() => setShowCreateModal(true)}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition-colors"
+                        >
+                            + Create Task
+                        </button>
+                    </div>
                 </div>
             }
         >
@@ -239,6 +243,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees }:
                 employees={employees}
                 statuses={statuses}
                 priorities={priorities}
+                projects={projects}
                 defaultProjectId={null}
             />
         </AuthenticatedLayout>

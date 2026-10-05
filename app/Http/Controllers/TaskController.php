@@ -60,6 +60,7 @@ class TaskController extends Controller
             'tasks' => $tasks,
             'filters' => $request->only(['filter', 'status']),
             'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
+            'projects' => \App\Models\Project::select('id', 'name', 'status', 'color')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);
@@ -99,8 +100,76 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Kanban', [
             'tasks' => $tasks,
             'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
+            'projects' => \App\Models\Project::select('id', 'name', 'status', 'color')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
+        ]);
+    }
+
+    public function calendar(Request $request)
+    {
+        $user = Auth::user();
+        if (! $user->employee && ! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+            abort(403, 'Only employees can access the schedule calendar.');
+        }
+
+        $query = Task::with([
+            'project', 
+            'assignees.user', 
+            'assignees.department', 
+            'creator', 
+            'comments.employee.user', 
+            'attachments.employee.user', 
+            'checklists', 
+            'activities.employee.user'
+        ]);
+
+        if ($request->filled('project_id')) {
+            $query->where('project_id', $request->project_id);
+        }
+
+        if ($request->filled('employee_id')) {
+            $query->whereHas('assignees', function ($q) use ($request) {
+                $q->where('employee_id', $request->employee_id);
+            });
+        }
+
+        // Access scope:
+        // Super Admin, HRD / Admin, General Manager see all tasks.
+        // Other roles see assigned tasks, created tasks, or tasks in their department.
+        if (! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+            $query->where(function ($q) use ($user) {
+                if ($user->employee) {
+                    $q->whereHas('assignees', function ($sq) use ($user) {
+                        $sq->where('employee_id', $user->employee->id);
+                    });
+                    if ($user->employee->department_id) {
+                        $q->orWhereHas('assignees', function ($sq) use ($user) {
+                            $sq->where('department_id', $user->employee->department_id);
+                        });
+                    }
+                }
+                $q->orWhere('created_by', $user->id);
+            });
+        }
+
+        $tasks = $query->get();
+
+        $employees = \App\Models\Employee::with(['user', 'department', 'position'])
+            ->where('status', 'active')
+            ->get();
+
+        $projects = \App\Models\Project::select('id', 'name', 'status', 'color')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('Tasks/Calendar', [
+            'tasks' => $tasks,
+            'employees' => $employees,
+            'projects' => $projects,
+            'statuses' => TaskStatus::cases(),
+            'priorities' => TaskPriority::cases(),
+            'filters' => $request->only(['project_id', 'employee_id']),
         ]);
     }
 
@@ -112,6 +181,8 @@ class TaskController extends Controller
             'project_id' => 'nullable|exists:projects,id',
             'priority' => 'required|string',
             'deadline' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'estimated_duration' => 'nullable|integer',
             'status' => 'required|string',
             'assignees' => 'nullable|array',
             'assignees.*' => 'exists:employees,id',
@@ -143,28 +214,32 @@ class TaskController extends Controller
         $isCreator = $task->created_by === $user->id 
             || ($task->project && $task->project->created_by === $user->id)
             || ($task->project && $task->project->owner_id && $user->employee && $task->project->owner_id === $user->employee->id)
-            || $user->hasRole('Super Admin');
+            || $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
         
         $isAssignee = $user->employee && $task->assignees()->where('employee_id', $user->employee->id)->exists();
 
-        // Check if this is exclusively a status change (e.g. from Kanban drag/drop or status select)
-        $isOnlyStatusUpdate = $request->has('status') && !$request->hasAny(['title', 'description', 'priority', 'deadline', 'assignees']);
+        // Check if this is exclusively a status or schedule change (e.g. from Kanban/Calendar drag/drop)
+        $isStatusOrScheduleUpdate = !$request->hasAny(['title', 'description', 'priority'])
+            && $request->hasAny(['status', 'deadline', 'start_date', 'estimated_duration']);
 
-        if ($isOnlyStatusUpdate) {
+        if ($isStatusOrScheduleUpdate) {
             if (!$isCreator && !$isAssignee) {
-                abort(403, 'Anda tidak memiliki akses untuk mengubah status task ini.');
+                abort(403, 'Anda tidak memiliki akses untuk mengubah jadwal atau status task ini.');
             }
         } else {
             if (!$isCreator) {
-                abort(403, 'Hanya pembuat task yang dapat mengubah informasi atau penugasan task ini.');
+                abort(403, 'Hanya pembuat task atau admin yang dapat mengubah informasi lengkap task ini.');
             }
         }
 
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
+            'project_id' => 'nullable|exists:projects,id',
             'priority' => 'sometimes|required|string',
             'deadline' => 'nullable|date',
+            'start_date' => 'nullable|date',
+            'estimated_duration' => 'nullable|integer',
             'status' => 'sometimes|required|string',
             'assignees' => 'nullable|array',
             'assignees.*' => 'exists:employees,id',
@@ -173,6 +248,14 @@ class TaskController extends Controller
         $taskData = collect($validated)->except('assignees')->toArray();
         if (!empty($taskData)) {
             $task->update($taskData);
+        }
+
+        if ($task->wasChanged('deadline')) {
+            $task->activities()->create([
+                'employee_id' => Auth::user()?->employee?->id,
+                'action' => 'deadline_updated',
+                'description' => $task->deadline ? "Deadline updated to " . $task->deadline->format('d M Y') : "Deadline removed",
+            ]);
         }
 
         if ($request->has('assignees')) {
