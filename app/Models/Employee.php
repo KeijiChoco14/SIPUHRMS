@@ -99,4 +99,9 @@ class Employee extends Model
     {
         return $this->hasMany(TaskActivity::class);
     }
+
+    public function masterKeyRequests(): HasMany
+    {
+        return $this->hasMany(MasterKeyRequest::class);
+    }
 }

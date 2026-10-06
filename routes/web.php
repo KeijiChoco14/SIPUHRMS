@@ -20,6 +20,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskAttachmentController;
 use App\Http\Controllers\TaskChecklistController;
 use App\Http\Controllers\TaskCommentController;
+use App\Http\Controllers\MasterKeyRequestController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -136,6 +137,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Directory Routes
     Route::get('/directory', [DirectoryController::class, 'index'])->name('directory.index');
+
+    // Master Key Access Routes (Housekeeping)
+    Route::get('/master-keys', [MasterKeyRequestController::class, 'index'])->name('master-keys.index');
+    Route::get('/master-keys/export', [MasterKeyRequestController::class, 'export'])->name('master-keys.export');
+    Route::post('/master-keys', [MasterKeyRequestController::class, 'store'])->name('master-keys.store');
+    Route::get('/master-keys/{masterKeyRequest}/print', [MasterKeyRequestController::class, 'print'])->name('master-keys.print');
+    Route::post('/master-keys/{masterKeyRequest}/renew', [MasterKeyRequestController::class, 'renew'])->name('master-keys.renew');
+    Route::patch('/master-keys/{masterKeyRequest}/status', [MasterKeyRequestController::class, 'updateStatus'])->name('master-keys.status');
+    Route::delete('/master-keys/{masterKeyRequest}', [MasterKeyRequestController::class, 'destroy'])->name('master-keys.destroy');
 
     // Administration & Organization Routes
     Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
