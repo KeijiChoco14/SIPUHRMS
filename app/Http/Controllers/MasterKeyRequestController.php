@@ -10,12 +10,33 @@ use App\Models\User;
 use App\Notifications\MasterKeyStatusNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MasterKeyRequestController extends Controller
 {
+    /**
+     * Ensure the master_key_requests table exists, attempting auto-migration if missing.
+     */
+    private function ensureTableExists(): bool
+    {
+        if (Schema::hasTable('master_key_requests')) {
+            return true;
+        }
+
+        try {
+            Artisan::call('migrate', ['--force' => true]);
+        } catch (\Throwable $e) {
+            Log::warning('Auto migrate master_key_requests failed: ' . $e->getMessage());
+        }
+
+        return Schema::hasTable('master_key_requests');
+    }
+
     /**
      * Display a listing of master key access requests.
      */
@@ -33,6 +54,54 @@ class MasterKeyRequestController extends Controller
 
         $canApprove = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK);
         $canManageAll = $canApprove || ($isSupervisor && $isHK);
+
+        if (!$this->ensureTableExists()) {
+            $hkDepartment = Department::where('name', 'Housekeeping')->first();
+            $hkEmployees = Employee::with(['user', 'position'])
+                ->where('department_id', $hkDepartment?->id)
+                ->get();
+
+            return Inertia::render('MasterKey/Index', [
+                'requests' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15),
+                'filters' => [
+                    'tab' => $request->input('tab', 'all'),
+                    'search' => $request->input('search', ''),
+                    'key_type' => $request->input('key_type', ''),
+                    'request_type' => $request->input('request_type', ''),
+                ],
+                'stats' => [
+                    'total' => 0,
+                    'on_request' => 0,
+                    'done' => 0,
+                    'expiring_soon' => 0,
+                    'expired' => 0,
+                ],
+                'canApprove' => $canApprove,
+                'canManageAll' => $canManageAll,
+                'currentEmployee' => $userEmployee?->load(['department', 'position']),
+                'currentUser' => $user,
+                'hkEmployees' => $hkEmployees,
+                'existingKeys' => [],
+                'defaultKeyTypes' => [
+                    'Floor Master Key',
+                    'Section Master Key',
+                    'Room Attendant Master',
+                    'Grand Master Key',
+                    'Emergency Key',
+                ],
+                'commonRoomRanges' => [
+                    'Lantai 2 (Kamar 201 - 240)',
+                    'Lantai 3 (Kamar 301 - 340)',
+                    'Lantai 5 (Kamar 501 - 540)',
+                    'Lantai 6 (Kamar 601 - 640)',
+                    'Lantai 2 - 3 (Kamar 201 - 340)',
+                    'Lantai 5 - 6 (Kamar 501 - 640)',
+                    'Seluruh Area Kamar Tamu (All HK Guest Rooms)',
+                    'Area Publik & Linen Room',
+                ],
+                'migrationNotice' => 'Tabel "master_key_requests" belum tersedia di database MySQL server ini. Sistem mencoba menjalankan migrasi otomatis, atau Anda dapat menjalankan "php artisan migrate" di terminal server.',
+            ]);
+        }
 
         $query = MasterKeyRequest::with([
             'employee.user',
@@ -168,6 +237,10 @@ class MasterKeyRequestController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$this->ensureTableExists()) {
+            return back()->with('error', 'Tabel master_key_requests belum tersedia di database. Silakan jalankan "php artisan migrate" di server terlebih dahulu.');
+        }
+
         $user = Auth::user();
         $userEmployee = $user->employee;
         $isSuperAdmin = $user->hasRole('Super Admin');
@@ -264,6 +337,10 @@ class MasterKeyRequestController extends Controller
      */
     public function updateStatus(Request $request, MasterKeyRequest $masterKeyRequest)
     {
+        if (!$this->ensureTableExists()) {
+            return back()->with('error', 'Tabel master_key_requests belum tersedia di database. Silakan jalankan "php artisan migrate" di server terlebih dahulu.');
+        }
+
         $user = Auth::user();
         $isSuperAdmin = $user->hasRole('Super Admin');
         $isHRD = $user->hasRole('HRD / Admin');
@@ -350,6 +427,10 @@ class MasterKeyRequestController extends Controller
      */
     public function export(Request $request): StreamedResponse
     {
+        if (!$this->ensureTableExists()) {
+            abort(404, 'Tabel master_key_requests belum tersedia di database. Silakan jalankan "php artisan migrate" di server terlebih dahulu.');
+        }
+
         $user = Auth::user();
         $isSuperAdmin = $user->hasRole('Super Admin');
         $isHRD = $user->hasRole('HRD / Admin');

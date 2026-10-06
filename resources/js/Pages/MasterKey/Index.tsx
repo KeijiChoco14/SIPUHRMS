@@ -138,6 +138,7 @@ interface Props {
     existingKeys: ExistingKeySummary[];
     defaultKeyTypes: string[];
     commonRoomRanges: string[];
+    migrationNotice?: string;
 }
 
 export default function MasterKeyIndex({
@@ -152,6 +153,7 @@ export default function MasterKeyIndex({
     existingKeys,
     defaultKeyTypes,
     commonRoomRanges,
+    migrationNotice,
 }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedKeyType, setSelectedKeyType] = useState(filters.key_type || '');
@@ -518,6 +520,31 @@ export default function MasterKeyIndex({
             <Head title="Modul Akses Master Key Housekeeping - Swiss-Belinn" />
 
             <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+                {/* Migration Warning if table is not yet migrated on server */}
+                {migrationNotice && (
+                    <div className="p-4 sm:p-5 rounded-2xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-700/60 text-amber-900 dark:text-amber-200 shadow-md flex items-start gap-4">
+                        <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400 shrink-0">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div className="space-y-1.5 flex-1">
+                            <h3 className="font-bold text-amber-900 dark:text-amber-100 text-base">
+                                Perhatian: Tabel Database Belum Terpasang di MySQL Server
+                            </h3>
+                            <p className="text-sm text-amber-800 dark:text-amber-200/90 leading-relaxed">
+                                {migrationNotice}
+                            </p>
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                                <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">Jalankan di terminal server:</span>
+                                <code className="px-2.5 py-1 rounded-lg bg-amber-200/70 dark:bg-amber-900/80 font-mono text-xs font-bold text-amber-950 dark:text-amber-100 select-all border border-amber-300 dark:border-amber-700">
+                                    php artisan migrate
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Header Banner */}
                 <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-indigo-900/50">
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
