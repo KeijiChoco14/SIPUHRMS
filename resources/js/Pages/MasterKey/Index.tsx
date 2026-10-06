@@ -433,25 +433,25 @@ export default function MasterKeyIndex({
         switch (type) {
             case 'create_new':
                 return (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-indigo-50 text-indigo-700 border border-indigo-200">
                         <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
                         Create New
                     </span>
                 );
             case 'extension':
                 return (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-teal-50 text-teal-700 border border-teal-200">
                         <svg className="w-3 h-3 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
-                        Extension (3 Bulan)
+                        Extension
                     </span>
                 );
             case 'replacement':
                 return (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-orange-50 text-orange-700 border border-orange-200">
                         <svg className="w-3 h-3 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                         </svg>
                         Replacement
                     </span>
@@ -471,32 +471,32 @@ export default function MasterKeyIndex({
             if (item.is_expired) {
                 return (
                     <div className="flex flex-col gap-0.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-red-50 text-red-700 border border-red-200">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                            Done (Kadaluarsa)
+                            Kadaluarsa
                         </span>
-                        <span className="text-[10px] text-red-500 font-medium">Lewat {Math.abs(item.days_remaining)} hari</span>
+                        <span className="text-[10px] text-red-500 font-medium whitespace-nowrap">Lewat {Math.abs(item.days_remaining)} hari • perlu extension</span>
                     </div>
                 );
             }
             if (item.is_expiring_soon) {
                 return (
                     <div className="flex flex-col gap-0.5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            Done (Segera Jatuh Tempo)
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-amber-50 text-amber-800 border border-amber-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            Jatuh Tempo
                         </span>
-                        <span className="text-[10px] text-amber-700 font-semibold">Sisa {item.days_remaining} hari</span>
+                        <span className="text-[10px] text-amber-700 font-semibold whitespace-nowrap">Sisa {item.days_remaining} hari</span>
                     </div>
                 );
             }
             return (
                 <div className="flex flex-col gap-0.5">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        Done (Aktif)
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Done • Aktif
                     </span>
-                    <span className="text-[10px] text-gray-500">Sisa {item.days_remaining} hari</span>
+                    <span className="text-[10px] text-gray-500 whitespace-nowrap">Sisa {item.days_remaining} hari</span>
                 </div>
             );
         }
@@ -504,11 +504,11 @@ export default function MasterKeyIndex({
         // On Request status
         return (
             <div className="flex flex-col gap-0.5">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300 shadow-2xs animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-amber-50 text-amber-800 border border-amber-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     On Request
                 </span>
-                <span className="text-[10px] text-gray-500 italic">Menunggu proses</span>
+                <span className="text-[10px] text-gray-500 whitespace-nowrap">Menunggu proses</span>
             </div>
         );
     };
@@ -722,23 +722,22 @@ export default function MasterKeyIndex({
 
                     {/* Table of Master Key Requests */}
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-xs">
+                        <table className="w-full min-w-[1080px] text-left border-collapse text-xs">
                             <thead>
-                                <tr className="bg-gray-50/75 border-b border-gray-200 text-gray-600 uppercase text-[11px] font-bold tracking-wider">
-                                    <th className="py-3 px-4">No. Registrasi & Tipe</th>
-                                    <th className="py-3 px-4">Pemegang Kunci</th>
-                                    <th className="py-3 px-4">Detail Master Key</th>
-                                    <th className="py-3 px-4">Remark / Alasan</th>
-                                    <th className="py-3 px-4">Log Pengajuan (Requested)</th>
-                                    <th className="py-3 px-4">Status & Sisa Waktu</th>
-                                    <th className="py-3 px-4">Log Selesai (Done)</th>
-                                    <th className="py-3 px-4 text-center">Aksi</th>
+                                <tr className="bg-gray-50/75 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
+                                    <th className="py-3 px-4 whitespace-nowrap w-[150px]">No. Registrasi</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[170px]">Pemegang</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[190px]">Master Key</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Remark</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[150px]">Status</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[190px]">Riwayat Log</th>
+                                    <th className="py-3 px-4 whitespace-nowrap text-right w-[150px]">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 font-normal">
                                 {requests.data.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="py-12 text-center text-gray-400">
+                                        <td colSpan={7} className="py-12 text-center text-gray-400">
                                             <div className="max-w-xs mx-auto space-y-2">
                                                 <svg className="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -750,97 +749,94 @@ export default function MasterKeyIndex({
                                     </tr>
                                 ) : (
                                     requests.data.map(item => (
-                                        <tr key={item.id} className="hover:bg-indigo-50/30 transition-colors">
+                                        <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
                                             {/* No. Registrasi & Tipe Form */}
-                                            <td className="py-3.5 px-4 align-top">
-                                                <div className="font-mono font-bold text-gray-900">{item.request_number}</div>
-                                                <div className="mt-1">
+                                            <td className="py-4 px-4 align-top">
+                                                <div className="font-mono font-bold text-gray-900 whitespace-nowrap">{item.request_number}</div>
+                                                <div className="mt-1.5">
                                                     {renderTypeBadge(item.request_type)}
                                                 </div>
                                             </td>
 
                                             {/* Pemegang Kunci */}
-                                            <td className="py-3.5 px-4 align-top">
-                                                <div className="font-semibold text-gray-900">
+                                            <td className="py-4 px-4 align-top">
+                                                <div className="font-semibold text-gray-900 leading-snug">
                                                     {item.employee?.user?.name || '-'}
                                                 </div>
-                                                <div className="text-[11px] text-gray-500 font-mono">
-                                                    NIK: {item.employee?.employee_number || '-'}
-                                                </div>
-                                                <div className="text-[10px] text-gray-400">
+                                                <div className="text-[11px] text-gray-500 mt-0.5">
+                                                    <span className="font-mono">{item.employee?.employee_number || '-'}</span>
+                                                    <span className="mx-1 text-gray-300">•</span>
                                                     {item.employee?.position?.name || 'Room Attendant'}
                                                 </div>
                                             </td>
 
                                             {/* Detail Master Key */}
-                                            <td className="py-3.5 px-4 align-top">
-                                                <div className="font-mono font-bold text-indigo-700 bg-indigo-50/70 px-2 py-0.5 rounded inline-block">
-                                                    {item.key_number}
+                                            <td className="py-4 px-4 align-top">
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                    <span className="font-mono font-bold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap">
+                                                        {item.key_number}
+                                                    </span>
+                                                    <span className="text-[11px] text-gray-500 whitespace-nowrap">{item.key_type}</span>
                                                 </div>
-                                                <div className="text-[11px] text-gray-700 font-medium mt-0.5">
-                                                    {item.key_type}
-                                                </div>
-                                                <div className="text-[10px] text-gray-500 mt-0.5 max-w-[200px] truncate" title={item.room_range_access}>
+                                                <div className="text-[11px] text-gray-500 mt-1 line-clamp-1" title={item.room_range_access}>
                                                     {item.room_range_access}
                                                 </div>
                                             </td>
 
                                             {/* Remark / Alasan */}
-                                            <td className="py-3.5 px-4 align-top max-w-[220px]">
-                                                <div className="text-gray-800 line-clamp-2 text-[11px] leading-relaxed bg-amber-50/40 p-1.5 rounded border border-amber-100" title={item.remark}>
+                                            <td className="py-4 px-4 align-top">
+                                                <p className="text-gray-700 line-clamp-2 text-[11px] leading-relaxed" title={item.remark}>
                                                     {item.remark || '-'}
-                                                </div>
-                                            </td>
-
-                                            {/* Log Pengajuan (Username & Waktu) */}
-                                            <td className="py-3.5 px-4 align-top">
-                                                <div className="flex items-center gap-1 font-semibold text-gray-800">
-                                                    <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                    </svg>
-                                                    <span className="font-mono">{item.requested_by_username || item.requested_by?.name || '-'}</span>
-                                                </div>
-                                                <div className="text-[10px] text-gray-500 mt-0.5">
-                                                    {formatDateTime(item.requested_at || item.created_at)}
-                                                </div>
+                                                </p>
                                             </td>
 
                                             {/* Status & Sisa Waktu */}
-                                            <td className="py-3.5 px-4 align-top">
+                                            <td className="py-4 px-4 align-top">
                                                 {renderStatusBadge(item.status, item)}
-                                                <div className="text-[10px] text-gray-400 mt-1">
-                                                    Masa: {formatDate(item.valid_from)} s/d {formatDate(item.valid_until)}
+                                                <div className="text-[10px] text-gray-400 mt-1.5 whitespace-nowrap">
+                                                    s/d {formatDate(item.valid_until)}
                                                 </div>
                                             </td>
 
-                                            {/* Log Selesai (Done) */}
-                                            <td className="py-3.5 px-4 align-top">
-                                                {item.status === 'Done' ? (
-                                                    <div>
-                                                        <div className="flex items-center gap-1 font-semibold text-emerald-800">
-                                                            <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                            <span className="font-mono text-[11px]">{item.done_by_username || item.done_by?.name || '-'}</span>
-                                                        </div>
-                                                        <div className="text-[10px] text-gray-500 mt-0.5">
-                                                            {formatDateTime(item.done_at)}
+                                            {/* Riwayat Log (Requested + Done) */}
+                                            <td className="py-4 px-4 align-top">
+                                                <div className="space-y-1.5 text-[11px]">
+                                                    <div className="flex items-start gap-1.5">
+                                                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+                                                        <div className="min-w-0">
+                                                            <div className="font-semibold text-gray-800 truncate">
+                                                                {item.requested_by_username || item.requested_by?.name || '-'}
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-400 whitespace-nowrap">
+                                                                Request • {formatDateTime(item.requested_at || item.created_at)}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                ) : (
-                                                    <span className="text-[11px] text-gray-400 italic">-</span>
-                                                )}
+                                                    {item.status === 'Done' && (
+                                                        <div className="flex items-start gap-1.5">
+                                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                                            <div className="min-w-0">
+                                                                <div className="font-semibold text-gray-800 truncate">
+                                                                    {item.done_by_username || item.done_by?.name || '-'}
+                                                                </div>
+                                                                <div className="text-[10px] text-gray-400 whitespace-nowrap">
+                                                                    Done • {formatDateTime(item.done_at)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
 
                                             {/* Aksi */}
-                                            <td className="py-3.5 px-4 align-top text-center">
-                                                <div className="flex items-center justify-center gap-1">
+                                            <td className="py-4 px-4 align-top">
+                                                <div className="flex items-center justify-end gap-1 whitespace-nowrap">
                                                     {/* Mark as Done button (for approvers / supervisor if On Request) */}
                                                     {item.status === 'On Request' && canApprove && (
                                                         <button
                                                             onClick={() => openDoneModal(item)}
-                                                            className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 hover:text-emerald-800 transition-colors cursor-pointer"
-                                                            title="Tandai Selesai (Mark as Done)"
+                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
+                                                            title="Tandai Selesai (Done)"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -852,7 +848,7 @@ export default function MasterKeyIndex({
                                                     {item.status === 'Done' && (
                                                         <button
                                                             onClick={() => openFormModal('extension', item)}
-                                                            className="p-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 transition-colors cursor-pointer"
+                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-teal-600 hover:bg-teal-50 hover:border-teal-200 transition-colors cursor-pointer"
                                                             title="Perpanjang 3 Bulan (Extension)"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -865,11 +861,11 @@ export default function MasterKeyIndex({
                                                     {item.status === 'Done' && (
                                                         <button
                                                             onClick={() => openFormModal('replacement', item)}
-                                                            className="p-1.5 rounded-lg bg-orange-50 hover:bg-orange-100 text-orange-700 transition-colors cursor-pointer"
+                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-orange-600 hover:bg-orange-50 hover:border-orange-200 transition-colors cursor-pointer"
                                                             title="Ganti Kunci (Replacement)"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                                             </svg>
                                                         </button>
                                                     )}
@@ -877,7 +873,7 @@ export default function MasterKeyIndex({
                                                     {/* Detail & Log View */}
                                                     <button
                                                         onClick={() => openDetailModal(item)}
-                                                        className="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors cursor-pointer"
                                                         title="Detail & Log Aktivitas"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -891,8 +887,8 @@ export default function MasterKeyIndex({
                                                         href={route('master-keys.print', item.id)}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-colors"
-                                                        title="Cetak Formulir SOP Resmi"
+                                                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                                        title="Cetak Formulir SOP"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -903,7 +899,7 @@ export default function MasterKeyIndex({
                                                     {(canApprove || item.status === 'On Request') && (
                                                         <button
                                                             onClick={() => handleDelete(item)}
-                                                            className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
+                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-transparent text-gray-400 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-colors cursor-pointer"
                                                             title="Hapus Permohonan"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -951,70 +947,78 @@ export default function MasterKeyIndex({
             {/* 1 FORM UNIFIED MODAL: Create New | Extension | Replacement (Point A & B)   */}
             {/* ========================================================================= */}
             <Modal show={isFormModalOpen} onClose={() => setIsFormModalOpen(false)} maxWidth="2xl">
-                <form onSubmit={handleFormSubmit} className="p-6">
-                    <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-5">
+                <form onSubmit={handleFormSubmit} className="flex flex-col max-h-[90vh]">
+                    <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900">
+                            <h2 className="text-base font-bold text-gray-900">
                                 Form Permohonan Akses Master Key
                             </h2>
-                            <p className="text-xs text-gray-500">
-                                Housekeeping • Siklus evaluasi 3 bulan berkala • Swiss-Belinn SKA
+                            <p className="text-xs text-gray-500 mt-0.5">
+                                Housekeeping • Siklus evaluasi 3 bulan • Swiss-Belinn SKA
                             </p>
                         </div>
                         <button
                             type="button"
                             onClick={() => setIsFormModalOpen(false)}
-                            className="text-gray-400 hover:text-gray-600 text-sm font-semibold"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                            aria-label="Tutup"
                         >
-                            ✕
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                         </button>
                     </div>
 
-                    <div className="space-y-5">
+                    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
                         {/* Point A: 1 form dengan pilihan Create New, Extension, Replacement */}
                         <div>
-                            <InputLabel value="Pilih Tipe Permohonan Master Key *" />
+                            <InputLabel value="Tipe Permohonan *" />
                             <div className="grid grid-cols-3 gap-2 mt-1.5">
                                 {[
                                     {
                                         type: 'create_new' as const,
                                         label: 'Create New',
                                         desc: 'Kunci baru',
-                                        icon: '✨',
+                                        path: 'M12 4v16m8-8H4',
+                                        tone: 'text-indigo-600 bg-indigo-50',
                                     },
                                     {
                                         type: 'extension' as const,
                                         label: 'Extension',
-                                        desc: 'Perpanjang 3 Bulan',
-                                        icon: '🔄',
+                                        desc: 'Perpanjang 3 bulan',
+                                        path: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+                                        tone: 'text-teal-600 bg-teal-50',
                                     },
                                     {
                                         type: 'replacement' as const,
                                         label: 'Replacement',
                                         desc: 'Ganti rusak / hilang',
-                                        icon: '🛠️',
+                                        path: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
+                                        tone: 'text-orange-600 bg-orange-50',
                                     },
                                 ].map(t => (
                                     <button
                                         key={t.type}
                                         type="button"
                                         onClick={() => handleTypeChangeInForm(t.type)}
-                                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                                        className={`relative p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
                                             formData.request_type === t.type
-                                                ? 'border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-500/20'
+                                                ? 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/20'
                                                 : 'border-gray-200 hover:border-gray-300 bg-white'
                                         }`}
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-base">{t.icon}</span>
-                                            {formData.request_type === t.type && (
-                                                <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
-                                            )}
-                                        </div>
-                                        <div className="mt-1.5">
-                                            <div className="text-xs font-bold text-gray-900">{t.label}</div>
-                                            <div className="text-[10px] text-gray-500 leading-tight">{t.desc}</div>
-                                        </div>
+                                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg shrink-0 ${t.tone}`}>
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={t.path} />
+                                            </svg>
+                                        </span>
+                                        <span className="min-w-0">
+                                            <span className="block text-xs font-bold text-gray-900">{t.label}</span>
+                                            <span className="block text-[10px] text-gray-500 leading-tight truncate">{t.desc}</span>
+                                        </span>
+                                        {formData.request_type === t.type && (
+                                            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-indigo-600"></span>
+                                        )}
                                     </button>
                                 ))}
                             </div>
@@ -1205,44 +1209,39 @@ export default function MasterKeyIndex({
 
                         {/* Digital Signature Pemohon */}
                         <div>
-                            <InputLabel value="Tanda Tangan Digital Pemohon (E-Sign) *" />
-                            <div className="mt-1">
-                                <SignaturePad
-                                    title="Tanda Tangan Pemohon"
-                                    value={formData.requester_signature}
-                                    onChange={(sig) => setFormData('requester_signature', sig || '')}
-                                />
-                            </div>
+                            <SignaturePad
+                                title="Tanda Tangan Pemohon (E-Sign)"
+                                value={formData.requester_signature}
+                                onChange={(sig) => setFormData('requester_signature', sig || '')}
+                            />
                         </div>
 
                         {/* Point D: Info rekam username & tanggal request otomatis */}
-                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <span className="text-slate-400">👤</span>
-                                <div>
-                                    <span className="text-gray-500 text-[10px] uppercase font-bold block">Log Username Pemohon:</span>
-                                    <span className="font-mono font-bold text-gray-900">{currentUser.name}</span>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <span className="text-gray-500 text-[10px] uppercase font-bold block">Tanggal Request:</span>
-                                <span className="font-semibold text-gray-800">{formatDate(new Date().toISOString())} (Hari Ini)</span>
+                        <div className="grid grid-cols-3 gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                            <div className="min-w-0">
+                                <span className="text-gray-400 text-[10px] uppercase font-semibold tracking-wide block">Username</span>
+                                <span className="font-semibold text-gray-900 truncate block">{currentUser.name}</span>
                             </div>
                             <div>
-                                <span className="text-gray-500 text-[10px] uppercase font-bold block">Status Awal:</span>
-                                <span className="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-bold text-[10px]">
+                                <span className="text-gray-400 text-[10px] uppercase font-semibold tracking-wide block">Tanggal Request</span>
+                                <span className="font-semibold text-gray-900">{formatDate(new Date().toISOString())}</span>
+                            </div>
+                            <div>
+                                <span className="text-gray-400 text-[10px] uppercase font-semibold tracking-wide block">Status Awal</span>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-full font-semibold text-[10px]">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                     On Request
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
+                    <div className="shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
                         <SecondaryButton type="button" onClick={() => setIsFormModalOpen(false)}>
                             Batal
                         </SecondaryButton>
-                        <PrimaryButton type="submit" disabled={formProcessing} className="bg-indigo-600 hover:bg-indigo-700">
-                            {formProcessing ? 'Memproses...' : 'Kirim Permohonan (On Request)'}
+                        <PrimaryButton type="submit" disabled={formProcessing}>
+                            {formProcessing ? 'Memproses...' : 'Kirim Permohonan'}
                         </PrimaryButton>
                     </div>
                 </form>
@@ -1253,51 +1252,54 @@ export default function MasterKeyIndex({
             {/* ========================================================================= */}
             <Modal show={isDoneModalOpen} onClose={() => setIsDoneModalOpen(false)} maxWidth="lg">
                 {activeItem && (
-                    <form onSubmit={handleDoneSubmit} className="p-6">
-                        <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-4">
+                    <form onSubmit={handleDoneSubmit} className="flex flex-col max-h-[90vh]">
+                        <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-900">
+                                <h2 className="text-base font-bold text-gray-900">
                                     Tandai Permohonan Selesai (Done)
                                 </h2>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-gray-500 mt-0.5">
                                     Verifikasi penyerahan & aktivasi akses master key housekeeping
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setIsDoneModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-600 text-sm font-semibold"
+                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                                aria-label="Tutup"
                             >
-                                ✕
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             </button>
                         </div>
 
-                        {/* Request Summary */}
-                        <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-1.5 mb-4">
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">No. Registrasi:</span>
-                                <span className="font-mono font-bold text-gray-900">{activeItem.request_number}</span>
+                        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+                            {/* Request Summary */}
+                            <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">No. Registrasi:</span>
+                                    <span className="font-mono font-bold text-gray-900">{activeItem.request_number}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Tipe Permohonan:</span>
+                                    <span className="font-semibold text-indigo-700">{activeItem.request_type_label}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Kunci Master:</span>
+                                    <span className="font-mono font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{activeItem.key_number} ({activeItem.key_type})</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Pemegang:</span>
+                                    <span className="font-semibold text-gray-900">{activeItem.employee?.user?.name}</span>
+                                </div>
+                                <div className="pt-2 border-t border-gray-200">
+                                    <span className="text-gray-400 block text-[10px] uppercase font-semibold">Remark:</span>
+                                    <p className="text-gray-800 mt-0.5 leading-relaxed">{activeItem.remark || '-'}</p>
+                                </div>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">Tipe Permohonan:</span>
-                                <span className="font-bold text-indigo-700">{activeItem.request_type_label}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">Kunci Master:</span>
-                                <span className="font-mono font-bold text-indigo-700">{activeItem.key_number} ({activeItem.key_type})</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-500">Pemegang:</span>
-                                <span className="font-semibold text-gray-900">{activeItem.employee?.user?.name}</span>
-                            </div>
-                            <div className="pt-1 border-t border-gray-200">
-                                <span className="text-gray-500 block text-[10px]">Remark Pemohon:</span>
-                                <p className="text-gray-800 italic mt-0.5 font-medium">{activeItem.remark || '-'}</p>
-                            </div>
-                        </div>
 
-                        {/* Catatan Selesai */}
-                        <div className="space-y-4">
+                            {/* Catatan Selesai */}
                             <div>
                                 <InputLabel htmlFor="done_notes" value="Catatan Penyerahan / Selesai (Done Notes)" />
                                 <textarea
@@ -1306,26 +1308,23 @@ export default function MasterKeyIndex({
                                     value={doneData.done_notes}
                                     onChange={(e) => setDoneData('done_notes', e.target.value)}
                                     placeholder="Contoh: Kunci master telah diserahkan dalam kondisi baik dan RFID terverifikasi aktif."
-                                    className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                                    className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 leading-relaxed"
                                 />
                             </div>
 
                             {/* Digital Signature Approver / Petugas Done */}
                             <div>
-                                <InputLabel value="Tanda Tangan Petugas / Approver (E-Sign)" />
-                                <div className="mt-1">
-                                    <SignaturePad
-                                        title="Tanda Tangan Petugas / EHK"
-                                        value={doneData.approver_signature}
-                                        onChange={(sig) => setDoneData('approver_signature', sig || '')}
-                                    />
-                                </div>
+                                <SignaturePad
+                                    title="Tanda Tangan Petugas / Approver (E-Sign)"
+                                    value={doneData.approver_signature}
+                                    onChange={(sig) => setDoneData('approver_signature', sig || '')}
+                                />
                             </div>
 
                             {/* Info Logging Point D */}
                             <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs space-y-1">
                                 <div className="flex justify-between items-center text-emerald-900">
-                                    <span className="font-semibold">Petugas Penyelesai (Done By):</span>
+                                    <span className="font-semibold">Petugas Penyelesai:</span>
                                     <span className="font-mono font-bold">{currentUser.name}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-emerald-800 text-[11px]">
@@ -1335,7 +1334,7 @@ export default function MasterKeyIndex({
                             </div>
                         </div>
 
-                        <div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
+                        <div className="shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
                             <SecondaryButton type="button" onClick={() => setIsDoneModalOpen(false)}>
                                 Batal
                             </SecondaryButton>
@@ -1356,193 +1355,196 @@ export default function MasterKeyIndex({
             {/* ========================================================================= */}
             <Modal show={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} maxWidth="2xl">
                 {activeItem && (
-                    <div className="p-6 space-y-5">
-                        <div className="flex items-center justify-between border-b border-gray-200 pb-3">
-                            <div className="flex items-center gap-3">
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <h2 className="text-lg font-bold text-gray-900 font-mono">
-                                            {activeItem.request_number}
-                                        </h2>
-                                        {renderTypeBadge(activeItem.request_type)}
-                                        {renderStatusBadge(activeItem.status, activeItem)}
-                                    </div>
-                                    <p className="text-xs text-gray-500 mt-0.5">
-                                        Detail lengkap permohonan master key dan log riwayat audit
-                                    </p>
+                    <div className="flex flex-col max-h-[90vh]">
+                        <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
+                            <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <h2 className="text-base font-bold text-gray-900 font-mono">
+                                        {activeItem.request_number}
+                                    </h2>
+                                    {renderTypeBadge(activeItem.request_type)}
+                                    {renderStatusBadge(activeItem.status, activeItem)}
                                 </div>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                    Detail lengkap permohonan master key dan log riwayat audit
+                                </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setIsDetailModalOpen(false)}
-                                className="text-gray-400 hover:text-gray-600 text-sm font-semibold"
+                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                                aria-label="Tutup"
                             >
-                                ✕
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             </button>
                         </div>
 
-                        {/* Section 1: Data Kunci & Pemegang */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
-                                <span className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Pemegang Kunci</span>
-                                <div className="font-bold text-gray-900 text-sm">{activeItem.employee?.user?.name}</div>
-                                <div>NIK: <span className="font-mono font-medium">{activeItem.employee?.employee_number}</span></div>
-                                <div>Jabatan: {activeItem.employee?.position?.name || 'Room Attendant'}</div>
-                                <div>Departemen: {activeItem.employee?.department?.name || 'Housekeeping'}</div>
-                            </div>
-
-                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
-                                <span className="text-[10px] font-bold uppercase text-gray-500 tracking-wider">Spesifikasi Kunci</span>
-                                <div className="font-mono font-extrabold text-indigo-700 text-sm">{activeItem.key_number}</div>
-                                <div>Tipe: <span className="font-semibold text-gray-800">{activeItem.key_type}</span></div>
-                                <div>Cakupan: {activeItem.room_range_access}</div>
-                                <div>Masa Berlaku: {formatDate(activeItem.valid_from)} s/d {formatDate(activeItem.valid_until)} (3 Bulan)</div>
-                            </div>
-                        </div>
-
-                        {/* Section 2: Remark / Alasan Permohonan */}
-                        <div className="p-3.5 bg-amber-50/60 rounded-xl border border-amber-200 text-xs">
-                            <span className="text-[10px] font-bold uppercase text-amber-800 tracking-wider block mb-1">
-                                Remark / Alasan Permohonan ({activeItem.request_type_label}):
-                            </span>
-                            <p className="text-gray-900 font-medium leading-relaxed">
-                                {activeItem.remark || '-'}
-                            </p>
-                        </div>
-
-                        {/* Section 3: Visual Timeline (Point D: Username, Tanggal Request, Kapan Done) */}
-                        <div className="border border-gray-200 rounded-xl p-4 bg-white">
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-3">
-                                Log Aktivitas & Jejak Sistem
-                            </span>
-
-                            <div className="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
-                                {/* Step 1: Requested */}
-                                <div className="relative">
-                                    <div className="absolute -left-6 top-0 w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold">
-                                        1
-                                    </div>
-                                    <div className="text-xs font-bold text-gray-900">
-                                        Permohonan Diajukan ({activeItem.request_type_label})
-                                    </div>
-                                    <div className="text-[11px] text-gray-600 mt-0.5">
-                                        Username Pemohon: <span className="font-mono font-bold text-indigo-700">{activeItem.requested_by_username || activeItem.requested_by?.name || '-'}</span>
-                                    </div>
-                                    <div className="text-[10px] text-gray-400">
-                                        Waktu: {formatDateTime(activeItem.requested_at || activeItem.created_at)}
-                                    </div>
+                        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+                            {/* Section 1: Data Kunci & Pemegang */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Pemegang Kunci</span>
+                                    <div className="font-bold text-gray-900 text-sm leading-snug">{activeItem.employee?.user?.name}</div>
+                                    <div className="text-gray-600">NIK: <span className="font-mono font-medium text-gray-900">{activeItem.employee?.employee_number}</span></div>
+                                    <div className="text-gray-600">Jabatan: <span className="text-gray-900">{activeItem.employee?.position?.name || 'Room Attendant'}</span></div>
+                                    <div className="text-gray-600">Departemen: <span className="text-gray-900">{activeItem.employee?.department?.name || 'Housekeeping'}</span></div>
                                 </div>
 
-                                {/* Step 2: Done */}
-                                <div className="relative">
-                                    <div className={`absolute -left-6 top-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                                        activeItem.status === 'Done' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
-                                    }`}>
-                                        2
-                                    </div>
-                                    <div className="text-xs font-bold text-gray-900">
-                                        {activeItem.status === 'Done' ? 'Permohonan Selesai (Done)' : 'Menunggu Penyelesaian (On Request)'}
-                                    </div>
-                                    {activeItem.status === 'Done' ? (
-                                        <>
-                                            <div className="text-[11px] text-gray-600 mt-0.5">
-                                                Username Petugas: <span className="font-mono font-bold text-emerald-700">{activeItem.done_by_username || activeItem.done_by?.name || '-'}</span>
-                                            </div>
-                                            <div className="text-[10px] text-gray-400">
-                                                Waktu Selesai (Done At): {formatDateTime(activeItem.done_at)}
-                                            </div>
-                                            {activeItem.done_notes && (
-                                                <div className="text-[11px] text-gray-700 mt-1 p-2 bg-emerald-50 rounded border border-emerald-200">
-                                                    Catatan: {activeItem.done_notes}
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className="text-[11px] text-amber-700 italic mt-0.5">
-                                            Status saat ini masih On Request. Menunggu verifikasi fisik & serah terima kunci.
+                                <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Spesifikasi Kunci</span>
+                                    <div className="font-mono font-bold text-gray-900 text-sm bg-white px-2 py-0.5 rounded border border-gray-200 inline-block">{activeItem.key_number}</div>
+                                    <div className="text-gray-600">Tipe: <span className="font-semibold text-gray-900">{activeItem.key_type}</span></div>
+                                    <div className="text-gray-600">Cakupan: <span className="text-gray-900">{activeItem.room_range_access}</span></div>
+                                    <div className="text-gray-600">Masa: <span className="text-gray-900">{formatDate(activeItem.valid_from)} s/d {formatDate(activeItem.valid_until)}</span></div>
+                                </div>
+                            </div>
+
+                            {/* Section 2: Remark / Alasan Permohonan */}
+                            <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                                <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block mb-1">
+                                    Remark / Alasan Permohonan ({activeItem.request_type_label}):
+                                </span>
+                                <p className="text-gray-900 font-medium leading-relaxed">
+                                    {activeItem.remark || '-'}
+                                </p>
+                            </div>
+
+                            {/* Section 3: Visual Timeline (Point D: Username, Tanggal Request, Kapan Done) */}
+                            <div className="border border-gray-200 rounded-xl p-4 bg-white">
+                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500 block mb-3">
+                                    Log Aktivitas & Jejak Sistem
+                                </span>
+
+                                <div className="relative pl-6 space-y-5 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
+                                    {/* Step 1: Requested */}
+                                    <div className="relative">
+                                        <div className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[9px] font-bold">
+                                            1
                                         </div>
+                                        <div className="text-xs font-bold text-gray-900">
+                                            Permohonan Diajukan ({activeItem.request_type_label})
+                                        </div>
+                                        <div className="text-[11px] text-gray-600 mt-0.5">
+                                            Username Pemohon: <span className="font-mono font-bold text-gray-900">{activeItem.requested_by_username || activeItem.requested_by?.name || '-'}</span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-400">
+                                            Waktu: {formatDateTime(activeItem.requested_at || activeItem.created_at)}
+                                        </div>
+                                    </div>
+
+                                    {/* Step 2: Done */}
+                                    <div className="relative">
+                                        <div className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                                            activeItem.status === 'Done' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
+                                        }`}>
+                                            2
+                                        </div>
+                                        <div className="text-xs font-bold text-gray-900">
+                                            {activeItem.status === 'Done' ? 'Permohonan Selesai (Done)' : 'Menunggu Penyelesaian (On Request)'}
+                                        </div>
+                                        {activeItem.status === 'Done' ? (
+                                            <>
+                                                <div className="text-[11px] text-gray-600 mt-0.5">
+                                                    Username Petugas: <span className="font-mono font-bold text-emerald-700">{activeItem.done_by_username || activeItem.done_by?.name || '-'}</span>
+                                                </div>
+                                                <div className="text-[10px] text-gray-400">
+                                                    Waktu Selesai (Done At): {formatDateTime(activeItem.done_at)}
+                                                </div>
+                                                {activeItem.done_notes && (
+                                                    <div className="text-[11px] text-gray-700 mt-1.5 p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                                                        Catatan: {activeItem.done_notes}
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <div className="text-[11px] text-amber-700 italic mt-0.5">
+                                                Status saat ini masih On Request. Menunggu verifikasi fisik & serah terima kunci.
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Section 4: Audit Logs History Table (if available) */}
+                            {activeItem.audit_logs && activeItem.audit_logs.length > 0 && (
+                                <div className="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">
+                                        Riwayat Log Audit Database ({activeItem.audit_logs.length} Log)
+                                    </span>
+                                    <div className="space-y-1.5 max-h-36 overflow-y-auto text-[11px]">
+                                        {activeItem.audit_logs.map(log => (
+                                            <div key={log.id} className="p-2 bg-white rounded-lg border border-gray-200 flex items-start justify-between gap-3">
+                                                <div>
+                                                    <span className="font-semibold text-gray-800">{log.description}</span>
+                                                    <div className="text-[10px] text-gray-400 mt-0.5">
+                                                        User: {log.user?.name || 'Sistem'}
+                                                    </div>
+                                                </div>
+                                                <span className="text-[10px] text-gray-400 font-mono shrink-0">
+                                                    {formatDateTime(log.created_at)}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Signatures Preview */}
+                            <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div className="p-3 border border-gray-200 rounded-xl text-center">
+                                    <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
+                                        Tanda Tangan Pemohon
+                                    </span>
+                                    {activeItem.requester_signature ? (
+                                        <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
+                                            <img
+                                                src={activeItem.requester_signature}
+                                                alt="E-Sign Pemohon"
+                                                className="max-h-full max-w-full object-contain"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <span className="text-gray-400 italic text-[11px] block py-4">[Belum Ada E-Sign]</span>
+                                    )}
+                                </div>
+
+                                <div className="p-3 border border-gray-200 rounded-xl text-center">
+                                    <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
+                                        Tanda Tangan Penanggung Jawab
+                                    </span>
+                                    {activeItem.approver_signature ? (
+                                        <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
+                                            <img
+                                                src={activeItem.approver_signature}
+                                                alt="E-Sign Approver"
+                                                className="max-h-full max-w-full object-contain"
+                                            />
+                                        </div>
+                                    ) : activeItem.status === 'Done' ? (
+                                        <div className="py-4 text-emerald-700 font-bold text-[11px]">
+                                            [Disetujui Sistem: Done]
+                                        </div>
+                                    ) : (
+                                        <span className="text-gray-400 italic text-[11px] block py-4">[Menunggu Selesai]</span>
                                     )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Section 4: Audit Logs History Table (if available) */}
-                        {activeItem.audit_logs && activeItem.audit_logs.length > 0 && (
-                            <div className="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">
-                                    Riwayat Log Audit Database ({activeItem.audit_logs.length} Log)
-                                </span>
-                                <div className="space-y-1.5 max-h-36 overflow-y-auto text-[11px]">
-                                    {activeItem.audit_logs.map(log => (
-                                        <div key={log.id} className="p-2 bg-white rounded-lg border border-gray-200 flex items-start justify-between gap-3">
-                                            <div>
-                                                <span className="font-semibold text-gray-800">{log.description}</span>
-                                                <div className="text-[10px] text-gray-400 mt-0.5">
-                                                    User: {log.user?.name || 'Sistem'}
-                                                </div>
-                                            </div>
-                                            <span className="text-[10px] text-gray-400 font-mono shrink-0">
-                                                {formatDateTime(log.created_at)}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Signatures Preview */}
-                        <div className="grid grid-cols-2 gap-3 text-xs">
-                            <div className="p-3 border border-gray-200 rounded-xl text-center">
-                                <span className="text-[10px] text-gray-500 uppercase font-semibold block mb-1">
-                                    Tanda Tangan Pemohon
-                                </span>
-                                {activeItem.requester_signature ? (
-                                    <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
-                                        <img
-                                            src={activeItem.requester_signature}
-                                            alt="E-Sign Pemohon"
-                                            className="max-h-full max-w-full object-contain"
-                                        />
-                                    </div>
-                                ) : (
-                                    <span className="text-gray-400 italic text-[11px] block py-4">[Belum Ada E-Sign]</span>
-                                )}
-                            </div>
-
-                            <div className="p-3 border border-gray-200 rounded-xl text-center">
-                                <span className="text-[10px] text-gray-500 uppercase font-semibold block mb-1">
-                                    Tanda Tangan Penanggung Jawab
-                                </span>
-                                {activeItem.approver_signature ? (
-                                    <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
-                                        <img
-                                            src={activeItem.approver_signature}
-                                            alt="E-Sign Approver"
-                                            className="max-h-full max-w-full object-contain"
-                                        />
-                                    </div>
-                                ) : activeItem.status === 'Done' ? (
-                                    <div className="py-4 text-emerald-700 font-bold text-[11px]">
-                                        [Disetujui Sistem: Done]
-                                    </div>
-                                ) : (
-                                    <span className="text-gray-400 italic text-[11px] block py-4">[Menunggu Selesai]</span>
-                                )}
-                            </div>
-                        </div>
-
                         {/* Footer Controls */}
-                        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                        <div className="shrink-0 flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
                             <a
                                 href={route('master-keys.print', activeItem.id)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold"
+                                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 text-xs font-semibold shadow-2xs"
                             >
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                 </svg>
-                                Cetak SOP Resmi (Print)
+                                Cetak Formulir SOP
                             </a>
 
                             <SecondaryButton onClick={() => setIsDetailModalOpen(false)}>
