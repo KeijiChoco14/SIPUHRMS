@@ -12,8 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('master_key_requests', function (Blueprint $table) {
-            $table->longText('requester_signature')->nullable()->after('purpose');
-            $table->longText('approver_signature')->nullable()->after('approval_notes');
+            if (!Schema::hasColumn('master_key_requests', 'requester_signature')) {
+                $table->longText('requester_signature')->nullable();
+            }
+            if (!Schema::hasColumn('master_key_requests', 'approver_signature')) {
+                $table->longText('approver_signature')->nullable();
+            }
         });
     }
 
@@ -23,7 +27,16 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('master_key_requests', function (Blueprint $table) {
-            $table->dropColumn(['requester_signature', 'approver_signature']);
+            $drop = [];
+            if (Schema::hasColumn('master_key_requests', 'requester_signature')) {
+                $drop[] = 'requester_signature';
+            }
+            if (Schema::hasColumn('master_key_requests', 'approver_signature')) {
+                $drop[] = 'approver_signature';
+            }
+            if (!empty($drop)) {
+                $table->dropColumn($drop);
+            }
         });
     }
 };

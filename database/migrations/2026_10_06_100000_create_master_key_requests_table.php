@@ -14,21 +14,47 @@ return new class extends Migration
         Schema::create('master_key_requests', function (Blueprint $table) {
             $table->id();
             $table->string('request_number')->unique(); // e.g. MKR-202610-0001
+            
+            // A. Request type: create_new, extension, replacement
+            $table->string('request_type')->default('create_new'); // create_new, extension, replacement
+            
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
+            
+            // Key details
             $table->string('key_number'); // e.g. MK-HK-01, RFID-FL2-01
-            $table->string('key_type')->default('Floor Master Key'); // Floor Master Key, Grand Master Key, Section Master Key, Room Attendant Master, Emergency Key
+            $table->string('key_type')->default('Floor Master Key');
             $table->string('room_range_access'); // e.g. Lantai 2 & 3 (Kamar 201-330)
+            
+            // Validity & 3 months cycle
             $table->date('valid_from');
             $table->date('valid_until');
             $table->unsignedInteger('renewal_cycle_months')->default(3); // 3 bulan sekali
-            $table->text('purpose');
-            $table->enum('status', ['Pending', 'Approved', 'Rejected', 'Revoked'])->default('Pending');
-            $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamp('approved_at')->nullable();
-            $table->text('approval_notes')->nullable();
-            $table->text('rejection_reason')->nullable();
+            
+            // B. Remark kolom untuk menjelaskan kenapa key dibuat / diperbarui / diganti
+            $table->text('remark')->nullable();
+            $table->text('purpose')->nullable();
+            
+            // C. Status: on request and done
+            $table->string('status')->default('On Request'); // 'On Request', 'Done'
+            
+            // D. Username, tanggal request dan kapan done tercatat di log
+            $table->foreignId('requested_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('requested_by_username')->nullable();
+            $table->timestamp('requested_at')->nullable();
+            
+            $table->foreignId('done_by_user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('done_by_username')->nullable();
+            $table->timestamp('done_at')->nullable();
+            $table->text('done_notes')->nullable();
+            
+            // Digital signatures
+            $table->longText('requester_signature')->nullable();
+            $table->longText('approver_signature')->nullable();
+            
+            // Reference to previous request for extension or replacement
             $table->foreignId('previous_request_id')->nullable()->constrained('master_key_requests')->nullOnDelete();
+            
             $table->timestamps();
         });
     }

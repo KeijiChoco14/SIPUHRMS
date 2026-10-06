@@ -14,6 +14,7 @@ class MasterKeyRequest extends Model
 
     protected $fillable = [
         'request_number',
+        'request_type',
         'employee_id',
         'department_id',
         'key_number',
@@ -22,12 +23,16 @@ class MasterKeyRequest extends Model
         'valid_from',
         'valid_until',
         'renewal_cycle_months',
+        'remark',
         'purpose',
         'status',
-        'approved_by',
-        'approved_at',
-        'approval_notes',
-        'rejection_reason',
+        'requested_by_user_id',
+        'requested_by_username',
+        'requested_at',
+        'done_by_user_id',
+        'done_by_username',
+        'done_at',
+        'done_notes',
         'previous_request_id',
         'requester_signature',
         'approver_signature',
@@ -36,11 +41,13 @@ class MasterKeyRequest extends Model
     protected $casts = [
         'valid_from' => 'date:Y-m-d',
         'valid_until' => 'date:Y-m-d',
-        'approved_at' => 'datetime',
+        'requested_at' => 'datetime',
+        'done_at' => 'datetime',
         'renewal_cycle_months' => 'integer',
     ];
 
     protected $appends = [
+        'request_type_label',
         'is_expired',
         'is_expiring_soon',
         'days_remaining',
@@ -57,9 +64,14 @@ class MasterKeyRequest extends Model
         return $this->belongsTo(Department::class);
     }
 
-    public function approver(): BelongsTo
+    public function requestedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'approved_by');
+        return $this->belongsTo(User::class, 'requested_by_user_id');
+    }
+
+    public function doneBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'done_by_user_id');
     }
 
     public function previousRequest(): BelongsTo
@@ -72,9 +84,25 @@ class MasterKeyRequest extends Model
         return $this->hasMany(MasterKeyRequest::class, 'previous_request_id');
     }
 
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class, 'model_id')
+            ->where('model_type', self::class)
+            ->latest();
+    }
+
+    public function getRequestTypeLabelAttribute(): string
+    {
+        return match ($this->request_type) {
+            'extension' => 'Extension',
+            'replacement' => 'Replacement',
+            default => 'Create New',
+        };
+    }
+
     public function getIsExpiredAttribute(): bool
     {
-        if ($this->status !== 'Approved') {
+        if ($this->status !== 'Done') {
             return false;
         }
 
@@ -83,7 +111,7 @@ class MasterKeyRequest extends Model
 
     public function getIsExpiringSoonAttribute(): bool
     {
-        if ($this->status !== 'Approved') {
+        if ($this->status !== 'Done') {
             return false;
         }
 
@@ -101,7 +129,7 @@ class MasterKeyRequest extends Model
 
     public function getDaysRemainingAttribute(): int
     {
-        if ($this->status !== 'Approved') {
+        if ($this->status !== 'Done') {
             return 0;
         }
 
@@ -117,17 +145,17 @@ class MasterKeyRequest extends Model
 
     public function getComputedStatusAttribute(): string
     {
-        if ($this->status === 'Approved') {
+        if ($this->status === 'Done') {
             if ($this->is_expired) {
                 return 'Expired';
             }
             if ($this->is_expiring_soon) {
                 return 'Expiring Soon';
             }
-            return 'Active';
+            return 'Done';
         }
 
-        return $this->status;
+        return 'On Request';
     }
 
     /**

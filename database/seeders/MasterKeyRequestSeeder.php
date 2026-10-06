@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AuditLog;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\MasterKeyRequest;
@@ -33,20 +34,21 @@ class MasterKeyRequestSeeder extends Seeder
             $q->where('name', 'Staff / Employee');
         })->get();
 
-        $adminUser = User::where('email', 'admin@swissbelhotel.com')->first();
+        $adminUser = User::where('email', 'admin@swissbelhotel.com')->first() ?? User::first();
         $hodUser = $hodHK?->user ?? $adminUser;
 
         $today = Carbon::today();
 
-        // 1. Active Key (Yuni Rahayu) - renewed 1 month ago, valid for 2 more months
+        // 1. Extension (Done) - Yuni Rahayu
         $yuni = $staffHKList->firstWhere('employee_number', 'SBH-110') ?? $staffHKList->first();
         if ($yuni) {
             $validFrom = $today->copy()->subMonth();
             $validUntil = $validFrom->copy()->addMonths(3);
 
-            MasterKeyRequest::firstOrCreate(
+            $m1 = MasterKeyRequest::updateOrCreate(
                 ['request_number' => 'MKR-' . date('Ym') . '-0001'],
                 [
+                    'request_type' => 'extension',
                     'employee_id' => $yuni->id,
                     'department_id' => $hkDept->id,
                     'key_number' => 'MK-HK-201',
@@ -55,75 +57,91 @@ class MasterKeyRequestSeeder extends Seeder
                     'valid_from' => $validFrom->toDateString(),
                     'valid_until' => $validUntil->toDateString(),
                     'renewal_cycle_months' => 3,
+                    'remark' => 'Perpanjangan berkala 3 bulan akses master key Lantai 2 untuk operasional pembersihan rutin triwulan berjalan.',
                     'purpose' => 'Pembersihan harian kamar tamu, pergantian linen, dan make up room Lantai 2.',
-                    'status' => 'Approved',
-                    'approved_by' => $hodUser?->id,
-                    'approved_at' => $validFrom->copy()->addHours(2),
-                    'approval_notes' => 'Disetujui untuk perpanjangan akses operasional rutin 3 bulan (Q4).',
+                    'status' => 'Done',
+                    'requested_by_user_id' => $yuni->user?->id ?? $adminUser?->id,
+                    'requested_by_username' => $yuni->user?->name ?? 'Yuni Rahayu',
+                    'requested_at' => $validFrom->copy()->subDay(),
+                    'done_by_user_id' => $hodUser?->id,
+                    'done_by_username' => $hodUser?->name ?? 'Dewi Kartika (EHK)',
+                    'done_at' => $validFrom->copy()->addHours(2),
+                    'done_notes' => 'Disetujui dan fisik master key diserahkan untuk perpanjangan triwulan.',
                 ]
             );
+
+            AuditLog::firstOrCreate([
+                'action' => 'REQUEST_MASTER_KEY',
+                'model_type' => MasterKeyRequest::class,
+                'model_id' => $m1->id,
+            ], [
+                'user_id' => $yuni->user?->id ?? $adminUser?->id,
+                'description' => "[Extension (Perpanjangan 3 Bulan)] Diajukan oleh username '{$m1->requested_by_username}' pada {$m1->requested_at}. Kunci: MK-HK-201. Remark: {$m1->remark}",
+                'ip_address' => '127.0.0.1',
+            ]);
+
+            AuditLog::firstOrCreate([
+                'action' => 'DONE_MASTER_KEY',
+                'model_type' => MasterKeyRequest::class,
+                'model_id' => $m1->id,
+            ], [
+                'user_id' => $hodUser?->id,
+                'description' => "Permohonan master key {$m1->request_number} ditandai [DONE] oleh username '{$m1->done_by_username}' pada {$m1->done_at}. Catatan: {$m1->done_notes}",
+                'ip_address' => '127.0.0.1',
+            ]);
         }
 
-        // 2. Expiring Soon Key (Tono Sugiarto) - 5 days remaining, requires renewal!
+        // 2. Replacement (Done - Expiring Soon) - Tono Sugiarto (Penggantian Kunci Chip Rusak)
         $tono = $staffHKList->firstWhere('employee_number', 'SBH-111') ?? ($staffHKList->count() > 1 ? $staffHKList[1] : null);
         if ($tono) {
             $validUntil = $today->copy()->addDays(5);
             $validFrom = $validUntil->copy()->subMonths(3);
 
-            MasterKeyRequest::firstOrCreate(
+            $m2 = MasterKeyRequest::updateOrCreate(
                 ['request_number' => 'MKR-' . date('Ym') . '-0002'],
                 [
+                    'request_type' => 'replacement',
                     'employee_id' => $tono->id,
                     'department_id' => $hkDept->id,
-                    'key_number' => 'MK-HK-301',
+                    'key_number' => 'MK-HK-301-B',
                     'key_type' => 'Floor Master Key',
                     'room_range_access' => 'Lantai 3 (Kamar 301 - 340)',
                     'valid_from' => $validFrom->toDateString(),
                     'valid_until' => $validUntil->toDateString(),
                     'renewal_cycle_months' => 3,
+                    'remark' => 'Penggantian kartu RFID master key lama yang chip sensornya retak/tidak terbaca di kamar 312 & 318.',
                     'purpose' => 'Akses rutin pembersihan kamar dan turn-down service Lantai 3.',
-                    'status' => 'Approved',
-                    'approved_by' => $hodUser?->id,
-                    'approved_at' => $validFrom->copy()->addHours(3),
-                    'approval_notes' => 'Disetujui. Perhatikan batas waktu 3 bulan sebelum masa aktif berakhir.',
+                    'status' => 'Done',
+                    'requested_by_user_id' => $tono->user?->id ?? $adminUser?->id,
+                    'requested_by_username' => $tono->user?->name ?? 'Tono Sugiarto',
+                    'requested_at' => $validFrom->copy()->subHours(5),
+                    'done_by_user_id' => $hodUser?->id,
+                    'done_by_username' => $hodUser?->name ?? 'Dewi Kartika (EHK)',
+                    'done_at' => $validFrom->copy()->addHours(1),
+                    'done_notes' => 'Kartu RFID lama ditarik dan dimusnahkan. Kartu pengganti MK-HK-301-B diserahkan.',
                 ]
             );
+
+            AuditLog::firstOrCreate([
+                'action' => 'REQUEST_MASTER_KEY',
+                'model_type' => MasterKeyRequest::class,
+                'model_id' => $m2->id,
+            ], [
+                'user_id' => $tono->user?->id ?? $adminUser?->id,
+                'description' => "[Replacement (Penggantian Kunci)] Diajukan oleh username '{$m2->requested_by_username}' pada {$m2->requested_at}. Kunci: MK-HK-301-B. Remark: {$m2->remark}",
+                'ip_address' => '127.0.0.1',
+            ]);
         }
 
-        // 3. Expired Key (Sari Dewi) - expired 6 days ago, ready for Quick Renewal!
-        $sari = $staffHKList->firstWhere('employee_number', 'SBH-112') ?? ($staffHKList->count() > 2 ? $staffHKList[2] : null);
-        if ($sari) {
-            $validUntil = $today->copy()->subDays(6);
-            $validFrom = $validUntil->copy()->subMonths(3);
-
-            MasterKeyRequest::firstOrCreate(
-                ['request_number' => 'MKR-' . date('Ym') . '-0003'],
-                [
-                    'employee_id' => $sari->id,
-                    'department_id' => $hkDept->id,
-                    'key_number' => 'MK-HK-501',
-                    'key_type' => 'Floor Master Key',
-                    'room_range_access' => 'Lantai 5 (Kamar 501 - 540)',
-                    'valid_from' => $validFrom->toDateString(),
-                    'valid_until' => $validUntil->toDateString(),
-                    'renewal_cycle_months' => 3,
-                    'purpose' => 'Operasional pembersihan kamar dan inspeksi kebersihan Lantai 5.',
-                    'status' => 'Approved',
-                    'approved_by' => $hodUser?->id,
-                    'approved_at' => $validFrom->copy()->addHours(1),
-                    'approval_notes' => 'Disetujui periode sebelumnya. Masa berlaku telah habis dan perlu perpanjangan segera.',
-                ]
-            );
-        }
-
-        // 4. Pending Approval (Lestari Putri - Supervisor) - Section Master
+        // 3. Create New (On Request) - Lestari Putri (Supervisor)
         if ($supHK) {
             $validFrom = $today;
             $validUntil = $validFrom->copy()->addMonths(3);
 
-            MasterKeyRequest::firstOrCreate(
-                ['request_number' => 'MKR-' . date('Ym') . '-0004'],
+            $m3 = MasterKeyRequest::updateOrCreate(
+                ['request_number' => 'MKR-' . date('Ym') . '-0003'],
                 [
+                    'request_type' => 'create_new',
                     'employee_id' => $supHK->id,
                     'department_id' => $hkDept->id,
                     'key_number' => 'SMK-HK-02',
@@ -132,35 +150,28 @@ class MasterKeyRequestSeeder extends Seeder
                     'valid_from' => $validFrom->toDateString(),
                     'valid_until' => $validUntil->toDateString(),
                     'renewal_cycle_months' => 3,
+                    'remark' => 'Penambahan akses Section Master Key baru sehubungan dengan mutasi jadwal supervisi shift pagi & siang area lantai 2-3.',
                     'purpose' => 'Supervisi, inspeksi kebersihan kamar check-out, dan cross check room attendant shift pagi & siang.',
-                    'status' => 'Pending',
+                    'status' => 'On Request',
+                    'requested_by_user_id' => $supHK->user?->id ?? $adminUser?->id,
+                    'requested_by_username' => $supHK->user?->name ?? 'Lestari Putri',
+                    'requested_at' => $today->copy()->setTime(9, 15),
+                    'done_by_user_id' => null,
+                    'done_by_username' => null,
+                    'done_at' => null,
+                    'done_notes' => null,
                 ]
             );
-        }
 
-        // 5. Grand Master Key (Dewi Kartika - Executive Housekeeper) - Active
-        if ($hodHK) {
-            $validFrom = $today->copy()->subWeeks(2);
-            $validUntil = $validFrom->copy()->addMonths(3);
-
-            MasterKeyRequest::firstOrCreate(
-                ['request_number' => 'MKR-' . date('Ym') . '-0005'],
-                [
-                    'employee_id' => $hodHK->id,
-                    'department_id' => $hkDept->id,
-                    'key_number' => 'GMK-HK-01',
-                    'key_type' => 'Grand Master Key',
-                    'room_range_access' => 'Seluruh Area Kamar Tamu & Linen (All HK Guest Rooms)',
-                    'valid_from' => $validFrom->toDateString(),
-                    'valid_until' => $validUntil->toDateString(),
-                    'renewal_cycle_months' => 3,
-                    'purpose' => 'Akses Head of Department untuk audit kualitas kebersihan seluruh kamar tamu dan penanganan darurat.',
-                    'status' => 'Approved',
-                    'approved_by' => $adminUser?->id,
-                    'approved_at' => $validFrom->copy()->addHours(1),
-                    'approval_notes' => 'Disetujui oleh Manajemen / General Manager.',
-                ]
-            );
+            AuditLog::firstOrCreate([
+                'action' => 'REQUEST_MASTER_KEY',
+                'model_type' => MasterKeyRequest::class,
+                'model_id' => $m3->id,
+            ], [
+                'user_id' => $supHK->user?->id ?? $adminUser?->id,
+                'description' => "[Create New (Kunci Baru)] Diajukan oleh username '{$m3->requested_by_username}' pada {$m3->requested_at}. Kunci: SMK-HK-02. Remark: {$m3->remark}",
+                'ip_address' => '127.0.0.1',
+            ]);
         }
     }
 }

@@ -6,16 +6,22 @@ interface Props {
     requestData: {
         id: number;
         request_number: string;
+        request_type: 'create_new' | 'extension' | 'replacement';
+        request_type_label: string;
         key_number: string;
         key_type: string;
         room_range_access: string;
         valid_from: string;
         valid_until: string;
         renewal_cycle_months: number;
-        purpose: string;
-        status: string;
-        approved_at?: string;
-        approval_notes?: string;
+        remark?: string;
+        purpose?: string;
+        status: 'On Request' | 'Done';
+        requested_by_username?: string;
+        requested_at?: string;
+        done_by_username?: string;
+        done_at?: string;
+        done_notes?: string;
         requester_signature?: string;
         approver_signature?: string;
         created_at: string;
@@ -41,13 +47,11 @@ interface Props {
                 };
             };
         };
-        approver?: {
+        requested_by?: {
             name: string;
-            employee?: {
-                position?: {
-                    name: string;
-                };
-            };
+        };
+        done_by?: {
+            name: string;
         };
         previous_request?: {
             request_number: string;
@@ -78,6 +82,17 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
         });
     };
 
+    const formatDateTime = (dateStr?: string) => {
+        if (!dateStr) return '-';
+        return new Date(dateStr).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 py-6 px-4 sm:px-6 print:p-0 print:bg-white text-gray-900 font-sans">
             <Head title={`Form Master Key - ${requestData.request_number}`} />
@@ -96,7 +111,7 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                     </Link>
                     <span className="text-gray-300">|</span>
                     <span className="text-xs text-gray-500">
-                        Format Cetak Resmi SOP Housekeeping Swiss-Belinn SKA
+                        Format Cetak SOP Housekeeping Swiss-Belinn SKA Pekanbaru
                     </span>
                 </div>
 
@@ -145,18 +160,41 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                                 No: {requestData.request_number}
                             </div>
                             <div className="text-[10px] text-gray-500 mt-0.5">
-                                Tgl Terbit: {formatDate(requestData.created_at)}
+                                Status: <span className={`font-bold ${requestData.status === 'Done' ? 'text-emerald-700' : 'text-amber-700'}`}>{requestData.status}</span>
                             </div>
                         </div>
                     </div>
 
                     <div className="mt-6 text-center">
                         <h2 className="text-base font-extrabold uppercase tracking-wide text-gray-900 border-y border-gray-200 py-1.5 inline-block px-6">
-                            Formulir Perpanjangan & Serah Terima Akses Master Key
+                            Formulir Permohonan & Serah Terima Akses Master Key
                         </h2>
                         <p className="text-[11px] text-gray-500 mt-1 uppercase font-semibold tracking-wider">
                             Departemen Housekeeping • Jangka Waktu Evaluasi: 3 Bulan Sekali
                         </p>
+                    </div>
+
+                    {/* Tipe Permohonan Checklist Box */}
+                    <div className="mt-4 flex items-center justify-center gap-6 text-xs font-semibold bg-gray-50 py-2 px-4 rounded-xl border border-gray-200">
+                        <span className="text-gray-500 uppercase tracking-wider text-[11px]">Tipe Permohonan:</span>
+                        <div className="flex items-center gap-1.5">
+                            <span className={`w-4 h-4 rounded border flex items-center justify-center font-bold text-xs ${requestData.request_type === 'create_new' ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-400 bg-white'}`}>
+                                {requestData.request_type === 'create_new' ? '✓' : ''}
+                            </span>
+                            <span className={requestData.request_type === 'create_new' ? 'font-bold text-indigo-700' : 'text-gray-700'}>Create New</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className={`w-4 h-4 rounded border flex items-center justify-center font-bold text-xs ${requestData.request_type === 'extension' ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-400 bg-white'}`}>
+                                {requestData.request_type === 'extension' ? '✓' : ''}
+                            </span>
+                            <span className={requestData.request_type === 'extension' ? 'font-bold text-indigo-700' : 'text-gray-700'}>Extension (3 Bulan)</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span className={`w-4 h-4 rounded border flex items-center justify-center font-bold text-xs ${requestData.request_type === 'replacement' ? 'bg-indigo-600 text-white border-indigo-600' : 'border-gray-400 bg-white'}`}>
+                                {requestData.request_type === 'replacement' ? '✓' : ''}
+                            </span>
+                            <span className={requestData.request_type === 'replacement' ? 'font-bold text-indigo-700' : 'text-gray-700'}>Replacement</span>
+                        </div>
                     </div>
                 </div>
 
@@ -211,17 +249,25 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                             <span className="w-36 text-gray-500 shrink-0">Cakupan Area Kamar:</span>
                             <span className="font-semibold text-gray-900">{requestData.room_range_access}</span>
                         </div>
-                        <div className="col-span-2 flex">
-                            <span className="w-36 text-gray-500 shrink-0">Tujuan / Keperluan:</span>
-                            <span className="text-gray-700">{requestData.purpose}</span>
-                        </div>
                     </div>
                 </div>
 
-                {/* Section 3: Masa Berlaku (3 Bulan) */}
+                {/* Section 3: Remark & Alasan Permohonan */}
                 <div className="mb-5">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 bg-gray-100 px-3 py-1 rounded mb-2.5">
-                        III. Masa Berlaku & Periode Perpanjangan (3 Bulan)
+                        III. Remark / Alasan Pembuatan, Perpanjangan, atau Penggantian Kunci
+                    </h3>
+                    <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-200 text-xs">
+                        <p className="font-medium text-gray-800 leading-relaxed">
+                            {requestData.remark || requestData.purpose || '-'}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Section 4: Masa Berlaku (3 Bulan) */}
+                <div className="mb-5">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 bg-gray-100 px-3 py-1 rounded mb-2.5">
+                        IV. Masa Berlaku & Periode Evaluasi (3 Bulan)
                     </h3>
                     <div className="grid grid-cols-3 gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs text-center">
                         <div>
@@ -239,31 +285,67 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                             </span>
                         </div>
                     </div>
-                    {requestData.previous_request && (
-                        <div className="text-[10px] text-gray-500 italic mt-1.5 px-2">
-                            * Dokumen ini merupakan formulir perpanjangan lanjutan dari registrasi sebelumnya No. {requestData.previous_request.request_number}.
-                        </div>
-                    )}
                 </div>
 
-                {/* Section 4: Ketentuan & Kebijakan SOP Hotel */}
+                {/* Section 5: Log Pencatatan Sistem (Username & Waktu) */}
+                <div className="mb-5">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 bg-gray-100 px-3 py-1 rounded mb-2.5">
+                        V. Rekam Jejak Sistem (Activity & Audit Log)
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                        <div>
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold block">Log Permohonan (Requested):</span>
+                            <div className="font-semibold text-gray-800 mt-0.5">
+                                Username: <span className="text-indigo-600 font-mono">{requestData.requested_by_username || requestData.requested_by?.name || '-'}</span>
+                            </div>
+                            <div className="text-[11px] text-gray-600">
+                                Waktu Request: {formatDateTime(requestData.requested_at || requestData.created_at)}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold block">Log Penyelesaian (Done):</span>
+                            {requestData.status === 'Done' ? (
+                                <>
+                                    <div className="font-semibold text-gray-800 mt-0.5">
+                                        Username PIC: <span className="text-emerald-700 font-mono">{requestData.done_by_username || requestData.done_by?.name || '-'}</span>
+                                    </div>
+                                    <div className="text-[11px] text-gray-600">
+                                        Waktu Selesai (Done): {formatDateTime(requestData.done_at)}
+                                    </div>
+                                    {requestData.done_notes && (
+                                        <div className="text-[10px] text-gray-500 italic mt-0.5">
+                                            Catatan: {requestData.done_notes}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="text-amber-700 font-medium italic mt-1">
+                                    [Status: On Request — Menunggu proses verifikasi & serah terima]
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Section 6: Ketentuan & Kebijakan SOP Hotel */}
                 <div className="mb-6">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 bg-gray-100 px-3 py-1 rounded mb-2">
-                        IV. Ketentuan Standar Operasional Prosedur (SOP) Keamanan
+                        VI. Ketentuan Standar Operasional Prosedur (SOP) Keamanan
                     </h3>
                     <ol className="list-decimal list-inside text-[11px] text-gray-600 space-y-1 px-2 leading-relaxed">
                         <li>Kunci master adalah aset prioritas keamanan hotel Swiss-Belinn SKA Pekanbaru dan hanya digunakan saat jam kerja operasional aktif.</li>
                         <li>Dilarang keras memindahtangankan, meminjamkan, atau menduplikasi kunci master kepada pihak mana pun tanpa otorisasi tertulis.</li>
                         <li>Apabila terjadi kehilangan, kerusakan, atau malfungsi kunci, pemegang wajib melapor ke Supervisor HK dan Departemen Security dalam 1x24 jam.</li>
-                        <li>Masa berlaku akses berlaku maksimal selama 3 (tiga) bulan. Pemegang kunci wajib mengajukan permohonan perpanjangan sebelum tanggal jatuh tempo berakhir.</li>
+                        <li>Masa berlaku akses berlaku maksimal selama 3 (tiga) bulan. Pemegang kunci wajib mengajukan formulir perpanjangan (extension) sebelum tanggal jatuh tempo berakhir.</li>
                         <li>Pelanggaran terhadap SOP ini akan dikenakan sanksi disipliner sesuai peraturan ketenagakerjaan hotel.</li>
                     </ol>
                 </div>
 
-                {/* Section 5: Lembar Pengesahan (4 Kolom Tanda Tangan) */}
+                {/* Section 7: Lembar Pengesahan (4 Kolom Tanda Tangan) */}
                 <div className="border-t border-gray-300 pt-5">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 text-center mb-4">
-                        V. Lembar Pengesahan & Serah Terima Akses
+                        VII. Lembar Pengesahan & Serah Terima Akses
                     </h3>
                     <div className="grid grid-cols-4 gap-3 text-center text-xs">
                         {/* 1. Pemohon */}
@@ -314,13 +396,13 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                                             className="max-h-12 max-w-full object-contain"
                                         />
                                         <div className="text-[7.5px] font-mono text-emerald-700 bg-emerald-50 px-1 rounded mt-0.5">
-                                            E-Sign: {formatDate(requestData.approved_at)}
+                                            E-Sign: {formatDate(requestData.done_at)}
                                         </div>
                                     </div>
-                                ) : requestData.status === 'Approved' ? (
+                                ) : requestData.status === 'Done' ? (
                                     <div className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded border border-emerald-200">
-                                        DISETUJUI SISTEM
-                                        <div className="text-[8px] font-mono text-gray-400">{formatDate(requestData.approved_at)}</div>
+                                        STATUS: DONE
+                                        <div className="text-[8px] font-mono text-gray-400">{formatDate(requestData.done_at)}</div>
                                     </div>
                                 ) : (
                                     <div className="text-[9px] text-gray-400 italic mb-1">[Tanda Tangan Fisik]</div>
@@ -328,7 +410,7 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                             </div>
                             <div className="border-t border-gray-300 pt-1">
                                 <p className="font-bold text-gray-900 leading-tight truncate">
-                                    {requestData.approver?.name || hodHK?.user?.name || 'Dewi Kartika'}
+                                    {requestData.done_by_username || hodHK?.user?.name || 'Dewi Kartika'}
                                 </p>
                                 <span className="text-[10px] text-gray-500">Executive Housekeeper</span>
                             </div>

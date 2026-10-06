@@ -38,11 +38,13 @@ class MasterKeyRequestController extends Controller
             'employee.user',
             'employee.department',
             'employee.position',
-            'approver',
+            'requestedBy',
+            'doneBy',
             'previousRequest',
+            'auditLogs.user',
         ])->latest();
 
-        // If regular employee (Room Attendant / non-management), show their own requests
+        // If regular staff, view own requests
         if (!$canManageAll) {
             $query->where('employee_id', $userEmployee?->id);
         }
@@ -52,7 +54,10 @@ class MasterKeyRequestController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('request_number', 'like', "%{$search}%")
                     ->orWhere('key_number', 'like', "%{$search}%")
+                    ->orWhere('remark', 'like', "%{$search}%")
                     ->orWhere('room_range_access', 'like', "%{$search}%")
+                    ->orWhere('requested_by_username', 'like', "%{$search}%")
+                    ->orWhere('done_by_username', 'like', "%{$search}%")
                     ->orWhereHas('employee.user', function ($sub) use ($search) {
                         $sub->where('name', 'like', "%{$search}%");
                     })
@@ -67,45 +72,54 @@ class MasterKeyRequestController extends Controller
             $query->where('key_type', $keyType);
         }
 
-        // Tab status filter
+        // Request Type filter (create_new, extension, replacement)
+        if ($requestType = $request->input('request_type')) {
+            $query->where('request_type', $requestType);
+        }
+
+        // Tab status filter: all, on_request, done, expiring, expired
         $tab = $request->input('tab', 'all');
         $today = Carbon::today()->toDateString();
         $fourteenDaysLater = Carbon::today()->addDays(14)->toDateString();
 
-        if ($tab === 'pending') {
-            $query->where('status', 'Pending');
-        } elseif ($tab === 'active') {
-            $query->where('status', 'Approved')
-                ->where('valid_until', '>=', $today);
+        if ($tab === 'on_request') {
+            $query->where('status', 'On Request');
+        } elseif ($tab === 'done') {
+            $query->where('status', 'Done');
         } elseif ($tab === 'expiring') {
-            $query->where('status', 'Approved')
+            $query->where('status', 'Done')
                 ->where('valid_until', '>=', $today)
                 ->where('valid_until', '<=', $fourteenDaysLater);
         } elseif ($tab === 'expired') {
-            $query->where('status', 'Approved')
+            $query->where('status', 'Done')
                 ->where('valid_until', '<', $today);
-        } elseif ($tab === 'history') {
-            $query->whereIn('status', ['Rejected', 'Revoked']);
         }
 
         $requests = $query->paginate(15)->withQueryString();
 
-        // Compute overall statistics based on scope
+        // Statistics
         $statsBaseQuery = MasterKeyRequest::query();
         if (!$canManageAll) {
             $statsBaseQuery->where('employee_id', $userEmployee?->id);
         }
 
         $totalKeys = (clone $statsBaseQuery)->count();
-        $pendingApprovals = (clone $statsBaseQuery)->where('status', 'Pending')->count();
-        $activeKeys = (clone $statsBaseQuery)->where('status', 'Approved')->where('valid_until', '>=', $today)->count();
-        $expiringSoon = (clone $statsBaseQuery)->where('status', 'Approved')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater)->count();
-        $expiredKeys = (clone $statsBaseQuery)->where('status', 'Approved')->where('valid_until', '<', $today)->count();
+        $onRequestCount = (clone $statsBaseQuery)->where('status', 'On Request')->count();
+        $doneCount = (clone $statsBaseQuery)->where('status', 'Done')->count();
+        $expiringSoon = (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater)->count();
+        $expiredCount = (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '<', $today)->count();
 
         // Housekeeping employees list for selection
         $hkDepartment = Department::where('name', 'Housekeeping')->first();
         $hkEmployees = Employee::with(['user', 'position'])
             ->where('department_id', $hkDepartment?->id)
+            ->get();
+
+        // Recent / Active keys list for Quick Select when creating Extension / Replacement
+        $existingKeys = MasterKeyRequest::with(['employee.user'])
+            ->select('id', 'request_number', 'key_number', 'key_type', 'room_range_access', 'valid_until', 'employee_id')
+            ->latest()
+            ->take(30)
             ->get();
 
         return Inertia::render('MasterKey/Index', [
@@ -114,18 +128,21 @@ class MasterKeyRequestController extends Controller
                 'tab' => $tab,
                 'search' => $search ?? '',
                 'key_type' => $keyType ?? '',
+                'request_type' => $requestType ?? '',
             ],
             'stats' => [
                 'total' => $totalKeys,
-                'pending' => $pendingApprovals,
-                'active' => $activeKeys,
+                'on_request' => $onRequestCount,
+                'done' => $doneCount,
                 'expiring_soon' => $expiringSoon,
-                'expired' => $expiredKeys,
+                'expired' => $expiredCount,
             ],
             'canApprove' => $canApprove,
             'canManageAll' => $canManageAll,
             'currentEmployee' => $userEmployee?->load(['department', 'position']),
+            'currentUser' => $user,
             'hkEmployees' => $hkEmployees,
+            'existingKeys' => $existingKeys,
             'defaultKeyTypes' => [
                 'Floor Master Key',
                 'Section Master Key',
@@ -147,7 +164,7 @@ class MasterKeyRequestController extends Controller
     }
 
     /**
-     * Store a newly created master key access request.
+     * Store a newly created master key access request (1 Form: create new, extension, replacement).
      */
     public function store(Request $request)
     {
@@ -163,13 +180,16 @@ class MasterKeyRequestController extends Controller
         $canManageAll = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK) || ($isSupervisor && $isHK);
 
         $rules = [
+            'request_type' => 'required|in:create_new,extension,replacement',
             'key_number' => 'required|string|max:50',
             'key_type' => 'required|string|max:100',
             'room_range_access' => 'required|string|max:255',
             'valid_from' => 'required|date',
             'renewal_cycle_months' => 'nullable|integer|min:1|max:12',
-            'purpose' => 'required|string|max:1000',
+            'remark' => 'required|string|max:1000',
+            'purpose' => 'nullable|string|max:1000',
             'requester_signature' => 'nullable|string',
+            'previous_request_id' => 'nullable|exists:master_key_requests,id',
         ];
 
         if ($canManageAll) {
@@ -186,14 +206,18 @@ class MasterKeyRequestController extends Controller
             return back()->with('error', 'Karyawan tidak ditemukan. Pastikan akun Anda terhubung dengan data karyawan.');
         }
 
-        $targetEmployee = Employee::with('department')->findOrFail($targetEmployeeId);
+        $targetEmployee = Employee::with(['department', 'user'])->findOrFail($targetEmployeeId);
 
         $cycleMonths = (int) ($validated['renewal_cycle_months'] ?? 3);
         $validFrom = Carbon::parse($validated['valid_from'])->startOfDay();
         $validUntil = $validFrom->copy()->addMonths($cycleMonths);
 
+        $requestedAt = Carbon::now();
+        $requestedByUsername = $user->name;
+
         $masterKeyRequest = MasterKeyRequest::create([
             'request_number' => MasterKeyRequest::generateRequestNumber(),
+            'request_type' => $validated['request_type'],
             'employee_id' => $targetEmployee->id,
             'department_id' => $targetEmployee->department_id,
             'key_number' => $validated['key_number'],
@@ -202,94 +226,41 @@ class MasterKeyRequestController extends Controller
             'valid_from' => $validFrom->toDateString(),
             'valid_until' => $validUntil->toDateString(),
             'renewal_cycle_months' => $cycleMonths,
-            'purpose' => $validated['purpose'],
+            'remark' => $validated['remark'],
+            'purpose' => $validated['purpose'] ?? $validated['remark'],
+            'status' => 'On Request',
+            'requested_by_user_id' => $user->id,
+            'requested_by_username' => $requestedByUsername,
+            'requested_at' => $requestedAt,
             'requester_signature' => $validated['requester_signature'] ?? null,
-            'status' => 'Pending',
+            'previous_request_id' => $validated['previous_request_id'] ?? null,
         ]);
 
+        $typeLabels = [
+            'create_new' => 'Create New (Kunci Baru)',
+            'extension' => 'Extension (Perpanjangan 3 Bulan)',
+            'replacement' => 'Replacement (Penggantian Kunci)',
+        ];
+        $typeLabel = $typeLabels[$validated['request_type']] ?? 'Permohonan Kunci';
+
+        // Catat di Audit Log lengkap dengan username, tanggal request, dan remark
         AuditLog::log([
-            'action' => 'CREATE_MASTER_KEY_REQUEST',
+            'action' => 'REQUEST_MASTER_KEY',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
-            'description' => "Pengajuan akses master key {$masterKeyRequest->key_number} ({$masterKeyRequest->request_number}) untuk karyawan {$targetEmployee->user?->name}.",
+            'description' => "[{$typeLabel}] Diajukan oleh username '{$requestedByUsername}' pada " . $requestedAt->format('Y-m-d H:i:s') . ". Kunci: {$masterKeyRequest->key_number} ({$masterKeyRequest->request_number}) untuk karyawan {$targetEmployee->user?->name}. Remark: {$masterKeyRequest->remark}",
             'new_values' => $masterKeyRequest->toArray(),
         ]);
 
         // Send In-App Notification to Executive Housekeeper (HOD) and Admins
         $this->notifyApprovers($masterKeyRequest);
 
-        return redirect()->route('master-keys.index')->with('success', 'Form permohonan akses master key 3 bulan berhasil diajukan dan menunggu persetujuan.');
+        return redirect()->route('master-keys.index')->with('success', "Form permohonan {$typeLabel} untuk master key {$masterKeyRequest->key_number} berhasil diajukan dengan status [On Request].");
     }
 
     /**
-     * Quick renew (Perpanjang 3 Bulan) for an existing master key.
-     */
-    public function renew(Request $request, MasterKeyRequest $masterKeyRequest)
-    {
-        $user = Auth::user();
-        $userEmployee = $user->employee;
-        $isSuperAdmin = $user->hasRole('Super Admin');
-        $isHRD = $user->hasRole('HRD / Admin');
-        $isGM = $user->hasRole('General Manager');
-        $isHOD = $user->hasRole('Head of Department');
-        $isSupervisor = $user->hasRole('Supervisor');
-        $isHK = $userEmployee?->department?->name === 'Housekeeping';
-
-        $canManageAll = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK) || ($isSupervisor && $isHK);
-        $isOwner = $userEmployee && $masterKeyRequest->employee_id === $userEmployee->id;
-
-        if (!$canManageAll && !$isOwner) {
-            return back()->with('error', 'Anda tidak memiliki otorisasi untuk memperpanjang kunci ini.');
-        }
-
-        $validated = $request->validate([
-            'purpose' => 'nullable|string|max:1000',
-            'requester_signature' => 'nullable|string',
-        ]);
-
-        // Calculate new renewal period (3 months)
-        $previousUntil = Carbon::parse($masterKeyRequest->valid_until);
-        $today = Carbon::today();
-
-        // If still active or close to expiring, start right after previous expiration
-        $newValidFrom = $previousUntil->isPast() ? $today : $previousUntil->copy()->addDay();
-        $newValidUntil = $newValidFrom->copy()->addMonths(3);
-
-        $defaultPurpose = "Perpanjangan berkala 3 bulan akses master key {$masterKeyRequest->key_number} (Ref: {$masterKeyRequest->request_number}).";
-        $purpose = $validated['purpose'] ?? $defaultPurpose;
-
-        $newRequest = MasterKeyRequest::create([
-            'request_number' => MasterKeyRequest::generateRequestNumber(),
-            'employee_id' => $masterKeyRequest->employee_id,
-            'department_id' => $masterKeyRequest->department_id,
-            'key_number' => $masterKeyRequest->key_number,
-            'key_type' => $masterKeyRequest->key_type,
-            'room_range_access' => $masterKeyRequest->room_range_access,
-            'valid_from' => $newValidFrom->toDateString(),
-            'valid_until' => $newValidUntil->toDateString(),
-            'renewal_cycle_months' => 3,
-            'purpose' => $purpose,
-            'requester_signature' => $validated['requester_signature'] ?? $masterKeyRequest->requester_signature,
-            'status' => 'Pending',
-            'previous_request_id' => $masterKeyRequest->id,
-        ]);
-
-        AuditLog::log([
-            'action' => 'RENEW_MASTER_KEY_REQUEST',
-            'model_type' => MasterKeyRequest::class,
-            'model_id' => $newRequest->id,
-            'description' => "Pengajuan perpanjangan 3 bulan master key {$newRequest->key_number} ({$newRequest->request_number}) dari permohonan sebelumnya ({$masterKeyRequest->request_number}).",
-            'new_values' => $newRequest->toArray(),
-        ]);
-
-        // Send In-App Notification to Executive Housekeeper and Admins
-        $this->notifyApprovers($newRequest);
-
-        return redirect()->route('master-keys.index')->with('success', "Permohonan perpanjangan 3 bulan untuk kunci {$masterKeyRequest->key_number} berhasil diajukan ({$newRequest->request_number}).");
-    }
-
-    /**
-     * Update request status (Approve, Reject, Revoke).
+     * Mark master key request as DONE or update status.
+     * Records username, done timestamp, notes, and audit log.
      */
     public function updateStatus(Request $request, MasterKeyRequest $masterKeyRequest)
     {
@@ -298,51 +269,62 @@ class MasterKeyRequestController extends Controller
         $isHRD = $user->hasRole('HRD / Admin');
         $isGM = $user->hasRole('General Manager');
         $isHOD = $user->hasRole('Head of Department');
+        $isSupervisor = $user->hasRole('Supervisor');
         $isHK = $user->employee?->department?->name === 'Housekeeping';
 
-        $canApprove = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK);
+        $canApprove = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK) || ($isSupervisor && $isHK);
 
         if (!$canApprove) {
-            return back()->with('error', 'Anda tidak memiliki hak akses untuk menyetujui permohonan ini.');
+            return back()->with('error', 'Anda tidak memiliki hak akses untuk memproses permohonan ini.');
         }
 
         $validated = $request->validate([
-            'status' => 'required|in:Approved,Rejected,Revoked',
-            'notes' => 'nullable|string|max:1000',
+            'status' => 'required|in:Done,On Request',
+            'done_notes' => 'nullable|string|max:1000',
             'approver_signature' => 'nullable|string',
         ]);
 
         $oldStatus = $masterKeyRequest->status;
-        $status = $validated['status'];
+        $newStatus = $validated['status'];
+        $now = Carbon::now();
 
         $updateData = [
-            'status' => $status,
-            'approved_by' => $user->id,
-            'approved_at' => Carbon::now(),
+            'status' => $newStatus,
         ];
 
-        if (!empty($validated['approver_signature'])) {
-            $updateData['approver_signature'] = $validated['approver_signature'];
-        }
-
-        if ($status === 'Approved') {
-            $updateData['approval_notes'] = $validated['notes'] ?? 'Disetujui untuk perpanjangan operasional housekeeping 3 bulan.';
-            $updateData['rejection_reason'] = null;
-        } elseif ($status === 'Rejected') {
-            $updateData['rejection_reason'] = $validated['notes'] ?? 'Permohonan ditolak.';
-        } elseif ($status === 'Revoked') {
-            $updateData['approval_notes'] = $validated['notes'] ?? 'Akses dicabut / kunci telah dikembalikan ke Housekeeping.';
+        if ($newStatus === 'Done') {
+            $updateData['done_by_user_id'] = $user->id;
+            $updateData['done_by_username'] = $user->name;
+            $updateData['done_at'] = $now;
+            $updateData['done_notes'] = $validated['done_notes'] ?? 'Permohonan master key telah diproses dan diserahkan (Done).';
+            if (!empty($validated['approver_signature'])) {
+                $updateData['approver_signature'] = $validated['approver_signature'];
+            }
+        } else {
+            // Revert back to On Request
+            $updateData['done_by_user_id'] = null;
+            $updateData['done_by_username'] = null;
+            $updateData['done_at'] = null;
+            $updateData['done_notes'] = null;
         }
 
         $masterKeyRequest->update($updateData);
 
+        // Catat ke Audit Log lengkap dengan username penanggung jawab dan kapan done
         AuditLog::log([
-            'action' => 'UPDATE_MASTER_KEY_STATUS',
+            'action' => $newStatus === 'Done' ? 'DONE_MASTER_KEY' : 'REVERT_MASTER_KEY_STATUS',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
-            'description' => "Status permohonan master key {$masterKeyRequest->request_number} diubah dari {$oldStatus} menjadi {$status} oleh {$user->name}.",
+            'description' => $newStatus === 'Done'
+                ? "Permohonan master key {$masterKeyRequest->request_number} ditandai [DONE] oleh username '{$user->name}' pada " . $now->format('Y-m-d H:i:s') . ". Catatan: " . ($validated['done_notes'] ?? '-')
+                : "Status permohonan {$masterKeyRequest->request_number} dikembalikan ke [On Request] oleh username '{$user->name}' pada " . $now->format('Y-m-d H:i:s') . ".",
             'old_values' => ['status' => $oldStatus],
-            'new_values' => ['status' => $status, 'notes' => $validated['notes'] ?? null],
+            'new_values' => [
+                'status' => $newStatus,
+                'done_by_username' => $user->name,
+                'done_at' => $now->toDateTimeString(),
+                'done_notes' => $validated['done_notes'] ?? null,
+            ],
         ]);
 
         // Send In-App Notification to Requester Employee
@@ -352,21 +334,19 @@ class MasterKeyRequestController extends Controller
                     new MasterKeyStatusNotification($masterKeyRequest, 'STATUS_UPDATED')
                 );
             } catch (\Throwable $e) {
-                // Log and continue gracefully
+                // Continue gracefully
             }
         }
 
-        $statusLabel = [
-            'Approved' => 'disetujui',
-            'Rejected' => 'ditolak',
-            'Revoked' => 'dicabut/dikembalikan',
-        ][$status] ?? 'diperbarui';
+        $msg = $newStatus === 'Done'
+            ? "Permohonan akses master key {$masterKeyRequest->request_number} berhasil diselesaikan (Status: Done)."
+            : "Status permohonan {$masterKeyRequest->request_number} berhasil diubah ke On Request.";
 
-        return back()->with('success', "Permohonan akses master key {$masterKeyRequest->request_number} telah {$statusLabel}.");
+        return back()->with('success', $msg);
     }
 
     /**
-     * Export master key records to Excel-compatible CSV.
+     * Export master key records to Excel-compatible CSV with full username and timestamps log.
      */
     public function export(Request $request): StreamedResponse
     {
@@ -387,7 +367,8 @@ class MasterKeyRequestController extends Controller
             'employee.user',
             'employee.department',
             'employee.position',
-            'approver',
+            'requestedBy',
+            'doneBy',
             'previousRequest',
         ])->latest();
 
@@ -399,7 +380,10 @@ class MasterKeyRequestController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('request_number', 'like', "%{$search}%")
                     ->orWhere('key_number', 'like', "%{$search}%")
+                    ->orWhere('remark', 'like', "%{$search}%")
                     ->orWhere('room_range_access', 'like', "%{$search}%")
+                    ->orWhere('requested_by_username', 'like', "%{$search}%")
+                    ->orWhere('done_by_username', 'like', "%{$search}%")
                     ->orWhereHas('employee.user', function ($sub) use ($search) {
                         $sub->where('name', 'like', "%{$search}%");
                     })
@@ -413,24 +397,26 @@ class MasterKeyRequestController extends Controller
             $query->where('key_type', $keyType);
         }
 
+        if ($requestType = $request->input('request_type')) {
+            $query->where('request_type', $requestType);
+        }
+
         $tab = $request->input('tab', 'all');
         $today = Carbon::today()->toDateString();
         $fourteenDaysLater = Carbon::today()->addDays(14)->toDateString();
 
-        if ($tab === 'pending') {
-            $query->where('status', 'Pending');
-        } elseif ($tab === 'active') {
-            $query->where('status', 'Approved')->where('valid_until', '>=', $today);
+        if ($tab === 'on_request') {
+            $query->where('status', 'On Request');
+        } elseif ($tab === 'done') {
+            $query->where('status', 'Done');
         } elseif ($tab === 'expiring') {
-            $query->where('status', 'Approved')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater);
+            $query->where('status', 'Done')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater);
         } elseif ($tab === 'expired') {
-            $query->where('status', 'Approved')->where('valid_until', '<', $today);
-        } elseif ($tab === 'history') {
-            $query->whereIn('status', ['Rejected', 'Revoked']);
+            $query->where('status', 'Done')->where('valid_until', '<', $today);
         }
 
         $records = $query->get();
-        $filename = 'Rekap_Akses_Master_Key_SwissBelinn_' . date('Ymd_His') . '.csv';
+        $filename = 'Master_Key_Log_SwissBelinn_' . date('Ymd_His') . '.csv';
 
         $response = new StreamedResponse(function () use ($records) {
             $handle = fopen('php://output', 'w');
@@ -441,29 +427,37 @@ class MasterKeyRequestController extends Controller
             // Header row
             fputcsv($handle, [
                 'No. Registrasi',
-                'Tanggal Pengajuan',
-                'NIK Karyawan',
+                'Tipe Form Permohonan',
+                'Remark / Alasan Permohonan',
+                'Status',
+                'Username Pemohon',
+                'Tanggal & Waktu Request',
+                'Username Penyelesai (Done By)',
+                'Kapan Done (Tanggal & Waktu)',
+                'Catatan Selesai (Done Notes)',
+                'NIK Pemegang',
                 'Nama Pemegang',
                 'Departemen',
                 'Jabatan',
                 'No. Kunci Master',
                 'Tipe Kunci',
-                'Cakupan Area & Nomor Kamar',
-                'Tanggal Mulai Berlaku',
-                'Tanggal Berakhir (Jatuh Tempo)',
-                'Siklus Evaluasi',
-                'Status Akses',
-                'Sisa Hari Masa Aktif',
-                'Pejabat Penyetujui',
-                'Tanggal Persetujuan',
-                'Catatan Persetujuan / Alasan Penolakan',
-                'Keperluan Pengajuan',
+                'Cakupan Area Kamar',
+                'Masa Berlaku Mulai',
+                'Masa Berlaku Sampai (3 Bulan)',
+                'Sisa Hari',
             ]);
 
             foreach ($records as $r) {
                 fputcsv($handle, [
                     $r->request_number,
-                    $r->created_at->format('Y-m-d H:i'),
+                    $r->request_type_label,
+                    $r->remark ?? '-',
+                    $r->status,
+                    $r->requested_by_username ?? ($r->requestedBy?->name ?? '-'),
+                    $r->requested_at ? $r->requested_at->format('Y-m-d H:i:s') : $r->created_at->format('Y-m-d H:i:s'),
+                    $r->done_by_username ?? ($r->doneBy?->name ?? '-'),
+                    $r->done_at ? $r->done_at->format('Y-m-d H:i:s') : '-',
+                    $r->done_notes ?? '-',
                     $r->employee?->employee_number ?? '-',
                     $r->employee?->user?->name ?? '-',
                     $r->employee?->department?->name ?? 'Housekeeping',
@@ -473,13 +467,7 @@ class MasterKeyRequestController extends Controller
                     $r->room_range_access,
                     $r->valid_from->format('Y-m-d'),
                     $r->valid_until->format('Y-m-d'),
-                    $r->renewal_cycle_months . ' Bulan Sekali',
-                    $r->computed_status,
-                    $r->status === 'Approved' ? $r->days_remaining . ' hari' : '-',
-                    $r->approver?->name ?? '-',
-                    $r->approved_at ? $r->approved_at->format('Y-m-d H:i') : '-',
-                    $r->approval_notes ?: ($r->rejection_reason ?: '-'),
-                    $r->purpose,
+                    $r->status === 'Done' ? $r->days_remaining . ' hari' : '-',
                 ]);
             }
 
@@ -503,8 +491,10 @@ class MasterKeyRequestController extends Controller
             'employee.position',
             'employee.supervisor.user',
             'employee.supervisor.position',
-            'approver.employee.position',
+            'requestedBy',
+            'doneBy',
             'previousRequest',
+            'auditLogs.user',
         ]);
 
         // Find Executive Housekeeper for signature section
@@ -531,7 +521,7 @@ class MasterKeyRequestController extends Controller
         $isSuperAdmin = $user->hasRole('Super Admin');
         $isOwner = $user->employee && $masterKeyRequest->employee_id === $user->employee->id;
 
-        if (!$isSuperAdmin && !($isOwner && $masterKeyRequest->status === 'Pending')) {
+        if (!$isSuperAdmin && !($isOwner && $masterKeyRequest->status === 'On Request')) {
             return back()->with('error', 'Anda tidak memiliki hak untuk menghapus permohonan ini.');
         }
 
@@ -542,23 +532,22 @@ class MasterKeyRequestController extends Controller
             'action' => 'DELETE_MASTER_KEY_REQUEST',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
-            'description' => "Permohonan master key {$reqNumber} telah dihapus.",
+            'description' => "Permohonan master key {$reqNumber} telah dihapus oleh username '{$user->name}'.",
         ]);
 
         return back()->with('success', "Permohonan {$reqNumber} berhasil dihapus.");
     }
 
     /**
-     * Helper to notify approvers when a new or renewed request is submitted.
+     * Helper to notify approvers when a new request is submitted.
      */
     protected function notifyApprovers(MasterKeyRequest $request): void
     {
         try {
             $hkDept = Department::where('name', 'Housekeeping')->first();
 
-            // Notify Executive Housekeeper (Head of Department) & Admins
             $approvers = User::whereHas('roles', function ($q) {
-                $q->whereIn('name', ['Head of Department', 'HRD / Admin', 'Super Admin']);
+                $q->whereIn('name', ['Head of Department', 'HRD / Admin', 'Super Admin', 'Supervisor']);
             })->where(function ($q) use ($hkDept) {
                 $q->whereHas('employee', function ($sub) use ($hkDept) {
                     $sub->where('department_id', $hkDept?->id);
@@ -571,7 +560,7 @@ class MasterKeyRequestController extends Controller
                 $approver->notify(new MasterKeyStatusNotification($request, 'NEW_REQUEST'));
             }
         } catch (\Throwable $e) {
-            // Silently continue if notification fails
+            // Silently continue
         }
     }
 }
