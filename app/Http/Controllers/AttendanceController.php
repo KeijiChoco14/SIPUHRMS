@@ -28,7 +28,7 @@ class AttendanceController extends Controller
     {
         $user = Auth::user();
         if (! $user->employee) {
-            abort(403, 'User is not an employee.');
+            abort(403, 'Akun Anda belum terhubung dengan data karyawan aktif.');
         }
 
         $month = $request->query('month', date('Y-m'));

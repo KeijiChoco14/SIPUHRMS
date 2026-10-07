@@ -128,11 +128,12 @@ export default function Authenticated({
     const userRole = user.roles?.[0]?.name ?? 'Staff / Employee';
     const isSuperAdmin = user.roles?.some((r: any) => r.name === 'Super Admin');
     const isHRD = user.roles?.some((r: any) => r.name === 'HRD / Admin');
-    const isAdmin = isSuperAdmin || isHRD;
     const isManager = user.roles?.some((r: any) => r.name === 'General Manager');
     const isSupervisor = user.roles?.some((r: any) => ['Supervisor', 'Head of Department'].includes(r.name));
-    const canViewPerformance = isAdmin || isManager;
-    const canViewProjects = isAdmin || isManager || isSupervisor;
+    // Hak akses level manajemen / HRD (Super Admin, HRD / Admin, General Manager)
+    const isAdmin = isSuperAdmin || isHRD || isManager;
+    const canViewPerformance = isAdmin;
+    const canViewProjects = isAdmin || isSupervisor;
 
     // Detect active module and provide strictly contextual menus
     const activeModuleInfo = useMemo<ModuleInfo>(() => {
@@ -214,13 +215,13 @@ export default function Authenticated({
                 badgeBorder: 'border-purple-200',
                 dotColor: 'bg-purple-600',
                 sections: [
-                    {
+                    isAdmin && {
                         title: 'Ringkasan HR',
                         items: [
                             { name: 'Dashboard HR', route: 'dashboard', params: { view: 'hr' }, pattern: 'dashboard' },
                         ],
                     },
-                    (isAdmin || isManager) && {
+                    {
                         title: 'Karyawan & Organisasi',
                         items: [
                             isAdmin ? { name: 'Employees', route: 'employees.index', pattern: 'employees.*' } : null,

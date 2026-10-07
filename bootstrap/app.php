@@ -1,14 +1,18 @@
 <?php
 
 use App\Http\Middleware\HandleInertiaRequests;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,6 +36,47 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        $exceptions->render(function (UnauthorizedException $e, Request $request) {
+            $message = 'Anda tidak memiliki hak akses (role/perizinan) yang dibutuhkan untuk mengakses halaman atau modul ini.';
+            if ($request->is('api/*') || $request->expectsJson() || $request->wantsJson()) {
+                return response()->json(['message' => $message], 403);
+            }
+
+            return Inertia::render('Error', [
+                'status' => 403,
+                'title' => 'Akses Ditolak (403 Forbidden)',
+                'message' => $message,
+            ])->toResponse($request)->setStatusCode(403);
+        });
+
+        $exceptions->render(function (AuthorizationException $e, Request $request) {
+            $message = $e->getMessage() ?: 'Anda tidak memiliki hak akses untuk melakukan tindakan ini.';
+            if ($request->is('api/*') || $request->expectsJson() || $request->wantsJson()) {
+                return response()->json(['message' => $message], 403);
+            }
+
+            return Inertia::render('Error', [
+                'status' => 403,
+                'title' => 'Akses Ditolak (403 Forbidden)',
+                'message' => $message,
+            ])->toResponse($request)->setStatusCode(403);
+        });
+
+        $exceptions->render(function (HttpException $e, Request $request) {
+            if ($e->getStatusCode() === 403) {
+                $message = $e->getMessage() ?: 'Anda tidak memiliki hak akses untuk membuka halaman atau modul ini.';
+                if ($request->is('api/*') || $request->expectsJson() || $request->wantsJson()) {
+                    return response()->json(['message' => $message], 403);
+                }
+
+                return Inertia::render('Error', [
+                    'status' => 403,
+                    'title' => 'Akses Ditolak (403 Forbidden)',
+                    'message' => $message,
+                ])->toResponse($request)->setStatusCode(403);
+            }
+        });
     })->create();
 
 if (isset($_ENV['APP_STORAGE'])) {

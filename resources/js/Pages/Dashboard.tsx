@@ -73,11 +73,12 @@ export default function Dashboard({
 
     const isSuperAdmin = user.roles?.some((r: any) => r.name === 'Super Admin');
     const isHRD = user.roles?.some((r: any) => r.name === 'HRD / Admin');
-    const isAdmin = isSuperAdmin || isHRD;
     const isManager = user.roles?.some((r: any) => r.name === 'General Manager');
     const isSupervisor = user.roles?.some((r: any) => ['Supervisor', 'Head of Department'].includes(r.name));
-    const canViewPerformance = isAdmin || isManager || isSupervisor;
-    const canViewProjects = isAdmin || isManager || isSupervisor;
+    // Hak akses level manajemen / HRD (Super Admin, HRD / Admin, General Manager)
+    const isAdmin = isSuperAdmin || isHRD || isManager;
+    const canViewPerformance = isAdmin;
+    const canViewProjects = isAdmin || isSupervisor;
 
     // Listen for Ctrl+K / Cmd+K shortcut
     useEffect(() => {
@@ -138,7 +139,7 @@ export default function Dashboard({
             gradient: 'from-purple-500 to-indigo-600',
             badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staf` : null,
             badgeColor: 'bg-purple-600',
-            visible: true,
+            visible: isAdmin,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -146,9 +147,27 @@ export default function Dashboard({
             ),
         },
         {
+            id: 'employees',
+            name: 'Data Karyawan',
+            description: 'Kelola data identitas staf, riwayat jabatan, dan kontrak kerja',
+            category: 'People & HR',
+            href: route('employees.index'),
+            gradient: 'from-fuchsia-600 to-pink-600',
+            badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staf` : null,
+            badgeColor: 'bg-fuchsia-600',
+            visible: isAdmin,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            ),
+        },
+        {
             id: 'attendance',
-            name: 'Presensi & Jadwal',
-            description: 'Catatan kehadiran harian, absensi staf, dan roster shift',
+            name: isAdmin ? 'Presensi & Jadwal' : 'Presensi Saya',
+            description: isAdmin
+                ? 'Catatan kehadiran harian, absensi staf, dan roster shift'
+                : 'Catatan log kehadiran dan riwayat jam kerja harian Anda',
             category: 'Time & Pay',
             href: isAdmin ? route('attendance.index') : route('attendance.my'),
             gradient: 'from-teal-500 to-emerald-600',
@@ -193,8 +212,10 @@ export default function Dashboard({
         },
         {
             id: 'payroll',
-            name: 'Payroll & Gaji',
-            description: 'Rincian slip gaji bulanan, tunjangan, dan arsip upah',
+            name: isAdmin ? 'Payroll & Penggajian' : 'Slip Gaji Saya',
+            description: isAdmin
+                ? 'Kelola payroll, generate gaji, dan laporan upah bulanan staf'
+                : 'Rincian slip gaji bulanan, tunjangan, dan arsip upah pribadi',
             category: 'Time & Pay',
             href: isAdmin ? route('payroll.index') : route('payroll.my'),
             gradient: 'from-emerald-600 to-teal-700',

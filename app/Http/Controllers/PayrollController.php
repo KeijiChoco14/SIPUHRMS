@@ -86,9 +86,9 @@ class PayrollController extends Controller
         $payroll = Payroll::with(['period', 'items', 'employee.user', 'employee.department'])
             ->findOrFail($id);
 
-        // Security check: Only the owner or HR/Manager can view
-        if ($payroll->employee_id !== $user->employee?->id && ! $user->hasAnyRole(['HRD / Admin', 'General Manager'])) {
-            abort(403);
+        // Security check: Only the owner or HR/Manager/Super Admin can view
+        if ($payroll->employee_id !== $user->employee?->id && ! $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melihat slip gaji karyawan lain.');
         }
 
         return Inertia::render('Payroll/Payslip', [
