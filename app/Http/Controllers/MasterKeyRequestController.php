@@ -38,10 +38,34 @@ class MasterKeyRequestController extends Controller
     }
 
     /**
+     * Check if the authenticated user is authorized to access Housekeeping Master Key module.
+     * Allowed: Super Admin, HRD / Admin, General Manager, Head of Department (HOD), or any Housekeeping staff.
+     */
+    private function canAccessMasterKey(): bool
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return false;
+        }
+
+        $isSuperAdmin = $user->hasRole('Super Admin');
+        $isHRD = $user->hasRole('HRD / Admin');
+        $isGM = $user->hasRole('General Manager');
+        $isHOD = $user->hasRole('Head of Department');
+        $isHK = $user->employee?->department?->name === 'Housekeeping';
+
+        return $isSuperAdmin || $isHRD || $isGM || $isHOD || $isHK;
+    }
+
+    /**
      * Display a listing of master key access requests.
      */
     public function index(Request $request)
     {
+        if (!$this->canAccessMasterKey()) {
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, Head of Department (HOD), dan manajemen yang berwenang.');
+        }
+
         $user = Auth::user();
         $isSuperAdmin = $user->hasRole('Super Admin');
         $isHRD = $user->hasRole('HRD / Admin');
@@ -236,6 +260,10 @@ class MasterKeyRequestController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$this->canAccessMasterKey()) {
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, Head of Department (HOD), dan manajemen yang berwenang.');
+        }
+
         if (!$this->ensureTableExists()) {
             return back()->with('error', 'Tabel master_key_requests belum tersedia di database. Silakan jalankan "php artisan migrate" di server terlebih dahulu.');
         }
@@ -433,6 +461,10 @@ class MasterKeyRequestController extends Controller
      */
     public function export(Request $request): StreamedResponse
     {
+        if (!$this->canAccessMasterKey()) {
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, Head of Department (HOD), dan manajemen yang berwenang.');
+        }
+
         if (!$this->ensureTableExists()) {
             abort(404, 'Table master_key_requests is not available in the database. Please run "php artisan migrate" on the server first.');
         }
@@ -594,6 +626,10 @@ class MasterKeyRequestController extends Controller
      */
     public function print(MasterKeyRequest $masterKeyRequest)
     {
+        if (!$this->canAccessMasterKey()) {
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, Head of Department (HOD), dan manajemen yang berwenang.');
+        }
+
         $masterKeyRequest->load([
             'employee.user',
             'employee.department',
@@ -626,6 +662,10 @@ class MasterKeyRequestController extends Controller
      */
     public function destroy(MasterKeyRequest $masterKeyRequest)
     {
+        if (!$this->canAccessMasterKey()) {
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, Head of Department (HOD), dan manajemen yang berwenang.');
+        }
+
         $user = Auth::user();
         $isSuperAdmin = $user->hasRole('Super Admin');
         $isOwner = $user->employee && $masterKeyRequest->employee_id === $user->employee->id;

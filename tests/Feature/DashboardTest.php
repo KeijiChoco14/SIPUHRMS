@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Department;
+use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
@@ -24,6 +26,7 @@ class DashboardTest extends TestCase
         Role::findOrCreate('Super Admin');
         Role::findOrCreate('HRD / Admin');
         Role::findOrCreate('General Manager');
+        Role::findOrCreate('Head of Department');
         Role::findOrCreate('Supervisor');
         Role::findOrCreate('Staff / Employee');
         Role::findOrCreate('OJT / Trainee');
@@ -156,4 +159,49 @@ class DashboardTest extends TestCase
             ->where('status', 403)
         );
     }
+
+    public function test_non_housekeeping_trainee_cannot_access_master_keys_via_url(): void
+    {
+        $foDept = Department::create(['name' => 'Front Office']);
+        $user = User::factory()->create();
+        $user->assignRole('OJT / Trainee');
+        Employee::create([
+            'user_id' => $user->id,
+            'department_id' => $foDept->id,
+            'employee_number' => 'OJT-FO-01',
+            'employment_status' => 'Active',
+        ]);
+
+        $response = $this->actingAs($user)->get('/master-keys');
+
+        $response->assertStatus(403);
+    }
+
+    public function test_housekeeping_trainee_can_access_master_keys(): void
+    {
+        $hkDept = Department::create(['name' => 'Housekeeping']);
+        $user = User::factory()->create();
+        $user->assignRole('OJT / Trainee');
+        Employee::create([
+            'user_id' => $user->id,
+            'department_id' => $hkDept->id,
+            'employee_number' => 'OJT-HK-01',
+            'employment_status' => 'Active',
+        ]);
+
+        $response = $this->actingAs($user)->get('/master-keys');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_hod_can_access_master_keys(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('Head of Department');
+
+        $response = $this->actingAs($user)->get('/master-keys');
+
+        $response->assertStatus(200);
+    }
 }
+

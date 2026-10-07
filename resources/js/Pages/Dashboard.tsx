@@ -79,6 +79,9 @@ export default function Dashboard({
     const isAdmin = isSuperAdmin || isHRD || isManager;
     const canViewPerformance = isAdmin;
     const canViewProjects = isAdmin || isSupervisor;
+    const isHOD = user.roles?.some((r: any) => r.name === 'Head of Department');
+    const isHousekeeping = user.employee?.department?.name === 'Housekeeping';
+    const canAccessHousekeeping = isAdmin || isHOD || isHousekeeping;
 
     // Listen for Ctrl+K / Cmd+K shortcut
     useEffect(() => {
@@ -123,7 +126,7 @@ export default function Dashboard({
             gradient: 'from-amber-500 to-orange-600',
             badge: launcherStats.masterKeyOnRequest && launcherStats.masterKeyOnRequest > 0 ? `${launcherStats.masterKeyOnRequest} Requests` : null,
             badgeColor: 'bg-amber-500',
-            visible: true,
+            visible: canAccessHousekeeping,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
@@ -339,7 +342,7 @@ export default function Dashboard({
                 </svg>
             ),
         },
-    ].filter(a => a.visible !== false), [launcherStats, isAdmin, isSuperAdmin, canViewPerformance, canViewProjects]);
+    ].filter(a => a.visible !== false), [launcherStats, isAdmin, isSuperAdmin, canViewPerformance, canViewProjects, canAccessHousekeeping]);
 
     // Filter apps based on search query
     const filteredApps = useMemo(() => {

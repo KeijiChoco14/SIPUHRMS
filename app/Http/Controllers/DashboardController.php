@@ -42,8 +42,11 @@ class DashboardController extends Controller
         $isSuperAdmin = $user->hasRole('Super Admin');
         $isHRD = $user->hasRole('HRD / Admin');
         $isGM = $user->hasRole('General Manager');
-        $isSupervisor = $user->hasRole('Supervisor') || $user->hasRole('Head of Department');
+        $isHOD = $user->hasRole('Head of Department');
+        $isHK = $user->employee?->department?->name === 'Housekeeping';
+        $isSupervisor = $user->hasRole('Supervisor') || $isHOD;
         $isAdmin = $isSuperAdmin || $isHRD || $isGM;
+        $canAccessHousekeeping = $isAdmin || $isHOD || $isHK;
 
         // Access validation: HR module is restricted to HRD, GM, and Super Admin
         if ($view === 'hr' && !$isAdmin) {
@@ -61,7 +64,7 @@ class DashboardController extends Controller
         }
 
         $masterKeyOnRequestCount = 0;
-        if (Schema::hasTable('master_key_requests')) {
+        if ($canAccessHousekeeping && Schema::hasTable('master_key_requests')) {
             $masterKeyQuery = MasterKeyRequest::where('status', 'On Request');
             if (!$isAdmin && !$isSupervisor) {
                 $masterKeyQuery->where('employee_id', $employeeId);
