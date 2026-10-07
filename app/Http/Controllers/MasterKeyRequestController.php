@@ -24,7 +24,7 @@ class MasterKeyRequestController extends Controller
      */
     private function ensureTableExists(): bool
     {
-        if (Schema::hasTable('master_key_requests')) {
+        if (Schema::hasTable('master_key_requests') && Schema::hasColumn('master_key_requests', 'request_by')) {
             return true;
         }
 
@@ -83,11 +83,10 @@ class MasterKeyRequestController extends Controller
                 'hkEmployees' => $hkEmployees,
                 'existingKeys' => [],
                 'defaultKeyTypes' => [
-                    'Floor Master Key',
-                    'Section Master Key',
-                    'Room Attendant Master',
                     'Grand Master Key',
-                    'Emergency Key',
+                    'Master Key',
+                    'Floor Key',
+                    'Lift Only',
                 ],
                 'commonRoomRanges' => [
                     'Lantai 2 (Kamar 201 - 240)',
@@ -125,6 +124,7 @@ class MasterKeyRequestController extends Controller
                     ->orWhere('key_number', 'like', "%{$search}%")
                     ->orWhere('remark', 'like', "%{$search}%")
                     ->orWhere('room_range_access', 'like', "%{$search}%")
+                    ->orWhere('request_by', 'like', "%{$search}%")
                     ->orWhere('requested_by_username', 'like', "%{$search}%")
                     ->orWhere('done_by_username', 'like', "%{$search}%")
                     ->orWhereHas('employee.user', function ($sub) use ($search) {
@@ -186,7 +186,7 @@ class MasterKeyRequestController extends Controller
 
         // Recent / Active keys list for Quick Select when creating Extension / Replacement
         $existingKeys = MasterKeyRequest::with(['employee.user'])
-            ->select('id', 'request_number', 'key_number', 'key_type', 'room_range_access', 'valid_until', 'employee_id')
+            ->select('id', 'request_number', 'key_number', 'key_type', 'room_range_access', 'valid_until', 'employee_id', 'request_by')
             ->latest()
             ->take(30)
             ->get();
@@ -213,11 +213,10 @@ class MasterKeyRequestController extends Controller
             'hkEmployees' => $hkEmployees,
             'existingKeys' => $existingKeys,
             'defaultKeyTypes' => [
-                'Floor Master Key',
-                'Section Master Key',
-                'Room Attendant Master',
                 'Grand Master Key',
-                'Emergency Key',
+                'Master Key',
+                'Floor Key',
+                'Lift Only',
             ],
             'commonRoomRanges' => [
                 'Lantai 2 (Kamar 201 - 240)',
@@ -254,6 +253,7 @@ class MasterKeyRequestController extends Controller
 
         $rules = [
             'request_type' => 'required|in:create_new,extension,replacement',
+            'request_by' => 'required|string|max:255',
             'key_number' => 'required|string|max:50',
             'key_type' => 'required|string|max:100',
             'room_range_access' => 'required|string|max:255',
@@ -263,23 +263,28 @@ class MasterKeyRequestController extends Controller
             'purpose' => 'nullable|string|max:1000',
             'requester_signature' => 'nullable|string',
             'previous_request_id' => 'nullable|exists:master_key_requests,id',
+            'employee_id' => 'nullable|exists:employees,id',
         ];
-
-        if ($canManageAll) {
-            $rules['employee_id'] = 'required|exists:employees,id';
-        }
 
         $validated = $request->validate($rules);
 
-        $targetEmployeeId = $canManageAll && !empty($validated['employee_id'])
-            ? $validated['employee_id']
-            : $userEmployee?->id;
+        $requestBy = trim($validated['request_by']);
 
-        if (!$targetEmployeeId) {
-            return back()->with('error', 'Karyawan tidak ditemukan. Pastikan akun Anda terhubung dengan data karyawan.');
+        // Check if an employee matches by name, or fall back to user's employee
+        $targetEmployee = null;
+        if (!empty($validated['employee_id'])) {
+            $targetEmployee = Employee::with(['department', 'user'])->find($validated['employee_id']);
+        }
+        if (!$targetEmployee) {
+            $targetEmployee = Employee::with(['department', 'user'])
+                ->whereHas('user', function ($q) use ($requestBy) {
+                    $q->where('name', $requestBy);
+                })->first() ?? $userEmployee;
         }
 
-        $targetEmployee = Employee::with(['department', 'user'])->findOrFail($targetEmployeeId);
+        $hkDepartment = Department::where('name', 'Housekeeping')->first();
+        $targetDepartmentId = $targetEmployee?->department_id ?? $hkDepartment?->id;
+        $targetEmployeeId = $targetEmployee?->id;
 
         $cycleMonths = (int) ($validated['renewal_cycle_months'] ?? 3);
         $validFrom = Carbon::parse($validated['valid_from'])->startOfDay();
@@ -291,8 +296,9 @@ class MasterKeyRequestController extends Controller
         $masterKeyRequest = MasterKeyRequest::create([
             'request_number' => MasterKeyRequest::generateRequestNumber(),
             'request_type' => $validated['request_type'],
-            'employee_id' => $targetEmployee->id,
-            'department_id' => $targetEmployee->department_id,
+            'request_by' => $requestBy,
+            'employee_id' => $targetEmployeeId,
+            'department_id' => $targetDepartmentId,
             'key_number' => $validated['key_number'],
             'key_type' => $validated['key_type'],
             'room_range_access' => $validated['room_range_access'],
@@ -316,12 +322,12 @@ class MasterKeyRequestController extends Controller
         ];
         $typeLabel = $typeLabels[$validated['request_type']] ?? 'Permohonan Kunci';
 
-        // Catat di Audit Log lengkap dengan username, tanggal request, dan remark
+        // Catat di Audit Log lengkap dengan username, nama pemegang, tanggal request, dan remark
         AuditLog::log([
             'action' => 'REQUEST_MASTER_KEY',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
-            'description' => "[{$typeLabel}] Diajukan oleh username '{$requestedByUsername}' pada " . $requestedAt->format('Y-m-d H:i:s') . ". Kunci: {$masterKeyRequest->key_number} ({$masterKeyRequest->request_number}) untuk karyawan {$targetEmployee->user?->name}. Remark: {$masterKeyRequest->remark}",
+            'description' => "[{$typeLabel}] Diajukan oleh '{$requestBy}' (Akun: {$requestedByUsername}) pada " . $requestedAt->format('Y-m-d H:i:s') . ". Kunci: {$masterKeyRequest->key_number} ({$masterKeyRequest->request_number}). Remark: {$masterKeyRequest->remark}",
             'new_values' => $masterKeyRequest->toArray(),
         ]);
 
@@ -463,6 +469,7 @@ class MasterKeyRequestController extends Controller
                     ->orWhere('key_number', 'like', "%{$search}%")
                     ->orWhere('remark', 'like', "%{$search}%")
                     ->orWhere('room_range_access', 'like', "%{$search}%")
+                    ->orWhere('request_by', 'like', "%{$search}%")
                     ->orWhere('requested_by_username', 'like', "%{$search}%")
                     ->orWhere('done_by_username', 'like', "%{$search}%")
                     ->orWhereHas('employee.user', function ($sub) use ($search) {
@@ -511,13 +518,13 @@ class MasterKeyRequestController extends Controller
                 'Tipe Form Permohonan',
                 'Remark / Alasan Permohonan',
                 'Status',
-                'Username Pemohon',
+                'Diajukan oleh (Request by)',
+                'Username Akun Pemohon',
                 'Tanggal & Waktu Request',
                 'Username Penyelesai (Done By)',
                 'Kapan Done (Tanggal & Waktu)',
                 'Catatan Selesai (Done Notes)',
                 'NIK Pemegang',
-                'Nama Pemegang',
                 'Departemen',
                 'Jabatan',
                 'No. Kunci Master',
@@ -534,13 +541,13 @@ class MasterKeyRequestController extends Controller
                     $r->request_type_label,
                     $r->remark ?? '-',
                     $r->status,
+                    $r->request_by ?? ($r->employee?->user?->name ?? '-'),
                     $r->requested_by_username ?? ($r->requestedBy?->name ?? '-'),
                     $r->requested_at ? $r->requested_at->format('Y-m-d H:i:s') : $r->created_at->format('Y-m-d H:i:s'),
                     $r->done_by_username ?? ($r->doneBy?->name ?? '-'),
                     $r->done_at ? $r->done_at->format('Y-m-d H:i:s') : '-',
                     $r->done_notes ?? '-',
                     $r->employee?->employee_number ?? '-',
-                    $r->employee?->user?->name ?? '-',
                     $r->employee?->department?->name ?? 'Housekeeping',
                     $r->employee?->position?->name ?? 'Room Attendant',
                     $r->key_number,

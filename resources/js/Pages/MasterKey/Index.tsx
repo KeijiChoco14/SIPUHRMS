@@ -46,8 +46,9 @@ interface MasterKeyRequestItem {
     request_number: string;
     request_type: 'create_new' | 'extension' | 'replacement';
     request_type_label: string;
-    employee_id: number;
-    department_id: number;
+    request_by?: string;
+    employee_id?: number;
+    department_id?: number;
     key_number: string;
     key_type: string;
     room_range_access: string;
@@ -97,7 +98,8 @@ interface ExistingKeySummary {
     key_type: string;
     room_range_access: string;
     valid_until: string;
-    employee_id: number;
+    employee_id?: number;
+    request_by?: string;
     employee?: {
         user?: {
             name: string;
@@ -178,9 +180,10 @@ export default function MasterKeyIndex({
     } = useForm({
         request_type: 'create_new' as 'create_new' | 'extension' | 'replacement',
         previous_request_id: '' as string | number,
-        employee_id: canManageAll ? '' : (currentEmployee?.id ? String(currentEmployee.id) : ''),
+        request_by: currentEmployee?.user?.name || currentUser.name || '',
+        employee_id: currentEmployee?.id ? String(currentEmployee.id) : '',
         key_number: '',
-        key_type: 'Floor Master Key',
+        key_type: 'Grand Master Key',
         room_range_access: '',
         valid_from: new Date().toISOString().split('T')[0],
         renewal_cycle_months: 3,
@@ -267,9 +270,10 @@ export default function MasterKeyIndex({
             setFormData({
                 request_type: type,
                 previous_request_id: targetItem.id,
-                employee_id: String(targetItem.employee_id),
+                request_by: targetItem.request_by || targetItem.employee?.user?.name || '',
+                employee_id: targetItem.employee_id ? String(targetItem.employee_id) : '',
                 key_number: targetItem.key_number,
-                key_type: targetItem.key_type || 'Floor Master Key',
+                key_type: targetItem.key_type || 'Grand Master Key',
                 room_range_access: targetItem.room_range_access || '',
                 valid_from: validFromStr,
                 renewal_cycle_months: 3,
@@ -281,9 +285,10 @@ export default function MasterKeyIndex({
             setFormData({
                 request_type: type,
                 previous_request_id: '',
-                employee_id: canManageAll ? '' : (currentEmployee?.id ? String(currentEmployee.id) : ''),
+                request_by: currentEmployee?.user?.name || currentUser.name || '',
+                employee_id: currentEmployee?.id ? String(currentEmployee.id) : '',
                 key_number: '',
-                key_type: 'Floor Master Key',
+                key_type: 'Grand Master Key',
                 room_range_access: '',
                 valid_from: todayStr,
                 renewal_cycle_months: 3,
@@ -338,7 +343,8 @@ export default function MasterKeyIndex({
             setFormData(prev => ({
                 ...prev,
                 previous_request_id: selected.id,
-                employee_id: String(selected.employee_id),
+                request_by: selected.request_by || selected.employee?.user?.name || '',
+                employee_id: selected.employee_id ? String(selected.employee_id) : '',
                 key_number: selected.key_number,
                 key_type: selected.key_type,
                 room_range_access: selected.room_range_access,
@@ -753,7 +759,7 @@ export default function MasterKeyIndex({
                             <thead>
                                 <tr className="bg-gray-50/75 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
                                     <th className="py-3 px-4 whitespace-nowrap w-[150px]">No. Registrasi</th>
-                                    <th className="py-3 px-4 whitespace-nowrap w-[170px]">Pemegang</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[180px]">Diajukan oleh (Request by)</th>
                                     <th className="py-3 px-4 whitespace-nowrap w-[190px]">Master Key</th>
                                     <th className="py-3 px-4 whitespace-nowrap">Remark</th>
                                     <th className="py-3 px-4 whitespace-nowrap w-[150px]">Status</th>
@@ -785,15 +791,19 @@ export default function MasterKeyIndex({
                                                 </div>
                                             </td>
 
-                                            {/* Pemegang Kunci */}
+                                            {/* Diajukan oleh (Request by) */}
                                             <td className="py-4 px-4 align-top">
                                                 <div className="font-semibold text-gray-900 leading-snug">
-                                                    {item.employee?.user?.name || '-'}
+                                                    {item.request_by || item.employee?.user?.name || '-'}
                                                 </div>
                                                 <div className="text-[11px] text-gray-500 mt-0.5">
-                                                    <span className="font-mono">{item.employee?.employee_number || '-'}</span>
-                                                    <span className="mx-1 text-gray-300">•</span>
-                                                    {item.employee?.position?.name || 'Room Attendant'}
+                                                    {item.employee?.employee_number && (
+                                                        <>
+                                                            <span className="font-mono">{item.employee.employee_number}</span>
+                                                            <span className="mx-1 text-gray-300">•</span>
+                                                        </>
+                                                    )}
+                                                    {item.employee?.position?.name || 'Staff HK'}
                                                 </div>
                                             </td>
 
@@ -1069,47 +1079,33 @@ export default function MasterKeyIndex({
                                     <option value="">-- Pilih dari daftar kunci sebelumnya --</option>
                                     {existingKeys.map(k => (
                                         <option key={k.id} value={k.id}>
-                                            {k.key_number} ({k.key_type}) - {k.employee?.user?.name || 'Staff'} (Berakhir: {formatDate(k.valid_until)})
+                                            {k.key_number} ({k.key_type}) - {k.request_by || k.employee?.user?.name || 'Staff'} (Berakhir: {formatDate(k.valid_until)})
                                         </option>
                                     ))}
                                 </select>
                                 <span className="text-[10px] text-indigo-700/80 mt-1 block">
-                                    Memilih kunci di atas akan otomatis mengisi nomor kunci, cakupan kamar, dan karyawan pemegang.
+                                    Memilih kunci di atas akan otomatis mengisi nomor kunci, cakupan kamar, dan nama yang mengajukan.
                                 </span>
                             </div>
                         )}
 
-                        {/* Karyawan Pemegang Kunci */}
-                        {canManageAll ? (
-                            <div>
-                                <InputLabel htmlFor="form_employee" value="Karyawan Pemegang Kunci (Housekeeping) *" />
-                                <select
-                                    id="form_employee"
-                                    value={formData.employee_id}
-                                    onChange={(e) => setFormData('employee_id', e.target.value)}
-                                    className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                                    required
-                                >
-                                    <option value="">-- Pilih Staf Housekeeping --</option>
-                                    {hkEmployees.map(emp => (
-                                        <option key={emp.id} value={emp.id}>
-                                            {emp.employee_number} - {emp.user.name} ({emp.position?.name || 'Staff HK'})
-                                        </option>
-                                    ))}
-                                </select>
-                                <InputError message={formErrors.employee_id} className="mt-1" />
-                            </div>
-                        ) : (
-                            <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                                <span className="text-[11px] text-gray-500">Pemohon (Karyawan):</span>
-                                <div className="font-bold text-gray-900 text-xs">
-                                    {currentEmployee?.employee_number} - {currentEmployee?.user?.name}
-                                </div>
-                                <span className="text-[10px] text-gray-500">
-                                    {currentEmployee?.department?.name} • {currentEmployee?.position?.name}
-                                </span>
-                            </div>
-                        )}
+                        {/* Diajukan oleh (Request by) - Di Ketik Saja */}
+                        <div>
+                            <InputLabel htmlFor="form_request_by" value="Diajukan oleh (Request by) *" />
+                            <TextInput
+                                id="form_request_by"
+                                type="text"
+                                value={formData.request_by}
+                                onChange={(e) => setFormData('request_by', e.target.value)}
+                                placeholder="Ketik nama pemegang kunci / yang mengajukan..."
+                                className="mt-1 block w-full text-xs font-semibold text-gray-900"
+                                required
+                            />
+                            <p className="text-[10px] text-gray-500 mt-1">
+                                Ketik nama staf atau pemegang kunci yang mengajukan permohonan master key.
+                            </p>
+                            <InputError message={formErrors.request_by} className="mt-1" />
+                        </div>
 
                         {/* Nomor Kunci & Tipe Kunci */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1317,8 +1313,8 @@ export default function MasterKeyIndex({
                                     <span className="font-mono font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{activeItem.key_number} ({activeItem.key_type})</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-500">Pemegang:</span>
-                                    <span className="font-semibold text-gray-900">{activeItem.employee?.user?.name}</span>
+                                    <span className="text-gray-500">Diajukan oleh (Request by):</span>
+                                    <span className="font-semibold text-gray-900">{activeItem.request_by || activeItem.employee?.user?.name || '-'}</span>
                                 </div>
                                 <div className="pt-2 border-t border-gray-200">
                                     <span className="text-gray-400 block text-[10px] uppercase font-semibold">Remark:</span>
@@ -1412,10 +1408,12 @@ export default function MasterKeyIndex({
                             {/* Section 1: Data Kunci & Pemegang */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                                 <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
-                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Pemegang Kunci</span>
-                                    <div className="font-bold text-gray-900 text-sm leading-snug">{activeItem.employee?.user?.name}</div>
-                                    <div className="text-gray-600">NIK: <span className="font-mono font-medium text-gray-900">{activeItem.employee?.employee_number}</span></div>
-                                    <div className="text-gray-600">Jabatan: <span className="text-gray-900">{activeItem.employee?.position?.name || 'Room Attendant'}</span></div>
+                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Diajukan oleh (Request by)</span>
+                                    <div className="font-bold text-gray-900 text-sm leading-snug">{activeItem.request_by || activeItem.employee?.user?.name || '-'}</div>
+                                    {activeItem.employee?.employee_number && (
+                                        <div className="text-gray-600">NIK: <span className="font-mono font-medium text-gray-900">{activeItem.employee.employee_number}</span></div>
+                                    )}
+                                    <div className="text-gray-600">Jabatan: <span className="text-gray-900">{activeItem.employee?.position?.name || 'Staff HK'}</span></div>
                                     <div className="text-gray-600">Departemen: <span className="text-gray-900">{activeItem.employee?.department?.name || 'Housekeeping'}</span></div>
                                 </div>
 

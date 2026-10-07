@@ -49,10 +49,11 @@ class MasterKeyRequestSeeder extends Seeder
                 ['request_number' => 'MKR-' . date('Ym') . '-0001'],
                 [
                     'request_type' => 'extension',
+                    'request_by' => $yuni->user?->name ?? 'Yuni Rahayu',
                     'employee_id' => $yuni->id,
                     'department_id' => $hkDept->id,
                     'key_number' => 'MK-HK-201',
-                    'key_type' => 'Floor Master Key',
+                    'key_type' => 'Floor Key',
                     'room_range_access' => 'Lantai 2 (Kamar 201 - 240)',
                     'valid_from' => $validFrom->toDateString(),
                     'valid_until' => $validUntil->toDateString(),
@@ -76,7 +77,7 @@ class MasterKeyRequestSeeder extends Seeder
                 'model_id' => $m1->id,
             ], [
                 'user_id' => $yuni->user?->id ?? $adminUser?->id,
-                'description' => "[Extension (Perpanjangan 3 Bulan)] Diajukan oleh username '{$m1->requested_by_username}' pada {$m1->requested_at}. Kunci: MK-HK-201. Remark: {$m1->remark}",
+                'description' => "[Extension (Perpanjangan 3 Bulan)] Diajukan oleh '{$m1->request_by}' (Username: '{$m1->requested_by_username}') pada {$m1->requested_at}. Kunci: MK-HK-201. Remark: {$m1->remark}",
                 'ip_address' => '127.0.0.1',
             ]);
 
@@ -101,10 +102,11 @@ class MasterKeyRequestSeeder extends Seeder
                 ['request_number' => 'MKR-' . date('Ym') . '-0002'],
                 [
                     'request_type' => 'replacement',
+                    'request_by' => $tono->user?->name ?? 'Tono Sugiarto',
                     'employee_id' => $tono->id,
                     'department_id' => $hkDept->id,
                     'key_number' => 'MK-HK-301-B',
-                    'key_type' => 'Floor Master Key',
+                    'key_type' => 'Floor Key',
                     'room_range_access' => 'Lantai 3 (Kamar 301 - 340)',
                     'valid_from' => $validFrom->toDateString(),
                     'valid_until' => $validUntil->toDateString(),
@@ -128,7 +130,7 @@ class MasterKeyRequestSeeder extends Seeder
                 'model_id' => $m2->id,
             ], [
                 'user_id' => $tono->user?->id ?? $adminUser?->id,
-                'description' => "[Replacement (Penggantian Kunci)] Diajukan oleh username '{$m2->requested_by_username}' pada {$m2->requested_at}. Kunci: MK-HK-301-B. Remark: {$m2->remark}",
+                'description' => "[Replacement (Penggantian Kunci)] Diajukan oleh '{$m2->request_by}' (Username: '{$m2->requested_by_username}') pada {$m2->requested_at}. Kunci: MK-HK-301-B. Remark: {$m2->remark}",
                 'ip_address' => '127.0.0.1',
             ]);
         }
@@ -142,15 +144,16 @@ class MasterKeyRequestSeeder extends Seeder
                 ['request_number' => 'MKR-' . date('Ym') . '-0003'],
                 [
                     'request_type' => 'create_new',
+                    'request_by' => $supHK->user?->name ?? 'Lestari Putri',
                     'employee_id' => $supHK->id,
                     'department_id' => $hkDept->id,
-                    'key_number' => 'SMK-HK-02',
-                    'key_type' => 'Section Master Key',
+                    'key_number' => 'MK-HK-02',
+                    'key_type' => 'Master Key',
                     'room_range_access' => 'Lantai 2 - 3 (Kamar 201 - 340)',
                     'valid_from' => $validFrom->toDateString(),
                     'valid_until' => $validUntil->toDateString(),
                     'renewal_cycle_months' => 3,
-                    'remark' => 'Penambahan akses Section Master Key baru sehubungan dengan mutasi jadwal supervisi shift pagi & siang area lantai 2-3.',
+                    'remark' => 'Penambahan akses Master Key baru sehubungan dengan mutasi jadwal supervisi shift pagi & siang area lantai 2-3.',
                     'purpose' => 'Supervisi, inspeksi kebersihan kamar check-out, dan cross check room attendant shift pagi & siang.',
                     'status' => 'On Request',
                     'requested_by_user_id' => $supHK->user?->id ?? $adminUser?->id,

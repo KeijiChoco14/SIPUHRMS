@@ -17,6 +17,7 @@ interface Props {
         remark?: string;
         purpose?: string;
         status: 'On Request' | 'Done';
+        request_by?: string;
         requested_by_username?: string;
         requested_at?: string;
         done_by_username?: string;
@@ -25,7 +26,7 @@ interface Props {
         requester_signature?: string;
         approver_signature?: string;
         created_at: string;
-        employee: {
+        employee?: {
             employee_number: string;
             phone_number?: string;
             user: {
@@ -201,12 +202,12 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                 {/* Section 1: Data Karyawan */}
                 <div className="mb-5">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 bg-gray-100 px-3 py-1 rounded mb-2.5">
-                        I. Data Pemohon / Pemegang Kunci
+                        I. Data Pemohon / Diajukan oleh (Request by)
                     </h3>
                     <div className="grid grid-cols-2 gap-y-2 gap-x-6 text-xs px-2">
                         <div className="flex">
-                            <span className="w-36 text-gray-500">Nama Lengkap:</span>
-                            <span className="font-bold text-gray-900">{requestData.employee?.user?.name}</span>
+                            <span className="w-44 text-gray-500">Diajukan oleh (Request by):</span>
+                            <span className="font-bold text-gray-900">{requestData.request_by || requestData.employee?.user?.name || '-'}</span>
                         </div>
                         <div className="flex">
                             <span className="w-36 text-gray-500">Departemen:</span>
@@ -348,9 +349,9 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                         VII. Lembar Pengesahan & Serah Terima Akses
                     </h3>
                     <div className="grid grid-cols-4 gap-3 text-center text-xs">
-                        {/* 1. Pemohon */}
+                        {/* 1. Diajukan oleh (Request by) */}
                         <div className="flex flex-col justify-between h-36 p-2 rounded-lg border border-gray-200">
-                            <span className="text-[10px] text-gray-500 uppercase font-semibold">Pemohon (Staf HK)</span>
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold">Diajukan oleh (Request by)</span>
                             <div className="my-auto">
                                 {requestData.requester_signature ? (
                                     <div className="h-16 flex items-center justify-center p-1">
@@ -365,8 +366,8 @@ export default function MasterKeyPrint({ requestData, hodHK }: Props) {
                                 )}
                             </div>
                             <div className="border-t border-gray-300 pt-1">
-                                <p className="font-bold text-gray-900 leading-tight truncate">{requestData.employee?.user?.name}</p>
-                                <span className="text-[10px] text-gray-500">{requestData.employee?.position?.name || 'Room Attendant'}</span>
+                                <p className="font-bold text-gray-900 leading-tight truncate">{requestData.request_by || requestData.employee?.user?.name || 'Pemohon'}</p>
+                                <span className="text-[10px] text-gray-500">{requestData.employee?.position?.name || 'Staff Housekeeping'}</span>
                             </div>
                         </div>
 

@@ -15,6 +15,7 @@ class MasterKeyRequest extends Model
     protected $fillable = [
         'request_number',
         'request_type',
+        'request_by',
         'employee_id',
         'department_id',
         'key_number',
@@ -89,6 +90,11 @@ class MasterKeyRequest extends Model
         return $this->hasMany(AuditLog::class, 'model_id')
             ->where('model_type', self::class)
             ->latest();
+    }
+
+    public function getRequestByAttribute(?string $value): string
+    {
+        return $value ?: ($this->employee?->user?->name ?: ($this->requested_by_username ?: '-'));
     }
 
     public function getRequestTypeLabelAttribute(): string
