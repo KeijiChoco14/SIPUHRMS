@@ -68,6 +68,12 @@ class RoleAndPermissionSeeder extends Seeder
             'performance.view',
         ]);
 
+        $roleTrainee = Role::create(['name' => 'OJT / Trainee']);
+        $roleTrainee->givePermissionTo([
+            'task.view', 'task.update', 'task.comment',
+            'performance.view',
+        ]);
+
         // Create a default super admin user
         $admin = User::firstOrCreate([
             'email' => 'admin@swissbelhotel.com',

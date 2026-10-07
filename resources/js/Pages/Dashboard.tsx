@@ -660,7 +660,7 @@ export default function Dashboard({
     // Sub-Workspace: OVERVIEW / PERSONAL DASHBOARD
     if (view === 'overview') {
         const renderRoleDashboard = () => {
-            if (role === 'Staff / Employee') {
+            if (role === 'Staff / Employee' || role === 'OJT / Trainee') {
                 return <EmployeeDashboard data={{ ...employeeData, announcements }} />;
             } else if (role === 'Supervisor' || role === 'Head of Department') {
                 return <SupervisorDashboard data={{ ...supervisorData, announcements }} />;

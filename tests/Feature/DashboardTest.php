@@ -26,6 +26,7 @@ class DashboardTest extends TestCase
         Role::findOrCreate('General Manager');
         Role::findOrCreate('Supervisor');
         Role::findOrCreate('Staff / Employee');
+        Role::findOrCreate('OJT / Trainee');
     }
 
     public function test_employee_can_access_launcher_dashboard(): void
@@ -127,12 +128,27 @@ class DashboardTest extends TestCase
         );
     }
 
-    public function test_employee_cannot_access_settings_via_url(): void
+    public function test_trainee_can_access_launcher_dashboard(): void
     {
         $user = User::factory()->create();
-        $user->assignRole('Staff / Employee');
+        $user->assignRole('OJT / Trainee');
 
-        $response = $this->actingAs($user)->get('/settings');
+        $response = $this->actingAs($user)->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Dashboard')
+            ->has('role')
+            ->where('role', 'OJT / Trainee')
+        );
+    }
+
+    public function test_trainee_cannot_access_hr_module_via_url(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole('OJT / Trainee');
+
+        $response = $this->actingAs($user)->get('/employees');
 
         $response->assertStatus(403);
         $response->assertInertia(fn (AssertableInertia $page) => $page

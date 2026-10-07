@@ -48,6 +48,7 @@ const roleBadgeColors: Record<string, string> = {
     'Head of Department': 'bg-blue-100 text-blue-700',
     'Supervisor': 'bg-teal-100 text-teal-700',
     'Staff / Employee': 'bg-slate-100 text-slate-700',
+    'OJT / Trainee': 'bg-cyan-100 text-cyan-700',
 };
 
 interface ModuleInfo {
