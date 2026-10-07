@@ -118,9 +118,9 @@ export default function Authenticated({
             setNavigatingMethod(method as any);
         });
 
-        const removeFinish = () => setIsNavigating(false);
-        const removeError = () => setIsNavigating(false);
-        const removeCancel = () => setIsNavigating(false);
+        const removeFinish = router.on('finish', () => setIsNavigating(false));
+        const removeError = router.on('error', () => setIsNavigating(false));
+        const removeCancel = router.on('cancel', () => setIsNavigating(false));
 
         return () => {
             removeStart();
