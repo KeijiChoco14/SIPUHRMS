@@ -52,13 +52,16 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
         }
     }, [localTasks]);
 
-    // Open task from URL query param if present (e.g. from notification)
+    // Open task or create modal from URL query param if present
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const taskIdParam = params.get('task_id') || params.get('taskId');
         if (taskIdParam && localTasks) {
             const found = localTasks.find((t: any) => String(t.id) === String(taskIdParam));
             if (found) setSelectedTask(found);
+        }
+        if (params.get('create') === '1' || params.get('create') === 'true') {
+            setShowCreateModal(true);
         }
     }, [localTasks]);
 

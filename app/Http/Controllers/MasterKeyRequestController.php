@@ -570,6 +570,26 @@ class MasterKeyRequestController extends Controller
     }
 
     /**
+     * Renew / extend master key access request.
+     */
+    public function renew(Request $request, MasterKeyRequest $masterKeyRequest)
+    {
+        $request->merge([
+            'request_type' => 'extension',
+            'previous_request_id' => $masterKeyRequest->id,
+            'key_number' => $request->input('key_number', $masterKeyRequest->key_number),
+            'key_type' => $request->input('key_type', $masterKeyRequest->key_type),
+            'room_range_access' => $request->input('room_range_access', $masterKeyRequest->room_range_access),
+            'request_by' => $request->input('request_by', $masterKeyRequest->request_by),
+            'valid_from' => $request->input('valid_from', now()->toDateString()),
+            'renewal_cycle_months' => $request->input('renewal_cycle_months', 3),
+            'remark' => $request->input('remark', 'Renewal / extension request for key ' . $masterKeyRequest->key_number),
+        ]);
+
+        return $this->store($request);
+    }
+
+    /**
      * Display printable official hotel SOP form.
      */
     public function print(MasterKeyRequest $masterKeyRequest)

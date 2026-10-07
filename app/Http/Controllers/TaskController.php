@@ -172,6 +172,36 @@ class TaskController extends Controller
         ]);
     }
 
+    public function create(Request $request)
+    {
+        return redirect()->route('tasks.index', array_merge(['create' => 1], $request->query()));
+    }
+
+    public function show(Task $task)
+    {
+        if ($task->project_id) {
+            return redirect()->route('projects.show', [
+                'project' => $task->project_id,
+                'task_id' => $task->id,
+            ]);
+        }
+
+        return redirect()->route('tasks.index', ['task_id' => $task->id]);
+    }
+
+    public function edit(Task $task)
+    {
+        if ($task->project_id) {
+            return redirect()->route('projects.show', [
+                'project' => $task->project_id,
+                'task_id' => $task->id,
+                'edit' => 1,
+            ]);
+        }
+
+        return redirect()->route('tasks.index', ['task_id' => $task->id, 'edit' => 1]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

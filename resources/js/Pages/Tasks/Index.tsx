@@ -17,13 +17,16 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
         }
     }, [tasks]);
 
-    // Open task from URL query param if present (e.g. from notification)
+    // Open task or create modal from URL query param if present (e.g. from notification or dashboard link)
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const taskIdParam = params.get('task_id') || params.get('taskId');
         if (taskIdParam && tasks) {
             const found = tasks.find((t: any) => String(t.id) === String(taskIdParam));
             if (found) setSelectedTask(found);
+        }
+        if (params.get('create') === '1' || params.get('create') === 'true') {
+            setShowCreateModal(true);
         }
     }, [tasks]);
 
