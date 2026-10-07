@@ -349,8 +349,8 @@ export default function MasterKeyIndex({
                 key_type: selected.key_type,
                 room_range_access: selected.room_range_access,
                 remark: isExt
-                    ? `Perpanjangan berkala 3 bulan akses master key ${selected.key_number} (Ref: ${selected.request_number}).`
-                    : `Penggantian kunci master ${selected.key_number} karena (chip rusak / fisik hilang / aus).`,
+                    ? `Periodic 3-month renewal for master key access ${selected.key_number} (Ref: ${selected.request_number}).`
+                    : `Master key replacement for ${selected.key_number} due to (damaged chip / lost physical key / wear and tear).`,
             }));
         }
     };
@@ -371,7 +371,7 @@ export default function MasterKeyIndex({
         setActiveItem(item);
         setDoneData({
             status: 'Done',
-            done_notes: `Fisik master key ${item.key_number} telah diserahkan & akses diaktifkan.`,
+            done_notes: `Physical master key ${item.key_number} has been issued and access activated.`,
             approver_signature: '',
         });
         setIsDoneModalOpen(true);
@@ -399,14 +399,14 @@ export default function MasterKeyIndex({
 
     // Delete confirmation
     const handleDelete = (item: MasterKeyRequestItem) => {
-        if (confirm(`Yakin ingin menghapus permohonan master key ${item.key_number} (${item.request_number})?`)) {
+        if (confirm(`Are you sure you want to delete master key request ${item.key_number} (${item.request_number})?`)) {
             router.delete(route('master-keys.destroy', item.id));
         }
     };
 
     const formatDate = (dateStr?: string) => {
         if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleDateString('id-ID', {
+        return new Date(dateStr).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -415,7 +415,7 @@ export default function MasterKeyIndex({
 
     const formatDateTime = (dateStr?: string) => {
         if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleDateString('id-ID', {
+        return new Date(dateStr).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -429,7 +429,7 @@ export default function MasterKeyIndex({
         if (!validFromStr) return '-';
         const d = new Date(validFromStr);
         d.setMonth(d.getMonth() + Number(months));
-        return d.toLocaleDateString('id-ID', {
+        return d.toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -481,9 +481,9 @@ export default function MasterKeyIndex({
                     <div className="flex flex-col gap-0.5">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-red-50 text-red-700 border border-red-200">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                            Kadaluarsa
+                            Expired
                         </span>
-                        <span className="text-[10px] text-red-500 font-medium whitespace-nowrap">Lewat {Math.abs(item.days_remaining)} hari • perlu extension</span>
+                        <span className="text-[10px] text-red-500 font-medium whitespace-nowrap">{Math.abs(item.days_remaining)} days overdue • extension required</span>
                     </div>
                 );
             }
@@ -492,9 +492,9 @@ export default function MasterKeyIndex({
                     <div className="flex flex-col gap-0.5">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-amber-50 text-amber-800 border border-amber-300">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                            Jatuh Tempo
+                            Expiring Soon
                         </span>
-                        <span className="text-[10px] text-amber-700 font-semibold whitespace-nowrap">Sisa {item.days_remaining} hari</span>
+                        <span className="text-[10px] text-amber-700 font-semibold whitespace-nowrap">{item.days_remaining} days remaining</span>
                     </div>
                 );
             }
@@ -502,9 +502,9 @@ export default function MasterKeyIndex({
                 <div className="flex flex-col gap-0.5">
                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        Done • Aktif
+                        Done • Active
                     </span>
-                    <span className="text-[10px] text-gray-500 whitespace-nowrap">Sisa {item.days_remaining} hari</span>
+                    <span className="text-[10px] text-gray-500 whitespace-nowrap">{item.days_remaining} days remaining</span>
                 </div>
             );
         }
@@ -516,14 +516,14 @@ export default function MasterKeyIndex({
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     On Request
                 </span>
-                <span className="text-[10px] text-gray-500 whitespace-nowrap">Menunggu proses</span>
+                <span className="text-[10px] text-gray-500 whitespace-nowrap">Pending review</span>
             </div>
         );
     };
 
     return (
         <AuthenticatedLayout>
-            <Head title="Modul Akses Master Key Housekeeping - Swiss-Belinn" />
+            <Head title="Housekeeping Master Key Access - Swiss-Belinn" />
 
             <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
                 {/* Migration Warning if table is not yet migrated on server */}
@@ -536,13 +536,13 @@ export default function MasterKeyIndex({
                         </div>
                         <div className="space-y-1.5 flex-1">
                             <h3 className="font-bold text-amber-900 dark:text-amber-100 text-base">
-                                Perhatian: Tabel Database Belum Terpasang di MySQL Server
+                                Attention: Database Table Not Yet Migrated on MySQL Server
                             </h3>
                             <p className="text-sm text-amber-800 dark:text-amber-200/90 leading-relaxed">
                                 {migrationNotice}
                             </p>
                             <div className="mt-3 flex flex-wrap items-center gap-2">
-                                <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">Jalankan di terminal server:</span>
+                                <span className="text-xs font-semibold text-amber-700 dark:text-amber-300">Run in server terminal:</span>
                                 <code className="px-2.5 py-1 rounded-lg bg-amber-200/70 dark:bg-amber-900/80 font-mono text-xs font-bold text-amber-950 dark:text-amber-100 select-all border border-amber-300 dark:border-amber-700">
                                     php artisan migrate
                                 </code>
@@ -557,13 +557,13 @@ export default function MasterKeyIndex({
                         <div className="space-y-2 max-w-2xl">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
                                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                Housekeeping Security SOP • Siklus Evaluasi 3 Bulan
+                                Housekeeping Security SOP • 3-Month Evaluation Cycle
                             </div>
                             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                                Permohonan & Perpanjangan Master Key
+                                Master Key Request & Renewal
                             </h1>
                             <p className="text-sm text-slate-300 leading-relaxed">
-                                Formulir terpadu untuk <strong>Create New</strong>, <strong>Extension (3 Bulan)</strong>, dan <strong>Replacement</strong>. Dilengkapi kolom remark alasan, status <em>On Request / Done</em>, serta pencatatan otomatis username pemohon & waktu penyelesaian di log.
+                                Unified form for <strong>Create New</strong>, <strong>Extension (3 Months)</strong>, and <strong>Replacement</strong>. Includes reason remark, <em>On Request / Done</em> statuses, and automatic requester & completion audit logging.
                             </p>
                         </div>
 
@@ -572,12 +572,12 @@ export default function MasterKeyIndex({
                             <Link
                                 href={route('dashboard')}
                                 className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold border border-white/10 backdrop-blur-xs transition-colors"
-                                title="Kembali ke Menu Utama (App Launcher)"
+                                title="Return to Main Menu (App Launcher)"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                 </svg>
-                                <span>Menu Utama</span>
+                                <span>Main Menu</span>
                             </Link>
 
                             <button
@@ -587,7 +587,7 @@ export default function MasterKeyIndex({
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
-                                Buka Form Permohonan
+                                Open Request Form
                             </button>
 
                             <a
@@ -613,9 +613,9 @@ export default function MasterKeyIndex({
                             </svg>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Permohonan</span>
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Requests</span>
                             <div className="text-2xl font-black text-gray-900 mt-0.5">{stats.total}</div>
-                            <span className="text-[11px] text-gray-400">Semua riwayat registrasi</span>
+                            <span className="text-[11px] text-gray-400">All registration history</span>
                         </div>
                     </div>
 
@@ -632,7 +632,7 @@ export default function MasterKeyIndex({
                         <div>
                             <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">On Request</span>
                             <div className="text-2xl font-black text-amber-800 mt-0.5">{stats.on_request}</div>
-                            <span className="text-[11px] text-amber-600 font-medium">Menunggu penyelesaian</span>
+                            <span className="text-[11px] text-amber-600 font-medium">Pending completion</span>
                         </div>
                     </div>
 
@@ -647,9 +647,9 @@ export default function MasterKeyIndex({
                             </svg>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Done (Selesai)</span>
+                            <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Done (Completed)</span>
                             <div className="text-2xl font-black text-emerald-800 mt-0.5">{stats.done}</div>
-                            <span className="text-[11px] text-emerald-600 font-medium">Akses aktif operasional</span>
+                            <span className="text-[11px] text-emerald-600 font-medium">Active operational access</span>
                         </div>
                     </div>
 
@@ -664,9 +664,9 @@ export default function MasterKeyIndex({
                             </svg>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Perlu Extension</span>
+                            <span className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Needs Extension</span>
                             <div className="text-2xl font-black text-rose-700 mt-0.5">{stats.expiring_soon + stats.expired}</div>
-                            <span className="text-[11px] text-rose-600 font-medium">Siklus 3 bulan jatuh tempo</span>
+                            <span className="text-[11px] text-rose-600 font-medium">3-month cycle expiring soon</span>
                         </div>
                     </div>
                 </div>
@@ -677,11 +677,11 @@ export default function MasterKeyIndex({
                         {/* Tab Buttons */}
                         <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-xl w-full md:w-auto overflow-x-auto text-xs font-semibold">
                             {[
-                                { key: 'all', label: 'Semua' },
+                                { key: 'all', label: 'All' },
                                 { key: 'on_request', label: 'On Request', count: stats.on_request },
                                 { key: 'done', label: 'Done', count: stats.done },
-                                { key: 'expiring', label: 'Jatuh Tempo (≤14 Hari)', count: stats.expiring_soon },
-                                { key: 'expired', label: 'Kadaluarsa', count: stats.expired },
+                                { key: 'expiring', label: 'Expiring Soon (≤14 Days)', count: stats.expiring_soon },
+                                { key: 'expired', label: 'Expired', count: stats.expired },
                             ].map(tab => (
                                 <button
                                     key={tab.key}
@@ -689,7 +689,7 @@ export default function MasterKeyIndex({
                                     className={`px-3 py-1.5 rounded-lg transition-all shrink-0 cursor-pointer ${
                                         filters.tab === tab.key
                                             ? 'bg-white text-indigo-900 shadow-xs font-bold'
-                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
+                                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
                                     }`}
                                 >
                                     {tab.label}
@@ -712,7 +712,7 @@ export default function MasterKeyIndex({
                                 onChange={(e) => setSelectedReqType(e.target.value)}
                                 className="text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 py-2"
                             >
-                                <option value="">Semua Tipe Form</option>
+                                <option value="">All Request Types</option>
                                 <option value="create_new">Create New</option>
                                 <option value="extension">Extension</option>
                                 <option value="replacement">Replacement</option>
@@ -724,7 +724,7 @@ export default function MasterKeyIndex({
                                 onChange={(e) => setSelectedKeyType(e.target.value)}
                                 className="text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 py-2"
                             >
-                                <option value="">Semua Tipe Kunci</option>
+                                <option value="">All Key Types</option>
                                 {defaultKeyTypes.map(kt => (
                                     <option key={kt} value={kt}>{kt}</option>
                                 ))}
@@ -736,7 +736,7 @@ export default function MasterKeyIndex({
                                     type="text"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Cari kunci, remark, username..."
+                                    placeholder="Search key, remark, username..."
                                     className="w-full text-xs pl-8 pr-3 py-2 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                                 />
                                 <svg className="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -769,13 +769,13 @@ export default function MasterKeyIndex({
                         <table className="w-full min-w-[1080px] text-left border-collapse text-xs">
                             <thead>
                                 <tr className="bg-gray-50/75 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-bold tracking-wider">
-                                    <th className="py-3 px-4 whitespace-nowrap w-[150px]">No. Registrasi</th>
-                                    <th className="py-3 px-4 whitespace-nowrap w-[180px]">Diajukan oleh (Request by)</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[150px]">Registration No.</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[180px]">Requested by</th>
                                     <th className="py-3 px-4 whitespace-nowrap w-[190px]">Master Key</th>
                                     <th className="py-3 px-4 whitespace-nowrap">Remark</th>
                                     <th className="py-3 px-4 whitespace-nowrap w-[150px]">Status</th>
-                                    <th className="py-3 px-4 whitespace-nowrap w-[190px]">Riwayat Log</th>
-                                    <th className="py-3 px-4 whitespace-nowrap text-right w-[150px]">Aksi</th>
+                                    <th className="py-3 px-4 whitespace-nowrap w-[190px]">Audit Log</th>
+                                    <th className="py-3 px-4 whitespace-nowrap text-right w-[150px]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 font-normal">
@@ -786,8 +786,8 @@ export default function MasterKeyIndex({
                                                 <svg className="w-10 h-10 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                                 </svg>
-                                                <p className="font-semibold text-gray-600">Tidak ada data permohonan master key</p>
-                                                <p className="text-[11px]">Silakan klik tombol "Buka Form Permohonan" untuk membuat pengajuan baru.</p>
+                                                <p className="font-semibold text-gray-600">No master key request data found</p>
+                                                <p className="text-[11px]">Please click the "Open Request Form" button to create a new submission.</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -884,7 +884,7 @@ export default function MasterKeyIndex({
                                                         <button
                                                             onClick={() => openDoneModal(item)}
                                                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
-                                                            title="Tandai Selesai (Done)"
+                                                            title="Mark as Done"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -897,7 +897,7 @@ export default function MasterKeyIndex({
                                                         <button
                                                             onClick={() => openFormModal('extension', item)}
                                                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-teal-600 hover:bg-teal-50 hover:border-teal-200 transition-colors cursor-pointer"
-                                                            title="Perpanjang 3 Bulan (Extension)"
+                                                            title="Renew for 3 Months (Extension)"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -910,7 +910,7 @@ export default function MasterKeyIndex({
                                                         <button
                                                             onClick={() => openFormModal('replacement', item)}
                                                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-orange-600 hover:bg-orange-50 hover:border-orange-200 transition-colors cursor-pointer"
-                                                            title="Ganti Kunci (Replacement)"
+                                                            title="Replace Key (Replacement)"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -922,7 +922,7 @@ export default function MasterKeyIndex({
                                                     <button
                                                         onClick={() => openDetailModal(item)}
                                                         className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors cursor-pointer"
-                                                        title="Detail & Log Aktivitas"
+                                                        title="Details & Activity Log"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -936,7 +936,7 @@ export default function MasterKeyIndex({
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                                                        title="Cetak Formulir SOP"
+                                                        title="Print SOP Form"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -948,7 +948,7 @@ export default function MasterKeyIndex({
                                                         <button
                                                             onClick={() => handleDelete(item)}
                                                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-transparent text-gray-400 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-colors cursor-pointer"
-                                                            title="Hapus Permohonan"
+                                                            title="Delete Request"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -968,7 +968,7 @@ export default function MasterKeyIndex({
                     {requests.links && requests.links.length > 3 && (
                         <div className="p-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                             <div>
-                                Menampilkan {requests.data.length} dari total {requests.total} data
+                                Showing {requests.data.length} of {requests.total} entries
                             </div>
                             <div className="flex items-center gap-1">
                                 {requests.links.map((link, idx) => (
@@ -999,17 +999,17 @@ export default function MasterKeyIndex({
                     <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
                         <div>
                             <h2 className="text-base font-bold text-gray-900">
-                                Form Permohonan Akses Master Key
+                                Master Key Access Request Form
                             </h2>
                             <p className="text-xs text-gray-500 mt-0.5">
-                                Housekeeping • Siklus evaluasi 3 bulan • Swiss-Belinn SKA
+                                Housekeeping • 3-month evaluation cycle • Swiss-Belinn SKA
                             </p>
                         </div>
                         <button
                             type="button"
                             onClick={() => setIsFormModalOpen(false)}
                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-                            aria-label="Tutup"
+                            aria-label="Close"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1018,29 +1018,29 @@ export default function MasterKeyIndex({
                     </div>
 
                     <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-                        {/* Point A: 1 form dengan pilihan Create New, Extension, Replacement */}
+                        {/* Point A: 1 form with Create New, Extension, Replacement options */}
                         <div>
-                            <InputLabel value="Tipe Permohonan *" />
+                            <InputLabel value="Request Type *" />
                             <div className="grid grid-cols-3 gap-2 mt-1.5">
                                 {[
                                     {
                                         type: 'create_new' as const,
                                         label: 'Create New',
-                                        desc: 'Kunci baru',
+                                        desc: 'New key',
                                         path: 'M12 4v16m8-8H4',
                                         tone: 'text-indigo-600 bg-indigo-50',
                                     },
                                     {
                                         type: 'extension' as const,
                                         label: 'Extension',
-                                        desc: 'Perpanjang 3 bulan',
+                                        desc: '3-month renewal',
                                         path: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
                                         tone: 'text-teal-600 bg-teal-50',
                                     },
                                     {
                                         type: 'replacement' as const,
                                         label: 'Replacement',
-                                        desc: 'Ganti rusak / hilang',
+                                        desc: 'Damaged / lost key',
                                         path: 'M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4',
                                         tone: 'text-orange-600 bg-orange-50',
                                     },
@@ -1078,7 +1078,7 @@ export default function MasterKeyIndex({
                             <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
                                 <InputLabel
                                     htmlFor="select_existing_key"
-                                    value={`Pilih Kunci yang Hendak di-${formData.request_type === 'extension' ? 'Perpanjang' : 'Ganti'} (Opsional):`}
+                                    value={`Select Key to ${formData.request_type === 'extension' ? 'Renew' : 'Replace'} (Optional):`}
                                     className="text-indigo-900"
                                 />
                                 <select
@@ -1087,33 +1087,33 @@ export default function MasterKeyIndex({
                                     onChange={(e) => handleSelectExistingKey(e.target.value)}
                                     className="mt-1 block w-full text-xs rounded-xl border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500"
                                 >
-                                    <option value="">-- Pilih dari daftar kunci sebelumnya --</option>
+                                    <option value="">-- Select from previous keys --</option>
                                     {existingKeys.map(k => (
                                         <option key={k.id} value={k.id}>
-                                            {k.key_number} ({k.key_type}) - {k.request_by || k.employee?.user?.name || 'Staff'} (Berakhir: {formatDate(k.valid_until)})
+                                            {k.key_number} ({k.key_type}) - {k.request_by || k.employee?.user?.name || 'Staff'} (Expires: {formatDate(k.valid_until)})
                                         </option>
                                     ))}
                                 </select>
                                 <span className="text-[10px] text-indigo-700/80 mt-1 block">
-                                    Memilih kunci di atas akan otomatis mengisi nomor kunci, cakupan kamar, dan nama yang mengajukan.
+                                    Selecting a key above will automatically populate the key number, room range, and requester name.
                                 </span>
                             </div>
                         )}
 
                         {/* Diajukan oleh (Request by) - Di Ketik Saja */}
                         <div>
-                            <InputLabel htmlFor="form_request_by" value="Diajukan oleh (Request by) *" />
+                            <InputLabel htmlFor="form_request_by" value="Requested by *" />
                             <TextInput
                                 id="form_request_by"
                                 type="text"
                                 value={formData.request_by}
                                 onChange={(e) => setFormData('request_by', e.target.value)}
-                                placeholder="Ketik nama pemegang kunci / yang mengajukan..."
+                                placeholder="Type key holder / requester name..."
                                 className="mt-1 block w-full text-xs font-semibold text-gray-900"
                                 required
                             />
                             <p className="text-[10px] text-gray-500 mt-1">
-                                Ketik nama staf atau pemegang kunci yang mengajukan permohonan master key.
+                                Type the name of the staff member or key holder requesting master key access.
                             </p>
                             <InputError message={formErrors.request_by} className="mt-1" />
                         </div>
@@ -1121,13 +1121,13 @@ export default function MasterKeyIndex({
                         {/* Nomor Kunci & Tipe Kunci */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="form_key_number" value="Nomor / Kode Kunci Master *" />
+                                <InputLabel htmlFor="form_key_number" value="Master Key Number / Code *" />
                                 <TextInput
                                     id="form_key_number"
                                     type="text"
                                     value={formData.key_number}
                                     onChange={(e) => setFormData('key_number', e.target.value)}
-                                    placeholder="Contoh: MK-HK-201 atau RFID-FL3"
+                                    placeholder="E.g., MK-HK-201 or RFID-FL3"
                                     className="mt-1 block w-full text-xs font-mono font-bold"
                                     required
                                 />
@@ -1135,7 +1135,7 @@ export default function MasterKeyIndex({
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="form_key_type" value="Tipe Master Key *" />
+                                <InputLabel htmlFor="form_key_type" value="Master Key Type *" />
                                 <select
                                     id="form_key_type"
                                     value={formData.key_type}
@@ -1153,13 +1153,13 @@ export default function MasterKeyIndex({
 
                         {/* Cakupan Area Kamar */}
                         <div>
-                            <InputLabel htmlFor="form_room_range" value="Cakupan Area & Nomor Kamar *" />
+                            <InputLabel htmlFor="form_room_range" value="Room Coverage & Access Range *" />
                             <TextInput
                                 id="form_room_range"
                                 type="text"
                                 value={formData.room_range_access}
                                 onChange={(e) => setFormData('room_range_access', e.target.value)}
-                                placeholder="Contoh: Lantai 2 (Kamar 201 - 240)"
+                                placeholder="E.g., Floor 2 (Rooms 201 - 240)"
                                 className="mt-1 block w-full text-xs"
                                 required
                             />
@@ -1184,13 +1184,13 @@ export default function MasterKeyIndex({
                             <div className="flex items-center justify-between">
                                 <InputLabel
                                     htmlFor="form_remark"
-                                    value="Remark / Alasan Permohonan *"
+                                    value="Remark / Reason for Request *"
                                     className="font-bold text-gray-900"
                                 />
                                 <span className="text-[10px] text-indigo-600 font-semibold">
-                                    {formData.request_type === 'create_new' && 'Alasan pembuatan kunci baru'}
-                                    {formData.request_type === 'extension' && 'Alasan perpanjangan 3 bulan'}
-                                    {formData.request_type === 'replacement' && 'Alasan penggantian kunci'}
+                                    {formData.request_type === 'create_new' && 'Reason for new key creation'}
+                                    {formData.request_type === 'extension' && 'Reason for 3-month renewal'}
+                                    {formData.request_type === 'replacement' && 'Reason for key replacement'}
                                 </span>
                             </div>
                             <textarea
@@ -1200,16 +1200,16 @@ export default function MasterKeyIndex({
                                 onChange={(e) => setFormData('remark', e.target.value)}
                                 placeholder={
                                     formData.request_type === 'create_new'
-                                        ? 'Jelaskan alasan kenapa kunci baru ini dibuat (contoh: Penambahan staf room attendant baru shift pagi lantai 2).'
+                                        ? 'Explain why this new key is created (e.g., Additional room attendant for morning shift on Floor 2).'
                                         : formData.request_type === 'extension'
-                                        ? 'Jelaskan alasan perpanjangan berkala (contoh: Perpanjangan berkala 3 bulan siklus evaluasi operasional HK Q4).'
-                                        : 'Jelaskan alasan penggantian kunci (contoh: Kartu RFID lama retak / sensor tidak merespon di kamar 312).'
+                                        ? 'Explain the renewal reason (e.g., Periodic 3-month renewal for HK Q4 operational evaluation cycle).'
+                                        : 'Explain the replacement reason (e.g., Previous RFID card cracked / sensor not responding at room 312).'
                                 }
                                 className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 leading-relaxed"
                                 required
                             />
                             <p className="text-[10px] text-gray-500 mt-1">
-                                Kolom ini tercatat dalam sistem audit log hotel dan tercetak pada formulir serah terima SOP.
+                                This entry is recorded in the hotel audit log and printed on the SOP handover form.
                             </p>
                             <InputError message={formErrors.remark} className="mt-1" />
                         </div>
@@ -1217,7 +1217,7 @@ export default function MasterKeyIndex({
                         {/* Masa Berlaku (3 Bulan) */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
                             <div>
-                                <InputLabel htmlFor="form_valid_from" value="Tanggal Mulai Berlaku *" />
+                                <InputLabel htmlFor="form_valid_from" value="Effective Start Date *" />
                                 <TextInput
                                     id="form_valid_from"
                                     type="date"
@@ -1229,13 +1229,13 @@ export default function MasterKeyIndex({
                             </div>
 
                             <div>
-                                <span className="block text-xs font-medium text-gray-700">Jatuh Tempo (3 Bulan):</span>
+                                <span className="block text-xs font-medium text-gray-700">Valid Until (3 Months):</span>
                                 <div className="mt-1.5 p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between text-xs">
                                     <span className="font-bold text-indigo-700">
                                         {computeValidUntilPreview(formData.valid_from, 3)}
                                     </span>
                                     <span className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-700 font-semibold rounded">
-                                        Siklus 3 Bulan
+                                        3-Month Cycle
                                     </span>
                                 </div>
                             </div>
@@ -1244,7 +1244,7 @@ export default function MasterKeyIndex({
                         {/* Digital Signature Pemohon */}
                         <div>
                             <SignaturePad
-                                title="Tanda Tangan Pemohon (E-Sign)"
+                                title="Requester Signature (E-Sign)"
                                 value={formData.requester_signature}
                                 onChange={(sig) => setFormData('requester_signature', sig || '')}
                             />
@@ -1257,11 +1257,11 @@ export default function MasterKeyIndex({
                                 <span className="font-semibold text-gray-900 truncate block">{currentUser.name}</span>
                             </div>
                             <div>
-                                <span className="text-gray-400 text-[10px] uppercase font-semibold tracking-wide block">Tanggal Request</span>
+                                <span className="text-gray-400 text-[10px] uppercase font-semibold tracking-wide block">Request Date</span>
                                 <span className="font-semibold text-gray-900">{formatDate(new Date().toISOString())}</span>
                             </div>
                             <div>
-                                <span className="text-gray-400 text-[10px] uppercase font-semibold tracking-wide block">Status Awal</span>
+                                <span className="text-gray-400 text-[10px] uppercase font-semibold tracking-wide block">Initial Status</span>
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-full font-semibold text-[10px]">
                                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                                     On Request
@@ -1272,10 +1272,10 @@ export default function MasterKeyIndex({
 
                     <div className="shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
                         <SecondaryButton type="button" onClick={() => setIsFormModalOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton type="submit" disabled={formProcessing}>
-                            {formProcessing ? 'Memproses...' : 'Kirim Permohonan'}
+                            {formProcessing ? 'Processing...' : 'Submit Request'}
                         </PrimaryButton>
                     </div>
                 </form>
@@ -1290,17 +1290,17 @@ export default function MasterKeyIndex({
                         <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
                             <div>
                                 <h2 className="text-base font-bold text-gray-900">
-                                    Tandai Permohonan Selesai (Done)
+                                    Mark Request as Done
                                 </h2>
                                 <p className="text-xs text-gray-500 mt-0.5">
-                                    Verifikasi penyerahan & aktivasi akses master key housekeeping
+                                    Verify handover & activation of housekeeping master key access
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setIsDoneModalOpen(false)}
                                 className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-                                aria-label="Tutup"
+                                aria-label="Close"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1312,19 +1312,19 @@ export default function MasterKeyIndex({
                             {/* Request Summary */}
                             <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-2">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-500">No. Registrasi:</span>
+                                    <span className="text-gray-500">Registration No.:</span>
                                     <span className="font-mono font-bold text-gray-900">{activeItem.request_number}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-500">Tipe Permohonan:</span>
+                                    <span className="text-gray-500">Request Type:</span>
                                     <span className="font-semibold text-indigo-700">{activeItem.request_type_label}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-500">Kunci Master:</span>
+                                    <span className="text-gray-500">Master Key:</span>
                                     <span className="font-mono font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{activeItem.key_number} ({activeItem.key_type})</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-500">Diajukan oleh (Request by):</span>
+                                    <span className="text-gray-500">Requested by:</span>
                                     <span className="font-semibold text-gray-900">{activeItem.request_by || activeItem.employee?.user?.name || '-'}</span>
                                 </div>
                                 <div className="pt-2 border-t border-gray-200">
@@ -1335,13 +1335,13 @@ export default function MasterKeyIndex({
 
                             {/* Catatan Selesai */}
                             <div>
-                                <InputLabel htmlFor="done_notes" value="Catatan Penyerahan / Selesai (Done Notes)" />
+                                <InputLabel htmlFor="done_notes" value="Handover / Completion Notes (Done Notes)" />
                                 <textarea
                                     id="done_notes"
                                     rows={3}
                                     value={doneData.done_notes}
                                     onChange={(e) => setDoneData('done_notes', e.target.value)}
-                                    placeholder="Contoh: Kunci master telah diserahkan dalam kondisi baik dan RFID terverifikasi aktif."
+                                    placeholder="E.g., Master key handed over in good condition and RFID verified active."
                                     className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 leading-relaxed"
                                 />
                             </div>
@@ -1349,7 +1349,7 @@ export default function MasterKeyIndex({
                             {/* Digital Signature Approver / Petugas Done */}
                             <div>
                                 <SignaturePad
-                                    title="Tanda Tangan Petugas / Approver (E-Sign)"
+                                    title="Officer / Approver Signature (E-Sign)"
                                     value={doneData.approver_signature}
                                     onChange={(sig) => setDoneData('approver_signature', sig || '')}
                                 />
@@ -1358,26 +1358,26 @@ export default function MasterKeyIndex({
                             {/* Info Logging Point D */}
                             <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs space-y-1">
                                 <div className="flex justify-between items-center text-emerald-900">
-                                    <span className="font-semibold">Petugas Penyelesai:</span>
+                                    <span className="font-semibold">Completing Officer:</span>
                                     <span className="font-mono font-bold">{currentUser.name}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-emerald-800 text-[11px]">
-                                    <span>Waktu Selesai (Done At):</span>
-                                    <span>{new Date().toLocaleString('id-ID')} (Otomatis tercatat di log)</span>
+                                    <span>Completion Time (Done At):</span>
+                                    <span>{new Date().toLocaleString('en-US')} (Automatically recorded in log)</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
                             <SecondaryButton type="button" onClick={() => setIsDoneModalOpen(false)}>
-                                Batal
+                                Cancel
                             </SecondaryButton>
                             <PrimaryButton
                                 type="submit"
                                 disabled={doneProcessing}
                                 className="bg-emerald-600 hover:bg-emerald-700"
                             >
-                                {doneProcessing ? 'Menyimpan...' : 'Konfirmasi & Selesaikan (Done)'}
+                                {doneProcessing ? 'Saving...' : 'Confirm & Mark as Done'}
                             </PrimaryButton>
                         </div>
                     </form>
@@ -1400,14 +1400,14 @@ export default function MasterKeyIndex({
                                     {renderStatusBadge(activeItem.status, activeItem)}
                                 </div>
                                 <p className="text-xs text-gray-500 mt-0.5">
-                                    Detail lengkap permohonan master key dan log riwayat audit
+                                    Complete master key request details and audit history log
                                 </p>
                             </div>
                             <button
                                 type="button"
                                 onClick={() => setIsDetailModalOpen(false)}
                                 className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
-                                aria-label="Tutup"
+                                aria-label="Close"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1419,28 +1419,28 @@ export default function MasterKeyIndex({
                             {/* Section 1: Data Kunci & Pemegang */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                                 <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
-                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Diajukan oleh (Request by)</span>
+                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Requested by</span>
                                     <div className="font-bold text-gray-900 text-sm leading-snug">{activeItem.request_by || activeItem.employee?.user?.name || '-'}</div>
                                     {activeItem.employee?.employee_number && (
-                                        <div className="text-gray-600">NIK: <span className="font-mono font-medium text-gray-900">{activeItem.employee.employee_number}</span></div>
+                                        <div className="text-gray-600">Employee ID: <span className="font-mono font-medium text-gray-900">{activeItem.employee.employee_number}</span></div>
                                     )}
-                                    <div className="text-gray-600">Jabatan: <span className="text-gray-900">{activeItem.employee?.position?.name || 'Staff HK'}</span></div>
-                                    <div className="text-gray-600">Departemen: <span className="text-gray-900">{activeItem.employee?.department?.name || 'Housekeeping'}</span></div>
+                                    <div className="text-gray-600">Position: <span className="text-gray-900">{activeItem.employee?.position?.name || 'Staff HK'}</span></div>
+                                    <div className="text-gray-600">Department: <span className="text-gray-900">{activeItem.employee?.department?.name || 'Housekeeping'}</span></div>
                                 </div>
 
                                 <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
-                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Spesifikasi Kunci</span>
+                                    <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Key Specifications</span>
                                     <div className="font-mono font-bold text-gray-900 text-sm bg-white px-2 py-0.5 rounded border border-gray-200 inline-block">{activeItem.key_number}</div>
-                                    <div className="text-gray-600">Tipe: <span className="font-semibold text-gray-900">{activeItem.key_type}</span></div>
-                                    <div className="text-gray-600">Cakupan: <span className="text-gray-900">{activeItem.room_range_access}</span></div>
-                                    <div className="text-gray-600">Masa: <span className="text-gray-900">{formatDate(activeItem.valid_from)} s/d {formatDate(activeItem.valid_until)}</span></div>
+                                    <div className="text-gray-600">Type: <span className="font-semibold text-gray-900">{activeItem.key_type}</span></div>
+                                    <div className="text-gray-600">Coverage: <span className="text-gray-900">{activeItem.room_range_access}</span></div>
+                                    <div className="text-gray-600">Validity: <span className="text-gray-900">{formatDate(activeItem.valid_from)} to {formatDate(activeItem.valid_until)}</span></div>
                                 </div>
                             </div>
 
                             {/* Section 2: Remark / Alasan Permohonan */}
                             <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-xs">
                                 <span className="text-[10px] font-bold uppercase text-gray-400 tracking-wider block mb-1">
-                                    Remark / Alasan Permohonan ({activeItem.request_type_label}):
+                                    Remark / Reason for Request ({activeItem.request_type_label}):
                                 </span>
                                 <p className="text-gray-900 font-medium leading-relaxed">
                                     {activeItem.remark || '-'}
@@ -1450,7 +1450,7 @@ export default function MasterKeyIndex({
                             {/* Section 3: Visual Timeline (Point D: Username, Tanggal Request, Kapan Done) */}
                             <div className="border border-gray-200 rounded-xl p-4 bg-white">
                                 <span className="text-xs font-bold uppercase tracking-wider text-gray-500 block mb-3">
-                                    Log Aktivitas & Jejak Sistem
+                                    Activity Log & System Trail
                                 </span>
 
                                 <div className="relative pl-6 space-y-5 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
@@ -1460,13 +1460,13 @@ export default function MasterKeyIndex({
                                             1
                                         </div>
                                         <div className="text-xs font-bold text-gray-900">
-                                            Permohonan Diajukan ({activeItem.request_type_label})
+                                            Request Submitted ({activeItem.request_type_label})
                                         </div>
                                         <div className="text-[11px] text-gray-600 mt-0.5">
-                                            Username Pemohon: <span className="font-mono font-bold text-gray-900">{activeItem.requested_by_username || activeItem.requested_by?.name || '-'}</span>
+                                            Requester Username: <span className="font-mono font-bold text-gray-900">{activeItem.requested_by_username || activeItem.requested_by?.name || '-'}</span>
                                         </div>
                                         <div className="text-[10px] text-gray-400">
-                                            Waktu: {formatDateTime(activeItem.requested_at || activeItem.created_at)}
+                                            Time: {formatDateTime(activeItem.requested_at || activeItem.created_at)}
                                         </div>
                                     </div>
 
@@ -1478,25 +1478,25 @@ export default function MasterKeyIndex({
                                             2
                                         </div>
                                         <div className="text-xs font-bold text-gray-900">
-                                            {activeItem.status === 'Done' ? 'Permohonan Selesai (Done)' : 'Menunggu Penyelesaian (On Request)'}
+                                            {activeItem.status === 'Done' ? 'Request Completed (Done)' : 'Pending Completion (On Request)'}
                                         </div>
                                         {activeItem.status === 'Done' ? (
                                             <>
                                                 <div className="text-[11px] text-gray-600 mt-0.5">
-                                                    Username Petugas: <span className="font-mono font-bold text-emerald-700">{activeItem.done_by_username || activeItem.done_by?.name || '-'}</span>
+                                                    Officer Username: <span className="font-mono font-bold text-emerald-700">{activeItem.done_by_username || activeItem.done_by?.name || '-'}</span>
                                                 </div>
                                                 <div className="text-[10px] text-gray-400">
-                                                    Waktu Selesai (Done At): {formatDateTime(activeItem.done_at)}
+                                                    Completion Time (Done At): {formatDateTime(activeItem.done_at)}
                                                 </div>
                                                 {activeItem.done_notes && (
                                                     <div className="text-[11px] text-gray-700 mt-1.5 p-2 bg-emerald-50 rounded-lg border border-emerald-100">
-                                                        Catatan: {activeItem.done_notes}
+                                                        Notes: {activeItem.done_notes}
                                                     </div>
                                                 )}
                                             </>
                                         ) : (
                                             <div className="text-[11px] text-amber-700 italic mt-0.5">
-                                                Status saat ini masih On Request. Menunggu verifikasi fisik & serah terima kunci.
+                                                Current status is still On Request. Awaiting physical verification and key handover.
                                             </div>
                                         )}
                                     </div>
@@ -1507,7 +1507,7 @@ export default function MasterKeyIndex({
                             {activeItem.audit_logs && activeItem.audit_logs.length > 0 && (
                                 <div className="border border-gray-200 rounded-xl p-3 bg-gray-50/50">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 block mb-2">
-                                        Riwayat Log Audit Database ({activeItem.audit_logs.length} Log)
+                                        Database Audit Log History ({activeItem.audit_logs.length} Logs)
                                     </span>
                                     <div className="space-y-1.5 max-h-36 overflow-y-auto text-[11px]">
                                         {activeItem.audit_logs.map(log => (
@@ -1515,7 +1515,7 @@ export default function MasterKeyIndex({
                                                 <div>
                                                     <span className="font-semibold text-gray-800">{log.description}</span>
                                                     <div className="text-[10px] text-gray-400 mt-0.5">
-                                                        User: {log.user?.name || 'Sistem'}
+                                                        User: {log.user?.name || 'System'}
                                                     </div>
                                                 </div>
                                                 <span className="text-[10px] text-gray-400 font-mono shrink-0">
@@ -1531,39 +1531,39 @@ export default function MasterKeyIndex({
                             <div className="grid grid-cols-2 gap-3 text-xs">
                                 <div className="p-3 border border-gray-200 rounded-xl text-center">
                                     <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
-                                        Tanda Tangan Pemohon
+                                        Requester Signature
                                     </span>
                                     {activeItem.requester_signature ? (
                                         <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
                                             <img
                                                 src={activeItem.requester_signature}
-                                                alt="E-Sign Pemohon"
+                                                alt="Requester Signature"
                                                 className="max-h-full max-w-full object-contain"
                                             />
                                         </div>
                                     ) : (
-                                        <span className="text-gray-400 italic text-[11px] block py-4">[Belum Ada E-Sign]</span>
+                                        <span className="text-gray-400 italic text-[11px] block py-4">[No E-Signature]</span>
                                     )}
                                 </div>
 
                                 <div className="p-3 border border-gray-200 rounded-xl text-center">
                                     <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
-                                        Tanda Tangan Penanggung Jawab
+                                        Approver Signature
                                     </span>
                                     {activeItem.approver_signature ? (
                                         <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
                                             <img
                                                 src={activeItem.approver_signature}
-                                                alt="E-Sign Approver"
+                                                alt="Approver Signature"
                                                 className="max-h-full max-w-full object-contain"
                                             />
                                         </div>
                                     ) : activeItem.status === 'Done' ? (
                                         <div className="py-4 text-emerald-700 font-bold text-[11px]">
-                                            [Disetujui Sistem: Done]
+                                            [System Approved: Done]
                                         </div>
                                     ) : (
-                                        <span className="text-gray-400 italic text-[11px] block py-4">[Menunggu Selesai]</span>
+                                        <span className="text-gray-400 italic text-[11px] block py-4">[Pending Completion]</span>
                                     )}
                                 </div>
                             </div>
@@ -1580,11 +1580,11 @@ export default function MasterKeyIndex({
                                 <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                 </svg>
-                                Cetak Formulir SOP
+                                Print SOP Form
                             </a>
 
                             <SecondaryButton onClick={() => setIsDetailModalOpen(false)}>
-                                Tutup
+                                Close
                             </SecondaryButton>
                         </div>
                     </div>

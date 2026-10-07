@@ -16,7 +16,7 @@ class TaskObserver
         $this->logActivity(
             $task,
             'created',
-            "Task dibuat dengan judul '{$task->title}'"
+            "Task created with title '{$task->title}'"
         );
     }
 
@@ -31,7 +31,7 @@ class TaskObserver
                 $this->logActivity(
                     $task,
                     'status_changed',
-                    "Status diubah dari '{$oldStatusVal}' menjadi '{$newStatusVal}'",
+                    "Status changed from '{$oldStatusVal}' to '{$newStatusVal}'",
                     ['status' => $oldStatusVal],
                     ['status' => $newStatusVal]
                 );
@@ -47,7 +47,7 @@ class TaskObserver
                 $this->logActivity(
                     $task,
                     'priority_changed',
-                    "Prioritas diubah dari '{$oldPriorityVal}' menjadi '{$newPriorityVal}'",
+                    "Priority changed from '{$oldPriorityVal}' to '{$newPriorityVal}'",
                     ['priority' => $oldPriorityVal],
                     ['priority' => $newPriorityVal]
                 );
@@ -62,7 +62,7 @@ class TaskObserver
                 $this->logActivity(
                     $task,
                     'title_changed',
-                    "Judul task diubah dari '{$oldTitle}' menjadi '{$newTitle}'",
+                    "Task title changed from '{$oldTitle}' to '{$newTitle}'",
                     ['title' => $oldTitle],
                     ['title' => $newTitle]
                 );
@@ -78,7 +78,7 @@ class TaskObserver
                 $this->logActivity(
                     $task,
                     'deadline_changed',
-                    "Tenggat waktu diubah menjadi " . ($newDeadlineStr !== '-' ? $newDeadlineStr : 'Tidak ada tenggat'),
+                    "Deadline changed to " . ($newDeadlineStr !== '-' ? $newDeadlineStr : 'No deadline'),
                     ['deadline' => $oldDeadlineStr],
                     ['deadline' => $newDeadlineStr]
                 );
@@ -89,7 +89,7 @@ class TaskObserver
             $this->logActivity(
                 $task,
                 'description_changed',
-                'Deskripsi task diperbarui'
+                'Task description updated'
             );
         }
     }

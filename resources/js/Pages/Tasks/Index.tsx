@@ -41,11 +41,11 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
     });
 
     const activeFilterLabel = filters?.filter === 'active' 
-        ? 'Aktif' 
+        ? 'Active' 
         : filters?.filter === 'completed' 
-        ? 'Selesai' 
+        ? 'Completed' 
         : filters?.filter === 'overdue' 
-        ? 'Lewat Deadline' 
+        ? 'Overdue' 
         : filters?.status 
         ? `Status: ${filters.status}` 
         : null;
@@ -57,7 +57,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 className="font-bold text-xl text-gray-900 leading-tight">My Tasks</h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Daftar semua tugas dan pekerjaan yang ditugaskan</p>
+                        <p className="text-sm text-gray-500 mt-0.5">List of all assigned tasks and responsibilities</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <TaskViewSwitcher current="list" />
@@ -88,7 +88,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                 : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                                         }`}
                                     >
-                                        Semua Task
+                                        All Tasks
                                     </Link>
                                     <Link
                                         href={route('tasks.index', { filter: 'active' })}
@@ -98,7 +98,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                 : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                                         }`}
                                     >
-                                        Aktif
+                                        Active
                                     </Link>
                                     <Link
                                         href={route('tasks.index', { filter: 'completed' })}
@@ -108,7 +108,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                 : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                                         }`}
                                     >
-                                        Selesai
+                                        Completed
                                     </Link>
                                     <Link
                                         href={route('tasks.index', { filter: 'overdue' })}
@@ -118,7 +118,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                 : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                                         }`}
                                     >
-                                        Lewat Deadline
+                                        Overdue
                                     </Link>
                                 </div>
 
@@ -136,13 +136,13 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                             </Link>
                                         </div>
                                     )}
-                                    <span className="text-xs text-gray-400 font-medium">Total: {sortedTasks.length} task</span>
+                                    <span className="text-xs text-gray-400 font-medium">Total: {sortedTasks.length} {sortedTasks.length === 1 ? 'task' : 'tasks'}</span>
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-base font-bold text-gray-800">
-                                    {activeFilterLabel ? `Daftar Task (${activeFilterLabel})` : 'Task List'}
+                                    {activeFilterLabel ? `Task List (${activeFilterLabel})` : 'Task List'}
                                 </h3>
                             </div>
                             
@@ -168,7 +168,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                                 {task.project?.name || 'Unknown Project'}
                                                             </Link>
                                                         ) : (
-                                                            <span className="text-gray-400 italic text-xs">Task Mandiri</span>
+                                                            <span className="text-gray-400 italic text-xs">Standalone Task</span>
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4">
@@ -202,7 +202,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
-                                                        {task.deadline ? new Date(task.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                                                        {task.deadline ? new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                         <div className="flex items-center justify-end gap-2">
@@ -241,12 +241,12 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                 </div>
                             ) : (
                                 <div className="text-center py-12">
-                                    <p className="text-gray-500 text-sm mb-3">Belum ada task yang ditugaskan kepada Anda saat ini.</p>
+                                    <p className="text-gray-500 text-sm mb-3">No tasks currently assigned to you.</p>
                                     <button 
                                         onClick={() => setShowCreateModal(true)}
                                         className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition-colors"
                                     >
-                                        + Buat Task Baru
+                                        + Create New Task
                                     </button>
                                 </div>
                             )}

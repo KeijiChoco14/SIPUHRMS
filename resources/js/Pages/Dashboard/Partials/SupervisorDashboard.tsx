@@ -22,7 +22,7 @@ export default function SupervisorDashboard({ data }: { data: any }) {
             value: stats.activeProjects, 
             gradient: 'from-indigo-500 to-indigo-600', 
             href: route('projects.index', { status: 'Active' }),
-            hint: 'Lihat proyek aktif',
+            hint: 'View active projects',
             icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> 
         },
         { 
@@ -30,7 +30,7 @@ export default function SupervisorDashboard({ data }: { data: any }) {
             value: stats.totalTasks, 
             gradient: 'from-blue-500 to-blue-600', 
             href: route('tasks.index'),
-            hint: 'Lihat semua task',
+            hint: 'View all tasks',
             icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg> 
         },
         { 
@@ -38,7 +38,7 @@ export default function SupervisorDashboard({ data }: { data: any }) {
             value: stats.completedTasks, 
             gradient: 'from-emerald-500 to-emerald-600', 
             href: route('tasks.index', { filter: 'completed' }),
-            hint: 'Lihat task selesai',
+            hint: 'View completed tasks',
             icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> 
         },
         { 
@@ -46,7 +46,7 @@ export default function SupervisorDashboard({ data }: { data: any }) {
             value: stats.overdueTasks, 
             gradient: 'from-red-500 to-rose-600', 
             href: route('tasks.index', { filter: 'overdue' }),
-            hint: 'Lihat task lewat deadline',
+            hint: 'View overdue tasks',
             icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> 
         },
         { 
@@ -54,7 +54,7 @@ export default function SupervisorDashboard({ data }: { data: any }) {
             value: stats.pendingReview, 
             gradient: 'from-amber-500 to-amber-600', 
             href: route('tasks.index', { status: 'Review' }),
-            hint: 'Lihat task butuh review',
+            hint: 'View tasks pending review',
             icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> 
         },
     ];
@@ -91,7 +91,7 @@ export default function SupervisorDashboard({ data }: { data: any }) {
                             <h4 className="font-bold text-lg leading-tight">{announcements[0].title}</h4>
                             <p className="mt-1 text-sm text-indigo-100 line-clamp-2">{announcements[0].message}</p>
                             <p className="mt-2 text-xs text-indigo-200">
-                                {announcements[0].creator?.name} · {new Date(announcements[0].published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                {announcements[0].creator?.name} · {new Date(announcements[0].published_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </p>
                         </div>
                     </div>
@@ -113,7 +113,7 @@ export default function SupervisorDashboard({ data }: { data: any }) {
                                 {stat.icon}
                             </div>
                             <span className="text-[11px] font-semibold text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                Buka →
+                                Open →
                             </span>
                         </div>
                         <div className="text-2xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">{stat.value}</div>
@@ -137,15 +137,15 @@ export default function SupervisorDashboard({ data }: { data: any }) {
                         </div>
                         <div className="text-center p-3 rounded-lg bg-emerald-50">
                             <div className="text-xl font-bold text-emerald-700">{teamAttendance.present}</div>
-                            <div className="text-[10px] font-semibold text-emerald-600 uppercase">Hadir</div>
+                            <div className="text-[10px] font-semibold text-emerald-600 uppercase">Present</div>
                         </div>
                         <div className="text-center p-3 rounded-lg bg-amber-50">
                             <div className="text-xl font-bold text-amber-700">{teamAttendance.late}</div>
-                            <div className="text-[10px] font-semibold text-amber-600 uppercase">Telat</div>
+                            <div className="text-[10px] font-semibold text-amber-600 uppercase">Late</div>
                         </div>
                         <div className="text-center p-3 rounded-lg bg-red-50">
                             <div className="text-xl font-bold text-red-700">{teamAttendance.absent}</div>
-                            <div className="text-[10px] font-semibold text-red-600 uppercase">Absen</div>
+                            <div className="text-[10px] font-semibold text-red-600 uppercase">Absent</div>
                         </div>
                     </div>
                     {teamAttendance.total > 0 && (

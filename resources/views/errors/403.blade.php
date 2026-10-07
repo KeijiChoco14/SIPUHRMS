@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>403 - Akses Ditolak | SIPU Swiss-Belinn</title>
+    <title>403 - Access Denied | SIPU Swiss-Belinn</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
     <style>
@@ -118,15 +118,15 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
         </div>
-        <div class="badge">403 FORBIDDEN • HAK AKSES DIBATASI</div>
-        <h1>Akses Ditolak</h1>
-        <p>{{ $exception->getMessage() ?: 'Maaf, akun Anda tidak memiliki hak akses (role & izin) yang dibutuhkan untuk membuka halaman atau modul ini.' }}</p>
+        <div class="badge">403 FORBIDDEN • RESTRICTED ACCESS</div>
+        <h1>Access Denied</h1>
+        <p>{{ $exception->getMessage() ?: 'Sorry, your account does not have the required permissions or role to view this page or module.' }}</p>
         <div class="btn-row">
             <a href="{{ route('dashboard') }}" class="btn-primary">
-                ⊞ Kembali ke Menu Utama
+                ⊞ Return to Main Menu
             </a>
             <button onclick="window.history.back()" class="btn-secondary">
-                ↺ Kembali
+                ↺ Go Back
             </button>
         </div>
     </div>

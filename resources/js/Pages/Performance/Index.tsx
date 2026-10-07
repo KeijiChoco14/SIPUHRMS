@@ -53,8 +53,8 @@ interface Props {
 }
 
 const MONTH_NAMES = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
 export default function PerformanceIndex({ periods = [], selectedPeriodId, scores = [], flash }: Props) {
@@ -97,7 +97,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
 
     const handleDeletePeriod = () => {
         if (!selectedPeriod) return;
-        if (confirm(`Apakah Anda yakin ingin menghapus periode "${selectedPeriod.name}"? Semua data skor EPI pada periode ini juga akan dihapus.`)) {
+        if (confirm(`Are you sure you want to delete period "${selectedPeriod.name}"? All EPI score records for this period will also be permanently deleted.`)) {
             router.delete(route('performance.periods.destroy', selectedPeriod.id));
         }
     };
@@ -192,7 +192,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                     type="button"
                                     onClick={() => setShowCreateModal(true)}
                                     className="inline-flex items-center gap-1.5 px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                                    title="Tambah Periode Evaluasi Baru"
+                                    title="Add New Evaluation Period"
                                 >
                                     <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -374,7 +374,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                     : 'border-transparent text-gray-500 hover:text-gray-700'
                             }`}
                         >
-                            Bulanan (Quick Monthly)
+                            Monthly (Quick)
                         </button>
                         <button
                             type="button"
@@ -424,18 +424,18 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                             </div>
 
                             <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600">
-                                <div><strong>Preview Nama:</strong> {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</div>
+                                <div><strong>Name Preview:</strong> {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</div>
                                 <div className="mt-1">
-                                    <strong>Rentang Tanggal:</strong> 1 {MONTH_NAMES[selectedMonth - 1]} {selectedYear} s/d akhir bulan
+                                    <strong>Date Range:</strong> 1 {MONTH_NAMES[selectedMonth - 1]} {selectedYear} to end of month
                                 </div>
                             </div>
 
                             <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-gray-100">
                                 <SecondaryButton type="button" onClick={() => setShowCreateModal(false)}>
-                                    Batal
+                                    Cancel
                                 </SecondaryButton>
                                 <PrimaryButton type="submit">
-                                    Simpan & Pilih Periode
+                                    Save & Select Period
                                 </PrimaryButton>
                             </div>
                         </form>
@@ -449,7 +449,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                     className="mt-1 block w-full"
                                     value={customData.name}
                                     onChange={(e) => setCustomData('name', e.target.value)}
-                                    placeholder="Contoh: Q3 2026"
+                                    placeholder="e.g. Q3 2026"
                                     required
                                 />
                                 <InputError message={customErrors.name} className="mt-1" />
@@ -499,10 +499,10 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
 
                             <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-gray-100">
                                 <SecondaryButton type="button" onClick={() => setShowCreateModal(false)}>
-                                    Batal
+                                    Cancel
                                 </SecondaryButton>
                                 <PrimaryButton type="submit" disabled={processingCustom}>
-                                    {processingCustom ? 'Menyimpan...' : 'Simpan Periode'}
+                                    {processingCustom ? 'Saving...' : 'Save Period'}
                                 </PrimaryButton>
                             </div>
                         </form>

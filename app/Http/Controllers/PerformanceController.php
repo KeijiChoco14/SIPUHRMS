@@ -191,7 +191,7 @@ class PerformanceController extends Controller
             );
 
             return redirect()->route('performance.index', ['period_id' => $period->id])
-                ->with('success', "Periode evaluasi '{$period->name}' berhasil ditambahkan.");
+                ->with('success', "Evaluation period '{$period->name}' was added successfully.");
         }
 
         $validated = $request->validate([
@@ -204,7 +204,7 @@ class PerformanceController extends Controller
         $period = PerformancePeriod::create($validated);
 
         return redirect()->route('performance.index', ['period_id' => $period->id])
-            ->with('success', "Periode evaluasi '{$period->name}' berhasil dibuat.");
+            ->with('success', "Evaluation period '{$period->name}' was created successfully.");
     }
 
     public function destroyPeriod($id)
@@ -216,7 +216,7 @@ class PerformanceController extends Controller
         $period->delete();
 
         return redirect()->route('performance.index')
-            ->with('success', "Periode '{$name}' berhasil dihapus.");
+            ->with('success', "Period '{$name}' was deleted successfully.");
     }
 
     public function calculate(Request $request)
@@ -234,6 +234,6 @@ class PerformanceController extends Controller
         }
 
         return redirect()->route('performance.index', ['period_id' => $period->id])
-            ->with('success', "Skor EPI untuk periode '{$period->name}' berhasil dihitung.");
+            ->with('success', "EPI scores for period '{$period->name}' were calculated successfully.");
     }
 }

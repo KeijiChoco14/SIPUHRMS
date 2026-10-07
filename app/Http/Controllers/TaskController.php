@@ -223,11 +223,11 @@ class TaskController extends Controller
 
         if ($isStatusOrScheduleUpdate) {
             if (!$isCreator && !$isAssignee) {
-                abort(403, 'Anda tidak memiliki akses untuk mengubah jadwal atau status task ini.');
+                abort(403, 'You do not have permission to modify the schedule or status of this task.');
             }
         } else {
             if (!$isCreator) {
-                abort(403, 'Hanya pembuat task atau admin yang dapat mengubah informasi lengkap task ini.');
+                abort(403, 'Only the task creator or an administrator can modify full details of this task.');
             }
         }
 
@@ -303,7 +303,7 @@ class TaskController extends Controller
             || $user->hasRole('Super Admin');
 
         if (!$isCreator) {
-            abort(403, 'Hanya pembuat task, pemilik project, atau Super Admin yang dapat menghapus task ini.');
+            abort(403, 'Only the task creator, project owner, or Super Admin can delete this task.');
         }
 
         $task->delete();
@@ -325,7 +325,7 @@ class TaskController extends Controller
         $task->activities()->create([
             'employee_id' => $employee->id,
             'action' => 'task_acknowledged',
-            'description' => "Telah mengonfirmasi dan menerima tugas",
+            'description' => "Acknowledged and accepted the task assignment",
         ]);
 
         return back()->with('success', 'Task acknowledged successfully.');

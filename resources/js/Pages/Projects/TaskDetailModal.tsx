@@ -282,7 +282,7 @@ export default function TaskDetailModal({
                     <span>{mentionedName}</span>
                     {isCurrentUser && (
                         <span className="text-[10px] font-bold text-amber-700 bg-amber-200/70 px-1 rounded ml-0.5">
-                            Anda
+                            You
                         </span>
                     )}
                 </span>
@@ -336,7 +336,7 @@ export default function TaskDetailModal({
     };
 
     const deleteComment = (commentId: number) => {
-        if (confirm('Apakah Anda yakin ingin menghapus komentar ini?')) {
+        if (confirm('Are you sure you want to delete this comment?')) {
             router.delete(route('tasks.comments.destroy', commentId), {
                 preserveScroll: true,
             });
@@ -358,7 +358,7 @@ export default function TaskDetailModal({
     const handleSaveTask = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editData.title.trim()) {
-            setEditError('Judul task wajib diisi.');
+            setEditError('Task title is required.');
             return;
         }
 
@@ -380,13 +380,13 @@ export default function TaskDetailModal({
             },
             onError: (errs) => {
                 setIsSaving(false);
-                setEditError(Object.values(errs)[0] as string || 'Terjadi kesalahan saat menyimpan.');
+                setEditError(Object.values(errs)[0] as string || 'An error occurred while saving.');
             },
         });
     };
 
     const handleDeleteTask = () => {
-        if (confirm(`Apakah Anda yakin ingin menghapus task "${task.title}"?`)) {
+        if (confirm(`Are you sure you want to delete task "${task.title}"?`)) {
             setIsDeleting(true);
             router.delete(route('tasks.destroy', task.id), {
                 preserveScroll: true,
@@ -471,7 +471,7 @@ export default function TaskDetailModal({
                                         {task.deadline && (
                                             <span className="flex items-center gap-1">
                                                 <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                Deadline: {new Date(task.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                Deadline: {new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </span>
                                         )}
                                     </div>
@@ -480,9 +480,9 @@ export default function TaskDetailModal({
                                 <div>
                                     <h3 className="text-lg font-bold text-indigo-700 flex items-center gap-2">
                                         <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                        Edit Informasi & Assignee Task
+                                        Edit Task Information & Assignees
                                     </h3>
-                                    <p className="text-xs text-gray-500 mt-0.5">Ubah judul, detail, atau tambah/kurang orang yang di-assign</p>
+                                    <p className="text-xs text-gray-500 mt-0.5">Update title, details, or manage assigned team members</p>
                                 </div>
                             )}
                         </div>
@@ -508,7 +508,7 @@ export default function TaskDetailModal({
                                     }}
                                     className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors"
                                 >
-                                    Batal Edit
+                                    Cancel Edit
                                 </button>
                             ))}
                             <button
@@ -564,14 +564,14 @@ export default function TaskDetailModal({
                                 {/* Title */}
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Judul Task <span className="text-red-500">*</span>
+                                        Task Title <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         value={editData.title}
                                         onChange={(e) => setEditData({ ...editData, title: e.target.value })}
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-medium"
-                                        placeholder="Tuliskan judul task..."
+                                        placeholder="Enter task title..."
                                         required
                                     />
                                 </div>
@@ -580,7 +580,7 @@ export default function TaskDetailModal({
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                            Prioritas <span className="text-red-500">*</span>
+                                            Priority <span className="text-red-500">*</span>
                                         </label>
                                         <select
                                             value={editData.priority}
@@ -610,7 +610,7 @@ export default function TaskDetailModal({
 
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                            Tenggat Waktu (Deadline)
+                                            Due Date (Deadline)
                                         </label>
                                         <input
                                             type="date"
@@ -625,14 +625,14 @@ export default function TaskDetailModal({
                                 <div>
                                     <div className="flex items-center justify-between mb-1">
                                         <label className="block text-sm font-semibold text-gray-700">
-                                            Orang yang Ditugaskan (Assignees)
+                                            Assignees
                                         </label>
                                         <span className="text-xs text-gray-400">
-                                            {editData.assignees.length} orang terpilih
+                                            {editData.assignees.length} selected
                                         </span>
                                     </div>
                                     <p className="text-xs text-gray-500 mb-2">
-                                        Pilih departemen untuk memfilter staf, lalu pilih nama staf untuk menambah orang yang di-assign ke task ini.
+                                        Filter by department or select team members to assign them to this task.
                                     </p>
                                     <AssigneeSelect
                                         employees={employees}
@@ -644,13 +644,13 @@ export default function TaskDetailModal({
                                 {/* Description */}
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Deskripsi Task
+                                        Task Description
                                     </label>
                                     <textarea
                                         value={editData.description}
                                         onChange={(e) => setEditData({ ...editData, description: e.target.value })}
                                         rows={4}
-                                        placeholder="Rincian instruksi atau catatan mengenai task ini..."
+                                        placeholder="Instructions or notes regarding this task..."
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                     />
                                 </div>
@@ -669,10 +669,10 @@ export default function TaskDetailModal({
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                                 </svg>
-                                                <span>Menghapus...</span>
+                                                <span>Deleting...</span>
                                             </>
                                         ) : (
-                                            'Hapus Task'
+                                            'Delete Task'
                                         )}
                                     </button>
 
@@ -683,7 +683,7 @@ export default function TaskDetailModal({
                                             onClick={() => setIsEditing(false)}
                                             className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
                                         >
-                                            Batal
+                                            Cancel
                                         </button>
                                         <button
                                             type="submit"
@@ -696,10 +696,10 @@ export default function TaskDetailModal({
                                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                                     </svg>
-                                                    <span>Menyimpan...</span>
+                                                    <span>Saving...</span>
                                                 </>
                                             ) : (
-                                                'Simpan Perubahan'
+                                                'Save Changes'
                                             )}
                                         </button>
                                     </div>
@@ -713,10 +713,10 @@ export default function TaskDetailModal({
                                     <div className="space-y-6">
                                         {/* Description Card */}
                                         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                                            <h4 className="font-semibold text-gray-900 text-sm mb-2">Deskripsi</h4>
+                                            <h4 className="font-semibold text-gray-900 text-sm mb-2">Description</h4>
                                             <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
                                                 {task.description || (
-                                                    <span className="italic text-gray-400">Tidak ada deskripsi.</span>
+                                                    <span className="italic text-gray-400">No description provided.</span>
                                                 )}
                                             </div>
                                         </div>
@@ -724,7 +724,7 @@ export default function TaskDetailModal({
                                         {/* Assignees Card */}
                                         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                                             <div className="flex items-center justify-between mb-3">
-                                                <h4 className="font-semibold text-gray-900 text-sm">Orang yang Ditugaskan (Assignees)</h4>
+                                                <h4 className="font-semibold text-gray-900 text-sm">Assignees</h4>
                                                 {canEditTask && (
                                                     <button
                                                         type="button"
@@ -732,7 +732,7 @@ export default function TaskDetailModal({
                                                         className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-full border border-indigo-200 inline-flex items-center gap-1 transition-colors"
                                                     >
                                                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                                                        Tambah / Kelola Assignee
+                                                        Add / Manage Assignees
                                                     </button>
                                                 )}
                                             </div>
@@ -751,7 +751,7 @@ export default function TaskDetailModal({
                                                         {assignee.pivot?.acknowledged_at && (
                                                             <span
                                                                 className="ml-1 text-green-600 font-bold"
-                                                                title={`Diakui pada ${new Date(assignee.pivot.acknowledged_at).toLocaleString()}`}
+                                                                title={`Acknowledged on ${new Date(assignee.pivot.acknowledged_at).toLocaleString('en-US')}`}
                                                             >
                                                                 ✓
                                                             </span>
@@ -759,7 +759,7 @@ export default function TaskDetailModal({
                                                     </span>
                                                 ))}
                                                 {(!task.assignees || task.assignees.length === 0) && (
-                                                    <p className="text-sm text-gray-400 italic">Belum ada karyawan yang ditugaskan ke task ini.</p>
+                                                    <p className="text-sm text-gray-400 italic">No team members assigned to this task yet.</p>
                                                 )}
                                             </div>
                                         </div>
@@ -770,14 +770,14 @@ export default function TaskDetailModal({
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-amber-800">
-                                                            Anda ditugaskan pada task ini. Silakan konfirmasi penerimaan task.
+                                                            You are assigned to this task. Please acknowledge receipt.
                                                         </p>
                                                     </div>
                                                     <button
                                                         onClick={acknowledgeTask}
                                                         className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition-colors shrink-0 ml-4"
                                                     >
-                                                        Konfirmasi Penerimaan Task
+                                                        Acknowledge Task
                                                     </button>
                                                 </div>
                                             </div>
@@ -792,7 +792,7 @@ export default function TaskDetailModal({
                                                     className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center gap-1.5"
                                                 >
                                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                                    Edit Informasi & Assignee
+                                                    Edit Information & Assignees
                                                 </button>
                                             </div>
                                         )}
@@ -807,7 +807,7 @@ export default function TaskDetailModal({
                                                 type="text"
                                                 value={checklistForm.data.title}
                                                 onChange={(e) => checklistForm.setData('title', e.target.value)}
-                                                placeholder="Tambah item checklist baru..."
+                                                placeholder="Add new checklist item..."
                                                 className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                             />
                                             <button
@@ -815,7 +815,7 @@ export default function TaskDetailModal({
                                                 disabled={checklistForm.processing || !checklistForm.data.title.trim()}
                                                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
                                             >
-                                                Tambah
+                                                Add
                                             </button>
                                         </form>
 
@@ -837,12 +837,12 @@ export default function TaskDetailModal({
                                                         onClick={() => deleteChecklist(item)}
                                                         className="text-red-500 hover:text-red-700 text-xs font-medium ml-2 p-1 rounded hover:bg-red-50"
                                                     >
-                                                        Hapus
+                                                        Delete
                                                     </button>
                                                 </div>
                                             ))}
                                             {task.checklists?.length === 0 && (
-                                                <div className="p-6 text-center text-sm text-gray-400">Belum ada item checklist.</div>
+                                                <div className="p-6 text-center text-sm text-gray-400">No checklist items yet.</div>
                                             )}
                                         </div>
                                     </div>
@@ -853,7 +853,7 @@ export default function TaskDetailModal({
                                     <div className="space-y-4">
                                         <form onSubmit={uploadAttachment} className="flex items-end gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                                             <div className="flex-1">
-                                                <label className="block text-xs font-semibold text-gray-700 mb-1">Unggah Berkas Baru</label>
+                                                <label className="block text-xs font-semibold text-gray-700 mb-1">Upload New File</label>
                                                 <input
                                                     type="file"
                                                     onChange={(e) => attachmentForm.setData('file', e.target.files ? e.target.files[0] : null)}
@@ -889,7 +889,7 @@ export default function TaskDetailModal({
                                                                 {attachment.file_name}
                                                             </a>
                                                             <span className="text-[10px] text-gray-500">
-                                                                {(attachment.file_size / 1024).toFixed(1)} KB • Oleh {attachment.employee?.user?.name || 'Karyawan'}
+                                                                {(attachment.file_size / 1024).toFixed(1)} KB • By {attachment.employee?.user?.name || 'Employee'}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -904,7 +904,7 @@ export default function TaskDetailModal({
                                         </div>
                                         {task.attachments?.length === 0 && (
                                             <div className="text-center py-8 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
-                                                Belum ada berkas lampiran.
+                                                No attachments uploaded yet.
                                             </div>
                                         )}
                                     </div>
@@ -936,13 +936,13 @@ export default function TaskDetailModal({
                                                                     {comment.employee?.user?.profile_photo_url ? (
                                                                         <img src={comment.employee.user.profile_photo_url} alt="" className="h-full w-full object-cover" />
                                                                     ) : (
-                                                                        (comment.employee?.user?.name || 'K').charAt(0).toUpperCase()
+                                                                        (comment.employee?.user?.name || 'E').charAt(0).toUpperCase()
                                                                     )}
                                                                 </div>
                                                                 <div>
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="font-semibold text-xs text-gray-900">
-                                                                            {comment.employee?.user?.name || 'Karyawan'}
+                                                                            {comment.employee?.user?.name || 'Employee'}
                                                                         </span>
                                                                         {comment.employee?.department?.name && (
                                                                             <span className="text-[10px] text-gray-400 hidden sm:inline">
@@ -954,12 +954,12 @@ export default function TaskDetailModal({
                                                                                 <svg className="w-2.5 h-2.5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
                                                                                     <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                                                                                 </svg>
-                                                                                Menandai Anda
+                                                                                Mentioned You
                                                                             </span>
                                                                         )}
                                                                     </div>
                                                                     <div className="text-[10px] text-gray-400">
-                                                                        {new Date(comment.created_at).toLocaleString('id-ID', {
+                                                                        {new Date(comment.created_at).toLocaleString('en-US', {
                                                                             day: 'numeric',
                                                                             month: 'short',
                                                                             year: 'numeric',
@@ -975,7 +975,7 @@ export default function TaskDetailModal({
                                                                     type="button"
                                                                     onClick={() => deleteComment(comment.id)}
                                                                     className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1 rounded-md transition-colors"
-                                                                    title="Hapus Komentar"
+                                                                    title="Delete Comment"
                                                                 >
                                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                                 </button>
@@ -989,7 +989,7 @@ export default function TaskDetailModal({
                                             })}
                                             {task.comments?.length === 0 && (
                                                 <div className="text-center py-8 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
-                                                    Belum ada komentar. Mulai diskusi dan gunakan <span className="font-semibold text-indigo-600">@</span> untuk menandai rekan kerja!
+                                                    No comments yet. Start the conversation and use <span className="font-semibold text-indigo-600">@</span> to mention teammates!
                                                 </div>
                                             )}
                                         </div>
@@ -1004,9 +1004,9 @@ export default function TaskDetailModal({
                                                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                                                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
                                                             </span>
-                                                            Pilih Rekan untuk Ditandai (@)
+                                                            Select Teammate to Mention (@)
                                                         </span>
-                                                        <span className="text-[10px] text-gray-400">↑↓ navigasi • Enter pilih</span>
+                                                        <span className="text-[10px] text-gray-400">↑↓ navigate • Enter select</span>
                                                     </div>
                                                     <div className="max-h-52 overflow-y-auto py-1">
                                                         {filteredMentions.map((user, idx) => (
@@ -1030,7 +1030,7 @@ export default function TaskDetailModal({
                                                                         <span className="text-xs font-semibold truncate">{user.name}</span>
                                                                         {user.isAssignee && (
                                                                             <span className="text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-medium shrink-0">
-                                                                                Ditugaskan
+                                                                                Assigned
                                                                             </span>
                                                                         )}
                                                                     </div>
@@ -1052,7 +1052,7 @@ export default function TaskDetailModal({
                                                     onChange={handleCommentChange}
                                                     onKeyDown={handleCommentKeyDown}
                                                     rows={3}
-                                                    placeholder="Tuliskan komentar... Ketik @ untuk menandai rekan kerja agar mendapat notifikasi"
+                                                    placeholder="Write a comment... Type @ to mention teammates for notifications"
                                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs sm:text-sm mb-2"
                                                 />
                                             </div>
@@ -1096,13 +1096,13 @@ export default function TaskDetailModal({
                                                             onClick={() => setShowTagPicker(!showTagPicker)}
                                                             className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-gray-500 hover:text-indigo-600 hover:border-indigo-400 bg-white transition-colors flex items-center gap-1"
                                                         >
-                                                            <span>+ Pilih Karyawan</span>
+                                                            <span>+ Select Employee</span>
                                                         </button>
 
                                                         {showTagPicker && (
                                                             <div className="absolute bottom-full mb-2 left-0 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-2">
                                                                 <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-gray-100">
-                                                                    <span className="text-xs font-semibold text-gray-800">Tag Rekan Kerja</span>
+                                                                    <span className="text-xs font-semibold text-gray-800">Mention Teammate</span>
                                                                     <button 
                                                                         type="button" 
                                                                         onClick={() => setShowTagPicker(false)}
@@ -1141,7 +1141,7 @@ export default function TaskDetailModal({
                                                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                                                         </svg>
-                                                        <span>Kirim Komentar</span>
+                                                        <span>Post Comment</span>
                                                     </button>
                                                 </div>
                                             </div>
@@ -1152,7 +1152,7 @@ export default function TaskDetailModal({
                                                     <svg className="w-3.5 h-3.5 text-indigo-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                                                     </svg>
-                                                    <span>Rekan yang ditandai (@) akan otomatis menerima notifikasi dan email agar tidak tertinggal info ini.</span>
+                                                    <span>Mentioned teammates (@) will automatically receive notifications and emails so they don't miss updates.</span>
                                                 </div>
                                             )}
                                         </form>
@@ -1173,7 +1173,7 @@ export default function TaskDetailModal({
                                                     <div className="flex flex-col">
                                                         <span className="text-xs sm:text-sm font-semibold text-gray-900">{activity.description}</span>
                                                         <span className="text-[10px] text-gray-500 mt-0.5">
-                                                            Oleh {activity.employee?.user?.name || 'System'} • {new Date(activity.created_at).toLocaleString('id-ID')}
+                                                            By {activity.employee?.user?.name || 'System'} • {new Date(activity.created_at).toLocaleString('en-US')}
                                                         </span>
                                                         {activity.old_value && activity.new_value && (
                                                             <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 border rounded-lg inline-block">
@@ -1186,7 +1186,7 @@ export default function TaskDetailModal({
                                                 </li>
                                             ))}
                                             {task.activities?.length === 0 && (
-                                                <div className="text-sm text-gray-400 ml-4">Belum ada riwayat aktivitas.</div>
+                                                <div className="text-sm text-gray-400 ml-4">No activity history yet.</div>
                                             )}
                                         </ul>
                                     </div>

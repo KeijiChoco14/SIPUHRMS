@@ -45,9 +45,9 @@ class DashboardController extends Controller
         $isSupervisor = $user->hasRole('Supervisor') || $user->hasRole('Head of Department');
         $isAdmin = $isSuperAdmin || $isHRD || $isGM;
 
-        // Validasi hak akses: Modul HR khusus untuk HRD, GM, dan Super Admin
+        // Access validation: HR module is restricted to HRD, GM, and Super Admin
         if ($view === 'hr' && !$isAdmin) {
-            abort(403, 'Akses Ditolak: Modul Human Resources (HR) hanya dapat diakses oleh HRD, General Manager, atau Administrator.');
+            abort(403, 'Access Denied: The Human Resources (HR) module can only be accessed by HRD, General Manager, or Administrator.');
         }
 
         // Dynamic badge counters

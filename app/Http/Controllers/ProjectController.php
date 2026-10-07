@@ -27,7 +27,7 @@ class ProjectController extends Controller
         $isCreator = $project->created_by === $user->id;
 
         if (!$isOwner && !$isMember && !$isCreator) {
-            abort(403, 'Anda tidak memiliki akses ke project ini.');
+            abort(403, 'You do not have access to this project.');
         }
     }
     public function index(Request $request)
@@ -144,7 +144,7 @@ class ProjectController extends Controller
             || $user->hasRole('Super Admin');
 
         if (!$isCreator) {
-            abort(403, 'Hanya pembuat project, pemilik project, atau Super Admin yang dapat mengubah atau menghapus project ini.');
+            abort(403, 'Only the project creator, project owner, or Super Admin can modify or delete this project.');
         }
     }
 
@@ -186,7 +186,7 @@ class ProjectController extends Controller
         $name = $project->name;
         $project->delete();
 
-        return redirect()->route('projects.index')->with('success', "Project '{$name}' berhasil dihapus.");
+        return redirect()->route('projects.index')->with('success', "Project '{$name}' was deleted successfully.");
     }
 
     public function archive(Project $project)
@@ -195,7 +195,7 @@ class ProjectController extends Controller
 
         $project->update(['status' => ProjectStatus::Archived->value]);
 
-        return back()->with('success', 'Project berhasil diarsipkan.');
+        return back()->with('success', 'Project archived successfully.');
     }
 
     public function restore(Project $project)
@@ -204,6 +204,6 @@ class ProjectController extends Controller
 
         $project->update(['status' => ProjectStatus::Active->value]);
 
-        return back()->with('success', 'Project berhasil dipulihkan.');
+        return back()->with('success', 'Project restored successfully.');
     }
 }

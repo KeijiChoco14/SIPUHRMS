@@ -69,9 +69,9 @@ class TaskCommentController extends Controller
             ? \App\Models\User::whereIn('id', $taggedUserIds)->pluck('name')->implode(', ')
             : null;
 
-        $activityDesc = 'Menambahkan komentar: "' . \Illuminate\Support\Str::limit($validated['content'], 40) . '"';
+        $activityDesc = 'Added comment: "' . \Illuminate\Support\Str::limit($validated['content'], 40) . '"';
         if ($taggedNames) {
-            $activityDesc .= ' (Menandai: ' . $taggedNames . ')';
+            $activityDesc .= ' (Mentioned: ' . $taggedNames . ')';
         }
 
         $task->activities()->create([
@@ -98,7 +98,7 @@ class TaskCommentController extends Controller
             $task->activities()->create([
                 'employee_id' => $employeeId,
                 'action' => 'comment_deleted',
-                'description' => 'Menghapus komentar',
+                'description' => 'Deleted comment',
             ]);
         }
 

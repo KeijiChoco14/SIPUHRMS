@@ -67,7 +67,7 @@ export default function EditProjectModal({
     };
 
     const handleDelete = () => {
-        if (confirm(`Apakah Anda yakin ingin menghapus project "${project.name}"? Semua task di dalamnya akan terhapus.`)) {
+        if (confirm(`Are you sure you want to delete project "${project.name}"? All tasks within it will also be deleted.`)) {
             router.delete(route('projects.destroy', project.id), {
                 onSuccess: () => onClose(),
             });
@@ -91,7 +91,7 @@ export default function EditProjectModal({
                         <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold leading-6">Edit Project</h3>
-                                <p className="text-xs text-indigo-100 mt-0.5">Ubah informasi project jika ada kesalahan penulisan</p>
+                                <p className="text-xs text-indigo-100 mt-0.5">Update project information and settings</p>
                             </div>
                             <button
                                 type="button"
@@ -109,13 +109,13 @@ export default function EditProjectModal({
                             {/* Project Name */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                    Nama Project <span className="text-red-500">*</span>
+                                    Project Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="Contoh: Renovasi Restoran Lt. 2"
+                                    placeholder="e.g. Restaurant 2nd Floor Renovation"
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                     required
                                 />
@@ -126,7 +126,7 @@ export default function EditProjectModal({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Status Project <span className="text-red-500">*</span>
+                                        Project Status <span className="text-red-500">*</span>
                                     </label>
                                     <select
                                         value={data.status}
@@ -145,14 +145,14 @@ export default function EditProjectModal({
 
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Departemen / Divisi
+                                        Department / Division
                                     </label>
                                     <select
                                         value={data.department_id}
                                         onChange={(e) => setData('department_id', e.target.value)}
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                     >
-                                        <option value="">Pilih Departemen</option>
+                                        <option value="">Select Department</option>
                                         {departments.map((dept) => (
                                             <option key={dept.id} value={dept.id}>
                                                 {dept.name}
@@ -173,7 +173,7 @@ export default function EditProjectModal({
                                     onChange={(e) => setData('owner_id', e.target.value)}
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 >
-                                    <option value="">Pilih Penanggung Jawab</option>
+                                    <option value="">Select Owner / PIC</option>
                                     {employees.map((emp) => (
                                         <option key={emp.id} value={emp.id}>
                                             {emp.user?.name || emp.employee_number} {emp.department?.name ? `(${emp.department.name})` : ''}
@@ -187,7 +187,7 @@ export default function EditProjectModal({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Tanggal Mulai
+                                        Start Date
                                     </label>
                                     <input
                                         type="date"
@@ -199,7 +199,7 @@ export default function EditProjectModal({
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Tenggat Waktu (Deadline)
+                                        Due Date (Deadline)
                                     </label>
                                     <input
                                         type="date"
@@ -214,13 +214,13 @@ export default function EditProjectModal({
                             {/* Description */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                    Deskripsi Project
+                                    Project Description
                                 </label>
                                 <textarea
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
                                     rows={4}
-                                    placeholder="Rincian dan tujuan project..."
+                                    placeholder="Project details and objectives..."
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 />
                                 {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
@@ -234,7 +234,7 @@ export default function EditProjectModal({
                                 onClick={handleDelete}
                                 className="w-full sm:w-auto text-xs text-red-600 hover:text-red-800 font-semibold px-3 py-2 rounded border border-red-200 hover:bg-red-50 transition-colors"
                             >
-                                Hapus Project
+                                Delete Project
                             </button>
 
                             <div className="flex w-full sm:w-auto justify-end gap-2">
@@ -243,14 +243,14 @@ export default function EditProjectModal({
                                     onClick={onClose}
                                     className="w-full sm:w-auto px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                 >
-                                    Batal
+                                    Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
                                     className="w-full sm:w-auto px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow-sm transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
                                 >
-                                    {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                    {processing ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
                         </div>

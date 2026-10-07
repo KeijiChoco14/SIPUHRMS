@@ -47,26 +47,26 @@ class MasterKeyStatusNotification extends Notification
     {
         $keyNum = $this->masterKeyRequest->key_number;
         $reqNum = $this->masterKeyRequest->request_number;
-        $staffName = $this->masterKeyRequest->employee?->user?->name ?? 'Staf';
+        $staffName = $this->masterKeyRequest->employee?->user?->name ?? 'Staff';
 
         if ($this->type === 'NEW_REQUEST') {
-            $title = 'Permohonan Master Key Baru';
-            $message = "Permohonan akses {$keyNum} ({$reqNum}) oleh {$staffName} membutuhkan persetujuan Anda.";
+            $title = 'New Master Key Request';
+            $message = "Key request for {$keyNum} ({$reqNum}) by {$staffName} requires your approval.";
         } elseif ($this->type === 'EXPIRING_SOON') {
             $days = $this->masterKeyRequest->days_remaining;
-            $title = 'Peringatan: Master Key Segera Berakhir';
-            $message = "Akses kunci {$keyNum} ({$reqNum}) akan kedaluwarsa dalam {$days} hari. Segera lakukan perpanjangan 3 bulan.";
+            $title = 'Notice: Master Key Expiring Soon';
+            $message = "Key access for {$keyNum} ({$reqNum}) expires in {$days} days. Please proceed with the 3-month renewal.";
         } else {
             // STATUS_UPDATED
             $status = $this->masterKeyRequest->status;
             $statusText = match ($status) {
-                'Approved' => 'telah disetujui untuk masa aktif 3 bulan',
-                'Rejected' => 'telah ditolak',
-                'Revoked' => 'telah dicabut / dikembalikan',
-                default => 'telah diperbarui',
+                'Approved' => 'has been approved for a 3-month period',
+                'Rejected' => 'has been rejected',
+                'Revoked' => 'has been revoked / returned',
+                default => 'has been updated',
             };
-            $title = "Akses Master Key {$status}";
-            $message = $this->customMessage ?: "Permohonan akses {$keyNum} ({$reqNum}) {$statusText}.";
+            $title = "Master Key Access: {$status}";
+            $message = $this->customMessage ?: "Key request for {$keyNum} ({$reqNum}) {$statusText}.";
         }
 
         return [

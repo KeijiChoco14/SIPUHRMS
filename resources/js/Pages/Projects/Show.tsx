@@ -192,33 +192,33 @@ export default function Show({
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            if (confirm('Pulihkan project ini kembali ke status Aktif?')) {
+                                            if (confirm('Restore this project back to Active status?')) {
                                                 router.post(route('projects.restore', project.id));
                                             }
                                         }}
                                         className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                                        title="Pulihkan Project ke Status Aktif"
+                                        title="Restore Project to Active Status"
                                     >
                                         <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
-                                        Pulihkan Project
+                                        Restore Project
                                     </button>
                                 ) : (
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            if (confirm('Arsipkan project ini? Project yang diarsipkan akan disembunyikan dari daftar aktif agar tidak menumpuk.')) {
+                                            if (confirm('Archive this project? Archived projects will be hidden from the active list to prevent clutter.')) {
                                                 router.post(route('projects.archive', project.id));
                                             }
                                         }}
                                         className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                                        title="Arsipkan Project agar tidak menumpuk"
+                                        title="Archive Project"
                                     >
                                         <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                         </svg>
-                                        Arsipkan
+                                        Archive
                                     </button>
                                 )}
 
@@ -236,17 +236,17 @@ export default function Show({
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        if (confirm(`Apakah Anda yakin ingin menghapus project "${project.name}"? Semua task di dalamnya akan terhapus secara permanen.`)) {
+                                        if (confirm(`Are you sure you want to delete project "${project.name}"? All tasks inside it will be permanently deleted.`)) {
                                             router.delete(route('projects.destroy', project.id));
                                         }
                                     }}
                                     className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                                    title="Hapus Project Permanen"
+                                    title="Permanently Delete Project"
                                 >
                                     <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Hapus Project
+                                    Delete Project
                                 </button>
                             </>
                         )}
@@ -274,21 +274,21 @@ export default function Show({
                             <div className="flex items-center gap-3">
                                 <span className="text-2xl">📦</span>
                                 <div>
-                                    <p className="font-bold text-sm">Project ini Sedang Diarsipkan</p>
-                                    <p className="text-xs text-purple-700 mt-0.5">Project ini disembunyikan dari daftar proyek aktif agar tidak menumpuk. Anda dapat memulihkannya kapan saja ke status Aktif.</p>
+                                    <p className="font-bold text-sm">This Project is Archived</p>
+                                    <p className="text-xs text-purple-700 mt-0.5">This project is hidden from the active projects list to prevent clutter. You can restore it anytime to Active status.</p>
                                 </div>
                             </div>
                             {isProjectCreator && (
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        if (confirm('Pulihkan project ini kembali ke status Aktif?')) {
+                                        if (confirm('Restore this project back to Active status?')) {
                                             router.post(route('projects.restore', project.id));
                                         }
                                     }}
                                     className="px-3.5 py-1.5 bg-purple-700 hover:bg-purple-800 text-white rounded-lg text-xs font-semibold shrink-0 transition-colors shadow-sm"
                                 >
-                                    Pulihkan Project
+                                    Restore Project
                                 </button>
                             )}
                         </div>
@@ -336,19 +336,19 @@ export default function Show({
                                         />
                                     </div>
                                     <div className="flex justify-between items-center text-[10px] text-gray-400 mt-1">
-                                        <span>{completedTasks} dari {totalTasks} task selesai</span>
+                                        <span>{completedTasks} of {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'} completed</span>
                                     </div>
                                 </div>
 
                                 <div className="text-xs text-gray-500 flex items-center gap-3">
                                     {project.start_date && (
-                                        <span>Mulai: {new Date(project.start_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                        <span>Start: {new Date(project.start_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                     )}
                                     {project.deadline && (
                                         <span className={`font-medium flex items-center gap-1 ${isOverdue ? 'text-red-600 font-bold' : isCompleted ? 'text-emerald-600 font-semibold' : 'text-gray-600'}`}>
-                                            Deadline: {new Date(project.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                            Deadline: {new Date(project.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             {isOverdue && ' (Overdue)'}
-                                            {isCompleted && ' (Selesai)'}
+                                            {isCompleted && ' (Completed)'}
                                         </span>
                                     )}
                                 </div>
@@ -412,7 +412,7 @@ export default function Show({
                                                 <svg className="w-4 h-4 text-indigo-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                 </svg>
-                                                <span>Lepaskan ke {status}</span>
+                                                <span>Drop into {status}</span>
                                             </div>
                                         )}
 
@@ -458,7 +458,7 @@ export default function Show({
                                                         {canDrag && (
                                                             <span 
                                                                 className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
-                                                                title="Geser kartu task"
+                                                                title="Drag and drop task card"
                                                             >
                                                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                                     <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-12a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
@@ -568,37 +568,37 @@ export default function Show({
                             <form onSubmit={submitTask}>
                                 <div className="bg-white px-6 pt-5 pb-4">
                                     <h3 className="text-lg font-bold text-gray-900 mb-4" id="modal-title">
-                                        Tambah Task Baru ke {project.name}
+                                        Add New Task to {project.name}
                                     </h3>
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Judul Task <span className="text-red-500">*</span></label>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Task Title <span className="text-red-500">*</span></label>
                                             <input
                                                 type="text"
                                                 value={data.title}
                                                 onChange={(e) => setData('title', e.target.value)}
                                                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                                                placeholder="Judul task..."
+                                                placeholder="Task title..."
                                                 required
                                             />
                                             {errors.title && <div className="text-red-500 text-xs mt-1">{errors.title}</div>}
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Deskripsi</label>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
                                             <textarea
                                                 value={data.description}
                                                 onChange={(e) => setData('description', e.target.value)}
                                                 rows={3}
                                                 className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                                                placeholder="Rincian task..."
+                                                placeholder="Task details..."
                                             ></textarea>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Prioritas</label>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Priority</label>
                                                 <select
                                                     value={data.priority}
                                                     onChange={(e) => setData('priority', e.target.value)}
@@ -626,7 +626,7 @@ export default function Show({
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Tenggat Waktu (Deadline)</label>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Deadline</label>
                                             <input
                                                 type="date"
                                                 value={data.deadline}
@@ -636,7 +636,7 @@ export default function Show({
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Orang yang Ditugaskan (Assignees)</label>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Assignees</label>
                                             <AssigneeSelect
                                                 employees={employees}
                                                 selectedIds={data.assignees}
@@ -651,14 +651,14 @@ export default function Show({
                                         disabled={processing}
                                         className="w-full sm:w-auto inline-flex justify-center rounded-lg shadow-sm px-5 py-2 bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
                                     >
-                                        Simpan Task
+                                        Save Task
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setShowTaskModal(false)}
                                         className="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                     >
-                                        Batal
+                                        Cancel
                                     </button>
                                 </div>
                             </form>

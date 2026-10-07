@@ -67,7 +67,7 @@ export default function PerformanceShow({ employee, period, score, assessment, t
                                             <div className="w-full bg-gray-200 rounded-full h-2">
                                                 <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${score.completion_rate}%` }}></div>
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-1">{score.completed_tasks} of {score.assigned_tasks} tasks completed (hanya tugas yang dikonfirmasi)</p>
+                                            <p className="text-xs text-gray-500 mt-1">{score.completed_tasks} of {score.assigned_tasks} tasks completed (only acknowledged tasks)</p>
                                         </div>
 
                                         <div>
@@ -78,7 +78,7 @@ export default function PerformanceShow({ employee, period, score, assessment, t
                                             <div className="w-full bg-gray-200 rounded-full h-2">
                                                 <div className="bg-green-500 h-2 rounded-full" style={{ width: `${score.on_time_rate}%` }}></div>
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-1">{score.completed_on_time_tasks} of {score.completed_tasks} completed on time ({score.overdue_tasks} overdue / belum dikonfirmasi)</p>
+                                            <p className="text-xs text-gray-500 mt-1">{score.completed_on_time_tasks} of {score.completed_tasks} completed on time ({score.overdue_tasks} overdue / unacknowledged)</p>
                                         </div>
 
                                         <div>
@@ -154,24 +154,24 @@ export default function PerformanceShow({ employee, period, score, assessment, t
                             <div className="bg-white p-6 shadow-sm rounded-lg border border-gray-100">
                                 <div className="flex justify-between items-center mb-4 border-b pb-3">
                                     <div>
-                                        <h4 className="text-md font-semibold text-gray-900">Daftar Tugas Periode Ini ({tasks.length})</h4>
-                                        <p className="text-xs text-gray-500 mt-0.5">Hanya tugas yang berstatus "Done" DAN telah dikonfirmasi penerimaannya yang dihitung sebagai tugas selesai.</p>
+                                        <h4 className="text-md font-semibold text-gray-900">Tasks Evaluated in this Period ({tasks.length})</h4>
+                                        <p className="text-xs text-gray-500 mt-0.5">Only tasks with status "Done" AND acknowledged receipt count as completed tasks.</p>
                                     </div>
                                 </div>
 
                                 {tasks.length === 0 ? (
-                                    <p className="text-sm text-gray-500 py-4 text-center">Tidak ada tugas yang ditugaskan pada periode ini.</p>
+                                    <p className="text-sm text-gray-500 py-4 text-center">No tasks were assigned during this period.</p>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-gray-200 text-sm">
                                             <thead className="bg-gray-50">
                                                 <tr>
-                                                    <th className="px-4 py-3 text-left font-semibold text-gray-600">Judul Tugas</th>
+                                                    <th className="px-4 py-3 text-left font-semibold text-gray-600">Task Title</th>
                                                     <th className="px-4 py-3 text-left font-semibold text-gray-600">Project</th>
-                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">Prioritas</th>
-                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">Status Tugas</th>
-                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">Konfirmasi (Acknowledge)</th>
-                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">Kredit Poin EPI</th>
+                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">Priority</th>
+                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">Task Status</th>
+                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">Acknowledgment</th>
+                                                    <th className="px-4 py-3 text-center font-semibold text-gray-600">EPI Point Credit</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100 bg-white">
@@ -186,7 +186,7 @@ export default function PerformanceShow({ employee, period, score, assessment, t
                                                                 {task.title}
                                                                 {task.deadline && (
                                                                     <div className="text-xs text-gray-400 font-normal">
-                                                                        Deadline: {new Date(task.deadline).toLocaleDateString('id-ID')}
+                                                                        Deadline: {new Date(task.deadline).toLocaleDateString('en-US')}
                                                                     </div>
                                                                 )}
                                                             </td>
@@ -211,25 +211,25 @@ export default function PerformanceShow({ employee, period, score, assessment, t
                                                                         <svg className="w-3 h-3 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                                                         </svg>
-                                                                        Dikonfirmasi
+                                                                        Acknowledged
                                                                     </span>
                                                                 ) : (
                                                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                                                                         <svg className="w-3 h-3 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                                                         </svg>
-                                                                        Belum Dikonfirmasi
+                                                                        Unacknowledged
                                                                     </span>
                                                                 )}
                                                             </td>
                                                             <td className="px-4 py-3 text-center">
                                                                 {getsCredit ? (
                                                                     <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
-                                                                        +1 Selesai
+                                                                        +1 Completed
                                                                     </span>
                                                                 ) : isDone && !isAck ? (
-                                                                    <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded" title="Task selesai tapi Anda tidak pernah mengonfirmasi penerimaan tugas">
-                                                                        Tidak Terhitung (Unacknowledged)
+                                                                    <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded" title="Task completed but receipt was never acknowledged">
+                                                                        Not Counted (Unacknowledged)
                                                                     </span>
                                                                 ) : (
                                                                     <span className="text-xs text-gray-400">

@@ -23,7 +23,7 @@ class TaskChecklistController extends Controller
         $task->activities()->create([
             'employee_id' => $employeeId,
             'action' => 'checklist_added',
-            'description' => "Menambahkan checklist: \"{$validated['title']}\"",
+            'description' => "Added checklist item: \"{$validated['title']}\"",
         ]);
 
         return back()->with('success', 'Checklist item added.');
@@ -41,11 +41,11 @@ class TaskChecklistController extends Controller
         ]);
 
         $employeeId = Auth::user()->employee?->id;
-        $statusText = $validated['is_completed'] ? 'menyelesaikan' : 'membatalkan penyelesaian';
+        $statusText = $validated['is_completed'] ? 'completed' : 'unmarked';
         $checklist->task?->activities()->create([
             'employee_id' => $employeeId,
             'action' => 'checklist_updated',
-            'description' => "Telah {$statusText} checklist: \"{$checklist->title}\"",
+            'description' => "Marked checklist item as {$statusText}: \"{$checklist->title}\"",
         ]);
 
         return back()->with('success', 'Checklist updated.');
@@ -63,7 +63,7 @@ class TaskChecklistController extends Controller
             $task->activities()->create([
                 'employee_id' => $employeeId,
                 'action' => 'checklist_deleted',
-                'description' => "Menghapus checklist: \"{$title}\"",
+                'description' => "Deleted checklist item: \"{$title}\"",
             ]);
         }
 

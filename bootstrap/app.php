@@ -38,41 +38,41 @@ $app = Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->render(function (UnauthorizedException $e, Request $request) {
-            $message = 'Anda tidak memiliki hak akses (role/perizinan) yang dibutuhkan untuk mengakses halaman atau modul ini.';
+            $message = 'You do not have the required permissions or role to access this page or module.';
             if ($request->is('api/*') || $request->expectsJson() || $request->wantsJson()) {
                 return response()->json(['message' => $message], 403);
             }
 
             return Inertia::render('Error', [
                 'status' => 403,
-                'title' => 'Akses Ditolak (403 Forbidden)',
+                'title' => 'Access Denied (403 Forbidden)',
                 'message' => $message,
             ])->toResponse($request)->setStatusCode(403);
         });
 
         $exceptions->render(function (AuthorizationException $e, Request $request) {
-            $message = $e->getMessage() ?: 'Anda tidak memiliki hak akses untuk melakukan tindakan ini.';
+            $message = $e->getMessage() ?: 'You do not have permission to perform this action.';
             if ($request->is('api/*') || $request->expectsJson() || $request->wantsJson()) {
                 return response()->json(['message' => $message], 403);
             }
 
             return Inertia::render('Error', [
                 'status' => 403,
-                'title' => 'Akses Ditolak (403 Forbidden)',
+                'title' => 'Access Denied (403 Forbidden)',
                 'message' => $message,
             ])->toResponse($request)->setStatusCode(403);
         });
 
         $exceptions->render(function (HttpException $e, Request $request) {
             if ($e->getStatusCode() === 403) {
-                $message = $e->getMessage() ?: 'Anda tidak memiliki hak akses untuk membuka halaman atau modul ini.';
+                $message = $e->getMessage() ?: 'You do not have permission to access this page or module.';
                 if ($request->is('api/*') || $request->expectsJson() || $request->wantsJson()) {
                     return response()->json(['message' => $message], 403);
                 }
 
                 return Inertia::render('Error', [
                     'status' => 403,
-                    'title' => 'Akses Ditolak (403 Forbidden)',
+                    'title' => 'Access Denied (403 Forbidden)',
                     'message' => $message,
                 ])->toResponse($request)->setStatusCode(403);
             }

@@ -28,7 +28,7 @@ class AttendanceController extends Controller
     {
         $user = Auth::user();
         if (! $user->employee) {
-            abort(403, 'Akun Anda belum terhubung dengan data karyawan aktif.');
+            abort(403, 'Your account is not linked to an active employee record.');
         }
 
         $month = $request->query('month', date('Y-m'));

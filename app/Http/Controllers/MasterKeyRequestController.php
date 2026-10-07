@@ -316,25 +316,25 @@ class MasterKeyRequestController extends Controller
         ]);
 
         $typeLabels = [
-            'create_new' => 'Create New (Kunci Baru)',
-            'extension' => 'Extension (Perpanjangan 3 Bulan)',
-            'replacement' => 'Replacement (Penggantian Kunci)',
+            'create_new' => 'Create New Key',
+            'extension' => 'Key Extension (3 Months)',
+            'replacement' => 'Key Replacement',
         ];
-        $typeLabel = $typeLabels[$validated['request_type']] ?? 'Permohonan Kunci';
+        $typeLabel = $typeLabels[$validated['request_type']] ?? 'Key Request';
 
-        // Catat di Audit Log lengkap dengan username, nama pemegang, tanggal request, dan remark
+        // Record in Audit Log with username, requester name, date requested, and remark
         AuditLog::log([
             'action' => 'REQUEST_MASTER_KEY',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
-            'description' => "[{$typeLabel}] Diajukan oleh '{$requestBy}' (Akun: {$requestedByUsername}) pada " . $requestedAt->format('Y-m-d H:i:s') . ". Kunci: {$masterKeyRequest->key_number} ({$masterKeyRequest->request_number}). Remark: {$masterKeyRequest->remark}",
+            'description' => "[{$typeLabel}] Requested by '{$requestBy}' (Account: {$requestedByUsername}) on " . $requestedAt->format('Y-m-d H:i:s') . ". Key: {$masterKeyRequest->key_number} ({$masterKeyRequest->request_number}). Remark: {$masterKeyRequest->remark}",
             'new_values' => $masterKeyRequest->toArray(),
         ]);
 
         // Send In-App Notification to Executive Housekeeper (HOD) and Admins
         $this->notifyApprovers($masterKeyRequest);
 
-        return redirect()->route('master-keys.index')->with('success', "Form permohonan {$typeLabel} untuk master key {$masterKeyRequest->key_number} berhasil diajukan dengan status [On Request].");
+        return redirect()->route('master-keys.index')->with('success', "{$typeLabel} form for master key {$masterKeyRequest->key_number} was successfully submitted with status [On Request].");
     }
 
     /**
@@ -344,7 +344,7 @@ class MasterKeyRequestController extends Controller
     public function updateStatus(Request $request, MasterKeyRequest $masterKeyRequest)
     {
         if (!$this->ensureTableExists()) {
-            return back()->with('error', 'Tabel master_key_requests belum tersedia di database. Silakan jalankan "php artisan migrate" di server terlebih dahulu.');
+            return back()->with('error', 'Table master_key_requests is not available in the database. Please run "php artisan migrate" on the server first.');
         }
 
         $user = Auth::user();
@@ -358,7 +358,7 @@ class MasterKeyRequestController extends Controller
         $canApprove = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK) || ($isSupervisor && $isHK);
 
         if (!$canApprove) {
-            return back()->with('error', 'Anda tidak memiliki hak akses untuk memproses permohonan ini.');
+            return back()->with('error', 'You do not have permission to process this request.');
         }
 
         $validated = $request->validate([
@@ -379,7 +379,7 @@ class MasterKeyRequestController extends Controller
             $updateData['done_by_user_id'] = $user->id;
             $updateData['done_by_username'] = $user->name;
             $updateData['done_at'] = $now;
-            $updateData['done_notes'] = $validated['done_notes'] ?? 'Permohonan master key telah diproses dan diserahkan (Done).';
+            $updateData['done_notes'] = $validated['done_notes'] ?? 'Master key request has been processed and handed over (Done).';
             if (!empty($validated['approver_signature'])) {
                 $updateData['approver_signature'] = $validated['approver_signature'];
             }
@@ -393,14 +393,14 @@ class MasterKeyRequestController extends Controller
 
         $masterKeyRequest->update($updateData);
 
-        // Catat ke Audit Log lengkap dengan username penanggung jawab dan kapan done
+        // Record to Audit Log with completed-by username and timestamp
         AuditLog::log([
             'action' => $newStatus === 'Done' ? 'DONE_MASTER_KEY' : 'REVERT_MASTER_KEY_STATUS',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
             'description' => $newStatus === 'Done'
-                ? "Permohonan master key {$masterKeyRequest->request_number} ditandai [DONE] oleh username '{$user->name}' pada " . $now->format('Y-m-d H:i:s') . ". Catatan: " . ($validated['done_notes'] ?? '-')
-                : "Status permohonan {$masterKeyRequest->request_number} dikembalikan ke [On Request] oleh username '{$user->name}' pada " . $now->format('Y-m-d H:i:s') . ".",
+                ? "Master key request {$masterKeyRequest->request_number} marked [DONE] by user '{$user->name}' on " . $now->format('Y-m-d H:i:s') . ". Notes: " . ($validated['done_notes'] ?? '-')
+                : "Request status for {$masterKeyRequest->request_number} reverted to [On Request] by user '{$user->name}' on " . $now->format('Y-m-d H:i:s') . ".",
             'old_values' => ['status' => $oldStatus],
             'new_values' => [
                 'status' => $newStatus,
@@ -422,8 +422,8 @@ class MasterKeyRequestController extends Controller
         }
 
         $msg = $newStatus === 'Done'
-            ? "Permohonan akses master key {$masterKeyRequest->request_number} berhasil diselesaikan (Status: Done)."
-            : "Status permohonan {$masterKeyRequest->request_number} berhasil diubah ke On Request.";
+            ? "Master key request {$masterKeyRequest->request_number} marked as completed (Status: Done)."
+            : "Master key request {$masterKeyRequest->request_number} status reverted to On Request.";
 
         return back()->with('success', $msg);
     }
@@ -434,7 +434,7 @@ class MasterKeyRequestController extends Controller
     public function export(Request $request): StreamedResponse
     {
         if (!$this->ensureTableExists()) {
-            abort(404, 'Tabel master_key_requests belum tersedia di database. Silakan jalankan "php artisan migrate" di server terlebih dahulu.');
+            abort(404, 'Table master_key_requests is not available in the database. Please run "php artisan migrate" on the server first.');
         }
 
         $user = Auth::user();
@@ -457,6 +457,7 @@ class MasterKeyRequestController extends Controller
             'requestedBy',
             'doneBy',
             'previousRequest',
+            'auditLogs.user',
         ])->latest();
 
         if (!$canManageAll) {
@@ -514,25 +515,25 @@ class MasterKeyRequestController extends Controller
 
             // Header row
             fputcsv($handle, [
-                'No. Registrasi',
-                'Tipe Form Permohonan',
-                'Remark / Alasan Permohonan',
+                'Registration No.',
+                'Request Form Type',
+                'Remark / Request Reason',
                 'Status',
-                'Diajukan oleh (Request by)',
-                'Username Akun Pemohon',
-                'Tanggal & Waktu Request',
-                'Username Penyelesai (Done By)',
-                'Kapan Done (Tanggal & Waktu)',
-                'Catatan Selesai (Done Notes)',
-                'NIK Pemegang',
-                'Departemen',
-                'Jabatan',
-                'No. Kunci Master',
-                'Tipe Kunci',
-                'Cakupan Area Kamar',
-                'Masa Berlaku Mulai',
-                'Masa Berlaku Sampai (3 Bulan)',
-                'Sisa Hari',
+                'Requested By',
+                'Requester Account Username',
+                'Request Date & Time',
+                'Completed By (Username)',
+                'Completion Date & Time',
+                'Completion Notes',
+                'Key Holder Employee ID',
+                'Department',
+                'Position',
+                'Master Key No.',
+                'Key Type',
+                'Room Range Access',
+                'Valid From',
+                'Valid Until (3 Months)',
+                'Days Remaining',
             ]);
 
             foreach ($records as $r) {
@@ -555,7 +556,7 @@ class MasterKeyRequestController extends Controller
                     $r->room_range_access,
                     $r->valid_from->format('Y-m-d'),
                     $r->valid_until->format('Y-m-d'),
-                    $r->status === 'Done' ? $r->days_remaining . ' hari' : '-',
+                    $r->status === 'Done' ? $r->days_remaining . ' days' : '-',
                 ]);
             }
 
@@ -610,7 +611,7 @@ class MasterKeyRequestController extends Controller
         $isOwner = $user->employee && $masterKeyRequest->employee_id === $user->employee->id;
 
         if (!$isSuperAdmin && !($isOwner && $masterKeyRequest->status === 'On Request')) {
-            return back()->with('error', 'Anda tidak memiliki hak untuk menghapus permohonan ini.');
+            return back()->with('error', 'You do not have permission to delete this request.');
         }
 
         $reqNumber = $masterKeyRequest->request_number;
@@ -620,10 +621,10 @@ class MasterKeyRequestController extends Controller
             'action' => 'DELETE_MASTER_KEY_REQUEST',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
-            'description' => "Permohonan master key {$reqNumber} telah dihapus oleh username '{$user->name}'.",
+            'description' => "Master key request {$reqNumber} was deleted by user '{$user->name}'.",
         ]);
 
-        return back()->with('success', "Permohonan {$reqNumber} berhasil dihapus.");
+        return back()->with('success', "Request {$reqNumber} successfully deleted.");
     }
 
     /**

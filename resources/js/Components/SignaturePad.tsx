@@ -10,7 +10,7 @@ interface SignaturePadProps {
 export default function SignaturePad({
     value,
     onChange,
-    title = 'Tanda Tangan Digital',
+    title = 'Digital Signature',
     height = 130,
 }: SignaturePadProps) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -131,7 +131,7 @@ export default function SignaturePad({
                         onClick={clearCanvas}
                         className="text-[11px] text-rose-600 hover:text-rose-800 font-semibold cursor-pointer transition-colors"
                     >
-                        Hapus / Ulangi
+                        Clear / Redo
                     </button>
                 )}
             </div>
@@ -156,7 +156,7 @@ export default function SignaturePad({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                         <span className="text-[11px] font-medium tracking-wide">
-                            Goreskan tanda tangan di sini (layar sentuh / mouse)
+                            Sign here (touch screen or mouse)
                         </span>
                     </div>
                 )}

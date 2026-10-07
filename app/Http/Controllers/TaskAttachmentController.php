@@ -34,7 +34,7 @@ class TaskAttachmentController extends Controller
         $task->activities()->create([
             'employee_id' => $employee->id,
             'action' => 'attachment_uploaded',
-            'description' => "Mengunggah berkas lampiran: {$file->getClientOriginalName()}",
+            'description' => "Uploaded attachment: {$file->getClientOriginalName()}",
         ]);
 
         return back()->with('success', 'Attachment uploaded.');
@@ -57,7 +57,7 @@ class TaskAttachmentController extends Controller
             $task->activities()->create([
                 'employee_id' => $employeeId,
                 'action' => 'attachment_deleted',
-                'description' => "Menghapus berkas lampiran: {$fileName}",
+                'description' => "Deleted attachment: {$fileName}",
             ]);
         }
 

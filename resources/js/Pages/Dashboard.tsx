@@ -42,14 +42,14 @@ interface AppItem {
 
 function getGreeting(): string {
     const hour = new Date().getHours();
-    if (hour < 11) return 'Selamat Pagi';
-    if (hour < 15) return 'Selamat Siang';
-    if (hour < 18) return 'Selamat Sore';
-    return 'Selamat Malam';
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    if (hour < 21) return 'Good Evening';
+    return 'Good Night';
 }
 
 function getTodayDate(): string {
-    return new Date().toLocaleDateString('id-ID', {
+    return new Date().toLocaleDateString('en-US', {
         weekday: 'long',
         day: 'numeric',
         month: 'long',
@@ -75,7 +75,7 @@ export default function Dashboard({
     const isHRD = user.roles?.some((r: any) => r.name === 'HRD / Admin');
     const isManager = user.roles?.some((r: any) => r.name === 'General Manager');
     const isSupervisor = user.roles?.some((r: any) => ['Supervisor', 'Head of Department'].includes(r.name));
-    // Hak akses level manajemen / HRD (Super Admin, HRD / Admin, General Manager)
+    // Management / HRD access level (Super Admin, HRD / Admin, General Manager)
     const isAdmin = isSuperAdmin || isHRD || isManager;
     const canViewPerformance = isAdmin;
     const canViewProjects = isAdmin || isSupervisor;
@@ -101,11 +101,11 @@ export default function Dashboard({
         {
             id: 'task-management',
             name: 'Task Management',
-            description: 'Kelola tugas tim, kanban board, dan jadwal kalender',
-            category: 'Operasional',
+            description: 'Manage team tasks, kanban boards, and calendar schedules',
+            category: 'Operations',
             action: () => router.get(route('dashboard'), { view: 'tasks' }),
             gradient: 'from-blue-500 to-indigo-600',
-            badge: launcherStats.activeTasks && launcherStats.activeTasks > 0 ? `${launcherStats.activeTasks} Tugas` : null,
+            badge: launcherStats.activeTasks && launcherStats.activeTasks > 0 ? `${launcherStats.activeTasks} Tasks` : null,
             badgeColor: 'bg-indigo-600',
             visible: true,
             icon: (
@@ -117,11 +117,11 @@ export default function Dashboard({
         {
             id: 'housekeeping-key',
             name: 'Housekeeping (HK)',
-            description: 'Form permohonan & perpanjangan master key access hotel',
-            category: 'Operasional Hotel',
+            description: 'Hotel master key access requests and extensions',
+            category: 'Hotel Operations',
             href: route('master-keys.index'),
             gradient: 'from-amber-500 to-orange-600',
-            badge: launcherStats.masterKeyOnRequest && launcherStats.masterKeyOnRequest > 0 ? `${launcherStats.masterKeyOnRequest} Request` : null,
+            badge: launcherStats.masterKeyOnRequest && launcherStats.masterKeyOnRequest > 0 ? `${launcherStats.masterKeyOnRequest} Requests` : null,
             badgeColor: 'bg-amber-500',
             visible: true,
             icon: (
@@ -133,11 +133,11 @@ export default function Dashboard({
         {
             id: 'human-resources',
             name: 'Human Resources (HR)',
-            description: 'Data karyawan, struktur divisi, absensi, cuti & penggajian',
+            description: 'Employee records, organization, attendance, leave & payroll',
             category: 'People & HR',
             action: () => router.get(route('dashboard'), { view: 'hr' }),
             gradient: 'from-purple-500 to-indigo-600',
-            badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staf` : null,
+            badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null,
             badgeColor: 'bg-purple-600',
             visible: isAdmin,
             icon: (
@@ -148,12 +148,12 @@ export default function Dashboard({
         },
         {
             id: 'employees',
-            name: 'Data Karyawan',
-            description: 'Kelola data identitas staf, riwayat jabatan, dan kontrak kerja',
+            name: 'Employee Records',
+            description: 'Manage employee identity, job history, and employment contracts',
             category: 'People & HR',
             href: route('employees.index'),
             gradient: 'from-fuchsia-600 to-pink-600',
-            badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staf` : null,
+            badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null,
             badgeColor: 'bg-fuchsia-600',
             visible: isAdmin,
             icon: (
@@ -164,10 +164,10 @@ export default function Dashboard({
         },
         {
             id: 'attendance',
-            name: isAdmin ? 'Presensi & Jadwal' : 'Presensi Saya',
+            name: isAdmin ? 'Attendance & Schedules' : 'My Attendance',
             description: isAdmin
-                ? 'Catatan kehadiran harian, absensi staf, dan roster shift'
-                : 'Catatan log kehadiran dan riwayat jam kerja harian Anda',
+                ? 'Daily attendance logs, employee clock-ins, and shift rosters'
+                : 'Your personal daily attendance records and work hours history',
             category: 'Time & Pay',
             href: isAdmin ? route('attendance.index') : route('attendance.my'),
             gradient: 'from-teal-500 to-emerald-600',
@@ -180,12 +180,12 @@ export default function Dashboard({
         },
         {
             id: 'leave',
-            name: 'Permohonan Cuti',
-            description: 'Pengajuan cuti tahunan, sakit, dan persetujuan atasan',
+            name: 'Leave Requests',
+            description: 'Annual leave, sick leave requests, and manager approvals',
             category: 'Time & Pay',
             href: route('leave.index'),
             gradient: 'from-sky-500 to-blue-600',
-            badge: launcherStats.pendingLeaves && launcherStats.pendingLeaves > 0 ? `${launcherStats.pendingLeaves} Menunggu` : null,
+            badge: launcherStats.pendingLeaves && launcherStats.pendingLeaves > 0 ? `${launcherStats.pendingLeaves} Pending` : null,
             badgeColor: 'bg-sky-600',
             visible: true,
             icon: (
@@ -196,12 +196,12 @@ export default function Dashboard({
         },
         {
             id: 'overtime',
-            name: 'Pengajuan Lembur',
-            description: 'Surat perintah kerja lembur (SPKL) dan kalkulasi jam',
+            name: 'Overtime Requests',
+            description: 'Overtime work orders (SPKL) and hour calculations',
             category: 'Time & Pay',
             href: route('overtime.index'),
             gradient: 'from-rose-500 to-red-600',
-            badge: launcherStats.pendingOvertime && launcherStats.pendingOvertime > 0 ? `${launcherStats.pendingOvertime} Menunggu` : null,
+            badge: launcherStats.pendingOvertime && launcherStats.pendingOvertime > 0 ? `${launcherStats.pendingOvertime} Pending` : null,
             badgeColor: 'bg-rose-600',
             visible: true,
             icon: (
@@ -212,10 +212,10 @@ export default function Dashboard({
         },
         {
             id: 'payroll',
-            name: isAdmin ? 'Payroll & Penggajian' : 'Slip Gaji Saya',
+            name: isAdmin ? 'Payroll Management' : 'My Payslips',
             description: isAdmin
-                ? 'Kelola payroll, generate gaji, dan laporan upah bulanan staf'
-                : 'Rincian slip gaji bulanan, tunjangan, dan arsip upah pribadi',
+                ? 'Manage payroll batches, generate salaries, and monthly compensation reports'
+                : 'Monthly payslip breakdown, allowances, and personal salary records',
             category: 'Time & Pay',
             href: isAdmin ? route('payroll.index') : route('payroll.my'),
             gradient: 'from-emerald-600 to-teal-700',
@@ -228,9 +228,9 @@ export default function Dashboard({
         },
         {
             id: 'projects',
-            name: 'Proyek Tim',
-            description: 'Pengelompokan project, target milestone, dan progres kerja',
-            category: 'Operasional',
+            name: 'Team Projects',
+            description: 'Project grouping, milestone targets, and work progress',
+            category: 'Operations',
             href: route('projects.index'),
             gradient: 'from-violet-500 to-purple-600',
             visible: canViewProjects,
@@ -242,9 +242,9 @@ export default function Dashboard({
         },
         {
             id: 'directory',
-            name: 'Direktori Staf',
-            description: 'Daftar kontak seluruh karyawan, divisi, dan jabatan',
-            category: 'Perusahaan',
+            name: 'Staff Directory',
+            description: 'Contact directory of all employees, departments, and positions',
+            category: 'Company',
             href: route('directory.index'),
             gradient: 'from-cyan-500 to-blue-500',
             visible: true,
@@ -256,9 +256,9 @@ export default function Dashboard({
         },
         {
             id: 'announcements',
-            name: 'Pengumuman',
-            description: 'Papan memo, berita resmi, dan pengumuman hotel',
-            category: 'Perusahaan',
+            name: 'Announcements',
+            description: 'Company memos, official news, and hotel announcements',
+            category: 'Company',
             href: route('announcements.index'),
             gradient: 'from-pink-500 to-rose-600',
             visible: true,
@@ -270,9 +270,9 @@ export default function Dashboard({
         },
         {
             id: 'documents',
-            name: 'Dokumen & SOP',
-            description: 'Repository berkas SOP, formulir, dan arsip digital hotel',
-            category: 'Perusahaan',
+            name: 'Documents & SOP',
+            description: 'Digital repository of SOPs, hotel forms, and policy archives',
+            category: 'Company',
             href: route('documents.index'),
             gradient: 'from-slate-600 to-gray-700',
             visible: true,
@@ -284,9 +284,9 @@ export default function Dashboard({
         },
         {
             id: 'performance',
-            name: 'Laporan & KPI',
-            description: 'Evaluasi kinerja karyawan, scoring EPI, dan statistik performa',
-            category: 'Manajemen',
+            name: 'Reports & KPI',
+            description: 'Staff performance evaluation, EPI scoring, and performance analytics',
+            category: 'Management',
             href: route('performance.index'),
             gradient: 'from-indigo-600 to-violet-700',
             visible: canViewPerformance,
@@ -298,8 +298,8 @@ export default function Dashboard({
         },
         {
             id: 'departments',
-            name: 'Departemen',
-            description: 'Struktur organisasi hotel, divisi departemen, dan formasi',
+            name: 'Departments',
+            description: 'Hotel organization structure, department divisions, and headcounts',
             category: 'People & HR',
             href: route('departments.index'),
             gradient: 'from-blue-600 to-cyan-600',
@@ -312,9 +312,9 @@ export default function Dashboard({
         },
         {
             id: 'settings',
-            name: 'Pengaturan Sistem',
-            description: 'Konfigurasi sistem, hak akses roles & permissions, serta audit logs',
-            category: 'Administrasi',
+            name: 'System Settings',
+            description: 'System configurations, roles & permissions, and audit logs',
+            category: 'Administration',
             href: route('settings.index'),
             gradient: 'from-zinc-700 to-slate-900',
             visible: isSuperAdmin,
@@ -327,9 +327,9 @@ export default function Dashboard({
         },
         {
             id: 'my-overview',
-            name: 'Dashboard Pribadi',
-            description: 'Statistik personal kerja, presensi pribadi, dan performa akun',
-            category: 'Pribadi',
+            name: 'Personal Dashboard',
+            description: 'Personal work stats, individual attendance, and account performance',
+            category: 'Personal',
             action: () => router.get(route('dashboard'), { view: 'overview' }),
             gradient: 'from-indigo-700 to-sky-700',
             visible: true,
@@ -390,7 +390,7 @@ export default function Dashboard({
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                     </svg>
-                                    Menu Utama
+                                    Main Menu
                                 </Link>
                                 <span>/</span>
                                 <span className="text-gray-500">Task Management</span>
@@ -418,13 +418,13 @@ export default function Dashboard({
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm shadow-indigo-600/30">
-                                Ringkasan Tugas
+                                Task Summary
                             </span>
                             <Link
                                 href={route('tasks.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
                             >
-                                Daftar Tugas (My Tasks)
+                                My Tasks
                             </Link>
                             <Link
                                 href={route('tasks.kanban')}
@@ -436,14 +436,14 @@ export default function Dashboard({
                                 href={route('tasks.calendar')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
                             >
-                                Kalender Tugas
+                                Task Calendar
                             </Link>
                             {canViewProjects && (
                                 <Link
                                     href={route('projects.index')}
                                     className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
                                 >
-                                    Proyek ({projectProgress.length})
+                                    Projects ({projectProgress.length})
                                 </Link>
                             )}
                         </div>
@@ -455,14 +455,14 @@ export default function Dashboard({
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            Buat Tugas Baru
+                            Create New Task
                         </Link>
                     </div>
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <span className="text-xs text-gray-500 font-medium">To Do (Antrian)</span>
+                            <span className="text-xs text-gray-500 font-medium">To Do (Queue)</span>
                             <p className="text-2xl font-bold text-gray-900 mt-1">{tasksSummary.todo}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mt-2"></span>
                         </div>
@@ -472,17 +472,17 @@ export default function Dashboard({
                             <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mt-2"></span>
                         </div>
                         <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <span className="text-xs text-gray-500 font-medium">Menunggu Review</span>
+                            <span className="text-xs text-gray-500 font-medium">Awaiting Review</span>
                             <p className="text-2xl font-bold text-purple-600 mt-1">{tasksSummary.review}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-purple-500 mt-2"></span>
                         </div>
                         <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <span className="text-xs text-gray-500 font-medium">Selesai (Done)</span>
+                            <span className="text-xs text-gray-500 font-medium">Completed</span>
                             <p className="text-2xl font-bold text-emerald-600 mt-1">{tasksSummary.done}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mt-2"></span>
                         </div>
                         <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm col-span-2 sm:col-span-1">
-                            <span className="text-xs text-gray-500 font-medium">Terlambat (Overdue)</span>
+                            <span className="text-xs text-gray-500 font-medium">Overdue</span>
                             <p className="text-2xl font-bold text-red-600 mt-1">{tasksSummary.overdue}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-red-500 mt-2"></span>
                         </div>
@@ -493,9 +493,9 @@ export default function Dashboard({
                         {/* Upcoming Deadlines */}
                         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-gray-900 text-sm">Tenggat Waktu Terdekat</h3>
+                                <h3 className="font-bold text-gray-900 text-sm">Upcoming Deadlines</h3>
                                 <Link href={route('tasks.index')} className="text-xs text-indigo-600 hover:underline">
-                                    Lihat Semua →
+                                    View All →
                                 </Link>
                             </div>
                             {upcomingTasks.length > 0 ? (
@@ -511,25 +511,25 @@ export default function Dashboard({
                                                     {task.title}
                                                 </p>
                                                 <span className="text-[10px] text-gray-500">
-                                                    Status: {task.status} • Prioritas: {task.priority}
+                                                    Status: {task.status} • Priority: {task.priority}
                                                 </span>
                                             </div>
                                             <span className="text-[11px] font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-lg shrink-0">
-                                                {task.deadline ? new Date(task.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '-'}
+                                                {task.deadline ? new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) : '-'}
                                             </span>
                                         </Link>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-xs text-gray-500 text-center py-6">Tidak ada tugas dengan tenggat terdekat.</p>
+                                <p className="text-xs text-gray-500 text-center py-6">No tasks with upcoming deadlines.</p>
                             )}
                         </div>
 
                         {/* Recent Activities */}
                         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-gray-900 text-sm">Aktivitas Terbaru</h3>
-                                <span className="text-xs text-gray-400">Log Tugas</span>
+                                <h3 className="font-bold text-gray-900 text-sm">Recent Activities</h3>
+                                <span className="text-xs text-gray-400">Task Logs</span>
                             </div>
                             {recentActivities.length > 0 ? (
                                 <div className="space-y-3">
@@ -538,18 +538,18 @@ export default function Dashboard({
                                             <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-gray-800 font-medium truncate">
-                                                    {act.employee?.user?.name || 'User'} {act.activity_type} pada{' '}
-                                                    <span className="font-bold">{act.task?.title || 'Tugas'}</span>
+                                                    {act.employee?.user?.name || 'User'} {act.activity_type} on{' '}
+                                                    <span className="font-bold">{act.task?.title || 'Task'}</span>
                                                 </p>
                                                 <span className="text-[10px] text-gray-400">
-                                                    {new Date(act.created_at).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                                    {new Date(act.created_at).toLocaleDateString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-xs text-gray-500 text-center py-6">Belum ada riwayat aktivitas tugas.</p>
+                                <p className="text-xs text-gray-500 text-center py-6">No recent task activity history.</p>
                             )}
                         </div>
                     </div>
@@ -571,7 +571,7 @@ export default function Dashboard({
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                     </svg>
-                                    Menu Utama
+                                    Main Menu
                                 </Link>
                                 <span>/</span>
                                 <span className="text-gray-500">Human Resources (HR)</span>
@@ -599,7 +599,7 @@ export default function Dashboard({
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm shadow-purple-600/30">
-                                Ringkasan HR
+                                HR Summary
                             </span>
                             {isAdmin && (
                                 <>
@@ -607,25 +607,25 @@ export default function Dashboard({
                                         href={route('employees.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                                     >
-                                        Data Karyawan
+                                        Employee Records
                                     </Link>
                                     <Link
                                         href={route('departments.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                                     >
-                                        Departemen & Divisi
+                                        Departments & Divisions
                                     </Link>
                                     <Link
                                         href={route('attendance.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                                     >
-                                        Log Absensi
+                                        Attendance Logs
                                     </Link>
                                     <Link
                                         href={route('schedules.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                                     >
-                                        Jadwal & Shift
+                                        Schedules & Shifts
                                     </Link>
                                 </>
                             )}
@@ -633,19 +633,19 @@ export default function Dashboard({
                                 href={route('leave.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                             >
-                                Permohonan Cuti
+                                Leave Requests
                             </Link>
                             <Link
                                 href={route('overtime.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                             >
-                                Lembur (SPKL)
+                                Overtime (SPKL)
                             </Link>
                             <Link
                                 href={route('directory.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
                             >
-                                Direktori Staf
+                                Staff Directory
                             </Link>
                         </div>
                     </div>
@@ -683,10 +683,10 @@ export default function Dashboard({
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                     </svg>
-                                    Menu Utama
+                                    Main Menu
                                 </Link>
                                 <span>/</span>
-                                <span className="text-gray-500">Dashboard Pribadi</span>
+                                <span className="text-gray-500">Personal Dashboard</span>
                             </div>
                             <h2 className="text-xl font-bold text-gray-900 leading-tight">
                                 {getGreeting()}, {user.name} 👋
@@ -704,7 +704,7 @@ export default function Dashboard({
                     </div>
                 }
             >
-                <Head title="Dashboard Pribadi - Swiss-Belinn" />
+                <Head title="Personal Dashboard - Swiss-Belinn" />
                 {renderRoleDashboard()}
             </AuthenticatedLayout>
         );
@@ -731,7 +731,7 @@ export default function Dashboard({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={handleSearchKeyDown}
-                            placeholder="Cari modul atau aplikasi..."
+                            placeholder="Search modules or apps..."
                             className="w-full pl-10 pr-16 py-2 text-sm bg-gray-100/90 hover:bg-gray-100 focus:bg-white border border-gray-200 focus:border-indigo-500 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-gray-800 placeholder-gray-400"
                         />
                         <div className="absolute right-3 flex items-center gap-1 pointer-events-none">
@@ -742,7 +742,7 @@ export default function Dashboard({
                 </div>
             }
         >
-            <Head title="Menu Utama - SIPU Swiss-Belinn" />
+            <Head title="Main Menu - SIPU Swiss-Belinn" />
 
             <div className="py-6 sm:py-10 space-y-10">
                 {/* Greeting & Header Bar */}
@@ -755,7 +755,7 @@ export default function Dashboard({
                         {getGreeting()}, {user.name} 👋
                     </h1>
                     <p className="text-xs sm:text-sm text-gray-500">
-                        Pilih modul aplikasi di bawah untuk membuka ruang kerja Anda
+                        Select an application module below to open your workspace
                     </p>
                 </div>
 
@@ -775,7 +775,7 @@ export default function Dashboard({
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
                                         <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100/60 px-2 py-0.5 rounded-md">
-                                            Pengumuman Terbaru
+                                            Latest Announcement
                                         </span>
                                         <span className="text-xs text-gray-500">
                                             {announcements[0]?.title}
@@ -786,7 +786,7 @@ export default function Dashboard({
                                     </p>
                                 </div>
                                 <span className="text-xs text-indigo-600 font-semibold group-hover:translate-x-1 transition-transform shrink-0 hidden sm:inline">
-                                    Buka →
+                                    Open →
                                 </span>
                             </div>
                         </Link>
@@ -852,16 +852,16 @@ export default function Dashboard({
                                 </svg>
                             </div>
                             <div>
-                                <h3 className="font-bold text-gray-800 text-base">Modul Tidak Ditemukan</h3>
+                                <h3 className="font-bold text-gray-800 text-base">Module Not Found</h3>
                                 <p className="text-xs text-gray-500 mt-1">
-                                    Tidak ada aplikasi dengan kata kunci "{searchQuery}"
+                                    No application matches the keyword "{searchQuery}"
                                 </p>
                             </div>
                             <button
                                 onClick={() => setSearchQuery('')}
                                 className="px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
                             >
-                                Reset Pencarian
+                                Reset Search
                             </button>
                         </div>
                     )}
@@ -872,7 +872,7 @@ export default function Dashboard({
                     <div className="flex items-center gap-4">
                         <span>Role: <strong className="text-gray-700 font-semibold">{role}</strong></span>
                         <span>•</span>
-                        <span>Total Modul: <strong className="text-gray-700 font-semibold">{apps.length}</strong></span>
+                        <span>Total Modules: <strong className="text-gray-700 font-semibold">{apps.length}</strong></span>
                     </div>
                     <div className="text-[11px] text-gray-400">
                         SIPU Management System • Swiss-Belinn SKA Pekanbaru

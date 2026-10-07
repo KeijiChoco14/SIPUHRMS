@@ -38,11 +38,11 @@ export default function EmployeeDashboard({ data }: { data: any }) {
     const recentActivities = data?.recentActivities || [];
 
     const statCards = [
-        { key: 'todo', label: 'To Do', gradient: 'from-slate-500 to-slate-600', href: route('tasks.index', { status: 'To Do' }), hint: 'Lihat task To Do', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
-        { key: 'in_progress', label: 'In Progress', gradient: 'from-blue-500 to-blue-600', href: route('tasks.index', { status: 'In Progress' }), hint: 'Lihat task sedang dikerjakan', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
-        { key: 'review', label: 'Review', gradient: 'from-amber-500 to-amber-600', href: route('tasks.index', { status: 'Review' }), hint: 'Lihat task tahap review', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> },
-        { key: 'done', label: 'Completed', gradient: 'from-emerald-500 to-emerald-600', href: route('tasks.index', { filter: 'completed' }), hint: 'Lihat task selesai', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-        { key: 'overdue', label: 'Overdue', gradient: 'from-red-500 to-rose-600', href: route('tasks.index', { filter: 'overdue' }), hint: 'Lihat task lewat deadline', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> },
+        { key: 'todo', label: 'To Do', gradient: 'from-slate-500 to-slate-600', href: route('tasks.index', { status: 'To Do' }), hint: 'View To Do tasks', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
+        { key: 'in_progress', label: 'In Progress', gradient: 'from-blue-500 to-blue-600', href: route('tasks.index', { status: 'In Progress' }), hint: 'View In Progress tasks', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> },
+        { key: 'review', label: 'Review', gradient: 'from-amber-500 to-amber-600', href: route('tasks.index', { status: 'Review' }), hint: 'View tasks under review', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> },
+        { key: 'done', label: 'Completed', gradient: 'from-emerald-500 to-emerald-600', href: route('tasks.index', { filter: 'completed' }), hint: 'View completed tasks', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+        { key: 'overdue', label: 'Overdue', gradient: 'from-red-500 to-rose-600', href: route('tasks.index', { filter: 'overdue' }), hint: 'View overdue tasks', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg> },
     ];
 
     return (
@@ -61,7 +61,7 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                             <h4 className="font-bold text-lg leading-tight">{announcements[0].title}</h4>
                             <p className="mt-1 text-sm text-indigo-100 line-clamp-2">{announcements[0].message}</p>
                             <p className="mt-2 text-xs text-indigo-200">
-                                {announcements[0].creator?.name} · {new Date(announcements[0].published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                {announcements[0].creator?.name} · {new Date(announcements[0].published_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </p>
                         </div>
                     </div>
@@ -81,25 +81,25 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                             <div className="p-3 bg-white rounded-full shadow-sm text-indigo-600 group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                             </div>
-                            <span className="mt-3 text-sm font-medium text-indigo-900">Pengajuan Cuti</span>
+                            <span className="mt-3 text-sm font-medium text-indigo-900">Leave Request</span>
                         </Link>
                         <Link href={route('overtime.index')} className="flex flex-col items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors group">
                             <div className="p-3 bg-white rounded-full shadow-sm text-blue-600 group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                             </div>
-                            <span className="mt-3 text-sm font-medium text-blue-900">Lemburan</span>
+                            <span className="mt-3 text-sm font-medium text-blue-900">Overtime</span>
                         </Link>
                         <Link href={route('payroll.my')} className="flex flex-col items-center justify-center p-4 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors group">
                             <div className="p-3 bg-white rounded-full shadow-sm text-emerald-600 group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                             </div>
-                            <span className="mt-3 text-sm font-medium text-emerald-900">Slip Gaji</span>
+                            <span className="mt-3 text-sm font-medium text-emerald-900">My Payslips</span>
                         </Link>
                         <Link href={route('tasks.index')} className="flex flex-col items-center justify-center p-4 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors group">
                             <div className="p-3 bg-white rounded-full shadow-sm text-amber-600 group-hover:scale-110 transition-transform">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                             </div>
-                            <span className="mt-3 text-sm font-medium text-amber-900">Daftar Tugas</span>
+                            <span className="mt-3 text-sm font-medium text-amber-900">My Tasks</span>
                         </Link>
                     </div>
                 </div>
@@ -157,7 +157,7 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                                     {card.icon}
                                 </div>
                                 <span className="text-[11px] font-semibold text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Buka →
+                                    Open →
                                 </span>
                             </div>
                             <div className="text-2xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">{(summary as any)[card.key]}</div>
@@ -196,7 +196,7 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                                         </div>
                                         <div className="text-right flex-shrink-0">
                                             <p className={`text-xs font-bold ${isOverdue ? 'text-red-600' : daysLeft <= 3 ? 'text-amber-600' : 'text-gray-600'}`}>
-                                                {new Date(task.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                                {new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                                             </p>
                                             <p className={`text-[10px] mt-0.5 font-medium ${isOverdue ? 'text-red-500' : daysLeft <= 3 ? 'text-amber-500' : 'text-gray-400'}`}>
                                                 {isOverdue ? `${Math.abs(daysLeft)}d overdue` : daysLeft === 0 ? 'Today' : `${daysLeft}d left`}
@@ -295,7 +295,7 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                                                 <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{activity.description}</p>
                                             )}
                                             <p className="text-[10px] text-gray-300 mt-1">
-                                                {new Date(activity.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} · {new Date(activity.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                                                {new Date(activity.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} · {new Date(activity.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                             </p>
                                         </div>
                                     </div>

@@ -125,7 +125,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h2 className="font-bold text-xl text-gray-900">My Kanban Board</h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Geser kartu task (drag & drop) antar kolom untuk mengubah status secara langsung</p>
+                        <p className="text-sm text-gray-500 mt-0.5">Drag and drop task cards between columns to update status instantly</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <TaskViewSwitcher current="kanban" />
@@ -205,7 +205,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                             <svg className="w-4 h-4 text-indigo-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                             </svg>
-                                            <span>Lepaskan ke kolom {status}</span>
+                                            <span>Drop into {status} column</span>
                                         </div>
                                     )}
 
@@ -251,7 +251,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                         </h4>
                                                         <span 
                                                             className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
-                                                            title="Tahan dan geser kartu task"
+                                                            title="Drag and drop task card"
                                                         >
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-12a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
@@ -270,7 +270,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                         {task.deadline && (
                                                             <span className={`text-[10px] font-medium flex items-center gap-1 ${isOverdue ? 'text-red-500' : 'text-gray-400'}`}>
                                                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                                {new Date(task.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                                                                {new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                                                             </span>
                                                         )}
                                                     </div>
@@ -332,8 +332,8 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-2 text-gray-300">
                                                 <svg className="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
                                             </div>
-                                            <p className="text-xs text-gray-400">Belum ada task</p>
-                                            <p className="text-[11px] text-gray-400/80 mt-0.5">Tarik task ke sini</p>
+                                            <p className="text-xs text-gray-400">No tasks yet</p>
+                                            <p className="text-[11px] text-gray-400/80 mt-0.5">Drag tasks here</p>
                                         </div>
                                     )}
                                 </div>

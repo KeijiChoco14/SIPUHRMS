@@ -281,7 +281,7 @@ export default function Calendar({
                 <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                         <h2 className="font-bold text-xl text-gray-900 leading-tight truncate">Team Calendar</h2>
-                        <p className="text-xs text-gray-500 mt-0.5 truncate">Jadwal & deadline task tim per bulan</p>
+                        <p className="text-xs text-gray-500 mt-0.5 truncate">Monthly team task schedule & deadlines</p>
                     </div>
                     <div className="flex items-center gap-2.5 shrink-0">
                         <TaskViewSwitcher current="calendar" />
@@ -317,13 +317,13 @@ export default function Calendar({
                 <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm px-4 py-3 flex flex-wrap items-center gap-3">
                     <div className="flex items-center gap-3">
                         <div className="inline-flex items-center rounded-xl border border-gray-200 overflow-hidden">
-                            <button onClick={() => shiftMonth(-1)} title="Bulan sebelumnya" className="p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <button onClick={() => shiftMonth(-1)} title="Previous month" className="p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                             </button>
                             <button onClick={goToday} className="px-3 py-1.5 text-xs font-semibold text-gray-700 border-x border-gray-200 hover:bg-gray-50 transition-colors">
                                 Today
                             </button>
-                            <button onClick={() => shiftMonth(1)} title="Bulan berikutnya" className="p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <button onClick={() => shiftMonth(1)} title="Next month" className="p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors">
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
                             </button>
                         </div>
@@ -332,9 +332,9 @@ export default function Calendar({
 
                     {/* Month summary */}
                     <div className="hidden xl:flex items-center gap-1.5 text-[11px] font-semibold">
-                        <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700">{monthStats.total} task</span>
-                        <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700">{monthStats.done} selesai</span>
-                        {monthStats.overdue > 0 && <span className="px-2 py-1 rounded-lg bg-red-50 text-red-700">{monthStats.overdue} terlambat</span>}
+                        <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700">{monthStats.total} {monthStats.total === 1 ? 'task' : 'tasks'}</span>
+                        <span className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700">{monthStats.done} completed</span>
+                        {monthStats.overdue > 0 && <span className="px-2 py-1 rounded-lg bg-red-50 text-red-700">{monthStats.overdue} overdue</span>}
                         <span className="px-2 py-1 rounded-lg bg-gray-100 text-gray-700">{monthStats.hours}</span>
                     </div>
 
@@ -346,7 +346,7 @@ export default function Calendar({
                             type="text"
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            placeholder="Cari task..."
+                            placeholder="Search tasks..."
                             className="w-44 pl-8 pr-3 py-1.5 text-xs rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500"
                         />
                     </div>
@@ -442,7 +442,7 @@ export default function Calendar({
                                                 )}
                                                 <button
                                                     onClick={() => openCreate(ds)}
-                                                    title="Tambah task"
+                                                    title="Add task"
                                                     className="hidden group-hover:inline-flex items-center justify-center h-5 w-5 rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
                                                 >
                                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
@@ -466,7 +466,7 @@ export default function Calendar({
                                                 onClick={() => setDayPanel(date)}
                                                 className="text-left px-1.5 py-0.5 rounded-md text-[11px] font-semibold text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/60"
                                             >
-                                                +{items.length - MAX_CHIPS} lainnya
+                                                +{items.length - MAX_CHIPS} more
                                             </button>
                                         )}
                                     </div>
@@ -491,10 +491,10 @@ export default function Calendar({
                                     <span className="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 rounded-full">{displayedWaiting.length}</span>
                                 </div>
                                 <div className="flex items-center">
-                                    <button onClick={() => openCreate()} title="Tambah ke waiting list" className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition-colors">
+                                    <button onClick={() => openCreate()} title="Add to waiting list" className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition-colors">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                                     </button>
-                                    <button onClick={() => setShowWaitingList(false)} title="Tutup" className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                    <button onClick={() => setShowWaitingList(false)} title="Close" className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
@@ -507,16 +507,16 @@ export default function Calendar({
                                         type="text"
                                         value={waitingSearch}
                                         onChange={e => setWaitingSearch(e.target.value)}
-                                        placeholder="Cari backlog..."
+                                        placeholder="Search backlog..."
                                         className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500"
                                     />
                                 </div>
-                                <p className="text-[11px] text-gray-400 mt-2 px-0.5">Tarik kartu ke tanggal untuk menjadwalkan, atau tarik ke sini untuk membatalkan jadwal.</p>
+                                <p className="text-[11px] text-gray-400 mt-2 px-0.5">Drag cards to a date to schedule, or drag here to unschedule.</p>
                             </div>
 
                             <div className="p-3 space-y-2 overflow-y-auto flex-1">
                                 {displayedWaiting.length === 0 ? (
-                                    <div className="py-10 text-center text-xs text-gray-400">Tidak ada task tanpa jadwal</div>
+                                    <div className="py-10 text-center text-xs text-gray-400">No unscheduled tasks</div>
                                 ) : (
                                     displayedWaiting.map(task => (
                                         <TaskCard
@@ -692,8 +692,8 @@ function TaskCard({
                             </span>
                         )}
                         {comments > 0 && (
-                            <span className="inline-flex items-center gap-0.5" title="Komentar">
-                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.83L3 20l1.4-3.72A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                            <span className="inline-flex items-center gap-0.5" title="Comments">
+                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.83L3 20l1.4-3.72A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                                 {comments}
                             </span>
                         )}
@@ -744,7 +744,7 @@ function DayPanel({
                         <h3 className="text-base font-bold text-gray-900">
                             {date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                         </h3>
-                        <p className="text-xs text-gray-500">{tasks.length} task · {formatTotal(tasks)}</p>
+                        <p className="text-xs text-gray-500">{tasks.length} {tasks.length === 1 ? 'task' : 'tasks'} · {formatTotal(tasks)}</p>
                     </div>
                     <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -757,7 +757,7 @@ function DayPanel({
                 </div>
                 <div className="px-4 py-3 border-t border-gray-100">
                     <button onClick={onCreate} className="w-full py-2 rounded-xl border border-dashed border-gray-300 text-xs font-semibold text-gray-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/40">
-                        + Add task di tanggal ini
+                        + Add task to this date
                     </button>
                 </div>
             </div>
@@ -843,7 +843,7 @@ function MobileView({
                     <h3 className="font-bold text-sm text-gray-900">
                         {mobileDate.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
                     </h3>
-                    <span className="text-xs text-gray-500">{dayTasks.length} task · {formatTotal(dayTasks)}</span>
+                    <span className="text-xs text-gray-500">{dayTasks.length} {dayTasks.length === 1 ? 'task' : 'tasks'} · {formatTotal(dayTasks)}</span>
                 </div>
                 <button onClick={() => onCreate(toDateStr(mobileDate))} className="px-3 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-xl shadow-sm">
                     + Add
@@ -853,7 +853,7 @@ function MobileView({
             <div className="space-y-2.5">
                 {dayTasks.length === 0 ? (
                     <div className="py-10 text-center bg-white rounded-2xl border border-dashed border-gray-200 text-xs text-gray-400">
-                        Tidak ada task di hari ini
+                        No tasks scheduled for this day
                     </div>
                 ) : (
                     dayTasks.map(task => <TaskCard key={task.id} task={task} onSelect={() => onSelect(task)} />)

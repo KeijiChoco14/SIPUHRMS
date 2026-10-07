@@ -18,16 +18,16 @@ export default function ErrorPage({
     const userRole = user?.roles?.[0]?.name ?? 'Staff / Employee';
 
     const defaultTitle = status === 403
-        ? 'Akses Ditolak (403 Forbidden)'
+        ? 'Access Denied (403 Forbidden)'
         : status === 404
-        ? 'Halaman Tidak Ditemukan (404)'
-        : 'Terjadi Kesalahan Sistem';
+        ? 'Page Not Found (404)'
+        : 'System Error';
 
     const defaultMessage = status === 403
-        ? 'Maaf, akun Anda tidak memiliki hak akses (role & izin) yang dibutuhkan untuk membuka halaman atau modul ini.'
+        ? 'Sorry, your account does not have the required permissions or role to view this page or module.'
         : status === 404
-        ? 'Halaman atau modul yang Anda cari tidak ditemukan atau telah dipindahkan.'
-        : 'Terjadi kesalahan pada server saat memproses permintaan Anda.';
+        ? 'The page or module you are looking for could not be found or has been moved.'
+        : 'An unexpected server error occurred while processing your request.';
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 flex flex-col justify-between p-4 sm:p-6 text-white selection:bg-rose-500 selection:text-white">
@@ -47,7 +47,7 @@ export default function ErrorPage({
 
                 {user && (
                     <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-xs">
-                        <span className="text-slate-300">Login sebagai:</span>
+                        <span className="text-slate-300">Logged in as:</span>
                         <span className="font-bold text-white truncate max-w-[120px]">{user.name}</span>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-400/30">
                             {userRole}
@@ -94,10 +94,10 @@ export default function ErrorPage({
                             <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span>Informasi Keamanan & Kebijakan Hak Akses:</span>
+                            <span>Security & Access Policy Information:</span>
                         </div>
                         <p className="leading-relaxed text-slate-400">
-                            Modul ini diproteksi oleh sistem hak akses peranan (Role-Based Access Control). Jika Anda merasa seharusnya memiliki akses ke fitur ini (seperti modul HRD, Payroll, Data Karyawan, atau Pengaturan Sistem), silakan hubungi bagian HRD atau Administrator.
+                            This module is protected by Role-Based Access Control (RBAC). If you believe you should have access to this feature (such as the HR, Payroll, Employee Records, or System Settings modules), please contact HR or your System Administrator.
                         </p>
                     </div>
 
@@ -110,7 +110,7 @@ export default function ErrorPage({
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                             </svg>
-                            Kembali ke Menu Utama
+                            Return to Main Menu
                         </Link>
 
                         <button
@@ -121,7 +121,7 @@ export default function ErrorPage({
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
-                            Halaman Sebelumnya
+                            Previous Page
                         </button>
                     </div>
                 </div>

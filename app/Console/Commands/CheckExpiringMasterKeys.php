@@ -23,7 +23,7 @@ class CheckExpiringMasterKeys extends Command
      *
      * @var string
      */
-    protected $description = 'Periksa dan kirim notifikasi untuk akses master key yang mendekati kedaluwarsa (H-14)';
+    protected $description = 'Check and notify about master key requests nearing expiration (within 14 days)';
 
     /**
      * Execute the console command.
@@ -39,7 +39,7 @@ class CheckExpiringMasterKeys extends Command
             ->where('valid_until', '<=', $fourteenDaysLater)
             ->get();
 
-        $this->info("Ditemukan {$expiringRequests->count()} master key yang mendekati masa kedaluwarsa.");
+        $this->info("Found {$expiringRequests->count()} master key request(s) nearing expiration.");
 
         foreach ($expiringRequests as $req) {
             $recipients = collect();
@@ -60,17 +60,20 @@ class CheckExpiringMasterKeys extends Command
                 $alreadyNotified = $recipient->notifications()
                     ->where('created_at', '>=', Carbon::now()->subDays(3))
                     ->whereJsonContains('data->master_key_id', $req->id)
-                    ->whereJsonContains('data->title', 'Peringatan: Master Key Segera Berakhir')
+                    ->where(function ($q) {
+                        $q->whereJsonContains('data->title', 'Notice: Master Key Expiring Soon')
+                          ->orWhereJsonContains('data->title', 'Peringatan: Master Key Segera Berakhir');
+                    })
                     ->exists();
 
                 if (!$alreadyNotified) {
                     $recipient->notify(new MasterKeyStatusNotification($req, 'EXPIRING_SOON'));
-                    $this->line("Notifikasi terkirim ke {$recipient->name} untuk kunci {$req->key_number}.");
+                    $this->line("Notification sent to {$recipient->name} for key {$req->key_number}.");
                 }
             }
         }
 
-        $this->info('Pemeriksaan selesai.');
+        $this->info('Expiration check completed.');
         return Command::SUCCESS;
     }
 }

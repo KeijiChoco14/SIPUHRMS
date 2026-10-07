@@ -49,7 +49,7 @@ export default function HRDashboard({ data }: { data: any }) {
                             <h4 className="font-bold text-lg leading-tight">{announcements[0].title}</h4>
                             <p className="mt-1 text-sm text-indigo-100 line-clamp-2">{announcements[0].message}</p>
                             <p className="mt-2 text-xs text-indigo-200">
-                                {announcements[0].creator?.name} · {new Date(announcements[0].published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                {announcements[0].creator?.name} · {new Date(announcements[0].published_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
                             </p>
                         </div>
                     </div>
@@ -105,15 +105,15 @@ export default function HRDashboard({ data }: { data: any }) {
                         <div className="flex-1 grid grid-cols-2 gap-3">
                             <div className="text-center p-3 rounded-lg bg-emerald-50">
                                 <div className="text-xl font-bold text-emerald-700">{attendanceToday.present}</div>
-                                <div className="text-[10px] font-semibold text-emerald-600 uppercase">Hadir</div>
+                                <div className="text-[10px] font-semibold text-emerald-600 uppercase">Present</div>
                             </div>
                             <div className="text-center p-3 rounded-lg bg-amber-50">
                                 <div className="text-xl font-bold text-amber-700">{attendanceToday.late}</div>
-                                <div className="text-[10px] font-semibold text-amber-600 uppercase">Telat</div>
+                                <div className="text-[10px] font-semibold text-amber-600 uppercase">Late</div>
                             </div>
                             <div className="text-center p-3 rounded-lg bg-red-50">
                                 <div className="text-xl font-bold text-red-700">{attendanceToday.absent}</div>
-                                <div className="text-[10px] font-semibold text-red-600 uppercase">Absen</div>
+                                <div className="text-[10px] font-semibold text-red-600 uppercase">Absent</div>
                             </div>
                             <div className="text-center p-3 rounded-lg bg-gray-50">
                                 <div className="text-xl font-bold text-gray-700">{attendanceToday.total}</div>
@@ -147,7 +147,7 @@ export default function HRDashboard({ data }: { data: any }) {
                                     </div>
                                     <div className="text-right flex-shrink-0">
                                         <p className="text-xs text-gray-500">
-                                            {emp.join_date ? new Date(emp.join_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
+                                            {emp.join_date ? new Date(emp.join_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                                         </p>
                                     </div>
                                 </div>

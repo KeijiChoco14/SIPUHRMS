@@ -45,7 +45,7 @@ export default function Edit({
     };
 
     const handleDelete = () => {
-        if (confirm(`Apakah Anda yakin ingin menghapus project "${project.name}"? Semua task di dalamnya akan terhapus secara permanen.`)) {
+        if (confirm(`Are you sure you want to delete project "${project.name}"? All tasks inside it will be permanently deleted.`)) {
             router.delete(route('projects.destroy', project.id));
         }
     };
@@ -57,13 +57,13 @@ export default function Edit({
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="font-bold text-xl text-gray-800 leading-tight">Edit Project</h2>
-                        <p className="text-sm text-gray-500 mt-0.5">Ubah informasi project {project.name}</p>
+                        <p className="text-sm text-gray-500 mt-0.5">Edit information for project {project.name}</p>
                     </div>
                     <Link
                         href={route('projects.show', project.id)}
                         className="text-sm font-semibold text-gray-600 hover:text-indigo-600 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
                     >
-                        &larr; Kembali ke Project
+                        &larr; Back to Project
                     </Link>
                 </div>
             }
@@ -76,14 +76,14 @@ export default function Edit({
                         <form onSubmit={submit} className="space-y-6">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                    Nama Project <span className="text-red-500">*</span>
+                                    Project Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
-                                    placeholder="Nama project..."
+                                    placeholder="Project name..."
                                     required
                                 />
                                 {errors.name && <div className="text-red-500 text-xs mt-1">{errors.name}</div>}
@@ -92,7 +92,7 @@ export default function Edit({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Status Project <span className="text-red-500">*</span>
+                                        Project Status <span className="text-red-500">*</span>
                                     </label>
                                     <select
                                         value={data.status}
@@ -111,14 +111,14 @@ export default function Edit({
 
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Departemen / Divisi
+                                        Department / Division
                                     </label>
                                     <select
                                         value={data.department_id}
                                         onChange={(e) => setData('department_id', e.target.value)}
                                         className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                     >
-                                        <option value="">Pilih Departemen</option>
+                                        <option value="">Select Department</option>
                                         {departments.map((dept) => (
                                             <option key={dept.id} value={dept.id}>
                                                 {dept.name}
@@ -138,7 +138,7 @@ export default function Edit({
                                     onChange={(e) => setData('owner_id', e.target.value)}
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 >
-                                    <option value="">Pilih Penanggung Jawab</option>
+                                    <option value="">Select PIC / Owner</option>
                                     {employees.map((emp) => (
                                         <option key={emp.id} value={emp.id}>
                                             {emp.user?.name || emp.employee_number} {emp.department?.name ? `(${emp.department.name})` : ''}
@@ -151,7 +151,7 @@ export default function Edit({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Tanggal Mulai
+                                        Start Date
                                     </label>
                                     <input
                                         type="date"
@@ -163,7 +163,7 @@ export default function Edit({
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        Tenggat Waktu (Deadline)
+                                        Deadline
                                     </label>
                                     <input
                                         type="date"
@@ -177,13 +177,13 @@ export default function Edit({
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                    Deskripsi Project
+                                    Project Description
                                 </label>
                                 <textarea
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
                                     rows={4}
-                                    placeholder="Deskripsi detail mengenai project..."
+                                    placeholder="Detailed description of the project..."
                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
                                 />
                                 {errors.description && <div className="text-red-500 text-xs mt-1">{errors.description}</div>}
@@ -198,21 +198,21 @@ export default function Edit({
                                     <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Hapus Project
+                                    Delete Project
                                 </button>
                                 <div className="flex items-center gap-3">
                                     <Link
                                         href={route('projects.show', project.id)}
                                         className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                                     >
-                                        Batal
+                                        Cancel
                                     </Link>
                                     <button
                                         type="submit"
                                         disabled={processing}
                                         className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg text-sm shadow-sm transition-colors disabled:opacity-50"
                                     >
-                                        {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                        {processing ? 'Saving...' : 'Save Changes'}
                                     </button>
                                 </div>
                             </div>

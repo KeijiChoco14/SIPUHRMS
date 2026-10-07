@@ -47,17 +47,17 @@ class CommentMentioned extends Notification
             ? route('projects.show', ['project' => $this->task->project_id, 'task_id' => $this->task->id, 'tab' => 'comments']) 
             : route('tasks.index', ['task_id' => $this->task->id, 'tab' => 'comments']);
 
-        $commenterName = $this->commenter->name ?? 'Rekan kerja';
+        $commenterName = $this->commenter->name ?? 'A teammate';
 
         return (new MailMessage)
-            ->subject('Anda ditandai dalam komentar: ' . $this->task->title)
-            ->greeting('Halo ' . ($notifiable->name ?? 'Karyawan') . ',')
-            ->line($commenterName . ' menandai Anda dalam sebuah komentar pada tugas:')
-            ->line('**Judul Task:** ' . $this->task->title)
-            ->line('**Project:** ' . ($this->task->project->name ?? 'Task Mandiri'))
-            ->line('**Isi Komentar:** "' . Str::limit($this->comment->content, 200) . '"')
-            ->action('Lihat Komentar & Buka Task', $url)
-            ->line('Segera periksa tugas ini agar tidak tertinggal informasi terbaru!');
+            ->subject('You were mentioned in a comment: ' . $this->task->title)
+            ->greeting('Hello ' . ($notifiable->name ?? 'Team Member') . ',')
+            ->line($commenterName . ' mentioned you in a comment on a task:')
+            ->line('**Task Title:** ' . $this->task->title)
+            ->line('**Project:** ' . ($this->task->project->name ?? 'Standalone Task'))
+            ->line('**Comment:** "' . Str::limit($this->comment->content, 200) . '"')
+            ->action('View Comment & Open Task', $url)
+            ->line('Please review this task to stay updated with your team!');
     }
 
     /**
@@ -67,7 +67,7 @@ class CommentMentioned extends Notification
      */
     public function toArray(object $notifiable): array
     {
-        $commenterName = $this->commenter->name ?? 'Seseorang';
+        $commenterName = $this->commenter->name ?? 'Someone';
         $url = $this->task->project_id 
             ? route('projects.show', ['project' => $this->task->project_id, 'task_id' => $this->task->id, 'tab' => 'comments']) 
             : route('tasks.index', ['task_id' => $this->task->id, 'tab' => 'comments']);
@@ -76,9 +76,9 @@ class CommentMentioned extends Notification
             'type' => 'comment_mention',
             'task_id' => $this->task->id,
             'comment_id' => $this->comment->id,
-            'title' => 'Ditandai dalam komentar: ' . $this->task->title,
+            'title' => 'Mentioned in comment: ' . $this->task->title,
             'project_name' => $this->task->project->name ?? 'No Project',
-            'message' => $commenterName . ' menandai Anda dalam komentar: "' . Str::limit($this->comment->content, 60) . '"',
+            'message' => $commenterName . ' mentioned you in a comment: "' . Str::limit($this->comment->content, 60) . '"',
             'action_url' => $url,
             'comment_preview' => Str::limit($this->comment->content, 120),
         ];

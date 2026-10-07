@@ -42,14 +42,14 @@ class TaskAssigned extends Notification
             : route('tasks.index');
 
         return (new MailMessage)
-                    ->subject('Tugas Baru: ' . $this->task->title)
-                    ->greeting('Halo ' . ($notifiable->name ?? 'Karyawan') . ',')
-                    ->line('Anda telah ditugaskan pada sebuah task baru.')
-                    ->line('**Judul Task:** ' . $this->task->title)
-                    ->line('**Project:** ' . ($this->task->project->name ?? 'Task Mandiri (Tanpa Project)'))
-                    ->line('**Prioritas:** ' . ($this->task->priority->value ?? $this->task->priority))
-                    ->action('Lihat Detail Task', $url)
-                    ->line('Terima kasih telah menggunakan sistem manajemen kami!');
+                    ->subject('New Task: ' . $this->task->title)
+                    ->greeting('Hello ' . ($notifiable->name ?? 'Team Member') . ',')
+                    ->line('You have been assigned to a new task.')
+                    ->line('**Task Title:** ' . $this->task->title)
+                    ->line('**Project:** ' . ($this->task->project->name ?? 'Standalone Task (No Project)'))
+                    ->line('**Priority:** ' . ($this->task->priority->value ?? $this->task->priority))
+                    ->action('View Task Details', $url)
+                    ->line('Thank you for using our HRMS system!');
     }
 
     /**
