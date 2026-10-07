@@ -241,6 +241,19 @@ export default function Calendar({
         setDragOverCell(null);
     };
 
+    // Ensure drag state is cleared if drag ends anywhere on window
+    useEffect(() => {
+        const handleDragClean = () => {
+            endDrag();
+        };
+        window.addEventListener('dragend', handleDragClean);
+        window.addEventListener('drop', handleDragClean);
+        return () => {
+            window.removeEventListener('dragend', handleDragClean);
+            window.removeEventListener('drop', handleDragClean);
+        };
+    }, []);
+
     const reschedule = (task: any, dateStr: string | null) => {
         setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, deadline: dateStr, start_date: dateStr } : t)));
         router.put(

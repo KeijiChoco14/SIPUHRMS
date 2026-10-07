@@ -54,6 +54,23 @@ export default function Show({
         }
     }, [localTasks]);
 
+    // Ensure drag state is cleared if drag ends anywhere on window
+    useEffect(() => {
+        const handleDragClean = () => {
+            setDraggedTaskId(null);
+            setDraggedOverColumn(null);
+            setTimeout(() => {
+                isDraggingRef.current = false;
+            }, 50);
+        };
+        window.addEventListener('dragend', handleDragClean);
+        window.addEventListener('drop', handleDragClean);
+        return () => {
+            window.removeEventListener('dragend', handleDragClean);
+            window.removeEventListener('drop', handleDragClean);
+        };
+    }, []);
+
     const { data, setData, post, processing, reset, errors } = useForm({
         title: '',
         description: '',
@@ -75,6 +92,13 @@ export default function Show({
     };
 
     const handleDropTask = (taskId: number, newStatus: string) => {
+        // Immediately reset drag states to prevent cards from staying greyed out
+        setDraggedTaskId(null);
+        setDraggedOverColumn(null);
+        setTimeout(() => {
+            isDraggingRef.current = false;
+        }, 50);
+
         const currentTask = localTasks.find((t: any) => t.id === taskId);
         if (!currentTask || currentTask.status === newStatus) return;
         if (!canEditTaskStatus(currentTask)) return;
@@ -389,6 +413,8 @@ export default function Show({
                                     onDrop={(e) => {
                                         e.preventDefault();
                                         setDraggedOverColumn(null);
+                                        setDraggedTaskId(null);
+                                        isDraggingRef.current = false;
                                         const taskIdStr = e.dataTransfer.getData('text/plain');
                                         const taskId = Number(taskIdStr) || draggedTaskId;
                                         if (taskId) {
