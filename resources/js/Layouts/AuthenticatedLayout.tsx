@@ -6,6 +6,7 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState, useEffect } from 'react';
 
 const icons: Record<string, JSX.Element> = {
+    'Menu Utama': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>,
     Dashboard: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" /></svg>,
     Projects: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>,
     'My Tasks': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
@@ -43,7 +44,8 @@ export default function Authenticated({
     user: _ignoredUser,
     header,
     children,
-}: PropsWithChildren<{ header?: ReactNode, user?: any }>) {
+    hideSidebar = false,
+}: PropsWithChildren<{ header?: ReactNode; user?: any; hideSidebar?: boolean }>) {
     const user = usePage().props.auth.user as any;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [isNavigating, setIsNavigating] = useState(false);
@@ -90,7 +92,7 @@ export default function Authenticated({
         {
             title: 'Workspace',
             items: [
-                { name: 'Dashboard', route: 'dashboard', pattern: 'dashboard' },
+                { name: 'Menu Utama', route: 'dashboard', pattern: 'dashboard' },
                 canViewProjects && { name: 'Projects', route: 'projects.index', pattern: 'projects.*' },
                 { name: 'My Tasks', route: 'tasks.index', pattern: 'tasks.index' },
                 { name: 'Kanban', route: 'tasks.kanban', pattern: 'tasks.kanban' },
@@ -149,64 +151,66 @@ export default function Authenticated({
     return (
         <div className="min-h-screen bg-[#f8fafc] flex selection:bg-indigo-500 selection:text-white">
             {/* Desktop Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 bg-white/70 backdrop-blur-xl border-r border-gray-200/50 min-h-screen shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300">
-                {/* Logo Header */}
-                <div className="flex h-16 shrink-0 items-center px-5 border-b border-gray-100 bg-gradient-to-r from-indigo-600 to-indigo-700">
-                    <Link href="/" className="flex items-center">
-                        <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden">
-                            <ApplicationLogo className="h-full w-full object-cover" />
-                        </div>
-                        <div className="ml-3">
-                            <span className="font-bold text-white text-sm tracking-tight">SIPU Management</span>
-                            <span className="block text-[10px] text-indigo-200 leading-none">Swiss-Belinn SKA Pekanbaru</span>
-                        </div>
-                    </Link>
-                </div>
+            {!hideSidebar && (
+                <aside className="hidden md:flex flex-col w-64 bg-white/70 backdrop-blur-xl border-r border-gray-200/50 min-h-screen shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300">
+                    {/* Logo Header */}
+                    <div className="flex h-16 shrink-0 items-center px-5 border-b border-gray-100 bg-gradient-to-r from-indigo-600 to-indigo-700">
+                        <Link href="/" className="flex items-center">
+                            <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden">
+                                <ApplicationLogo className="h-full w-full object-cover" />
+                            </div>
+                            <div className="ml-3">
+                                <span className="font-bold text-white text-sm tracking-tight">SIPU Management</span>
+                                <span className="block text-[10px] text-indigo-200 leading-none">Swiss-Belinn SKA Pekanbaru</span>
+                            </div>
+                        </Link>
+                    </div>
 
-                {/* Navigation */}
-                <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
-                    {menuSections.map((section, idx) => (
-                        <div key={idx}>
-                            <h3 className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                                {section.title}
-                            </h3>
-                            <ul className="space-y-0.5">
-                                {section.items.map((item: any, itemIdx: number) => (
-                                    <li key={itemIdx}>
-                                        <Link
-                                            href={route(item.route) as unknown as string}
-                                            className={`group flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium rounded-xl transition-all duration-300 ease-out ${route().current(item.pattern)
-                                                ? 'bg-gradient-to-r from-indigo-50 to-indigo-100/50 text-indigo-700 shadow-sm shadow-indigo-100/50 ring-1 ring-indigo-50'
-                                                : 'text-gray-600 hover:bg-gray-50/80 hover:text-gray-900 hover:translate-x-1'
-                                                }`}
-                                        >
-                                            <span className={`transition-colors ${route().current(item.pattern) ? 'text-indigo-500' : 'text-gray-400 group-hover:text-gray-500'}`}>
-                                                {icons[item.name] || <span className="w-5 h-5 rounded bg-gray-200" />}
-                                            </span>
-                                            {item.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
+                    {/* Navigation */}
+                    <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+                        {menuSections.map((section, idx) => (
+                            <div key={idx}>
+                                <h3 className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                                    {section.title}
+                                </h3>
+                                <ul className="space-y-0.5">
+                                    {section.items.map((item: any, itemIdx: number) => (
+                                        <li key={itemIdx}>
+                                            <Link
+                                                href={route(item.route) as unknown as string}
+                                                className={`group flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium rounded-xl transition-all duration-300 ease-out ${route().current(item.pattern)
+                                                    ? 'bg-gradient-to-r from-indigo-50 to-indigo-100/50 text-indigo-700 shadow-sm shadow-indigo-100/50 ring-1 ring-indigo-50'
+                                                    : 'text-gray-600 hover:bg-gray-50/80 hover:text-gray-900 hover:translate-x-1'
+                                                    }`}
+                                            >
+                                                <span className={`transition-colors ${route().current(item.pattern) ? 'text-indigo-500' : 'text-gray-400 group-hover:text-gray-500'}`}>
+                                                    {icons[item.name] || <span className="w-5 h-5 rounded bg-gray-200" />}
+                                                </span>
+                                                {item.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
 
-                {/* User Profile Section */}
-                <div className="border-t border-gray-100 p-3">
-                    <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-50">
-                        <div className="h-9 w-9 rounded-full overflow-hidden border border-gray-200 shadow-sm shrink-0">
-                            <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
-                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${roleBadgeColors[userRole] || 'bg-gray-100 text-gray-600'}`}>
-                                {userRole}
-                            </span>
+                    {/* User Profile Section */}
+                    <div className="border-t border-gray-100 p-3">
+                        <div className="flex items-center gap-3 px-2 py-2 rounded-lg bg-gray-50">
+                            <div className="h-9 w-9 rounded-full overflow-hidden border border-gray-200 shadow-sm shrink-0">
+                                <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-gray-800 truncate">{user.name}</p>
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold ${roleBadgeColors[userRole] || 'bg-gray-100 text-gray-600'}`}>
+                                    {userRole}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </aside>
+                </aside>
+            )}
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0">
@@ -234,6 +238,21 @@ export default function Authenticated({
                                 <span className="ml-2 font-bold text-gray-800 text-sm">SIPU Management</span>
                             </Link>
                         </div>
+
+                        {/* Logo on desktop when sidebar is hidden (Frappe Desk style) */}
+                        {hideSidebar && (
+                            <div className="hidden md:flex items-center gap-3 shrink-0 mr-6">
+                                <Link href={route('dashboard')} className="flex items-center gap-2.5 group">
+                                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center shadow-sm overflow-hidden p-1.5 group-hover:scale-105 transition-transform">
+                                        <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
+                                    </div>
+                                    <div>
+                                        <span className="font-bold text-gray-900 text-sm tracking-tight leading-none group-hover:text-indigo-600 transition-colors">SIPU Management</span>
+                                        <span className="block text-[10px] text-gray-400 leading-none mt-0.5">Swiss-Belinn SKA</span>
+                                    </div>
+                                </Link>
+                            </div>
+                        )}
 
                         {/* Page heading inline */}
                         <div className="hidden md:block flex-1 min-w-0 w-full mr-6 [&>div]:w-full [&>h2]:w-full">
@@ -389,8 +408,8 @@ export default function Authenticated({
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-                    <div className="max-w-7xl mx-auto">
+                <main className={`flex-1 overflow-y-auto ${hideSidebar ? 'p-4 sm:p-6 lg:p-10' : 'p-4 sm:p-6 lg:p-8'}`}>
+                    <div className={hideSidebar ? 'max-w-6xl mx-auto' : 'max-w-7xl mx-auto'}>
                         {children}
                     </div>
                 </main>

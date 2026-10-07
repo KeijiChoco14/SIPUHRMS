@@ -569,6 +569,17 @@ export default function MasterKeyIndex({
 
                         {/* Quick Action Buttons */}
                         <div className="flex flex-wrap items-center gap-3">
+                            <Link
+                                href={route('dashboard')}
+                                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold border border-white/10 backdrop-blur-xs transition-colors"
+                                title="Kembali ke Menu Utama (App Launcher)"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                <span>Menu Utama</span>
+                            </Link>
+
                             <button
                                 onClick={() => openFormModal('create_new')}
                                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 transition-all cursor-pointer hover:scale-102 active:scale-98"
