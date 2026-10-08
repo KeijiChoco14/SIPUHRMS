@@ -10,7 +10,7 @@ interface TaskDetailModalProps {
     employees?: any[];
     statuses?: any[];
     priorities?: any[];
-    initialTab?: 'details' | 'checklists' | 'attachments' | 'comments' | 'activity';
+    initialTab?: 'details' | 'checklists' | 'comments' | 'activity';
 }
 
 const formatDate = (d: any) => {
@@ -30,11 +30,11 @@ export default function TaskDetailModal({
     initialTab,
 }: TaskDetailModalProps) {
     const urlTab = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('tab') : null;
-    const defaultTab = (urlTab && ['details', 'checklists', 'attachments', 'comments', 'activity'].includes(urlTab))
-        ? (urlTab as 'details' | 'checklists' | 'attachments' | 'comments' | 'activity')
+    const defaultTab = (urlTab && ['details', 'checklists', 'comments', 'activity'].includes(urlTab))
+        ? (urlTab as 'details' | 'checklists' | 'comments' | 'activity')
         : (initialTab || 'details');
 
-    const [activeTab, setActiveTab] = useState<'details' | 'checklists' | 'attachments' | 'comments' | 'activity'>(defaultTab);
+    const [activeTab, setActiveTab] = useState<'details' | 'checklists' | 'comments' | 'activity'>(defaultTab);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -69,10 +69,15 @@ export default function TaskDetailModal({
     const commentForm = useForm<{
         content: string;
         tagged_user_ids: number[];
+        file: File | null;
     }>({
         content: '',
         tagged_user_ids: [],
+        file: null,
     });
+
+    const [commentFilePreview, setCommentFilePreview] = useState<string | null>(null);
+    const commentFileInputRef = React.useRef<HTMLInputElement>(null);
 
     const [mentionQuery, setMentionQuery] = useState<string | null>(null);
     const [showMentionMenu, setShowMentionMenu] = useState(false);
@@ -298,10 +303,6 @@ export default function TaskDetailModal({
         return parts;
     };
 
-    const attachmentForm = useForm({
-        file: null as File | null,
-    });
-
     const addChecklist = (e: React.FormEvent) => {
         e.preventDefault();
         checklistForm.post(route('tasks.checklists.store', task.id), {
@@ -322,11 +323,13 @@ export default function TaskDetailModal({
 
     const addComment = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!commentForm.data.content.trim()) return;
+        if (!commentForm.data.content.trim() && !commentForm.data.file) return;
 
         commentForm.post(route('tasks.comments.store', task.id), {
             onSuccess: () => {
                 commentForm.reset();
+                if (commentFileInputRef.current) commentFileInputRef.current.value = '';
+                setCommentFilePreview(null);
                 setShowMentionMenu(false);
                 setMentionQuery(null);
                 setShowTagPicker(false);
@@ -335,20 +338,32 @@ export default function TaskDetailModal({
         });
     };
 
+    const handleCommentFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        commentForm.setData('file', file);
+        if (file && file.type.startsWith('image/')) {
+            const url = URL.createObjectURL(file);
+            setCommentFilePreview(url);
+        } else {
+            setCommentFilePreview(null);
+        }
+    };
+
+    const clearCommentFile = () => {
+        commentForm.setData('file', null);
+        if (commentFileInputRef.current) commentFileInputRef.current.value = '';
+        if (commentFilePreview) {
+            URL.revokeObjectURL(commentFilePreview);
+            setCommentFilePreview(null);
+        }
+    };
+
     const deleteComment = (commentId: number) => {
         if (confirm('Are you sure you want to delete this comment?')) {
             router.delete(route('tasks.comments.destroy', commentId), {
                 preserveScroll: true,
             });
         }
-    };
-
-    const uploadAttachment = (e: React.FormEvent) => {
-        e.preventDefault();
-        attachmentForm.post(route('tasks.attachments.store', task.id), {
-            onSuccess: () => attachmentForm.reset(),
-            preserveScroll: true,
-        });
     };
 
     const acknowledgeTask = () => {
@@ -530,7 +545,6 @@ export default function TaskDetailModal({
                                 {[
                                     { id: 'details', label: 'Details' },
                                     { id: 'checklists', label: `Checklists (${task.checklists?.length || 0})` },
-                                    { id: 'attachments', label: `Attachments (${task.attachments?.length || 0})` },
                                     { id: 'comments', label: `Comments (${task.comments?.length || 0})` },
                                     { id: 'activity', label: `Activity (${task.activities?.length || 0})` },
                                 ].map((tab) => (
@@ -848,68 +862,6 @@ export default function TaskDetailModal({
                                     </div>
                                 )}
 
-                                {/* Attachments Tab */}
-                                {activeTab === 'attachments' && (
-                                    <div className="space-y-4">
-                                        <form onSubmit={uploadAttachment} className="flex items-end gap-3 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                            <div className="flex-1">
-                                                <label className="block text-xs font-semibold text-gray-700 mb-1">Upload New File</label>
-                                                <input
-                                                    type="file"
-                                                    onChange={(e) => attachmentForm.setData('file', e.target.files ? e.target.files[0] : null)}
-                                                    className="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                                                />
-                                                {attachmentForm.errors.file && (
-                                                    <p className="text-red-500 text-xs mt-1">{attachmentForm.errors.file}</p>
-                                                )}
-                                            </div>
-                                            <button
-                                                type="submit"
-                                                disabled={attachmentForm.processing || !attachmentForm.data.file}
-                                                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50 shrink-0"
-                                            >
-                                                Upload
-                                            </button>
-                                        </form>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            {task.attachments?.map((attachment: any) => (
-                                                <div key={attachment.id} className="bg-white border border-gray-200 rounded-xl p-3 flex justify-between items-center shadow-sm">
-                                                    <div className="flex items-center overflow-hidden">
-                                                        <svg className="h-8 w-8 text-indigo-500 flex-shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                                        </svg>
-                                                        <div className="truncate">
-                                                            <a
-                                                                href={`/storage/${attachment.file_path}`}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="text-xs font-semibold text-indigo-600 hover:underline truncate block"
-                                                            >
-                                                                {attachment.file_name}
-                                                            </a>
-                                                            <span className="text-[10px] text-gray-500">
-                                                                {(attachment.file_size / 1024).toFixed(1)} KB • By {attachment.employee?.user?.name || 'Employee'}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => router.delete(route('tasks.attachments.destroy', attachment.id), { preserveScroll: true })}
-                                                        className="ml-2 text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
-                                                    >
-                                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        {task.attachments?.length === 0 && (
-                                            <div className="text-center py-8 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
-                                                No attachments uploaded yet.
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
                                 {/* Comments Tab */}
                                 {activeTab === 'comments' && (
                                     <div className="flex flex-col h-full space-y-4">
@@ -983,6 +935,74 @@ export default function TaskDetailModal({
                                                         </div>
                                                         <div className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed pl-9">
                                                             {renderCommentContent(comment.content)}
+
+                                                            {comment.file_path && (() => {
+                                                                const fileUrl = comment.file_url || `/storage/${comment.file_path}`;
+                                                                const isImg = comment.is_image || 
+                                                                    (comment.file_type && comment.file_type.startsWith('image/')) ||
+                                                                    (comment.file_name && /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(comment.file_name));
+                                                                const sizeFormatted = comment.file_size 
+                                                                    ? comment.file_size > 1024 * 1024 
+                                                                        ? `${(comment.file_size / (1024 * 1024)).toFixed(1)} MB` 
+                                                                        : `${(comment.file_size / 1024).toFixed(0)} KB` 
+                                                                    : null;
+
+                                                                if (isImg) {
+                                                                    return (
+                                                                        <div className="mt-2.5">
+                                                                            <a
+                                                                                href={fileUrl}
+                                                                                target="_blank"
+                                                                                rel="noreferrer"
+                                                                                className="group relative inline-block rounded-xl overflow-hidden border border-gray-200/90 bg-gray-50 shadow-xs hover:shadow-md transition-all max-w-sm"
+                                                                            >
+                                                                                <img
+                                                                                    src={fileUrl}
+                                                                                    alt={comment.file_name || 'Attached image'}
+                                                                                    className="max-h-60 rounded-xl object-contain bg-slate-900/5 group-hover:scale-[1.01] transition-transform duration-200"
+                                                                                />
+                                                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent p-2 text-white text-[11px] flex items-center justify-between opacity-90 group-hover:opacity-100">
+                                                                                    <span className="truncate font-medium">{comment.file_name || 'View Image'}</span>
+                                                                                    {sizeFormatted && (
+                                                                                        <span className="text-[10px] text-white/80 shrink-0 ml-2">{sizeFormatted}</span>
+                                                                                    )}
+                                                                                </div>
+                                                                            </a>
+                                                                        </div>
+                                                                    );
+                                                                }
+
+                                                                return (
+                                                                    <div className="mt-2.5">
+                                                                        <a
+                                                                            href={fileUrl}
+                                                                            target="_blank"
+                                                                            rel="noreferrer"
+                                                                            download
+                                                                            className="inline-flex items-center gap-3 p-2.5 rounded-xl border border-gray-200/90 bg-gray-50/90 hover:bg-indigo-50/60 hover:border-indigo-200 shadow-xs hover:shadow-sm transition-all max-w-md group"
+                                                                        >
+                                                                            <div className="h-9 w-9 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                                                </svg>
+                                                                            </div>
+                                                                            <div className="min-w-0 flex-1">
+                                                                                <p className="text-xs font-semibold text-gray-800 group-hover:text-indigo-600 truncate">
+                                                                                    {comment.file_name || 'Download Attachment'}
+                                                                                </p>
+                                                                                <p className="text-[10px] text-gray-400 mt-0.5">
+                                                                                    {sizeFormatted || 'Attachment'} • Click to view / download
+                                                                                </p>
+                                                                            </div>
+                                                                            <div className="text-gray-400 group-hover:text-indigo-600 px-1">
+                                                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                                                </svg>
+                                                                            </div>
+                                                                        </a>
+                                                                    </div>
+                                                                );
+                                                            })()}
                                                         </div>
                                                     </div>
                                                 );
@@ -1052,14 +1072,92 @@ export default function TaskDetailModal({
                                                     onChange={handleCommentChange}
                                                     onKeyDown={handleCommentKeyDown}
                                                     rows={3}
-                                                    placeholder="Write a comment... Type @ to mention teammates for notifications"
+                                                    placeholder="Write a message... Attach files/photos or type @ to mention teammates"
                                                     className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs sm:text-sm mb-2"
                                                 />
                                             </div>
 
-                                            {/* Quick Mention / Tag bar */}
+                                            {/* Hidden file input */}
+                                            <input 
+                                                type="file" 
+                                                ref={commentFileInputRef} 
+                                                onChange={handleCommentFileChange} 
+                                                className="hidden" 
+                                            />
+
+                                            {/* File attachment preview inside chat composer */}
+                                            {commentForm.data.file && (
+                                                <div className="mb-2.5 p-2 bg-indigo-50/80 border border-indigo-200/90 rounded-xl flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-150">
+                                                    <div className="flex items-center gap-2.5 overflow-hidden">
+                                                        {commentFilePreview ? (
+                                                            <img 
+                                                                src={commentFilePreview} 
+                                                                alt="Upload preview" 
+                                                                className="h-10 w-10 rounded-lg object-cover border border-indigo-200 shrink-0 bg-white" 
+                                                            />
+                                                        ) : (
+                                                            <div className="h-10 w-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                                </svg>
+                                                            </div>
+                                                        )}
+                                                        <div className="min-w-0">
+                                                            <div className="flex items-center gap-1.5">
+                                                                <span className="text-xs font-semibold text-indigo-950 truncate max-w-[200px] sm:max-w-xs">
+                                                                    {commentForm.data.file.name}
+                                                                </span>
+                                                                <span className="text-[10px] bg-indigo-200/70 text-indigo-800 font-medium px-1.5 py-0.2 rounded shrink-0">
+                                                                    {commentForm.data.file.size > 1024 * 1024 
+                                                                        ? `${(commentForm.data.file.size / (1024 * 1024)).toFixed(1)} MB` 
+                                                                        : `${(commentForm.data.file.size / 1024).toFixed(0)} KB`}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-[10px] text-indigo-600">Attached to message</p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={clearCommentFile}
+                                                        className="text-gray-400 hover:text-red-600 p-1 rounded-lg hover:bg-white/80 transition-colors shrink-0"
+                                                        title="Remove attachment"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {commentForm.errors.file && (
+                                                <p className="text-red-500 text-xs mb-2">{commentForm.errors.file}</p>
+                                            )}
+                                            {commentForm.errors.content && (
+                                                <p className="text-red-500 text-xs mb-2">{commentForm.errors.content}</p>
+                                            )}
+
+                                            {/* Quick Mention / Tag bar & Toolbar */}
                                             <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-gray-100">
                                                 <div className="flex flex-wrap items-center gap-1.5">
+                                                    {/* Attach button */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => commentFileInputRef.current?.click()}
+                                                        className={`text-[11px] px-2.5 py-1 rounded-full border transition-all flex items-center gap-1 font-medium ${
+                                                            commentForm.data.file 
+                                                                ? 'bg-indigo-100 text-indigo-800 border-indigo-300 font-semibold shadow-xs' 
+                                                                : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-600'
+                                                        }`}
+                                                        title="Attach file or image"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                        </svg>
+                                                        <span>{commentForm.data.file ? 'Attached' : 'Attach'}</span>
+                                                    </button>
+
+                                                    <span className="text-[11px] font-medium text-gray-400 mx-0.5">•</span>
+
                                                     <span className="text-[11px] font-medium text-gray-500 flex items-center gap-1">
                                                         <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -1135,13 +1233,25 @@ export default function TaskDetailModal({
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         type="submit"
-                                                        disabled={commentForm.processing || !commentForm.data.content.trim()}
+                                                        disabled={commentForm.processing || (!commentForm.data.content.trim() && !commentForm.data.file)}
                                                         className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-1.5 shadow-sm transition-colors"
                                                     >
-                                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                                        </svg>
-                                                        <span>Post Comment</span>
+                                                        {commentForm.processing ? (
+                                                            <>
+                                                                <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                                                </svg>
+                                                                <span>Sending...</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                                                </svg>
+                                                                <span>Send</span>
+                                                            </>
+                                                        )}
                                                     </button>
                                                 </div>
                                             </div>

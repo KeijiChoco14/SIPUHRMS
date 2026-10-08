@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useForm } from '@inertiajs/react';
 import AssigneeSelect from './AssigneeSelect';
+
+const DEFAULT_EMPTY_ASSIGNEES: number[] = [];
 
 export default function CreateTaskModal({ 
     show, 
@@ -11,7 +13,7 @@ export default function CreateTaskModal({
     projects = [],
     defaultProjectId = null,
     defaultDeadline = '',
-    defaultAssignees = [],
+    defaultAssignees = DEFAULT_EMPTY_ASSIGNEES,
     defaultEstimatedDuration = 60,
 }: { 
     show: boolean, 
@@ -37,8 +39,10 @@ export default function CreateTaskModal({
         assignees: defaultAssignees || ([] as number[]),
     });
 
+    const prevShowRef = useRef(false);
+
     useEffect(() => {
-        if (show) {
+        if (show && !prevShowRef.current) {
             setData({
                 title: '',
                 description: '',
@@ -51,7 +55,8 @@ export default function CreateTaskModal({
                 assignees: defaultAssignees || [],
             });
         }
-    }, [show, defaultProjectId, defaultDeadline, defaultAssignees, defaultEstimatedDuration]);
+        prevShowRef.current = show;
+    }, [show, defaultProjectId, defaultDeadline, defaultEstimatedDuration]);
 
     const submitTask = (e: React.FormEvent) => {
         e.preventDefault();

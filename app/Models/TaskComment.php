@@ -7,11 +7,42 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaskComment extends Model
 {
-    protected $fillable = ['task_id', 'employee_id', 'content', 'tagged_user_ids'];
+    protected $fillable = [
+        'task_id', 
+        'employee_id', 
+        'content', 
+        'tagged_user_ids',
+        'file_path',
+        'file_name',
+        'file_size',
+        'file_type',
+    ];
 
     protected $casts = [
         'tagged_user_ids' => 'array',
     ];
+
+    protected $appends = ['file_url', 'is_image'];
+
+    public function getFileUrlAttribute(): ?string
+    {
+        return $this->file_path ? asset('storage/' . $this->file_path) : null;
+    }
+
+    public function getIsImageAttribute(): bool
+    {
+        if (!$this->file_path) {
+            return false;
+        }
+
+        $mime = $this->file_type ?? '';
+        if (str_starts_with($mime, 'image/')) {
+            return true;
+        }
+
+        $ext = strtolower(pathinfo($this->file_name ?? $this->file_path, PATHINFO_EXTENSION));
+        return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']);
+    }
 
     public function task(): BelongsTo
     {

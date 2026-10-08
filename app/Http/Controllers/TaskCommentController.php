@@ -6,16 +6,25 @@ use App\Models\Task;
 use App\Models\TaskComment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TaskCommentController extends Controller
 {
     public function store(Request $request, Task $task)
     {
         $validated = $request->validate([
-            'content' => 'required|string',
+            'content' => 'nullable|string',
             'tagged_user_ids' => 'nullable|array',
             'tagged_user_ids.*' => 'integer|exists:users,id',
+            'file' => 'nullable|file|max:20480', // max 20MB
         ]);
+
+        $content = trim($validated['content'] ?? '');
+        $hasFile = $request->hasFile('file');
+
+        if (empty($content) && !$hasFile) {
+            return back()->withErrors(['content' => 'Please provide a comment message or attach a file.']);
+        }
 
         $employee = Auth::user()->employee;
         if (! $employee) {
@@ -27,10 +36,12 @@ class TaskCommentController extends Controller
             ->all();
 
         // Also auto-detect any @Name mentioned in the text
-        $allUsers = \App\Models\User::select('id', 'name')->get();
-        foreach ($allUsers as $u) {
-            if (stripos($validated['content'], '@' . $u->name) !== false) {
-                $taggedUserIds[] = (int)$u->id;
+        if (!empty($content)) {
+            $allUsers = \App\Models\User::select('id', 'name')->get();
+            foreach ($allUsers as $u) {
+                if (stripos($content, '@' . $u->name) !== false) {
+                    $taggedUserIds[] = (int)$u->id;
+                }
             }
         }
 
@@ -40,8 +51,17 @@ class TaskCommentController extends Controller
 
         $commentData = [
             'employee_id' => $employee->id,
-            'content' => $validated['content'],
+            'content' => $content,
         ];
+
+        if ($hasFile) {
+            $file = $request->file('file');
+            $path = $file->store('task_comment_attachments', 'public');
+            $commentData['file_path'] = $path;
+            $commentData['file_name'] = $file->getClientOriginalName();
+            $commentData['file_size'] = $file->getSize();
+            $commentData['file_type'] = $file->getMimeType();
+        }
 
         // Guard against databases where migration has not run yet
         if (\Illuminate\Support\Facades\Schema::hasColumn('task_comments', 'tagged_user_ids')) {
@@ -69,7 +89,9 @@ class TaskCommentController extends Controller
             ? \App\Models\User::whereIn('id', $taggedUserIds)->pluck('name')->implode(', ')
             : null;
 
-        $activityDesc = 'Added comment: "' . \Illuminate\Support\Str::limit($validated['content'], 40) . '"';
+        $descContent = !empty($content) ? '"' . \Illuminate\Support\Str::limit($content, 40) . '"' : '';
+        $fileInfo = $hasFile ? '(Attached: ' . $commentData['file_name'] . ')' : '';
+        $activityDesc = 'Added comment ' . trim($descContent . ' ' . $fileInfo);
         if ($taggedNames) {
             $activityDesc .= ' (Mentioned: ' . $taggedNames . ')';
         }
@@ -77,7 +99,7 @@ class TaskCommentController extends Controller
         $task->activities()->create([
             'employee_id' => $employee->id,
             'action' => 'comment_added',
-            'description' => $activityDesc,
+            'description' => trim($activityDesc),
         ]);
 
         return back()->with('success', 'Comment added.');
@@ -91,6 +113,10 @@ class TaskCommentController extends Controller
 
         $task = $comment->task;
         $employeeId = Auth::user()->employee?->id;
+
+        if ($comment->file_path) {
+            Storage::disk('public')->delete($comment->file_path);
+        }
 
         $comment->delete();
 
