@@ -57,10 +57,12 @@ class TaskCommentController extends Controller
         if ($hasFile) {
             $file = $request->file('file');
             $path = $file->store('task_comment_attachments', 'public');
-            $commentData['file_path'] = $path;
-            $commentData['file_name'] = $file->getClientOriginalName();
-            $commentData['file_size'] = $file->getSize();
-            $commentData['file_type'] = $file->getMimeType();
+            if (\Illuminate\Support\Facades\Schema::hasColumn('task_comments', 'file_path')) {
+                $commentData['file_path'] = $path;
+                $commentData['file_name'] = $file->getClientOriginalName();
+                $commentData['file_size'] = $file->getSize();
+                $commentData['file_type'] = $file->getMimeType();
+            }
         }
 
         // Guard against databases where migration has not run yet
