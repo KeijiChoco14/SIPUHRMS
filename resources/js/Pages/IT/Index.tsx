@@ -358,14 +358,14 @@ export default function ItIndex({
             header={
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-700 text-white flex items-center justify-center shadow-md shadow-cyan-600/20">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 text-white flex items-center justify-center shadow-md shadow-red-600/20">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
                                     Swiss-Belinn IT & Systems
                                 </span>
                                 {isItManager && (
@@ -387,7 +387,7 @@ export default function ItIndex({
                                 ticketForm.reset();
                                 setIsCreateTicketOpen(true);
                             }}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 shadow-sm shadow-cyan-600/25 transition-all hover:scale-102 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 shadow-sm shadow-red-600/25 transition-all hover:scale-102 cursor-pointer"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -399,9 +399,9 @@ export default function ItIndex({
                         {isItManager && (
                             <button
                                 onClick={openCreateAsset}
-                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-gray-700 hover:text-gray-900 bg-white hover:bg-gray-50 border border-gray-300 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-red-700 hover:text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"
                             >
-                                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 <span>Tambah Asset</span>
@@ -434,9 +434,9 @@ export default function ItIndex({
 
                 {/* Tab Switcher / Non-IT Banner */}
                 {!isItManager ? (
-                    <div className="bg-white rounded-2xl p-4 border border-cyan-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center text-lg shrink-0">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-700 flex items-center justify-center text-lg shrink-0">
                                 🎫
                             </div>
                             <div>
@@ -449,7 +449,7 @@ export default function ItIndex({
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-cyan-50 text-cyan-700 border border-cyan-200">
+                            <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-red-50 text-red-700 border border-red-200">
                                 Total: {tickets.total} Tiket
                             </span>
                             {(ticketStats.open + ticketStats.in_progress) > 0 && (
@@ -468,7 +468,7 @@ export default function ItIndex({
                             }}
                             className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                                 tab === 'overview'
-                                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-sm'
+                                    ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                             }`}
                         >
@@ -483,7 +483,7 @@ export default function ItIndex({
                             }}
                             className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
                                 tab === 'tickets'
-                                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-sm'
+                                    ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                             }`}
                         >
@@ -491,7 +491,7 @@ export default function ItIndex({
                             <span>Helpdesk Tickets</span>
                             {(ticketStats.open + ticketStats.in_progress) > 0 && (
                                 <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                    tab === 'tickets' ? 'bg-white text-cyan-800' : 'bg-amber-500 text-white'
+                                    tab === 'tickets' ? 'bg-white text-red-800' : 'bg-amber-500 text-white'
                                 }`}>
                                     {ticketStats.open + ticketStats.in_progress}
                                 </span>
@@ -505,14 +505,14 @@ export default function ItIndex({
                             }}
                             className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                                 tab === 'assets'
-                                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-sm'
+                                    ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                             }`}
                         >
                             <span>🖥️</span>
                             <span>Asset Inventory</span>
                             <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                tab === 'assets' ? 'bg-white text-cyan-800' : 'bg-gray-200 text-gray-700'
+                                tab === 'assets' ? 'bg-white text-red-800' : 'bg-gray-200 text-gray-700'
                             }`}>
                                 {assetStats.total}
                             </span>
@@ -586,17 +586,17 @@ export default function ItIndex({
                             </div>
 
                             {/* Total Assets */}
-                            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-cyan-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-red-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-cyan-700 uppercase tracking-wider">
+                                    <span className="text-xs font-bold text-red-700 uppercase tracking-wider">
                                         Total Asset IT
                                     </span>
-                                    <div className="w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center text-sm">
+                                    <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm">
                                         💻
                                     </div>
                                 </div>
                                 <div className="mt-3">
-                                    <div className="text-2xl sm:text-3xl font-extrabold text-cyan-700">
+                                    <div className="text-2xl sm:text-3xl font-extrabold text-red-700">
                                         {assetStats.total}
                                     </div>
                                     <p className="text-xs text-gray-500 mt-1">
@@ -621,7 +621,7 @@ export default function ItIndex({
                                     </div>
                                     <button
                                         onClick={() => setTab('tickets')}
-                                        className="text-xs font-semibold text-cyan-600 hover:text-cyan-800 hover:underline"
+                                        className="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline"
                                     >
                                         Lihat Semua ({ticketStats.total}) →
                                     </button>
@@ -636,7 +636,7 @@ export default function ItIndex({
                                                 </div>
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className="text-xs font-mono font-bold text-cyan-700">
+                                                        <span className="text-xs font-mono font-bold text-red-700">
                                                             {t.ticket_number}
                                                         </span>
                                                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(t.status)}`}>
@@ -658,7 +658,7 @@ export default function ItIndex({
                                             <div className="flex items-center gap-2 sm:self-center shrink-0">
                                                 <Link
                                                     href={route('it.tickets.show', t.id)}
-                                                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-cyan-700 hover:text-cyan-900 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 transition-colors"
+                                                    className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                                 >
                                                     Detail Tiket
                                                 </Link>
@@ -734,7 +734,7 @@ export default function ItIndex({
                                 <div className="mt-6 pt-4 border-t border-gray-100">
                                     <button
                                         onClick={() => setTab('assets')}
-                                        className="w-full py-2.5 rounded-xl text-xs font-bold text-center text-cyan-700 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 transition-colors"
+                                        className="w-full py-2.5 rounded-xl text-xs font-bold text-center text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                     >
                                         Buka Data Inventaris Lengkap →
                                     </button>
@@ -757,7 +757,7 @@ export default function ItIndex({
                                         value={ticketSearch}
                                         onChange={(e) => setTicketSearch(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && applyTicketFilter()}
-                                        className="w-full text-xs sm:text-sm pl-9 pr-3 py-2 rounded-xl border-gray-200 focus:border-cyan-500 focus:ring-cyan-500"
+                                        className="w-full text-xs sm:text-sm pl-9 pr-3 py-2 rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500"
                                     />
                                     <svg className="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -765,7 +765,7 @@ export default function ItIndex({
                                 </div>
                                 <button
                                     onClick={applyTicketFilter}
-                                    className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"
+                                    className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors"
                                 >
                                     Cari
                                 </button>
@@ -787,7 +787,7 @@ export default function ItIndex({
                                             { preserveState: true }
                                         );
                                     }}
-                                    className="text-xs rounded-xl border-gray-200 focus:border-cyan-500 focus:ring-cyan-500 py-2"
+                                    className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
                                     <option value="all">Semua Status</option>
                                     <option value="Open">Open (Baru)</option>
@@ -812,7 +812,7 @@ export default function ItIndex({
                                             { preserveState: true }
                                         );
                                     }}
-                                    className="text-xs rounded-xl border-gray-200 focus:border-cyan-500 focus:ring-cyan-500 py-2"
+                                    className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
                                     <option value="all">Semua Prioritas</option>
                                     <option value="Urgent">Urgent</option>
@@ -840,9 +840,9 @@ export default function ItIndex({
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 text-gray-800">
                                         {tickets.data.map((t) => (
-                                            <tr key={t.id} className="hover:bg-cyan-50/20 transition-colors">
+                                            <tr key={t.id} className="hover:bg-red-50/20 transition-colors">
                                                 <td className="py-3.5 px-4 font-mono">
-                                                    <span className="font-bold text-cyan-700 block">
+                                                    <span className="font-bold text-red-700 block">
                                                         {t.ticket_number}
                                                     </span>
                                                     <span className="text-[11px] text-gray-400">
@@ -864,7 +864,7 @@ export default function ItIndex({
                                                         {t.description}
                                                     </p>
                                                     {t.asset && (
-                                                        <div className="mt-1 inline-flex items-center gap-1 text-[11px] text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-100 font-mono">
+                                                        <div className="mt-1 inline-flex items-center gap-1 text-[11px] text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-100 font-mono">
                                                             <span>💻</span>
                                                             <span>{t.asset.asset_code} - {t.asset.name}</span>
                                                         </div>
@@ -895,7 +895,7 @@ export default function ItIndex({
                                                 <td className="py-3.5 px-4">
                                                     {t.assigned_user ? (
                                                         <div className="flex items-center gap-1.5">
-                                                            <div className="w-6 h-6 rounded-full bg-cyan-700 text-white flex items-center justify-center text-[10px] font-bold">
+                                                            <div className="w-6 h-6 rounded-full bg-red-700 text-white flex items-center justify-center text-[10px] font-bold">
                                                                 {t.assigned_user.name.charAt(0)}
                                                             </div>
                                                             <span className="text-xs font-semibold text-gray-800">
@@ -913,7 +913,7 @@ export default function ItIndex({
                                                     <div className="inline-flex items-center gap-1.5">
                                                         <Link
                                                             href={route('it.tickets.show', t.id)}
-                                                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-cyan-700 hover:text-cyan-900 bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 transition-colors"
+                                                            className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                                         >
                                                             Buka Tiket
                                                         </Link>
@@ -956,7 +956,7 @@ export default function ItIndex({
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                                 className={`px-3 py-1.5 rounded-lg border text-xs font-semibold ${
                                                     link.active
-                                                        ? 'bg-cyan-600 text-white border-cyan-600'
+                                                        ? 'bg-red-600 text-white border-red-600'
                                                         : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                                                 } ${!link.url ? 'opacity-40 cursor-not-allowed' : ''}`}
                                             />
@@ -981,7 +981,7 @@ export default function ItIndex({
                                         value={assetSearch}
                                         onChange={(e) => setAssetSearch(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && applyAssetFilter()}
-                                        className="w-full text-xs sm:text-sm pl-9 pr-3 py-2 rounded-xl border-gray-200 focus:border-cyan-500 focus:ring-cyan-500"
+                                        className="w-full text-xs sm:text-sm pl-9 pr-3 py-2 rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500"
                                     />
                                     <svg className="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -989,7 +989,7 @@ export default function ItIndex({
                                 </div>
                                 <button
                                     onClick={applyAssetFilter}
-                                    className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"
+                                    className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors"
                                 >
                                     Cari
                                 </button>
@@ -1011,7 +1011,7 @@ export default function ItIndex({
                                             { preserveState: true }
                                         );
                                     }}
-                                    className="text-xs rounded-xl border-gray-200 focus:border-cyan-500 focus:ring-cyan-500 py-2"
+                                    className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
                                     <option value="all">Semua Kategori</option>
                                     <option value="Desktop / PC">Desktop / PC</option>
@@ -1039,7 +1039,7 @@ export default function ItIndex({
                                             { preserveState: true }
                                         );
                                     }}
-                                    className="text-xs rounded-xl border-gray-200 focus:border-cyan-500 focus:ring-cyan-500 py-2"
+                                    className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
                                     <option value="all">Semua Status</option>
                                     <option value="In Use">In Use (Aktif)</option>
@@ -1067,8 +1067,8 @@ export default function ItIndex({
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 text-gray-800">
                                         {assets.data.map((a) => (
-                                            <tr key={a.id} className="hover:bg-cyan-50/20 transition-colors">
-                                                <td className="py-3.5 px-4 font-mono font-bold text-cyan-800">
+                                            <tr key={a.id} className="hover:bg-red-50/20 transition-colors">
+                                                <td className="py-3.5 px-4 font-mono font-bold text-red-700">
                                                     {a.asset_code}
                                                     {a.serial_number && (
                                                         <span className="block text-[10px] text-gray-400 font-normal">
@@ -1102,7 +1102,7 @@ export default function ItIndex({
                                                         {a.location || '-'}
                                                     </div>
                                                     {a.ip_address ? (
-                                                        <span className="text-xs font-mono text-cyan-700 bg-cyan-50 px-1.5 py-0.5 rounded border border-cyan-100">
+                                                        <span className="text-xs font-mono text-red-700 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
                                                             {a.ip_address}
                                                         </span>
                                                     ) : (
@@ -1138,7 +1138,7 @@ export default function ItIndex({
                                                         <div className="inline-flex items-center gap-1">
                                                             <button
                                                                 onClick={() => openEditAsset(a)}
-                                                                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
+                                                                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                                             >
                                                                 Edit
                                                             </button>
@@ -1179,7 +1179,7 @@ export default function ItIndex({
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                                 className={`px-3 py-1.5 rounded-lg border text-xs font-semibold ${
                                                     link.active
-                                                        ? 'bg-cyan-600 text-white border-cyan-600'
+                                                        ? 'bg-red-600 text-white border-red-600'
                                                         : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                                                 } ${!link.url ? 'opacity-40 cursor-not-allowed' : ''}`}
                                             />
@@ -1195,19 +1195,24 @@ export default function ItIndex({
             {/* MODAL 1: LAPOR KENDALA IT (CREATE TICKET) */}
             <Modal show={isCreateTicketOpen} onClose={() => setIsCreateTicketOpen(false)} maxWidth="2xl">
                 <form onSubmit={submitTicket} className="p-6 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-                        <div>
-                            <span className="text-xs font-bold text-cyan-600 uppercase tracking-wider">
-                                IT Helpdesk Request
-                            </span>
-                            <h3 className="text-lg font-bold text-gray-900">
-                                Formulir Lapor Kendala IT
-                            </h3>
+                    <div className="flex items-center justify-between pb-3 border-b border-red-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg border border-red-200 shrink-0">
+                                🛠️
+                            </div>
+                            <div>
+                                <span className="text-[11px] font-bold text-red-600 uppercase tracking-wider">
+                                    IT Helpdesk Request
+                                </span>
+                                <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                                    Formulir Lapor Kendala IT
+                                </h3>
+                            </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => setIsCreateTicketOpen(false)}
-                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1"
+                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                             ✕
                         </button>
@@ -1220,7 +1225,7 @@ export default function ItIndex({
                             <TextInput
                                 id="ticket_title"
                                 type="text"
-                                className="mt-1 block w-full text-xs sm:text-sm"
+                                className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                 placeholder="Contoh: Printer Kasir Resto Paper Jam / WiFi Siak Tidak Bisa Connect"
                                 value={ticketForm.data.title}
                                 onChange={(e) => ticketForm.setData('title', e.target.value)}
@@ -1235,7 +1240,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="ticket_category" value="Kategori Masalah *" />
                                 <select
                                     id="ticket_category"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={ticketForm.data.category}
                                     onChange={(e) => ticketForm.setData('category', e.target.value)}
                                     required
@@ -1254,7 +1259,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="ticket_priority" value="Tingkat Urgensi *" />
                                 <select
                                     id="ticket_priority"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={ticketForm.data.priority}
                                     onChange={(e) => ticketForm.setData('priority', e.target.value as any)}
                                     required
@@ -1274,7 +1279,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="ticket_location"
                                     type="text"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="Contoh: Front Desk 1, Restoran Swiss-Cafe, Meeting Siak Lt 2"
                                     value={ticketForm.data.location}
                                     onChange={(e) => ticketForm.setData('location', e.target.value)}
@@ -1285,7 +1290,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="ticket_asset" value="Perangkat Terkait (Opsional)" />
                                 <select
                                     id="ticket_asset"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={ticketForm.data.it_asset_id}
                                     onChange={(e) => ticketForm.setData('it_asset_id', e.target.value)}
                                 >
@@ -1305,7 +1310,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="ticket_reporter" value="Pelapor Kendala (Karyawan)" />
                                 <select
                                     id="ticket_reporter"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={ticketForm.data.reported_by_employee_id}
                                     onChange={(e) => ticketForm.setData('reported_by_employee_id', e.target.value)}
                                 >
@@ -1325,7 +1330,7 @@ export default function ItIndex({
                             <textarea
                                 id="ticket_desc"
                                 rows={4}
-                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                 placeholder="Jelaskan secara detail apa yang terjadi, pesan error yang muncul, atau tindakan yang sudah dicoba..."
                                 value={ticketForm.data.description}
                                 onChange={(e) => ticketForm.setData('description', e.target.value)}
@@ -1339,7 +1344,7 @@ export default function ItIndex({
                         <SecondaryButton type="button" onClick={() => setIsCreateTicketOpen(false)}>
                             Batal
                         </SecondaryButton>
-                        <PrimaryButton disabled={ticketForm.processing} className="bg-cyan-600 hover:bg-cyan-700">
+                        <PrimaryButton disabled={ticketForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
                             {ticketForm.processing ? 'Mengirim...' : 'Kirim Laporan IT'}
                         </PrimaryButton>
                     </div>
@@ -1349,19 +1354,24 @@ export default function ItIndex({
             {/* MODAL 2: CREATE / EDIT ASSET (IT MANAGERS) */}
             <Modal show={isCreateAssetOpen} onClose={() => setIsCreateAssetOpen(false)} maxWidth="2xl">
                 <form onSubmit={submitAsset} className="p-6 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-                        <div>
-                            <span className="text-xs font-bold text-cyan-600 uppercase tracking-wider">
-                                IT Asset Inventory
-                            </span>
-                            <h3 className="text-lg font-bold text-gray-900">
-                                {editingAsset ? 'Edit Data Asset IT' : 'Tambah Perangkat IT Baru'}
-                            </h3>
+                    <div className="flex items-center justify-between pb-3 border-b border-red-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg border border-red-200 shrink-0">
+                                💻
+                            </div>
+                            <div>
+                                <span className="text-[11px] font-bold text-red-600 uppercase tracking-wider">
+                                    IT Asset Inventory
+                                </span>
+                                <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                                    {editingAsset ? 'Edit Data Asset IT' : 'Tambah Perangkat IT Baru'}
+                                </h3>
+                            </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => setIsCreateAssetOpen(false)}
-                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1"
+                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                             ✕
                         </button>
@@ -1374,7 +1384,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="asset_code"
                                     type="text"
-                                    className="mt-1 block w-full font-mono text-xs sm:text-sm"
+                                    className="mt-1 block w-full font-mono text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="Contoh: IT-PC-FO-01, IT-NET-AP-02"
                                     value={assetForm.data.asset_code}
                                     onChange={(e) => assetForm.setData('asset_code', e.target.value)}
@@ -1388,7 +1398,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="asset_name"
                                     type="text"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="Contoh: PC All-in-One HP ProOne 440 G9"
                                     value={assetForm.data.name}
                                     onChange={(e) => assetForm.setData('name', e.target.value)}
@@ -1403,7 +1413,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="asset_category" value="Kategori Perangkat *" />
                                 <select
                                     id="asset_category"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={assetForm.data.category}
                                     onChange={(e) => assetForm.setData('category', e.target.value)}
                                     required
@@ -1424,7 +1434,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="asset_brand"
                                     type="text"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="HP, Lenovo, Cisco, Ubiquiti, Epson"
                                     value={assetForm.data.brand}
                                     onChange={(e) => assetForm.setData('brand', e.target.value)}
@@ -1436,7 +1446,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="asset_model"
                                     type="text"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="ThinkPad E14, TM-T82X"
                                     value={assetForm.data.model}
                                     onChange={(e) => assetForm.setData('model', e.target.value)}
@@ -1450,7 +1460,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="asset_sn"
                                     type="text"
-                                    className="mt-1 block w-full font-mono text-xs sm:text-sm"
+                                    className="mt-1 block w-full font-mono text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="S/N: PF-39XKL2"
                                     value={assetForm.data.serial_number}
                                     onChange={(e) => assetForm.setData('serial_number', e.target.value)}
@@ -1461,7 +1471,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="asset_status" value="Status Kondisi *" />
                                 <select
                                     id="asset_status"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={assetForm.data.status}
                                     onChange={(e) => assetForm.setData('status', e.target.value)}
                                     required
@@ -1478,7 +1488,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="asset_ip"
                                     type="text"
-                                    className="mt-1 block w-full font-mono text-xs sm:text-sm"
+                                    className="mt-1 block w-full font-mono text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="192.168.10.25"
                                     value={assetForm.data.ip_address}
                                     onChange={(e) => assetForm.setData('ip_address', e.target.value)}
@@ -1492,7 +1502,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="asset_location"
                                     type="text"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="Front Office, Server Room Lt 2, Ballroom"
                                     value={assetForm.data.location}
                                     onChange={(e) => assetForm.setData('location', e.target.value)}
@@ -1503,7 +1513,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="asset_employee" value="Karyawan Pengguna (Assigned)" />
                                 <select
                                     id="asset_employee"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={assetForm.data.assigned_to_employee_id}
                                     onChange={(e) => assetForm.setData('assigned_to_employee_id', e.target.value)}
                                 >
@@ -1523,7 +1533,7 @@ export default function ItIndex({
                             <textarea
                                 id="asset_specs"
                                 rows={2}
-                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                 placeholder="Contoh: Intel Core i5-12500, 16GB RAM, 512GB NVMe, Win 11 Pro"
                                 value={assetForm.data.specifications}
                                 onChange={(e) => assetForm.setData('specifications', e.target.value)}
@@ -1537,7 +1547,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="purchase_date"
                                     type="date"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     value={assetForm.data.purchase_date}
                                     onChange={(e) => assetForm.setData('purchase_date', e.target.value)}
                                 />
@@ -1548,7 +1558,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="warranty_expiry"
                                     type="date"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     value={assetForm.data.warranty_expiry}
                                     onChange={(e) => assetForm.setData('warranty_expiry', e.target.value)}
                                 />
@@ -1559,7 +1569,7 @@ export default function ItIndex({
                                 <TextInput
                                     id="purchase_cost"
                                     type="number"
-                                    className="mt-1 block w-full text-xs sm:text-sm"
+                                    className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                     placeholder="Rp"
                                     value={assetForm.data.purchase_cost}
                                     onChange={(e) => assetForm.setData('purchase_cost', e.target.value)}
@@ -1573,7 +1583,7 @@ export default function ItIndex({
                             <textarea
                                 id="asset_notes"
                                 rows={2}
-                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                 placeholder="Catatan lisensi, kontak vendor servis, atau riwayat kerusakan..."
                                 value={assetForm.data.notes}
                                 onChange={(e) => assetForm.setData('notes', e.target.value)}
@@ -1585,7 +1595,7 @@ export default function ItIndex({
                         <SecondaryButton type="button" onClick={() => setIsCreateAssetOpen(false)}>
                             Batal
                         </SecondaryButton>
-                        <PrimaryButton disabled={assetForm.processing} className="bg-cyan-600 hover:bg-cyan-700">
+                        <PrimaryButton disabled={assetForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
                             {assetForm.processing ? 'Menyimpan...' : (editingAsset ? 'Simpan Perubahan' : 'Tambahkan Aset')}
                         </PrimaryButton>
                     </div>
@@ -1615,19 +1625,24 @@ export default function ItIndex({
             {/* MODAL 4: QUICK STATUS UPDATE (IT MANAGERS) */}
             <Modal show={!!quickStatusTicket} onClose={() => setQuickStatusTicket(null)} maxWidth="lg">
                 <form onSubmit={submitQuickStatus} className="p-6 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-                        <div>
-                            <span className="text-xs font-bold text-cyan-600 uppercase tracking-wider">
-                                {quickStatusTicket?.ticket_number}
-                            </span>
-                            <h3 className="text-lg font-bold text-gray-900">
-                                Update Cepat Tiket IT
-                            </h3>
+                    <div className="flex items-center justify-between pb-3 border-b border-red-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg border border-red-200 shrink-0">
+                                ⚡
+                            </div>
+                            <div>
+                                <span className="text-[11px] font-bold text-red-600 uppercase tracking-wider">
+                                    {quickStatusTicket?.ticket_number}
+                                </span>
+                                <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                                    Update Cepat Status Tiket IT
+                                </h3>
+                            </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => setQuickStatusTicket(null)}
-                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1"
+                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                             ✕
                         </button>
@@ -1647,7 +1662,7 @@ export default function ItIndex({
                             <InputLabel htmlFor="quick_status" value="Ubah Status *" />
                             <select
                                 id="quick_status"
-                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                 value={statusForm.data.status}
                                 onChange={(e) => statusForm.setData('status', e.target.value)}
                                 required
@@ -1665,7 +1680,7 @@ export default function ItIndex({
                                 <InputLabel htmlFor="quick_assigned" value="Tugaskan Teknisi IT" />
                                 <select
                                     id="quick_assigned"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={statusForm.data.assigned_to_user_id}
                                     onChange={(e) => statusForm.setData('assigned_to_user_id', e.target.value)}
                                 >
@@ -1685,7 +1700,7 @@ export default function ItIndex({
                                 <textarea
                                     id="resolution_notes"
                                     rows={2}
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     placeholder="Jelaskan tindakan perbaikan yang telah dilakukan..."
                                     value={statusForm.data.resolution_notes}
                                     onChange={(e) => statusForm.setData('resolution_notes', e.target.value)}
@@ -1698,7 +1713,7 @@ export default function ItIndex({
                             <TextInput
                                 id="update_msg"
                                 type="text"
-                                className="mt-1 block w-full text-xs sm:text-sm"
+                                className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                 placeholder="Contoh: Teknisi sedang memeriksa kabel LAN di lokasi..."
                                 value={statusForm.data.notes}
                                 onChange={(e) => statusForm.setData('notes', e.target.value)}
@@ -1710,7 +1725,7 @@ export default function ItIndex({
                         <SecondaryButton type="button" onClick={() => setQuickStatusTicket(null)}>
                             Batal
                         </SecondaryButton>
-                        <PrimaryButton disabled={statusForm.processing} className="bg-cyan-600 hover:bg-cyan-700">
+                        <PrimaryButton disabled={statusForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
                             {statusForm.processing ? 'Menyimpan...' : 'Perbarui Status'}
                         </PrimaryButton>
                     </div>

@@ -304,9 +304,9 @@ export default function Authenticated({
                 key: 'it',
                 title: isItStaff ? 'IT Operations' : 'IT Helpdesk',
                 subtitle: isItStaff ? 'Inventory & Helpdesk' : 'Layanan Kendala IT',
-                badgeBg: 'bg-cyan-50',
-                badgeBorder: 'border-cyan-200',
-                dotColor: 'bg-cyan-600',
+                badgeBg: 'bg-red-50',
+                badgeBorder: 'border-red-200',
+                dotColor: 'bg-red-600',
                 sections: [
                     {
                         title: isItStaff ? 'IT Workspace' : 'Tiket Kendala IT',

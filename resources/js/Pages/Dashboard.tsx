@@ -162,9 +162,9 @@ export default function Dashboard({
                 : 'Lapor kendala IT hotel, pantau status penanganan, dan respon teknisi',
             category: 'IT & Facilities',
             href: isItStaff ? route('it.index', { tab: 'overview' }) : route('it.index', { tab: 'tickets' }),
-            gradient: 'from-cyan-600 to-blue-700',
+            gradient: 'from-red-600 to-rose-700',
             badge: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? `${launcherStats.openItTickets} Tiket Aktif` : (isItStaff && launcherStats.totalItAssets ? `${launcherStats.totalItAssets} Assets` : null),
-            badgeColor: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? 'bg-amber-500' : 'bg-cyan-600',
+            badgeColor: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? 'bg-amber-500' : 'bg-red-600',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -402,7 +402,7 @@ export default function Dashboard({
             description: 'Lapor dan pantau penanganan masalah IT, WiFi, printer, dan komputer',
             category: 'IT & Facilities',
             href: route('it.index', { tab: 'tickets' }),
-            gradient: 'from-cyan-600 to-teal-600',
+            gradient: 'from-red-600 to-rose-600',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -416,7 +416,7 @@ export default function Dashboard({
             description: 'Daftar hardware IT hotel, PC, laptop, switch, printer, dan AP',
             category: 'IT & Facilities',
             href: route('it.index', { tab: 'assets' }),
-            gradient: 'from-sky-600 to-blue-700',
+            gradient: 'from-rose-600 to-red-700',
             visible: isItStaff,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -971,7 +971,7 @@ export default function Dashboard({
                                 </Link>
                                 <Link
                                     href={route('it.index', { tab: 'tickets' })}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-cyan-700 bg-cyan-50/70 hover:bg-cyan-100/90 border border-cyan-200/60 transition-all hover:scale-102"
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-red-700 bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
                                     title="Lapor kendala IT hotel atau pantau status tiket"
                                 >
                                     <span>🛠️</span>

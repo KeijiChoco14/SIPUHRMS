@@ -150,7 +150,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         </Link>
                         <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-mono text-xs font-bold text-cyan-700 px-2 py-0.5 rounded-md bg-cyan-50 border border-cyan-200">
+                                <span className="font-mono text-xs font-bold text-red-700 px-2 py-0.5 rounded-md bg-red-50 border border-red-200">
                                     {ticket.ticket_number}
                                 </span>
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getStatusBadge(ticket.status)}`}>
@@ -170,7 +170,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         {isItManager && (
                             <button
                                 onClick={() => setIsStatusModalOpen(true)}
-                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-cyan-600 hover:bg-cyan-700 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 shadow-sm shadow-red-600/25 transition-all hover:scale-102 cursor-pointer"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -295,7 +295,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                                 <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gray-200 -mb-4"></div>
                                             )}
 
-                                            <div className="w-8 h-8 rounded-full bg-cyan-700 text-white flex items-center justify-center text-xs font-bold shrink-0 z-10 shadow-2xs">
+                                            <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold shrink-0 z-10 shadow-2xs">
                                                 {upd.user?.name ? upd.user.name.charAt(0) : 'U'}
                                             </div>
 
@@ -306,7 +306,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                                             {upd.user?.name || 'Sistem'}
                                                         </strong>
                                                         {upd.status_to && upd.status_from !== upd.status_to && (
-                                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
+                                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200">
                                                                 Status: {upd.status_to}
                                                             </span>
                                                         )}
@@ -344,11 +344,11 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                     placeholder="Tulis pesan atau update status penanganan di sini..."
                                     value={replyForm.data.message}
                                     onChange={(e) => replyForm.setData('message', e.target.value)}
-                                    className="w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     required
                                 />
                                 <div className="flex justify-end">
-                                    <PrimaryButton disabled={replyForm.processing} className="bg-cyan-600 hover:bg-cyan-700 text-xs">
+                                    <PrimaryButton disabled={replyForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25 text-xs">
                                         {replyForm.processing ? 'Mengirim...' : 'Kirim Tanggapan'}
                                     </PrimaryButton>
                                 </div>
@@ -390,7 +390,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 </div>
                                 <div className="flex items-center justify-between text-gray-600">
                                     <span>Teknisi Ditugaskan:</span>
-                                    <strong className="text-cyan-800">
+                                    <strong className="text-red-700">
                                         {ticket.assigned_user ? ticket.assigned_user.name : 'Belum Ditugaskan'}
                                     </strong>
                                 </div>
@@ -404,7 +404,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                     <h3 className="font-bold text-gray-900 text-sm">
                                         Perangkat Terkait
                                     </h3>
-                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-800 border border-cyan-200 font-bold">
+                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-bold">
                                         {ticket.asset.asset_code}
                                     </span>
                                 </div>
@@ -427,7 +427,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 {ticket.asset.ip_address && (
                                     <div className="flex items-center justify-between text-xs">
                                         <span className="text-gray-500">IP Address:</span>
-                                        <span className="font-mono text-cyan-700 font-semibold bg-cyan-50 px-2 py-0.5 rounded border border-cyan-100">
+                                        <span className="font-mono text-red-700 font-semibold bg-red-50 px-2 py-0.5 rounded border border-red-100">
                                             {ticket.asset.ip_address}
                                         </span>
                                     </div>
@@ -446,19 +446,24 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
             {/* MODAL: UPDATE STATUS & ASSIGNMENT */}
             <Modal show={isStatusModalOpen} onClose={() => setIsStatusModalOpen(false)} maxWidth="lg">
                 <form onSubmit={submitStatusUpdate} className="p-6 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-                        <div>
-                            <span className="text-xs font-bold text-cyan-600 uppercase tracking-wider">
-                                {ticket.ticket_number}
-                            </span>
-                            <h3 className="text-lg font-bold text-gray-900">
-                                Perbarui Status & Teknisi
-                            </h3>
+                    <div className="flex items-center justify-between pb-3 border-b border-red-100">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg border border-red-200 shrink-0">
+                                ⚡
+                            </div>
+                            <div>
+                                <span className="text-[11px] font-bold text-red-600 uppercase tracking-wider">
+                                    {ticket.ticket_number}
+                                </span>
+                                <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                                    Perbarui Status & Teknisi
+                                </h3>
+                            </div>
                         </div>
                         <button
                             type="button"
                             onClick={() => setIsStatusModalOpen(false)}
-                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1"
+                            className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                             ✕
                         </button>
@@ -469,7 +474,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                             <InputLabel htmlFor="status_select" value="Status Tiket *" />
                             <select
                                 id="status_select"
-                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                 value={statusForm.data.status}
                                 onChange={(e) => statusForm.setData('status', e.target.value as any)}
                                 required
@@ -487,7 +492,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 <InputLabel htmlFor="technician_select" value="Tugaskan ke Teknisi IT" />
                                 <select
                                     id="technician_select"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={statusForm.data.assigned_to_user_id}
                                     onChange={(e) => statusForm.setData('assigned_to_user_id', e.target.value)}
                                 >
@@ -507,7 +512,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 <textarea
                                     id="res_notes"
                                     rows={3}
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     placeholder="Jelaskan tindakan teknis yang telah diambil untuk menyelesaikan kendala..."
                                     value={statusForm.data.resolution_notes}
                                     onChange={(e) => statusForm.setData('resolution_notes', e.target.value)}
@@ -521,7 +526,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                             <TextInput
                                 id="notes_input"
                                 type="text"
-                                className="mt-1 block w-full text-xs sm:text-sm"
+                                className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
                                 placeholder="Contoh: Menunggu kabel pengganti dari vendor..."
                                 value={statusForm.data.notes}
                                 onChange={(e) => statusForm.setData('notes', e.target.value)}
@@ -533,7 +538,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         <SecondaryButton type="button" onClick={() => setIsStatusModalOpen(false)}>
                             Batal
                         </SecondaryButton>
-                        <PrimaryButton disabled={statusForm.processing} className="bg-cyan-600 hover:bg-cyan-700">
+                        <PrimaryButton disabled={statusForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
                             {statusForm.processing ? 'Menyimpan...' : 'Simpan Status'}
                         </PrimaryButton>
                     </div>
