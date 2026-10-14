@@ -22,9 +22,9 @@ interface Asset {
     assigned_to_employee_id?: number;
     assigned_employee?: {
         id: number;
-        first_name: string;
-        last_name: string;
+        employee_number?: string;
         department?: { name: string };
+        user?: { name: string; email: string };
     };
     location?: string;
     ip_address?: string;
@@ -55,8 +55,7 @@ interface Ticket {
     reported_by_employee_id: number;
     reporter?: {
         id: number;
-        first_name: string;
-        last_name: string;
+        employee_number?: string;
         department?: { name: string };
         user?: { name: string; email: string };
     };
@@ -651,7 +650,7 @@ export default function ItIndex({
                                                         {t.title}
                                                     </h4>
                                                     <p className="text-xs text-gray-500 mt-0.5 truncate">
-                                                        Pelapor: <strong className="text-gray-700">{t.reporter ? `${t.reporter.first_name} ${t.reporter.last_name}` : 'Staff'}</strong> ({t.reporter?.department?.name || t.location || 'Hotel'})
+                                                        Pelapor: <strong className="text-gray-700">{t.reporter?.user?.name || (t.reporter ? `Emp #${t.reporter.employee_number}` : 'Staff')}</strong> ({t.reporter?.department?.name || t.location || 'Hotel'})
                                                     </p>
                                                 </div>
                                             </div>
@@ -874,7 +873,7 @@ export default function ItIndex({
 
                                                 <td className="py-3.5 px-4">
                                                     <div className="font-medium text-gray-900">
-                                                        {t.reporter ? `${t.reporter.first_name} ${t.reporter.last_name}` : '-'}
+                                                        {t.reporter?.user?.name || (t.reporter ? `Emp #${t.reporter.employee_number}` : '-')}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
                                                         {t.reporter?.department?.name || '-'} • <span className="font-medium text-gray-700">{t.location || 'Area Hotel'}</span>
@@ -1115,7 +1114,7 @@ export default function ItIndex({
                                                     {a.assigned_employee ? (
                                                         <div>
                                                             <div className="font-semibold text-gray-900">
-                                                                {a.assigned_employee.first_name} {a.assigned_employee.last_name}
+                                                                {a.assigned_employee.user?.name || (a.assigned_employee.employee_number ? `Emp #${a.assigned_employee.employee_number}` : 'Staff')}
                                                             </div>
                                                             <div className="text-xs text-gray-500">
                                                                 {a.assigned_employee.department?.name || '-'}
@@ -1640,7 +1639,7 @@ export default function ItIndex({
                                 {quickStatusTicket?.title}
                             </div>
                             <div className="text-xs text-gray-500 mt-1">
-                                Pelapor: {quickStatusTicket?.reporter ? `${quickStatusTicket.reporter.first_name} ${quickStatusTicket.reporter.last_name}` : '-'} ({quickStatusTicket?.location || '-'})
+                                Pelapor: {quickStatusTicket?.reporter?.user?.name || (quickStatusTicket?.reporter ? `Emp #${quickStatusTicket.reporter.employee_number}` : '-')} ({quickStatusTicket?.location || '-'})
                             </div>
                         </div>
 

@@ -85,16 +85,14 @@ class ItOperationsController extends Controller
                 'total' => ItTicket::count(),
             ];
 
-            $employees = Employee::with('department')
-                ->where('status', 'active')
-                ->select('id', 'first_name', 'last_name', 'department_id', 'user_id', 'employee_id as code')
+            $employees = Employee::with(['user', 'department'])
                 ->get()
                 ->map(function ($emp) {
                     return [
                         'id' => $emp->id,
-                        'name' => trim("{$emp->first_name} {$emp->last_name}"),
+                        'name' => $emp->user ? $emp->user->name : "Employee #{$emp->employee_number}",
                         'department' => $emp->department ? $emp->department->name : '-',
-                        'code' => $emp->code,
+                        'code' => $emp->employee_number,
                     ];
                 });
 

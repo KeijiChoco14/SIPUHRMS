@@ -29,8 +29,7 @@ interface Ticket {
     reported_by_employee_id: number;
     reporter?: {
         id: number;
-        first_name: string;
-        last_name: string;
+        employee_number?: string;
         department?: { name: string };
         user?: { name: string; email: string };
     };
@@ -367,11 +366,11 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
 
                             <div className="flex items-center gap-3">
                                 <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-base shadow-2xs">
-                                    {ticket.reporter?.first_name?.charAt(0) || 'P'}
+                                    {(ticket.reporter?.user?.name || 'P').charAt(0)}
                                 </div>
                                 <div className="min-w-0">
                                     <div className="font-bold text-gray-900 text-sm truncate">
-                                        {ticket.reporter ? `${ticket.reporter.first_name} ${ticket.reporter.last_name}` : 'Karyawan Hotel'}
+                                        {ticket.reporter?.user?.name || (ticket.reporter ? `Emp #${ticket.reporter.employee_number}` : 'Karyawan Hotel')}
                                     </div>
                                     <div className="text-xs text-gray-500">
                                         {ticket.reporter?.department?.name || 'Department'}
