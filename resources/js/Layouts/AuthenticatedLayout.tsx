@@ -138,6 +138,7 @@ export default function Authenticated({
     const isSupervisor = user.roles?.some((r: any) => ['Supervisor', 'Head of Department'].includes(r.name));
     // Hak akses level manajemen / HRD (Super Admin, HRD / Admin, General Manager)
     const isAdmin = isSuperAdmin || isHRD || isManager;
+    const isItStaff = isSuperAdmin || isManager || (user.employee?.department?.name?.toLowerCase() === 'it');
     const canViewPerformance = isAdmin;
     const canViewProjects = isAdmin || isSupervisor;
 
@@ -294,7 +295,32 @@ export default function Authenticated({
             };
         }
 
-        // 5. System Administration
+        // 5. IT Operations & Helpdesk
+        if (
+            route().current('it.*') ||
+            currentUrl.includes('/it')
+        ) {
+            return {
+                key: 'it',
+                title: isItStaff ? 'IT Operations' : 'IT Helpdesk',
+                subtitle: isItStaff ? 'Inventory & Helpdesk' : 'Layanan Kendala IT',
+                badgeBg: 'bg-cyan-50',
+                badgeBorder: 'border-cyan-200',
+                dotColor: 'bg-cyan-600',
+                sections: [
+                    {
+                        title: isItStaff ? 'IT Workspace' : 'Tiket Kendala IT',
+                        items: [
+                            isItStaff ? { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.index' } : null,
+                            { name: isItStaff ? 'IT Helpdesk Tickets' : 'Tiket Kendala Saya', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.*' },
+                            isItStaff ? { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.*' } : null,
+                        ].filter(Boolean) as any[],
+                    },
+                ],
+            };
+        }
+
+        // 6. System Administration
         if (
             route().current('roles.*') ||
             route().current('audit-logs.*') ||
@@ -367,7 +393,7 @@ export default function Authenticated({
                 },
             ],
         };
-    }, [currentUrl, isAdmin, isManager, isSupervisor, canViewPerformance, canViewProjects]);
+    }, [currentUrl, isAdmin, isManager, isSupervisor, canViewPerformance, canViewProjects, isItStaff]);
 
     const getItemHref = (item: any): string => {
         return (item.params ? route(item.route, item.params) : route(item.route)) as unknown as string;
@@ -377,6 +403,12 @@ export default function Authenticated({
         if (item.params?.view) {
             return route().current(item.pattern) && currentUrl.includes(`view=${item.params.view}`);
         }
+        if (item.params?.tab) {
+            return (
+                route().current(item.pattern) &&
+                (currentUrl.includes(`tab=${item.params.tab}`) || (!currentUrl.includes('tab=') && item.params.tab === 'overview'))
+            );
+        }
         if (item.route === 'dashboard') {
             return route().current('dashboard') && !currentUrl.includes('view=');
         }
@@ -384,119 +416,133 @@ export default function Authenticated({
     };
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex selection:bg-indigo-500 selection:text-white">
-            {/* Desktop Sidebar (Only rendered when hideSidebar is false and isSidebarOpen is true) */}
-            {!hideSidebar && isSidebarOpen && (
-                <aside className="hidden md:flex flex-col w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 min-h-screen shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300 shrink-0">
-                    {/* Brand Header with Close / Collapse Button */}
-                    <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-gray-100 bg-gradient-to-r from-indigo-600 to-indigo-700">
-                        <Link href="/" className="flex items-center min-w-0">
-                            <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden shrink-0">
-                                <ApplicationLogo className="h-full w-full object-cover" />
-                            </div>
-                            <div className="ml-2.5 min-w-0">
-                                <span className="font-bold text-white text-xs tracking-tight block truncate">SIPU Management</span>
-                                <span className="block text-[9px] text-indigo-200 leading-none">Swiss-Belinn SKA</span>
-                            </div>
-                        </Link>
-                        <button
-                            type="button"
-                            onClick={toggleSidebar}
-                            title="Collapse Sidebar (Ctrl+B)"
-                            className="text-white/70 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-colors ml-2 shrink-0"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    {/* Quick Link: Return to Desk Launcher (Main Menu) */}
-                    <div className="p-3 pb-2 border-b border-gray-100/80">
-                        <Link
-                            href={route('dashboard')}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-all border border-gray-200/60 group font-semibold text-xs shadow-2xs"
-                            title="Back to Main Menu (App Launcher)"
-                        >
-                            <div className="w-6 h-6 rounded-lg bg-indigo-100 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+        <div className="min-h-screen bg-[#f8fafc] flex overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+            {/* Desktop Sidebar (Only rendered when hideSidebar is false) */}
+            {!hideSidebar && (
+                <aside
+                    aria-label="Sidebar Navigation"
+                    aria-hidden={!isSidebarOpen}
+                    className={`hidden md:flex flex-col shrink-0 h-screen sticky top-0 bg-white/80 backdrop-blur-xl shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300 ease-in-out overflow-hidden z-20 ${
+                        isSidebarOpen
+                            ? 'w-64 border-r border-gray-200/50 opacity-100'
+                            : 'w-0 border-r-0 border-transparent opacity-0 pointer-events-none'
+                    }`}
+                >
+                    <div
+                        className={`w-64 flex flex-col h-full shrink-0 transition-transform duration-300 ease-in-out ${
+                            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                        }`}
+                    >
+                        {/* Brand Header with Close / Collapse Button */}
+                        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-gray-100 bg-gradient-to-r from-indigo-600 to-indigo-700">
+                            <Link href="/" className="flex items-center min-w-0">
+                                <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden shrink-0">
+                                    <ApplicationLogo className="h-full w-full object-cover" />
+                                </div>
+                                <div className="ml-2.5 min-w-0">
+                                    <span className="font-bold text-white text-xs tracking-tight block truncate">SIPU Management</span>
+                                    <span className="block text-[9px] text-indigo-200 leading-none">Swiss-Belinn SKA</span>
+                                </div>
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={toggleSidebar}
+                                title="Tutup Sidebar (Ctrl+B)"
+                                className="text-white/80 hover:text-white hover:bg-white/15 p-1.5 rounded-lg transition-all ml-2 shrink-0 group active:scale-95"
+                            >
+                                <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
                                 </svg>
-                            </div>
-                            <span className="truncate">← Main Menu (Desk)</span>
-                        </Link>
-                    </div>
-
-                    {/* Active Module Indicator Card */}
-                    <div className="px-3 pt-3 pb-1">
-                        <div className={`p-2.5 rounded-xl ${activeModuleInfo.badgeBg} border ${activeModuleInfo.badgeBorder}`}>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block leading-tight">Active Module</span>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className={`w-2 h-2 rounded-full ${activeModuleInfo.dotColor} shrink-0`}></span>
-                                <span className="text-xs font-bold text-gray-800 truncate">{activeModuleInfo.title}</span>
-                            </div>
+                            </button>
                         </div>
-                    </div>
 
-                    {/* Module Navigation (Only active module menus) */}
-                    <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-                        {activeModuleInfo.sections.map((section, idx) => (
-                            <div key={idx}>
-                                <h3 className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                                    {section.title}
-                                </h3>
-                                <ul className="space-y-0.5">
-                                    {section.items.map((item: any, itemIdx: number) => {
-                                        const active = isItemActive(item);
-                                        return (
-                                            <li key={itemIdx}>
-                                                <Link
-                                                    href={getItemHref(item)}
-                                                    className={`group flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
-                                                        active
-                                                            ? 'bg-gradient-to-r from-indigo-50 to-indigo-100/50 text-indigo-700 shadow-sm shadow-indigo-100/50 ring-1 ring-indigo-50 font-semibold'
-                                                            : 'text-gray-600 hover:bg-gray-50/80 hover:text-gray-900 hover:translate-x-1'
-                                                    }`}
-                                                >
-                                                    <span className={`transition-colors shrink-0 ${active ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                                                        {icons[item.name] || <span className="w-5 h-5 rounded bg-gray-200 inline-block" />}
-                                                    </span>
-                                                    <span className="truncate">{item.name}</span>
-                                                </Link>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </div>
-                        ))}
-                    </div>
+                        {/* Quick Link: Return to Desk Launcher (Main Menu) */}
+                        <div className="p-3 pb-2 border-b border-gray-100/80">
+                            <Link
+                                href={route('dashboard')}
+                                className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-all border border-gray-200/60 group font-semibold text-xs shadow-2xs"
+                                title="Kembali ke Menu Utama (App Launcher)"
+                            >
+                                <div className="w-6 h-6 rounded-lg bg-indigo-100 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                    </svg>
+                                </div>
+                                <span className="truncate">← Main Menu (Desk)</span>
+                            </Link>
+                        </div>
 
-                    {/* User Profile & Collapse Sidebar Footer */}
-                    <div className="border-t border-gray-100 p-3 bg-white/50">
-                        <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
-                            <div className="h-8 w-8 rounded-full overflow-hidden border border-gray-200 shadow-xs shrink-0">
-                                <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-gray-800 truncate">{user.name}</p>
-                                <span className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-semibold ${roleBadgeColors[userRole] || 'bg-gray-100 text-gray-600'}`}>
-                                    {userRole}
-                                </span>
+                        {/* Active Module Indicator Card */}
+                        <div className="px-3 pt-3 pb-1">
+                            <div className={`p-2.5 rounded-xl ${activeModuleInfo.badgeBg} border ${activeModuleInfo.badgeBorder}`}>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block leading-tight">Active Module</span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                    <span className={`w-2 h-2 rounded-full ${activeModuleInfo.dotColor} shrink-0`}></span>
+                                    <span className="text-xs font-bold text-gray-800 truncate">{activeModuleInfo.title}</span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Bottom Collapse Button */}
-                        <button
-                            type="button"
-                            onClick={toggleSidebar}
-                            className="w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors mt-2"
-                            title="Collapse Sidebar (Ctrl+B)"
-                        >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                            </svg>
-                            <span>Collapse Sidebar</span>
-                        </button>
+                        {/* Module Navigation (Only active module menus) */}
+                        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
+                            {activeModuleInfo.sections.map((section, idx) => (
+                                <div key={idx}>
+                                    <h3 className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                                        {section.title}
+                                    </h3>
+                                    <ul className="space-y-0.5">
+                                        {section.items.map((item: any, itemIdx: number) => {
+                                            const active = isItemActive(item);
+                                            return (
+                                                <li key={itemIdx}>
+                                                    <Link
+                                                        href={getItemHref(item)}
+                                                        className={`group flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
+                                                            active
+                                                                ? 'bg-gradient-to-r from-indigo-50 to-indigo-100/50 text-indigo-700 shadow-sm shadow-indigo-100/50 ring-1 ring-indigo-50 font-semibold'
+                                                                : 'text-gray-600 hover:bg-gray-50/80 hover:text-gray-900 hover:translate-x-1'
+                                                        }`}
+                                                    >
+                                                        <span className={`transition-colors shrink-0 ${active ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                                            {icons[item.name] || <span className="w-5 h-5 rounded bg-gray-200 inline-block" />}
+                                                        </span>
+                                                        <span className="truncate">{item.name}</span>
+                                                    </Link>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* User Profile & Collapse Sidebar Footer */}
+                        <div className="border-t border-gray-100 p-3 bg-white/50">
+                            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
+                                <div className="h-8 w-8 rounded-full overflow-hidden border border-gray-200 shadow-xs shrink-0">
+                                    <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-semibold text-gray-800 truncate">{user.name}</p>
+                                    <span className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-semibold ${roleBadgeColors[userRole] || 'bg-gray-100 text-gray-600'}`}>
+                                        {userRole}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Bottom Collapse Button */}
+                            <button
+                                type="button"
+                                onClick={toggleSidebar}
+                                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors mt-2"
+                                title="Tutup Sidebar (Ctrl+B)"
+                            >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                                </svg>
+                                <span>Collapse Sidebar</span>
+                            </button>
+                        </div>
                     </div>
                 </aside>
             )}
@@ -528,44 +574,38 @@ export default function Authenticated({
                             </Link>
                         </div>
 
-                        {/* Desktop: Toggle Sidebar Button & Collapsed Indicator */}
-                        {!hideSidebar && (
-                            <div className="hidden md:flex items-center gap-2 mr-3 shrink-0">
+                        {/* Desktop: Collapsed Sidebar Indicator & Expand Button (Only visible when sidebar is collapsed) */}
+                        {!hideSidebar && !isSidebarOpen && (
+                            <div className="hidden md:flex items-center gap-2 mr-3 shrink-0 animate-fadeIn">
                                 <button
                                     type="button"
                                     onClick={toggleSidebar}
-                                    title={isSidebarOpen ? "Collapse Sidebar (Ctrl+B)" : "Expand Sidebar (Ctrl+B)"}
-                                    className="p-2 rounded-xl text-gray-500 hover:text-indigo-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20 flex items-center gap-1.5 group"
+                                    title="Buka Sidebar (Ctrl+B)"
+                                    className="p-2 rounded-xl text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/60 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 flex items-center gap-1.5 group active:scale-95"
                                 >
-                                    <svg className="w-5 h-5 transition-transform group-hover:scale-105" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        {isSidebarOpen ? (
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-                                        ) : (
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 6h16M4 12h16M4 18h16" />
-                                        )}
+                                    <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 6h16M4 12h16M4 18h16" />
                                     </svg>
                                 </button>
 
                                 {/* When sidebar is collapsed: show mini brand and active module indicator */}
-                                {!isSidebarOpen && (
-                                    <div className="flex items-center gap-2">
-                                        <Link
-                                            href={route('dashboard')}
-                                            className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-colors group shrink-0"
-                                            title="Back to Main Menu (Desk Launcher)"
-                                        >
-                                            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center p-1 shadow-sm shrink-0">
-                                                <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
-                                            </div>
-                                            <span className="font-bold text-gray-800 text-xs tracking-tight hidden sm:inline">SIPU</span>
-                                        </Link>
-                                        <span className="text-gray-300 hidden sm:inline">|</span>
-                                        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/80 text-xs font-semibold text-gray-700 border border-gray-200/60 shrink-0">
-                                            <span className={`w-2 h-2 rounded-full ${activeModuleInfo.dotColor}`}></span>
-                                            <span>{activeModuleInfo.title}</span>
+                                <div className="flex items-center gap-2">
+                                    <Link
+                                        href={route('dashboard')}
+                                        className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-colors group shrink-0"
+                                        title="Kembali ke Menu Utama (Desk Launcher)"
+                                    >
+                                        <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center p-1 shadow-sm shrink-0">
+                                            <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
                                         </div>
+                                        <span className="font-bold text-gray-800 text-xs tracking-tight hidden sm:inline">SIPU</span>
+                                    </Link>
+                                    <span className="text-gray-300 hidden sm:inline">|</span>
+                                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/80 text-xs font-semibold text-gray-700 border border-gray-200/60 shrink-0">
+                                        <span className={`w-2 h-2 rounded-full ${activeModuleInfo.dotColor}`}></span>
+                                        <span>{activeModuleInfo.title}</span>
                                     </div>
-                                )}
+                                </div>
                             </div>
                         )}
 

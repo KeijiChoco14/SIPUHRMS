@@ -6,6 +6,8 @@ use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\ItAsset;
+use App\Models\ItTicket;
 use App\Models\LeaveRequest;
 use App\Models\MasterKeyRequest;
 use App\Models\OvertimeRequest;
@@ -85,6 +87,18 @@ class DashboardController extends Controller
         $employeeTotalCount = Employee::count();
         $departmentTotalCount = Department::count();
 
+        $openItTicketsCount = 0;
+        $totalItAssetsCount = 0;
+        if (Schema::hasTable('it_tickets')) {
+            $isItStaff = $user->employee && $user->employee->department && strtolower($user->employee->department->name) === 'it';
+            $itTicketsQuery = ItTicket::whereIn('status', ['Open', 'In Progress']);
+            if (!$isAdmin && !$isItStaff) {
+                $itTicketsQuery->where('reported_by_employee_id', $employeeId);
+            }
+            $openItTicketsCount = $itTicketsQuery->count();
+            $totalItAssetsCount = ItAsset::count();
+        }
+
         $launcherStats = [
             'activeTasks' => $activeTasksCount,
             'masterKeyOnRequest' => $masterKeyOnRequestCount,
@@ -92,6 +106,8 @@ class DashboardController extends Controller
             'pendingOvertime' => $pendingOvertimeCount,
             'totalEmployees' => $employeeTotalCount,
             'totalDepartments' => $departmentTotalCount,
+            'openItTickets' => $openItTicketsCount,
+            'totalItAssets' => $totalItAssetsCount,
         ];
 
         $data = [

@@ -13,6 +13,8 @@ interface LauncherStats {
     pendingOvertime?: number;
     totalEmployees?: number;
     totalDepartments?: number;
+    openItTickets?: number;
+    totalItAssets?: number;
 }
 
 interface DashboardProps {
@@ -82,6 +84,7 @@ export default function Dashboard({
     const isHOD = user.roles?.some((r: any) => r.name === 'Head of Department');
     const isHousekeeping = user.employee?.department?.name === 'Housekeeping';
     const canAccessHousekeeping = isAdmin || isHOD || isHousekeeping;
+    const isItStaff = isSuperAdmin || isManager || (user.employee?.department?.name?.toLowerCase() === 'it');
 
     // Listen for Ctrl+K / Cmd+K shortcut
     useEffect(() => {
@@ -99,12 +102,14 @@ export default function Dashboard({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Define all Desk Apps
-    const apps: AppItem[] = useMemo(() => [
+    const pendingHrCount = (launcherStats.pendingLeaves || 0) + (launcherStats.pendingOvertime || 0);
+
+    // Core Suite Apps displayed on Home Launcher Grid
+    const coreApps: AppItem[] = useMemo(() => [
         {
             id: 'task-management',
             name: 'Task Management',
-            description: 'Manage team tasks, kanban boards, and calendar schedules',
+            description: 'Manage team tasks, kanban boards, and project tracking',
             category: 'Operations',
             action: () => router.get(route('dashboard'), { view: 'tasks' }),
             gradient: 'from-blue-500 to-indigo-600',
@@ -120,7 +125,7 @@ export default function Dashboard({
         {
             id: 'housekeeping-key',
             name: 'Housekeeping (HK)',
-            description: 'Hotel master key access requests and extensions',
+            description: 'Hotel master key access requests, logs, and extensions',
             category: 'Hotel Operations',
             href: route('master-keys.index'),
             gradient: 'from-amber-500 to-orange-600',
@@ -136,12 +141,12 @@ export default function Dashboard({
         {
             id: 'human-resources',
             name: 'Human Resources (HR)',
-            description: 'Employee records, organization, attendance, leave & payroll',
-            category: 'People & HR',
+            description: 'Integrated HR Suite: Records, attendance, leave, overtime, payroll & KPI',
+            category: 'Human Capital',
             action: () => router.get(route('dashboard'), { view: 'hr' }),
-            gradient: 'from-purple-500 to-indigo-600',
-            badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null,
-            badgeColor: 'bg-purple-600',
+            gradient: 'from-purple-600 via-indigo-600 to-indigo-700',
+            badge: pendingHrCount > 0 ? `${pendingHrCount} Pending` : launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null,
+            badgeColor: pendingHrCount > 0 ? 'bg-amber-500' : 'bg-purple-600',
             visible: isAdmin,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,96 +155,20 @@ export default function Dashboard({
             ),
         },
         {
-            id: 'employees',
-            name: 'Employee Records',
-            description: 'Manage employee identity, job history, and employment contracts',
-            category: 'People & HR',
-            href: route('employees.index'),
-            gradient: 'from-fuchsia-600 to-pink-600',
-            badge: launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null,
-            badgeColor: 'bg-fuchsia-600',
-            visible: isAdmin,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            ),
-        },
-        {
-            id: 'attendance',
-            name: isAdmin ? 'Attendance & Schedules' : 'My Attendance',
-            description: isAdmin
-                ? 'Daily attendance logs, employee clock-ins, and shift rosters'
-                : 'Your personal daily attendance records and work hours history',
-            category: 'Time & Pay',
-            href: isAdmin ? route('attendance.index') : route('attendance.my'),
-            gradient: 'from-teal-500 to-emerald-600',
+            id: 'it-operations',
+            name: isItStaff ? 'IT Operations' : 'IT Helpdesk',
+            description: isItStaff
+                ? 'IT Asset inventory, hardware tracking, and IT Helpdesk ticketing'
+                : 'Lapor kendala IT hotel, pantau status penanganan, dan respon teknisi',
+            category: 'IT & Facilities',
+            href: isItStaff ? route('it.index', { tab: 'overview' }) : route('it.index', { tab: 'tickets' }),
+            gradient: 'from-cyan-600 to-blue-700',
+            badge: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? `${launcherStats.openItTickets} Tiket Aktif` : (isItStaff && launcherStats.totalItAssets ? `${launcherStats.totalItAssets} Assets` : null),
+            badgeColor: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? 'bg-amber-500' : 'bg-cyan-600',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            ),
-        },
-        {
-            id: 'leave',
-            name: 'Leave Requests',
-            description: 'Annual leave, sick leave requests, and manager approvals',
-            category: 'Time & Pay',
-            href: route('leave.index'),
-            gradient: 'from-sky-500 to-blue-600',
-            badge: launcherStats.pendingLeaves && launcherStats.pendingLeaves > 0 ? `${launcherStats.pendingLeaves} Pending` : null,
-            badgeColor: 'bg-sky-600',
-            visible: true,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-            ),
-        },
-        {
-            id: 'overtime',
-            name: 'Overtime Requests',
-            description: 'Overtime work orders (SPKL) and hour calculations',
-            category: 'Time & Pay',
-            href: route('overtime.index'),
-            gradient: 'from-rose-500 to-red-600',
-            badge: launcherStats.pendingOvertime && launcherStats.pendingOvertime > 0 ? `${launcherStats.pendingOvertime} Pending` : null,
-            badgeColor: 'bg-rose-600',
-            visible: true,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            ),
-        },
-        {
-            id: 'payroll',
-            name: isAdmin ? 'Payroll Management' : 'My Payslips',
-            description: isAdmin
-                ? 'Manage payroll batches, generate salaries, and monthly compensation reports'
-                : 'Monthly payslip breakdown, allowances, and personal salary records',
-            category: 'Time & Pay',
-            href: isAdmin ? route('payroll.index') : route('payroll.my'),
-            gradient: 'from-emerald-600 to-teal-700',
-            visible: true,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-            ),
-        },
-        {
-            id: 'projects',
-            name: 'Team Projects',
-            description: 'Project grouping, milestone targets, and work progress',
-            category: 'Operations',
-            href: route('projects.index'),
-            gradient: 'from-violet-500 to-purple-600',
-            visible: canViewProjects,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
             ),
         },
@@ -286,34 +215,6 @@ export default function Dashboard({
             ),
         },
         {
-            id: 'performance',
-            name: 'Reports & KPI',
-            description: 'Staff performance evaluation, EPI scoring, and performance analytics',
-            category: 'Management',
-            href: route('performance.index'),
-            gradient: 'from-indigo-600 to-violet-700',
-            visible: canViewPerformance,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-            ),
-        },
-        {
-            id: 'departments',
-            name: 'Departments',
-            description: 'Hotel organization structure, department divisions, and headcounts',
-            category: 'People & HR',
-            href: route('departments.index'),
-            gradient: 'from-blue-600 to-cyan-600',
-            visible: isAdmin,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-            ),
-        },
-        {
             id: 'settings',
             name: 'System Settings',
             description: 'System configurations, roles & permissions, and audit logs',
@@ -342,19 +243,200 @@ export default function Dashboard({
                 </svg>
             ),
         },
-    ].filter(a => a.visible !== false), [launcherStats, isAdmin, isSuperAdmin, canViewPerformance, canViewProjects, canAccessHousekeeping]);
+    ].filter(a => a.visible !== false), [launcherStats, pendingHrCount, isAdmin, isSuperAdmin, canAccessHousekeeping, isItStaff]);
 
-    // Filter apps based on search query
+    // Full catalog for Ctrl+K search (includes both core suites and all specific sub-modules)
+    const allSearchableItems: AppItem[] = useMemo(() => [
+        ...coreApps,
+        {
+            id: 'employees',
+            name: 'Employee Records',
+            description: 'Manage employee identity, job history, and employment contracts',
+            category: 'Human Capital',
+            href: route('employees.index'),
+            gradient: 'from-fuchsia-600 to-pink-600',
+            visible: isAdmin,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'attendance',
+            name: isAdmin ? 'Attendance Logs' : 'My Attendance',
+            description: isAdmin
+                ? 'Daily attendance logs, employee clock-ins, and shift rosters'
+                : 'Your personal daily attendance records and work hours history',
+            category: 'Human Capital',
+            href: isAdmin ? route('attendance.index') : route('attendance.my'),
+            gradient: 'from-teal-500 to-emerald-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'leave',
+            name: 'Leave Requests',
+            description: 'Annual leave, sick leave requests, and manager approvals',
+            category: 'Human Capital',
+            href: route('leave.index'),
+            gradient: 'from-sky-500 to-blue-600',
+            badge: launcherStats.pendingLeaves && launcherStats.pendingLeaves > 0 ? `${launcherStats.pendingLeaves} Pending` : null,
+            badgeColor: 'bg-sky-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'overtime',
+            name: 'Overtime Requests (SPKL)',
+            description: 'Overtime work orders and hour calculations',
+            category: 'Human Capital',
+            href: route('overtime.index'),
+            gradient: 'from-rose-500 to-red-600',
+            badge: launcherStats.pendingOvertime && launcherStats.pendingOvertime > 0 ? `${launcherStats.pendingOvertime} Pending` : null,
+            badgeColor: 'bg-rose-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'payroll',
+            name: isAdmin ? 'Payroll Management' : 'My Payslips',
+            description: isAdmin
+                ? 'Manage payroll batches, generate salaries, and monthly compensation reports'
+                : 'Monthly payslip breakdown, allowances, and personal salary records',
+            category: 'Human Capital',
+            href: isAdmin ? route('payroll.index') : route('payroll.my'),
+            gradient: 'from-emerald-600 to-teal-700',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'projects',
+            name: 'Team Projects',
+            description: 'Project grouping, milestone targets, and work progress',
+            category: 'Operations',
+            href: route('projects.index'),
+            gradient: 'from-violet-500 to-purple-600',
+            visible: canViewProjects,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            ),
+        },
+        {
+            id: 'performance',
+            name: 'Reports & KPI',
+            description: 'Staff performance evaluation, EPI scoring, and performance analytics',
+            category: 'Human Capital',
+            href: route('performance.index'),
+            gradient: 'from-indigo-600 to-violet-700',
+            visible: canViewPerformance,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'departments',
+            name: 'Departments & Divisions',
+            description: 'Hotel organization structure, department divisions, and headcounts',
+            category: 'Human Capital',
+            href: route('departments.index'),
+            gradient: 'from-blue-600 to-cyan-600',
+            visible: isAdmin,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            ),
+        },
+        {
+            id: 'kanban',
+            name: 'Kanban Board',
+            description: 'Interactive visual board for task progress',
+            category: 'Operations',
+            href: route('tasks.kanban'),
+            gradient: 'from-blue-600 to-indigo-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2m7 10V7" />
+                </svg>
+            ),
+        },
+        {
+            id: 'calendar',
+            name: 'Task Calendar',
+            description: 'Monthly schedule and deadline calendar for tasks',
+            category: 'Operations',
+            href: route('tasks.calendar'),
+            gradient: 'from-indigo-500 to-purple-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'it-tickets',
+            name: 'IT Helpdesk Tickets',
+            description: 'Lapor dan pantau penanganan masalah IT, WiFi, printer, dan komputer',
+            category: 'IT & Facilities',
+            href: route('it.index', { tab: 'tickets' }),
+            gradient: 'from-cyan-600 to-teal-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'it-assets',
+            name: 'IT Asset Inventory',
+            description: 'Daftar hardware IT hotel, PC, laptop, switch, printer, dan AP',
+            category: 'IT & Facilities',
+            href: route('it.index', { tab: 'assets' }),
+            gradient: 'from-sky-600 to-blue-700',
+            visible: isItStaff,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+            ),
+        },
+    ].filter(a => a.visible !== false), [coreApps, launcherStats, isAdmin, canViewPerformance, canViewProjects, isItStaff]);
+
+    // Filter apps based on search query (search searches allCatalog, default displays coreApps)
     const filteredApps = useMemo(() => {
-        if (!searchQuery.trim()) return apps;
+        if (!searchQuery.trim()) return coreApps;
         const q = searchQuery.toLowerCase().trim();
-        return apps.filter(
+        return allSearchableItems.filter(
             app =>
                 app.name.toLowerCase().includes(q) ||
                 app.description.toLowerCase().includes(q) ||
                 app.category.toLowerCase().includes(q)
         );
-    }, [apps, searchQuery]);
+    }, [coreApps, allSearchableItems, searchQuery]);
 
     // Handle open first matching app on Enter
     const handleSearchKeyDown = (e: React.KeyboardEvent) => {
@@ -632,6 +714,12 @@ export default function Dashboard({
                                     >
                                         Schedules & Shifts
                                     </Link>
+                                    <Link
+                                        href={route('payroll.index')}
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                    >
+                                        Payroll & Salaries
+                                    </Link>
                                 </>
                             )}
                             <Link
@@ -646,6 +734,14 @@ export default function Dashboard({
                             >
                                 Overtime (SPKL)
                             </Link>
+                            {canViewPerformance && (
+                                <Link
+                                    href={route('performance.index')}
+                                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                >
+                                    Reports & KPI
+                                </Link>
+                            )}
                             <Link
                                 href={route('directory.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
@@ -812,10 +908,102 @@ export default function Dashboard({
                     </div>
                 )}
 
+                {/* Quick Actions Bar (Aksi Cepat Rutin) */}
+                {!searchQuery && (
+                    <div className="max-w-4xl mx-auto px-2 sm:px-0">
+                        <div className="bg-white/85 backdrop-blur-md border border-gray-200/80 shadow-xs rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2.5">
+                            <div className="flex items-center gap-1.5 px-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                    Quick Shortcuts
+                                </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 justify-center sm:justify-end flex-1">
+                                <Link
+                                    href={isAdmin ? route('attendance.index') : route('attendance.my')}
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/90 border border-emerald-200/60 transition-all hover:scale-102"
+                                    title="Akses data absensi harian"
+                                >
+                                    <span>🕒</span>
+                                    <span>{isAdmin ? 'Attendance Logs' : 'My Attendance'}</span>
+                                </Link>
+                                <Link
+                                    href={route('leave.index')}
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-sky-700 bg-sky-50/70 hover:bg-sky-100/90 border border-sky-200/60 transition-all hover:scale-102"
+                                    title="Pengajuan atau persetujuan cuti"
+                                >
+                                    <span>🏖️</span>
+                                    <span>Leave Requests</span>
+                                    {launcherStats.pendingLeaves && launcherStats.pendingLeaves > 0 && (
+                                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-sky-600 text-white">
+                                            {launcherStats.pendingLeaves}
+                                        </span>
+                                    )}
+                                </Link>
+                                <Link
+                                    href={route('overtime.index')}
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100/90 border border-rose-200/60 transition-all hover:scale-102"
+                                    title="Pengajuan atau persetujuan lembur SPKL"
+                                >
+                                    <span>⚡</span>
+                                    <span>Overtime (SPKL)</span>
+                                    {launcherStats.pendingOvertime && launcherStats.pendingOvertime > 0 && (
+                                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-600 text-white">
+                                            {launcherStats.pendingOvertime}
+                                        </span>
+                                    )}
+                                </Link>
+                                <Link
+                                    href={isAdmin ? route('payroll.index') : route('payroll.my')}
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-teal-700 bg-teal-50/70 hover:bg-teal-100/90 border border-teal-200/60 transition-all hover:scale-102"
+                                    title="Slip gaji atau kelola payroll batch"
+                                >
+                                    <span>💵</span>
+                                    <span>{isAdmin ? 'Payroll Management' : 'My Payslips'}</span>
+                                </Link>
+                                <Link
+                                    href={route('tasks.index')}
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100/90 border border-indigo-200/60 transition-all hover:scale-102"
+                                    title="Daftar tugas pekerjaan aktif"
+                                >
+                                    <span>📋</span>
+                                    <span>My Tasks</span>
+                                </Link>
+                                <Link
+                                    href={route('it.index', { tab: 'tickets' })}
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-cyan-700 bg-cyan-50/70 hover:bg-cyan-100/90 border border-cyan-200/60 transition-all hover:scale-102"
+                                    title="Lapor kendala IT hotel atau pantau status tiket"
+                                >
+                                    <span>🛠️</span>
+                                    <span>Lapor IT</span>
+                                    {launcherStats.openItTickets && launcherStats.openItTickets > 0 && (
+                                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+                                            {launcherStats.openItTickets}
+                                        </span>
+                                    )}
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* APP LAUNCHER GRID (Frappe Desk style) */}
-                <div className="max-w-5xl mx-auto px-2 sm:px-0">
+                <div className="max-w-4xl mx-auto px-2 sm:px-0">
+                    {searchQuery && (
+                        <div className="mb-4 flex items-center justify-between text-xs text-gray-500">
+                            <span>
+                                Showing {filteredApps.length} results for "<strong className="text-gray-800">{searchQuery}</strong>"
+                            </span>
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="text-indigo-600 hover:underline font-semibold"
+                            >
+                                Clear search
+                            </button>
+                        </div>
+                    )}
                     {filteredApps.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-x-4 sm:gap-x-10 gap-y-6 sm:gap-y-12 place-items-center">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 sm:gap-x-12 gap-y-8 sm:gap-y-12 place-items-center">
                             {filteredApps.map((app) => {
                                 const CardContent = (
                                     <div className="flex flex-col items-center group cursor-pointer focus:outline-none">
@@ -891,7 +1079,7 @@ export default function Dashboard({
                     <div className="flex items-center gap-4">
                         <span>Role: <strong className="text-gray-700 font-semibold">{role}</strong></span>
                         <span>•</span>
-                        <span>Total Modules: <strong className="text-gray-700 font-semibold">{apps.length}</strong></span>
+                        <span>Core Workspaces: <strong className="text-gray-700 font-semibold">{coreApps.length}</strong></span>
                     </div>
                     <div className="text-[11px] text-gray-400">
                         SIPU Management System • Swiss-Belinn SKA Pekanbaru

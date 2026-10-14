@@ -9,6 +9,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ItOperationsController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\OvertimeRequestController;
 use App\Http\Controllers\ShiftController;
@@ -146,6 +147,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/master-keys/{masterKeyRequest}/renew', [MasterKeyRequestController::class, 'renew'])->name('master-keys.renew');
     Route::patch('/master-keys/{masterKeyRequest}/status', [MasterKeyRequestController::class, 'updateStatus'])->name('master-keys.status');
     Route::delete('/master-keys/{masterKeyRequest}', [MasterKeyRequestController::class, 'destroy'])->name('master-keys.destroy');
+
+    // IT Operations & Helpdesk Routes
+    Route::get('/it', [ItOperationsController::class, 'index'])->name('it.index');
+    Route::post('/it/assets', [ItOperationsController::class, 'storeAsset'])->name('it.assets.store');
+    Route::put('/it/assets/{asset}', [ItOperationsController::class, 'updateAsset'])->name('it.assets.update');
+    Route::delete('/it/assets/{asset}', [ItOperationsController::class, 'destroyAsset'])->name('it.assets.destroy');
+    Route::post('/it/tickets', [ItOperationsController::class, 'storeTicket'])->name('it.tickets.store');
+    Route::get('/it/tickets/{ticket}', [ItOperationsController::class, 'showTicket'])->name('it.tickets.show');
+    Route::patch('/it/tickets/{ticket}/status', [ItOperationsController::class, 'updateTicketStatus'])->name('it.tickets.status');
+    Route::post('/it/tickets/{ticket}/updates', [ItOperationsController::class, 'addTicketUpdate'])->name('it.tickets.updates');
+    Route::delete('/it/tickets/{ticket}', [ItOperationsController::class, 'destroyTicket'])->name('it.tickets.destroy');
 
     // Administration & Organization Routes
     Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
