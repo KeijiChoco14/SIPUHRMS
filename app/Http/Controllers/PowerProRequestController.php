@@ -7,6 +7,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\PowerProRequest;
 use App\Models\User;
+use App\Notifications\PowerProStatusNotification;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -240,6 +241,9 @@ class PowerProRequestController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
+        $powerProRequest->load(['employee.user', 'department']);
+        $this->notifyHodApprovers($powerProRequest, 'NEW_REQUEST');
+
         return redirect()->back()->with('success', "Form permohonan User ID Power Pro ({$requestNumber}) berhasil dikirimkan ke HOD & IT.");
     }
 
@@ -283,6 +287,10 @@ class PowerProRequestController extends Controller
             'new_values' => $powerProRequest->toArray(),
             'ip_address' => $request->ip(),
         ]);
+
+        $powerProRequest->load(['employee.user', 'department', 'requestedBy']);
+        $this->notifyItStaff($powerProRequest, 'APPROVED_BY_HOD');
+        $this->notifyRequester($powerProRequest, 'APPROVED_BY_HOD');
 
         return redirect()->back()->with('success', "Permohonan {$powerProRequest->request_number} telah disetujui HOD dan diteruskan ke Tim IT.");
     }
@@ -330,6 +338,9 @@ class PowerProRequestController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
+        $powerProRequest->load(['employee.user', 'department', 'requestedBy', 'approvedBy']);
+        $this->notifyRequester($powerProRequest, 'USER_ID_ISSUED');
+
         return redirect()->back()->with('success', "User ID Power Pro {$powerProRequest->created_user_id} berhasil diterbitkan dan status diselesaikan.");
     }
 
@@ -369,6 +380,9 @@ class PowerProRequestController extends Controller
             'new_values' => $powerProRequest->toArray(),
             'ip_address' => $request->ip(),
         ]);
+
+        $powerProRequest->load(['employee.user', 'department', 'requestedBy', 'approvedBy']);
+        $this->notifyRequester($powerProRequest, 'REJECTED');
 
         return redirect()->back()->with('success', "Permohonan {$powerProRequest->request_number} telah ditolak.");
     }
@@ -504,5 +518,80 @@ class PowerProRequestController extends Controller
         ]);
 
         return redirect()->back()->with('success', "Permohonan {$reqNumber} berhasil dihapus.");
+    }
+
+    /**
+     * Notify Head of Department for employee's department and Super Admins.
+     */
+    protected function notifyHodApprovers(PowerProRequest $request, string $type): void
+    {
+        try {
+            $deptId = $request->department_id;
+            $approvers = User::where(function ($q) use ($deptId) {
+                $q->whereHas('roles', function ($r) {
+                    $r->where('name', 'Head of Department');
+                })->whereHas('employee', function ($e) use ($deptId) {
+                    $e->where('department_id', $deptId);
+                });
+            })->orWhereHas('roles', function ($r) {
+                $r->whereIn('name', ['Super Admin', 'General Manager']);
+            })->get();
+
+            foreach ($approvers as $approver) {
+                $approver->notify(new PowerProStatusNotification($request, $type));
+            }
+        } catch (\Throwable $e) {
+            // Silently continue
+        }
+    }
+
+    /**
+     * Notify IT staff and Super Admins.
+     */
+    protected function notifyItStaff(PowerProRequest $request, string $type): void
+    {
+        try {
+            $itDept = Department::whereRaw('LOWER(name) = ?', ['it'])->first();
+            $itUsers = User::where(function ($q) use ($itDept) {
+                if ($itDept) {
+                    $q->whereHas('employee', function ($e) use ($itDept) {
+                        $e->where('department_id', $itDept->id);
+                    });
+                }
+            })->orWhereHas('roles', function ($r) {
+                $r->where('name', 'Super Admin');
+            })->get();
+
+            foreach ($itUsers as $itUser) {
+                $itUser->notify(new PowerProStatusNotification($request, $type));
+            }
+        } catch (\Throwable $e) {
+            // Silently continue
+        }
+    }
+
+    /**
+     * Notify requester, employee, and HOD.
+     */
+    protected function notifyRequester(PowerProRequest $request, string $type): void
+    {
+        try {
+            $recipients = collect();
+            if ($request->requestedBy) {
+                $recipients->push($request->requestedBy);
+            }
+            if ($request->employee?->user) {
+                $recipients->push($request->employee->user);
+            }
+            if ($request->approvedBy && $type !== 'APPROVED_BY_HOD') {
+                $recipients->push($request->approvedBy);
+            }
+
+            $recipients->unique('id')->each(function ($recipient) use ($request, $type) {
+                $recipient->notify(new PowerProStatusNotification($request, $type));
+            });
+        } catch (\Throwable $e) {
+            // Silently continue
+        }
     }
 }

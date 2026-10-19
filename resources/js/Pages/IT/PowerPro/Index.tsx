@@ -744,17 +744,25 @@ export default function PowerProIndex({
             </div>
 
             {/* =================== MODAL 1: AJUKAN USER ID POWER PRO =================== */}
-            <Modal show={isCreateOpen} onClose={() => setIsCreateOpen(false)} maxWidth="2xl">
-                <form onSubmit={handleCreateSubmit} className="p-6 space-y-5">
-                    <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <Modal show={isCreateOpen} onClose={() => setIsCreateOpen(false)} maxWidth="3xl">
+                <form onSubmit={handleCreateSubmit} className="flex flex-col max-h-[90vh]">
+                    {/* Sticky Header */}
+                    <div className="shrink-0 flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-white">
                         <div>
-                            <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider block">Formulir IT Hotel</span>
-                            <h2 className="text-lg font-bold text-gray-900">Pengajuan User ID Sistem Power Pro</h2>
+                            <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-100 text-red-700">
+                                    SOP-IT-ACS-01
+                                </span>
+                                <span className="text-xs text-gray-500 font-medium">Power Pro PMS Access</span>
+                            </div>
+                            <h2 className="text-base sm:text-lg font-bold text-gray-900 mt-1">
+                                Formulir Permohonan User ID Power Pro
+                            </h2>
                         </div>
                         <button
                             type="button"
                             onClick={() => setIsCreateOpen(false)}
-                            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -762,117 +770,175 @@ export default function PowerProIndex({
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Karyawan Yang Diajukan */}
-                        <div className="sm:col-span-2">
-                            <InputLabel htmlFor="employee_id" value="Karyawan yang Memerlukan Akun *" />
-                            <select
-                                id="employee_id"
-                                value={createForm.data.employee_id}
-                                onChange={(e) => createForm.setData('employee_id', e.target.value)}
-                                className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                required
-                            >
-                                <option value="">-- Pilih Karyawan --</option>
-                                {employees.map((emp) => (
-                                    <option key={emp.id} value={emp.id}>
-                                        {emp.user?.name} ({emp.employee_number}) - {emp.department?.name} ({emp.position?.name || 'Staff'})
-                                    </option>
-                                ))}
-                            </select>
-                            {selectedEmployee && (
-                                <p className="mt-1 text-[11px] text-gray-500">
-                                    Departemen: <strong className="text-gray-700">{selectedEmployee.department?.name}</strong> • Posisi: <strong className="text-gray-700">{selectedEmployee.position?.name || '-'}</strong>
-                                </p>
-                            )}
-                            <InputError message={createForm.errors.employee_id} className="mt-1" />
+                    {/* Scrollable Body */}
+                    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 text-xs sm:text-sm">
+                        {/* SECTION 1: DATA KARYAWAN & PERMOHONAN */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
+                                <div className="w-2 h-2 rounded-full bg-red-600"></div>
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                    1. Informasi Karyawan & Permohonan
+                                </h3>
+                            </div>
+
+                            {/* Dropdown Karyawan */}
+                            <div>
+                                <InputLabel htmlFor="employee_id" value="Karyawan yang Memerlukan Akun *" />
+                                <select
+                                    id="employee_id"
+                                    value={createForm.data.employee_id}
+                                    onChange={(e) => createForm.setData('employee_id', e.target.value)}
+                                    className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 shadow-xs"
+                                    required
+                                >
+                                    <option value="">-- Pilih Karyawan yang Diajukan --</option>
+                                    {employees.map((emp) => (
+                                        <option key={emp.id} value={emp.id}>
+                                            {emp.user?.name} ({emp.employee_number}) - {emp.department?.name} ({emp.position?.name || 'Staff'})
+                                        </option>
+                                    ))}
+                                </select>
+                                <InputError message={createForm.errors.employee_id} className="mt-1" />
+
+                                {/* Employee Preview Card */}
+                                {selectedEmployee && (
+                                    <div className="mt-2.5 p-3.5 rounded-xl bg-gradient-to-r from-red-50/40 via-white to-gray-50 border border-red-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-full bg-red-100 text-red-700 font-bold flex items-center justify-center text-xs shrink-0 shadow-xs border border-red-200">
+                                                {selectedEmployee.user?.name
+                                                    ? selectedEmployee.user.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('')
+                                                    : 'EMP'}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-xs sm:text-sm text-gray-900 leading-tight">
+                                                    {selectedEmployee.user?.name}
+                                                    <span className="ml-2 font-mono text-[11px] font-normal text-gray-500">
+                                                        NIK: {selectedEmployee.employee_number}
+                                                    </span>
+                                                </p>
+                                                <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                                    <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200/60">
+                                                        {selectedEmployee.department?.name}
+                                                    </span>
+                                                    <span className="text-[11px] text-gray-600 font-medium">
+                                                        {selectedEmployee.position?.name || 'Staff'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="text-[11px] text-gray-500 sm:text-right bg-white p-2 sm:p-0 rounded-lg border sm:border-0 border-gray-200 shrink-0">
+                                            <span className="block text-[10px] uppercase font-bold text-gray-400">Target Approval</span>
+                                            <span className="font-bold text-red-700">HOD {selectedEmployee.department?.name}</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {/* Jenis Permohonan */}
+                                <div>
+                                    <InputLabel htmlFor="request_type" value="Jenis Permohonan *" />
+                                    <select
+                                        id="request_type"
+                                        value={createForm.data.request_type}
+                                        onChange={(e) => createForm.setData('request_type', e.target.value as any)}
+                                        className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                        required
+                                    >
+                                        <option value="create_new">Pembuatan User ID Baru</option>
+                                        <option value="modify_access">Perubahan Hak Akses / Jabatan</option>
+                                        <option value="reset_password">Reset Password Akun</option>
+                                        <option value="deactivate">Penonaktifan Akun (Resign / Mutasi)</option>
+                                    </select>
+                                </div>
+
+                                {/* Status Kepegawaian */}
+                                <div>
+                                    <InputLabel htmlFor="employment_status" value="Status Kepegawaian" />
+                                    <select
+                                        id="employment_status"
+                                        value={createForm.data.employment_status}
+                                        onChange={(e) => createForm.setData('employment_status', e.target.value)}
+                                        className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                    >
+                                        <option value="Permanent">Permanent (Karyawan Tetap)</option>
+                                        <option value="Contract">Contract (PKWT)</option>
+                                        <option value="Daily Worker">Daily Worker (DW)</option>
+                                        <option value="Trainee / OJT">Trainee / OJT (Magang)</option>
+                                    </select>
+                                </div>
+
+                                {/* Role / Level Akses */}
+                                <div>
+                                    <InputLabel htmlFor="access_level" value="Level Akses / Jabatan di Sistem *" />
+                                    <TextInput
+                                        id="access_level"
+                                        value={createForm.data.access_level}
+                                        onChange={(e) => createForm.setData('access_level', e.target.value)}
+                                        placeholder="Contoh: Receptionist, Cashier, Supervisor, Night Audit"
+                                        className="mt-1 w-full text-xs sm:text-sm"
+                                        required
+                                    />
+                                    <InputError message={createForm.errors.access_level} className="mt-1" />
+                                </div>
+
+                                {/* Usulan Username */}
+                                <div>
+                                    <InputLabel htmlFor="proposed_username" value="Usulan User ID (Opsional)" />
+                                    <TextInput
+                                        id="proposed_username"
+                                        value={createForm.data.proposed_username}
+                                        onChange={(e) => createForm.setData('proposed_username', e.target.value.toUpperCase())}
+                                        placeholder="Contoh: FO_RUDI, POS_SINTA"
+                                        className="mt-1 w-full text-xs sm:text-sm uppercase font-mono tracking-wider"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Jenis Permohonan */}
-                        <div>
-                            <InputLabel htmlFor="request_type" value="Jenis Permohonan *" />
-                            <select
-                                id="request_type"
-                                value={createForm.data.request_type}
-                                onChange={(e) => createForm.setData('request_type', e.target.value as any)}
-                                className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                                required
-                            >
-                                <option value="create_new">Pembuatan User ID Baru</option>
-                                <option value="modify_access">Perubahan Hak Akses / Jabatan</option>
-                                <option value="reset_password">Reset Password Akun</option>
-                                <option value="deactivate">Penonaktifan Akun (Resign / Selesai Kontrak)</option>
-                            </select>
-                        </div>
+                        {/* SECTION 2: MODUL POWER PRO */}
+                        <div className="space-y-3 pt-2 border-t border-gray-100">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-red-600"></div>
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                        2. Modul Power Pro yang Dibutuhkan <span className="text-red-500">*</span>
+                                    </h3>
+                                </div>
+                                <span className="text-[11px] font-semibold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                                    {createForm.data.power_pro_modules.length} modul dipilih
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-gray-500">
+                                Centang modul sistem yang akan digunakan oleh karyawan bersangkutan dalam operasional harian.
+                            </p>
 
-                        {/* Status Kepegawaian */}
-                        <div>
-                            <InputLabel htmlFor="employment_status" value="Status Kepegawaian" />
-                            <select
-                                id="employment_status"
-                                value={createForm.data.employment_status}
-                                onChange={(e) => createForm.setData('employment_status', e.target.value)}
-                                className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                            >
-                                <option value="Permanent">Permanent (Karyawan Tetap)</option>
-                                <option value="Contract">Contract (PKWT)</option>
-                                <option value="Daily Worker">Daily Worker (DW)</option>
-                                <option value="Trainee / OJT">Trainee / OJT (Magang)</option>
-                            </select>
-                        </div>
-
-                        {/* Role / Level Akses */}
-                        <div>
-                            <InputLabel htmlFor="access_level" value="Level Akses / Jabatan di Sistem *" />
-                            <TextInput
-                                id="access_level"
-                                value={createForm.data.access_level}
-                                onChange={(e) => createForm.setData('access_level', e.target.value)}
-                                placeholder="Contoh: Receptionist, Cashier, Supervisor, Night Audit"
-                                className="mt-1 w-full text-xs sm:text-sm"
-                                required
-                            />
-                            <InputError message={createForm.errors.access_level} className="mt-1" />
-                        </div>
-
-                        {/* Usulan Username */}
-                        <div>
-                            <InputLabel htmlFor="proposed_username" value="Usulan User ID (Opsional)" />
-                            <TextInput
-                                id="proposed_username"
-                                value={createForm.data.proposed_username}
-                                onChange={(e) => createForm.setData('proposed_username', e.target.value.toUpperCase())}
-                                placeholder="Contoh: FO_RUDI, POS_SINTA"
-                                className="mt-1 w-full text-xs sm:text-sm uppercase font-mono"
-                            />
-                        </div>
-
-                        {/* Modul Power Pro Yang Diminta */}
-                        <div className="sm:col-span-2">
-                            <InputLabel value="Modul Power Pro yang Dibutuhkan *" />
-                            <p className="text-[11px] text-gray-500 mb-2">Pilih modul sistem yang akan digunakan oleh karyawan bersangkutan.</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 {AVAILABLE_MODULES.map((mod) => {
                                     const checked = createForm.data.power_pro_modules.includes(mod.id);
                                     return (
                                         <div
                                             key={mod.id}
                                             onClick={() => handleModuleToggle(mod.id)}
-                                            className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 ${
+                                            className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
                                                 checked
-                                                    ? 'bg-red-50/70 border-red-300 ring-1 ring-red-400'
-                                                    : 'bg-white border-gray-200 hover:border-gray-300'
+                                                    ? 'bg-red-50/70 border-red-300 ring-2 ring-red-400/20 shadow-xs'
+                                                    : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
                                             }`}
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={checked}
                                                 onChange={() => {}}
-                                                className="mt-0.5 rounded text-red-600 focus:ring-red-500"
+                                                className="mt-0.5 rounded text-red-600 focus:ring-red-500 h-4 w-4 pointer-events-none"
                                             />
-                                            <div className="flex-1">
-                                                <span className="font-semibold text-xs text-gray-900 block">{mod.label}</span>
-                                                <span className="text-[10px] text-gray-500 leading-tight block">{mod.desc}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <span className={`font-bold text-xs block ${checked ? 'text-red-950' : 'text-gray-900'}`}>
+                                                    {mod.label}
+                                                </span>
+                                                <span className="text-[11px] text-gray-500 leading-snug block mt-0.5">
+                                                    {mod.desc}
+                                                </span>
                                             </div>
                                         </div>
                                     );
@@ -881,79 +947,116 @@ export default function PowerProIndex({
                             <InputError message={createForm.errors.power_pro_modules} className="mt-1" />
                         </div>
 
-                        {/* Hak Istimewa Khusus (Privileges) */}
-                        <div className="sm:col-span-2">
-                            <InputLabel value="Hak Akses Khusus / Privileges (Opsional)" />
-                            <p className="text-[11px] text-gray-500 mb-2">Centang jika karyawan memerlukan otorisasi transaksi sensitif.</p>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {/* SECTION 3: HAK AKSES KHUSUS / PRIVILEGES */}
+                        <div className="space-y-3 pt-2 border-t border-gray-100">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                        3. Hak Akses Khusus / Privileges (Opsional)
+                                    </h3>
+                                </div>
+                                {createForm.data.special_privileges.length > 0 && (
+                                    <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                                        {createForm.data.special_privileges.length} privileges aktif
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-[11px] text-gray-500">
+                                Centang hanya jika karyawan memerlukan otorisasi transaksi sensitif finansial / operasional hotel.
+                            </p>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                 {AVAILABLE_PRIVILEGES.map((priv) => {
                                     const checked = createForm.data.special_privileges.includes(priv.id);
                                     return (
                                         <div
                                             key={priv.id}
                                             onClick={() => handlePrivilegeToggle(priv.id)}
-                                            className={`p-2 rounded-xl border text-left cursor-pointer transition-all flex items-center gap-2 ${
+                                            className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5 select-none ${
                                                 checked
-                                                    ? 'bg-amber-50 border-amber-300 text-amber-900'
-                                                    : 'bg-gray-50/50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                                                    ? 'bg-amber-50/80 border-amber-300 ring-1 ring-amber-400/30 text-amber-950 font-medium shadow-xs'
+                                                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50/50'
                                             }`}
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={checked}
                                                 onChange={() => {}}
-                                                className="rounded text-amber-600 focus:ring-amber-500"
+                                                className="rounded text-amber-600 focus:ring-amber-500 h-4 w-4 pointer-events-none"
                                             />
-                                            <span className="text-[11px] font-medium leading-tight">{priv.label}</span>
+                                            <span className="text-[11px] leading-tight flex-1">{priv.label}</span>
                                         </div>
                                     );
                                 })}
                             </div>
                         </div>
 
-                        {/* Alasan / Keperluan */}
-                        <div className="sm:col-span-2">
-                            <InputLabel htmlFor="reason" value="Keperluan / Alasan Pengajuan" />
-                            <textarea
-                                id="reason"
-                                rows={2}
-                                value={createForm.data.reason}
-                                onChange={(e) => createForm.setData('reason', e.target.value)}
-                                placeholder="Contoh: Karyawan baru posisi Receptionist Shift Pagi/Sore, memerlukan akses check-in dan kasir front office."
-                                className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                            />
-                        </div>
+                        {/* SECTION 4: ALASAN & TANDA TANGAN */}
+                        <div className="space-y-4 pt-2 border-t border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-gray-500"></div>
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                    4. Keperluan & Tanda Tangan Pemohon
+                                </h3>
+                            </div>
 
-                        {/* Tanda Tangan Digital Pemohon */}
-                        <div className="sm:col-span-2">
-                            <InputLabel value="Tanda Tangan Pemohon *" />
-                            <p className="text-[11px] text-gray-500 mb-1">Bubuhkan tanda tangan digital Anda di bawah ini sebagai konfirmasi pengajuan.</p>
-                            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2">
-                                <SignaturePad
-                                    value={createForm.data.requester_signature}
-                                    onChange={(val) => createForm.setData('requester_signature', val || '')}
-                                    title="Tanda Tangan Pemohon"
-                                    height={120}
+                            <div>
+                                <InputLabel htmlFor="reason" value="Keperluan / Alasan Pengajuan" />
+                                <textarea
+                                    id="reason"
+                                    rows={2}
+                                    value={createForm.data.reason}
+                                    onChange={(e) => createForm.setData('reason', e.target.value)}
+                                    placeholder="Contoh: Karyawan baru posisi Receptionist Shift Pagi/Sore, memerlukan akses check-in dan kasir front office."
+                                    className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 />
+                            </div>
+
+                            <div>
+                                <div className="flex items-center justify-between mb-1">
+                                    <InputLabel value="Tanda Tangan Pemohon *" />
+                                    <span className="text-[11px] text-gray-400">Konfirmasi Pengajuan</span>
+                                </div>
+                                <p className="text-[11px] text-gray-500 mb-1.5">
+                                    Bubuhkan tanda tangan digital Anda di bawah ini sebagai pengesahan formulir permohonan.
+                                </p>
+                                <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2 shadow-xs">
+                                    <SignaturePad
+                                        value={createForm.data.requester_signature}
+                                        onChange={(val) => createForm.setData('requester_signature', val || '')}
+                                        title="Tanda Tangan Pemohon"
+                                        height={120}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
-                        <SecondaryButton onClick={() => setIsCreateOpen(false)}>
-                            Batal
-                        </SecondaryButton>
-                        <PrimaryButton disabled={createForm.processing} className="bg-red-600 hover:bg-red-700">
-                            {createForm.processing ? 'Mengirimkan...' : 'Kirim Pengajuan ke HOD & IT'}
-                        </PrimaryButton>
+                    {/* Sticky Footer */}
+                    <div className="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-100 px-6 py-3.5 bg-gray-50/90">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <span>Diteruskan ke HOD terkait untuk verifikasi sebelum pembuatan akun oleh IT.</span>
+                        </div>
+                        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                            <SecondaryButton onClick={() => setIsCreateOpen(false)}>
+                                Batal
+                            </SecondaryButton>
+                            <PrimaryButton disabled={createForm.processing} className="bg-red-600 hover:bg-red-700 shadow-sm shadow-red-200">
+                                {createForm.processing ? 'Mengirimkan...' : 'Kirim Pengajuan ke HOD & IT'}
+                            </PrimaryButton>
+                        </div>
                     </div>
                 </form>
             </Modal>
 
             {/* =================== MODAL 2: PERSETUJUAN HOD =================== */}
-            <Modal show={isApproveOpen} onClose={() => setIsApproveOpen(false)} maxWidth="md">
-                <form onSubmit={handleApproveSubmit} className="p-6 space-y-4">
-                    <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <Modal show={isApproveOpen} onClose={() => setIsApproveOpen(false)} maxWidth="lg">
+                <form onSubmit={handleApproveSubmit} className="flex flex-col max-h-[90vh]">
+                    <div className="shrink-0 flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-white">
                         <div>
                             <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">Otorisasi HOD</span>
                             <h2 className="text-base font-bold text-gray-900">Persetujuan Head of Department</h2>
@@ -961,7 +1064,7 @@ export default function PowerProIndex({
                         <button
                             type="button"
                             onClick={() => setIsApproveOpen(false)}
-                            className="p-1 rounded-lg text-gray-400 hover:text-gray-600"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -969,40 +1072,57 @@ export default function PowerProIndex({
                         </button>
                     </div>
 
-                    {activeItem && (
-                        <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100 text-xs space-y-1">
-                            <p><span className="text-gray-500">No. Permohonan:</span> <strong className="text-blue-900">{activeItem.request_number}</strong></p>
-                            <p><span className="text-gray-500">Karyawan:</span> <strong className="text-gray-800">{activeItem.employee?.user?.name}</strong> ({activeItem.department?.name})</p>
-                            <p><span className="text-gray-500">Tipe:</span> <span className="font-semibold text-gray-700">{activeItem.request_type_label}</span></p>
-                            <p><span className="text-gray-500">Modul:</span> <span className="font-medium text-gray-700">{activeItem.power_pro_modules?.join(', ')}</span></p>
-                        </div>
-                    )}
+                    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 text-xs">
+                        {activeItem && (
+                            <div className="bg-blue-50/60 p-3.5 rounded-xl border border-blue-100 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">No. Permohonan:</span>
+                                    <strong className="text-blue-900 font-mono">{activeItem.request_number}</strong>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Karyawan:</span>
+                                    <strong className="text-gray-800">{activeItem.employee?.user?.name} ({activeItem.department?.name})</strong>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Tipe Request:</span>
+                                    <span className="font-semibold text-gray-700">{activeItem.request_type_label}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Modul Dibutuhkan:</span>
+                                    <span className="font-medium text-gray-700">{activeItem.power_pro_modules?.join(', ')}</span>
+                                </div>
+                            </div>
+                        )}
 
-                    <div>
-                        <InputLabel htmlFor="approval_notes" value="Catatan Persetujuan (Opsional)" />
-                        <textarea
-                            id="approval_notes"
-                            rows={2}
-                            value={approveForm.data.approval_notes}
-                            onChange={(e) => approveForm.setData('approval_notes', e.target.value)}
-                            placeholder="Contoh: Disetujui, harap diterbitkan User ID untuk shift awal minggu ini."
-                            className="mt-1 w-full rounded-xl border border-gray-200 text-xs text-gray-800"
-                        />
-                    </div>
-
-                    <div>
-                        <InputLabel value="Tanda Tangan Digital HOD *" />
-                        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2 mt-1">
-                            <SignaturePad
-                                value={approveForm.data.approver_signature}
-                                onChange={(val) => approveForm.setData('approver_signature', val || '')}
-                                title="Tanda Tangan HOD"
-                                height={110}
+                        <div>
+                            <InputLabel htmlFor="approval_notes" value="Catatan Persetujuan HOD (Opsional)" />
+                            <textarea
+                                id="approval_notes"
+                                rows={2}
+                                value={approveForm.data.approval_notes}
+                                onChange={(e) => approveForm.setData('approval_notes', e.target.value)}
+                                placeholder="Contoh: Disetujui, harap segera diterbitkan User ID untuk operasional minggu ini."
+                                className="mt-1 w-full rounded-xl border border-gray-200 text-xs text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                             />
                         </div>
+
+                        <div>
+                            <InputLabel value="Tanda Tangan Digital HOD *" />
+                            <p className="text-[11px] text-gray-500 mb-1.5">
+                                Bubuhkan tanda tangan digital Anda sebagai bukti persetujuan kepala departemen.
+                            </p>
+                            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2">
+                                <SignaturePad
+                                    value={approveForm.data.approver_signature}
+                                    onChange={(val) => approveForm.setData('approver_signature', val || '')}
+                                    title="Tanda Tangan HOD"
+                                    height={115}
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 pt-2">
+                    <div className="shrink-0 flex items-center justify-end gap-2.5 border-t border-gray-100 px-6 py-3.5 bg-gray-50/80">
                         <SecondaryButton onClick={() => setIsApproveOpen(false)}>
                             Batal
                         </SecondaryButton>
@@ -1014,9 +1134,9 @@ export default function PowerProIndex({
             </Modal>
 
             {/* =================== MODAL 3: PENYELESAIAN IT (GENERATE USER ID) =================== */}
-            <Modal show={isProcessOpen} onClose={() => setIsProcessOpen(false)} maxWidth="md">
-                <form onSubmit={handleProcessSubmit} className="p-6 space-y-4">
-                    <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <Modal show={isProcessOpen} onClose={() => setIsProcessOpen(false)} maxWidth="lg">
+                <form onSubmit={handleProcessSubmit} className="flex flex-col max-h-[90vh]">
+                    <div className="shrink-0 flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-white">
                         <div>
                             <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider block">IT Execution</span>
                             <h2 className="text-base font-bold text-gray-900">Penerbitan User ID Power Pro</h2>
@@ -1024,7 +1144,7 @@ export default function PowerProIndex({
                         <button
                             type="button"
                             onClick={() => setIsProcessOpen(false)}
-                            className="p-1 rounded-lg text-gray-400 hover:text-gray-600"
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1032,58 +1152,74 @@ export default function PowerProIndex({
                         </button>
                     </div>
 
-                    {activeItem && (
-                        <div className="bg-gray-50 p-3 rounded-xl border border-gray-200 text-xs space-y-1">
-                            <p><span className="text-gray-500">Pemohon:</span> <strong>{activeItem.employee?.user?.name}</strong> ({activeItem.department?.name})</p>
-                            <p><span className="text-gray-500">Modul Dibutuhkan:</span> <strong className="text-red-700">{activeItem.power_pro_modules?.join(', ')}</strong></p>
-                            <p><span className="text-gray-500">Level Akses:</span> {activeItem.access_level}</p>
-                            {activeItem.proposed_username && (
-                                <p><span className="text-gray-500">Usulan Username:</span> <code className="font-bold text-indigo-700">{activeItem.proposed_username}</code></p>
-                            )}
+                    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 text-xs">
+                        {activeItem && (
+                            <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-200 space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Pemohon / Karyawan:</span>
+                                    <strong className="text-gray-900">{activeItem.employee?.user?.name} ({activeItem.department?.name})</strong>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Modul Dibutuhkan:</span>
+                                    <strong className="text-red-700">{activeItem.power_pro_modules?.join(', ')}</strong>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Level Akses:</span>
+                                    <span className="text-gray-700">{activeItem.access_level}</span>
+                                </div>
+                                {activeItem.proposed_username && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-gray-500">Usulan Username:</span>
+                                        <code className="font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">
+                                            {activeItem.proposed_username}
+                                        </code>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div>
+                            <InputLabel htmlFor="created_user_id" value="User ID Power Pro Resmi yang Dibuat *" />
+                            <TextInput
+                                id="created_user_id"
+                                value={processForm.data.created_user_id}
+                                onChange={(e) => processForm.setData('created_user_id', e.target.value.toUpperCase())}
+                                placeholder="Contoh: FO_RUDI_01"
+                                className="mt-1 w-full text-sm font-mono font-bold uppercase tracking-wider text-red-800"
+                                required
+                            />
+                            <InputError message={processForm.errors.created_user_id} className="mt-1" />
+                            <p className="text-[11px] text-gray-500 mt-1">
+                                Masukkan User ID login yang telah Anda buatkan di server database Power Pro.
+                            </p>
                         </div>
-                    )}
 
-                    <div>
-                        <InputLabel htmlFor="created_user_id" value="User ID Power Pro Resmi yang Dibuat *" />
-                        <TextInput
-                            id="created_user_id"
-                            value={processForm.data.created_user_id}
-                            onChange={(e) => processForm.setData('created_user_id', e.target.value.toUpperCase())}
-                            placeholder="Contoh: FO_RUDI_01"
-                            className="mt-1 w-full text-sm font-mono font-bold uppercase tracking-wider text-red-800"
-                            required
-                        />
-                        <InputError message={processForm.errors.created_user_id} className="mt-1" />
-                        <p className="text-[11px] text-gray-500 mt-1">
-                            Masukkan ID login yang telah Anda buatkan di server database Power Pro.
-                        </p>
-                    </div>
-
-                    <div>
-                        <InputLabel htmlFor="it_notes" value="Catatan / Keterangan IT (Opsional)" />
-                        <textarea
-                            id="it_notes"
-                            rows={2}
-                            value={processForm.data.it_notes}
-                            onChange={(e) => processForm.setData('it_notes', e.target.value)}
-                            placeholder="Contoh: Akun sudah aktif di Workstation Terminal FO 1 & 2. Password default telah diserahkan langsung."
-                            className="mt-1 w-full rounded-xl border border-gray-200 text-xs text-gray-800"
-                        />
-                    </div>
-
-                    <div>
-                        <InputLabel value="Tanda Tangan Petugas IT *" />
-                        <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2 mt-1">
-                            <SignaturePad
-                                value={processForm.data.it_signature}
-                                onChange={(val) => processForm.setData('it_signature', val || '')}
-                                title="Tanda Tangan IT Officer"
-                                height={110}
+                        <div>
+                            <InputLabel htmlFor="it_notes" value="Catatan / Keterangan IT (Opsional)" />
+                            <textarea
+                                id="it_notes"
+                                rows={2}
+                                value={processForm.data.it_notes}
+                                onChange={(e) => processForm.setData('it_notes', e.target.value)}
+                                placeholder="Contoh: Akun sudah aktif di Workstation Terminal FO 1 & 2. Password default telah diserahkan langsung."
+                                className="mt-1 w-full rounded-xl border border-gray-200 text-xs text-gray-800"
                             />
                         </div>
+
+                        <div>
+                            <InputLabel value="Tanda Tangan Petugas IT *" />
+                            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2 mt-1">
+                                <SignaturePad
+                                    value={processForm.data.it_signature}
+                                    onChange={(val) => processForm.setData('it_signature', val || '')}
+                                    title="Tanda Tangan IT Officer"
+                                    height={115}
+                                />
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 pt-2">
+                    <div className="shrink-0 flex items-center justify-end gap-2.5 border-t border-gray-100 px-6 py-3.5 bg-gray-50/80">
                         <SecondaryButton onClick={() => setIsProcessOpen(false)}>
                             Batal
                         </SecondaryButton>
@@ -1095,10 +1231,10 @@ export default function PowerProIndex({
             </Modal>
 
             {/* =================== MODAL 4: DETAIL LENGKAP & RIWAYAT =================== */}
-            <Modal show={isDetailOpen} onClose={() => setIsDetailOpen(false)} maxWidth="2xl">
+            <Modal show={isDetailOpen} onClose={() => setIsDetailOpen(false)} maxWidth="3xl">
                 {activeItem && (
-                    <div className="p-6 space-y-5">
-                        <div className="flex items-start justify-between border-b border-gray-100 pb-4">
+                    <div className="flex flex-col max-h-[90vh]">
+                        <div className="shrink-0 flex items-start justify-between border-b border-gray-100 px-6 py-4 bg-white">
                             <div>
                                 <div className="flex items-center gap-2">
                                     <span className="font-mono text-sm font-bold text-red-700">{activeItem.request_number}</span>
@@ -1115,7 +1251,7 @@ export default function PowerProIndex({
                                     href={route('power-pro.print', activeItem.id)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold transition-colors"
                                 >
                                     <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -1124,7 +1260,7 @@ export default function PowerProIndex({
                                 </a>
                                 <button
                                     onClick={() => setIsDetailOpen(false)}
-                                    className="p-1 rounded-lg text-gray-400 hover:text-gray-600"
+                                    className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                                 >
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1133,106 +1269,127 @@ export default function PowerProIndex({
                             </div>
                         </div>
 
-                        {/* Detail Info Grid */}
-                        <div className="grid grid-cols-2 gap-4 text-xs">
-                            <div className="space-y-1">
-                                <span className="text-gray-400 block font-medium">Karyawan</span>
-                                <p className="font-bold text-gray-900 text-sm">{activeItem.employee?.user?.name}</p>
-                                <p className="text-gray-500">NIK: {activeItem.employee?.employee_number}</p>
-                                <p className="text-gray-500">Departemen: {activeItem.department?.name}</p>
-                                <p className="text-gray-500">Status: {activeItem.employment_status || 'Permanent'}</p>
+                        {/* Scrollable Detail Body */}
+                        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+                            {/* Detail Info Grid */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-gray-50/70 p-4 rounded-xl border border-gray-100">
+                                <div className="space-y-1.5">
+                                    <span className="text-gray-400 block font-bold uppercase tracking-wider text-[10px]">Data Karyawan</span>
+                                    <p className="font-bold text-gray-900 text-sm">{activeItem.employee?.user?.name}</p>
+                                    <p className="text-gray-600">NIK: <strong className="text-gray-800">{activeItem.employee?.employee_number}</strong></p>
+                                    <p className="text-gray-600">Departemen: <strong className="text-gray-800">{activeItem.department?.name}</strong></p>
+                                    <p className="text-gray-600">Status Kepegawaian: <strong className="text-gray-800">{activeItem.employment_status || 'Permanent'}</strong></p>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <span className="text-gray-400 block font-bold uppercase tracking-wider text-[10px]">Akses Sistem Power Pro</span>
+                                    <p className="font-semibold text-gray-800">Level Akses: {activeItem.access_level}</p>
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {activeItem.power_pro_modules?.map((m, i) => (
+                                            <span key={i} className="px-2 py-0.5 rounded bg-red-50 text-red-700 text-[10px] font-semibold border border-red-200">
+                                                {m}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    {activeItem.created_user_id && (
+                                        <div className="mt-2">
+                                            <span className="text-[10px] uppercase font-bold text-emerald-600 block">User ID Resmi Terbit:</span>
+                                            <span className="text-emerald-800 font-mono font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200 inline-block text-sm">
+                                                {activeItem.created_user_id}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <span className="text-gray-400 block font-medium">Akses Sistem</span>
-                                <p className="font-semibold text-gray-800">Level: {activeItem.access_level}</p>
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                    {activeItem.power_pro_modules?.map((m, i) => (
-                                        <span key={i} className="px-1.5 py-0.5 rounded bg-red-50 text-red-700 text-[10px] font-medium border border-red-100">
-                                            {m}
-                                        </span>
-                                    ))}
+                            {activeItem.special_privileges && activeItem.special_privileges.length > 0 && (
+                                <div>
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
+                                        Hak Akses Khusus / Privileges Terotorisasi
+                                    </span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {activeItem.special_privileges.map((p, i) => (
+                                            <span key={i} className="px-2 py-1 rounded-lg bg-amber-50 text-amber-900 text-xs border border-amber-200 font-medium">
+                                                ✓ {p}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
-                                {activeItem.created_user_id && (
-                                    <p className="mt-2 text-emerald-800 font-mono font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200 inline-block">
-                                        ID Terbit: {activeItem.created_user_id}
-                                    </p>
-                                )}
+                            )}
+
+                            {activeItem.reason && (
+                                <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-xs">
+                                    <span className="font-semibold text-gray-700 block mb-0.5">Keperluan / Justifikasi:</span>
+                                    <p className="text-gray-600">{activeItem.reason}</p>
+                                </div>
+                            )}
+
+                            {activeItem.it_notes && (
+                                <div className="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100 text-xs">
+                                    <span className="font-semibold text-emerald-800 block mb-0.5">Catatan Tim IT:</span>
+                                    <p className="text-emerald-700">{activeItem.it_notes}</p>
+                                </div>
+                            )}
+
+                            {activeItem.rejection_reason && (
+                                <div className="bg-rose-50 p-3.5 rounded-xl border border-rose-200 text-xs">
+                                    <span className="font-semibold text-rose-800 block mb-0.5">Alasan Penolakan:</span>
+                                    <p className="text-rose-700">{activeItem.rejection_reason}</p>
+                                </div>
+                            )}
+
+                            {/* Timeline & Tanda Tangan */}
+                            <div className="border-t border-gray-100 pt-4">
+                                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                                    Lembar Otorisasi & Tanda Tangan
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    {/* Pemohon */}
+                                    <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase block">1. Pemohon</span>
+                                        <div className="h-16 my-1 flex items-center justify-center">
+                                            {activeItem.requester_signature ? (
+                                                <img src={activeItem.requester_signature} alt="Sign" className="max-h-full object-contain" />
+                                            ) : (
+                                                <span className="text-[10px] text-gray-300 italic">Belum TTD</span>
+                                            )}
+                                        </div>
+                                        <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.requested_by_username || activeItem.employee?.user?.name}</p>
+                                        <p className="text-[9px] text-gray-400">{formatDate(activeItem.requested_at)}</p>
+                                    </div>
+
+                                    {/* HOD */}
+                                    <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase block">2. HOD Terkait</span>
+                                        <div className="h-16 my-1 flex items-center justify-center">
+                                            {activeItem.approver_signature ? (
+                                                <img src={activeItem.approver_signature} alt="Sign" className="max-h-full object-contain" />
+                                            ) : (
+                                                <span className="text-[10px] text-gray-300 italic">Belum Disetujui</span>
+                                            )}
+                                        </div>
+                                        <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.approved_by_username || '-'}</p>
+                                        <p className="text-[9px] text-gray-400">{formatDate(activeItem.approved_at)}</p>
+                                    </div>
+
+                                    {/* IT */}
+                                    <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase block">3. IT Department</span>
+                                        <div className="h-16 my-1 flex items-center justify-center">
+                                            {activeItem.it_signature ? (
+                                                <img src={activeItem.it_signature} alt="Sign" className="max-h-full object-contain" />
+                                            ) : (
+                                                <span className="text-[10px] text-gray-300 italic">Belum Diproses</span>
+                                            )}
+                                        </div>
+                                        <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.processed_by_username || '-'}</p>
+                                        <p className="text-[9px] text-gray-400">{formatDate(activeItem.processed_at)}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        {activeItem.reason && (
-                            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-xs">
-                                <span className="font-semibold text-gray-700 block mb-0.5">Keperluan / Justifikasi:</span>
-                                <p className="text-gray-600">{activeItem.reason}</p>
-                            </div>
-                        )}
-
-                        {activeItem.it_notes && (
-                            <div className="bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 text-xs">
-                                <span className="font-semibold text-emerald-800 block mb-0.5">Catatan IT Department:</span>
-                                <p className="text-emerald-700">{activeItem.it_notes}</p>
-                            </div>
-                        )}
-
-                        {activeItem.rejection_reason && (
-                            <div className="bg-rose-50 p-3 rounded-xl border border-rose-200 text-xs">
-                                <span className="font-semibold text-rose-800 block mb-0.5">Alasan Penolakan:</span>
-                                <p className="text-rose-700">{activeItem.rejection_reason}</p>
-                            </div>
-                        )}
-
-                        {/* Timeline & Tanda Tangan */}
-                        <div className="border-t border-gray-100 pt-4">
-                            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                                Lembar Otorisasi & Tanda Tangan
-                            </h3>
-                            <div className="grid grid-cols-3 gap-3">
-                                {/* Pemohon */}
-                                <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase block">1. Pemohon</span>
-                                    <div className="h-16 my-1 flex items-center justify-center">
-                                        {activeItem.requester_signature ? (
-                                            <img src={activeItem.requester_signature} alt="Sign" className="max-h-full object-contain" />
-                                        ) : (
-                                            <span className="text-[10px] text-gray-300 italic">Belum TTD</span>
-                                        )}
-                                    </div>
-                                    <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.requested_by_username || activeItem.employee?.user?.name}</p>
-                                    <p className="text-[9px] text-gray-400">{formatDate(activeItem.requested_at)}</p>
-                                </div>
-
-                                {/* HOD */}
-                                <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase block">2. HOD Terkait</span>
-                                    <div className="h-16 my-1 flex items-center justify-center">
-                                        {activeItem.approver_signature ? (
-                                            <img src={activeItem.approver_signature} alt="Sign" className="max-h-full object-contain" />
-                                        ) : (
-                                            <span className="text-[10px] text-gray-300 italic">Belum Disetujui</span>
-                                        )}
-                                    </div>
-                                    <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.approved_by_username || '-'}</p>
-                                    <p className="text-[9px] text-gray-400">{formatDate(activeItem.approved_at)}</p>
-                                </div>
-
-                                {/* IT */}
-                                <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase block">3. IT Department</span>
-                                    <div className="h-16 my-1 flex items-center justify-center">
-                                        {activeItem.it_signature ? (
-                                            <img src={activeItem.it_signature} alt="Sign" className="max-h-full object-contain" />
-                                        ) : (
-                                            <span className="text-[10px] text-gray-300 italic">Belum Diproses</span>
-                                        )}
-                                    </div>
-                                    <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.processed_by_username || '-'}</p>
-                                    <p className="text-[9px] text-gray-400">{formatDate(activeItem.processed_at)}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end pt-2">
+                        <div className="shrink-0 flex justify-end border-t border-gray-100 px-6 py-3.5 bg-gray-50/80">
                             <SecondaryButton onClick={() => setIsDetailOpen(false)}>
                                 Tutup
                             </SecondaryButton>
