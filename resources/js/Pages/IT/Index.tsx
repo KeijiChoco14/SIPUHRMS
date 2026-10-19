@@ -157,6 +157,32 @@ export default function ItIndex({
     const [ticketStatus, setTicketStatus] = useState(filters.ticket_status || 'all');
     const [ticketPriority, setTicketPriority] = useState(filters.ticket_priority || 'all');
 
+    const navigateToTicketStatus = (status: string) => {
+        setTab('tickets');
+        setTicketStatus(status);
+        router.get(
+            route('it.index'),
+            {
+                tab: 'tickets',
+                ticket_status: status,
+                ticket_search: ticketSearch,
+                ticket_priority: ticketPriority,
+            },
+            { preserveState: true }
+        );
+    };
+
+    const navigateToAssets = () => {
+        setTab('assets');
+        router.get(
+            route('it.index'),
+            {
+                tab: 'assets',
+            },
+            { preserveState: true }
+        );
+    };
+
     // Ticket Form
     const ticketForm = useForm({
         title: '',
@@ -526,12 +552,16 @@ export default function ItIndex({
                         {/* High-level Metric Cards */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             {/* Open Tickets */}
-                            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div
+                                onClick={() => navigateToTicketStatus('Open')}
+                                className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-amber-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
+                                title="Klik untuk melihat tiket baru (Open)"
+                            >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
+                                    <span className="text-xs font-bold text-amber-700 uppercase tracking-wider group-hover:text-amber-800 transition-colors">
                                         Tiket Baru (Open)
                                     </span>
-                                    <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+                                    <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         ⏳
                                     </div>
                                 </div>
@@ -542,16 +572,24 @@ export default function ItIndex({
                                     <p className="text-xs text-gray-500 mt-1">
                                         Menunggu respon dari teknisi IT
                                     </p>
+                                    <div className="mt-2.5 pt-2 border-t border-amber-100/60 flex items-center justify-between text-[11px] font-bold text-amber-700">
+                                        <span>Lihat Tiket Open</span>
+                                        <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* In Progress */}
-                            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-indigo-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div
+                                onClick={() => navigateToTicketStatus('In Progress')}
+                                className="bg-white rounded-2xl p-4 sm:p-5 border border-indigo-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-indigo-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
+                                title="Klik untuk melihat tiket sedang ditangani"
+                            >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
+                                    <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider group-hover:text-indigo-800 transition-colors">
                                         Sedang Ditangani
                                     </span>
-                                    <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+                                    <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         ⚙️
                                     </div>
                                 </div>
@@ -562,16 +600,24 @@ export default function ItIndex({
                                     <p className="text-xs text-gray-500 mt-1">
                                         Dalam tahap investigasi/perbaikan
                                     </p>
+                                    <div className="mt-2.5 pt-2 border-t border-indigo-100/60 flex items-center justify-between text-[11px] font-bold text-indigo-700">
+                                        <span>Lihat Tiket Diproses</span>
+                                        <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Resolved & Closed */}
-                            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div
+                                onClick={() => navigateToTicketStatus('Resolved')}
+                                className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-emerald-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
+                                title="Klik untuk melihat tiket selesai ditangani"
+                            >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                                    <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider group-hover:text-emerald-800 transition-colors">
                                         Selesai Ditangani
                                     </span>
-                                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+                                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         ✅
                                     </div>
                                 </div>
@@ -582,16 +628,24 @@ export default function ItIndex({
                                     <p className="text-xs text-gray-500 mt-1">
                                         Tiket berhasil diselesaikan
                                     </p>
+                                    <div className="mt-2.5 pt-2 border-t border-emerald-100/60 flex items-center justify-between text-[11px] font-bold text-emerald-700">
+                                        <span>Lihat Tiket Selesai</span>
+                                        <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Total Assets */}
-                            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-red-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md transition-shadow">
+                            <div
+                                onClick={navigateToAssets}
+                                className="bg-white rounded-2xl p-4 sm:p-5 border border-red-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-red-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
+                                title="Klik untuk melihat data inventaris aset IT"
+                            >
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-bold text-red-700 uppercase tracking-wider">
+                                    <span className="text-xs font-bold text-red-700 uppercase tracking-wider group-hover:text-red-800 transition-colors">
                                         Total Asset IT
                                     </span>
-                                    <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm">
+                                    <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         💻
                                     </div>
                                 </div>
@@ -602,6 +656,10 @@ export default function ItIndex({
                                     <p className="text-xs text-gray-500 mt-1">
                                         {assetStats.in_use} Aktif Digunakan • {assetStats.maintenance} Servis
                                     </p>
+                                    <div className="mt-2.5 pt-2 border-t border-red-100/60 flex items-center justify-between text-[11px] font-bold text-red-700">
+                                        <span>Buka Inventaris Aset</span>
+                                        <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
