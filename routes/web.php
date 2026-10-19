@@ -22,6 +22,7 @@ use App\Http\Controllers\TaskAttachmentController;
 use App\Http\Controllers\TaskChecklistController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\MasterKeyRequestController;
+use App\Http\Controllers\PowerProRequestController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -158,6 +159,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/it/tickets/{ticket}/status', [ItOperationsController::class, 'updateTicketStatus'])->name('it.tickets.status');
     Route::post('/it/tickets/{ticket}/updates', [ItOperationsController::class, 'addTicketUpdate'])->name('it.tickets.updates');
     Route::delete('/it/tickets/{ticket}', [ItOperationsController::class, 'destroyTicket'])->name('it.tickets.destroy');
+
+    // Power Pro User Access Request Routes (IT Operations)
+    Route::get('/it/power-pro', [PowerProRequestController::class, 'index'])->name('power-pro.index');
+    Route::get('/it/power-pro/export', [PowerProRequestController::class, 'export'])->name('power-pro.export');
+    Route::post('/it/power-pro', [PowerProRequestController::class, 'store'])->name('power-pro.store');
+    Route::get('/it/power-pro/{powerProRequest}/print', [PowerProRequestController::class, 'print'])->name('power-pro.print');
+    Route::patch('/it/power-pro/{powerProRequest}/approve', [PowerProRequestController::class, 'approve'])->name('power-pro.approve');
+    Route::patch('/it/power-pro/{powerProRequest}/process', [PowerProRequestController::class, 'process'])->name('power-pro.process');
+    Route::patch('/it/power-pro/{powerProRequest}/reject', [PowerProRequestController::class, 'reject'])->name('power-pro.reject');
+    Route::delete('/it/power-pro/{powerProRequest}', [PowerProRequestController::class, 'destroy'])->name('power-pro.destroy');
 
     // Administration & Organization Routes
     Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
