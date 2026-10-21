@@ -401,13 +401,13 @@ export default function ItIndex({
                                 )}
                             </div>
                             <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-                                {isItManager ? 'IT Operations & Helpdesk' : 'IT Helpdesk & Lapor Kendala'}
+                                {isItManager ? 'IT Operations & Helpdesk' : 'IT Helpdesk & Support'}
                             </h2>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
-                        {/* Lapor Kendala IT Button - Available to everyone */}
+                        {/* Report IT Issue Button - Available to everyone */}
                         <button
                             onClick={() => {
                                 ticketForm.reset();
@@ -418,10 +418,10 @@ export default function ItIndex({
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            <span>Lapor Kendala IT</span>
+                            <span>Report IT Issue</span>
                         </button>
 
-                        {/* Tambah Asset - Only for IT Managers */}
+                        {/* Add Asset - Only for IT Managers */}
                         {isItManager && (
                             <button
                                 onClick={openCreateAsset}
@@ -430,7 +430,7 @@ export default function ItIndex({
                                 <svg className="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <span>Tambah Asset</span>
+                                <span>Add IT Asset</span>
                             </button>
                         )}
                     </div>
@@ -467,20 +467,20 @@ export default function ItIndex({
                             </div>
                             <div>
                                 <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                                    Tiket Kendala IT Saya
+                                    My IT Support Tickets
                                 </h3>
                                 <p className="text-xs text-gray-500">
-                                    Daftar laporan permohonan bantuan teknis IT yang telah Anda ajukan
+                                    List of IT technical assistance requests submitted by you
                                 </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-red-50 text-red-700 border border-red-200">
-                                Total: {tickets.total} Tiket
+                                Total: {tickets.total} Tickets
                             </span>
                             {(ticketStats.open + ticketStats.in_progress) > 0 && (
                                 <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
-                                    {ticketStats.open + ticketStats.in_progress} Masih Diproses
+                                    {ticketStats.open + ticketStats.in_progress} In Progress
                                 </span>
                             )}
                         </div>
@@ -555,11 +555,11 @@ export default function ItIndex({
                             <div
                                 onClick={() => navigateToTicketStatus('Open')}
                                 className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-amber-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
-                                title="Klik untuk melihat tiket baru (Open)"
+                                title="Click to view new tickets (Open)"
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-bold text-amber-700 uppercase tracking-wider group-hover:text-amber-800 transition-colors">
-                                        Tiket Baru (Open)
+                                        New Tickets (Open)
                                     </span>
                                     <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         ⏳
@@ -570,10 +570,10 @@ export default function ItIndex({
                                         {ticketStats.open}
                                     </div>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Menunggu respon dari teknisi IT
+                                        Awaiting IT technician response
                                     </p>
                                     <div className="mt-2.5 pt-2 border-t border-amber-100/60 flex items-center justify-between text-[11px] font-bold text-amber-700">
-                                        <span>Lihat Tiket Open</span>
+                                        <span>View Open Tickets</span>
                                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                                     </div>
                                 </div>
@@ -583,11 +583,11 @@ export default function ItIndex({
                             <div
                                 onClick={() => navigateToTicketStatus('In Progress')}
                                 className="bg-white rounded-2xl p-4 sm:p-5 border border-indigo-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-indigo-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
-                                title="Klik untuk melihat tiket sedang ditangani"
+                                title="Click to view in-progress tickets"
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider group-hover:text-indigo-800 transition-colors">
-                                        Sedang Ditangani
+                                        In Progress
                                     </span>
                                     <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         ⚙️
@@ -598,10 +598,10 @@ export default function ItIndex({
                                         {ticketStats.in_progress}
                                     </div>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Dalam tahap investigasi/perbaikan
+                                        Under investigation / repair
                                     </p>
                                     <div className="mt-2.5 pt-2 border-t border-indigo-100/60 flex items-center justify-between text-[11px] font-bold text-indigo-700">
-                                        <span>Lihat Tiket Diproses</span>
+                                        <span>View In-Progress Tickets</span>
                                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                                     </div>
                                 </div>
@@ -611,11 +611,11 @@ export default function ItIndex({
                             <div
                                 onClick={() => navigateToTicketStatus('Resolved')}
                                 className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-emerald-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
-                                title="Klik untuk melihat tiket selesai ditangani"
+                                title="Click to view resolved tickets"
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider group-hover:text-emerald-800 transition-colors">
-                                        Selesai Ditangani
+                                        Resolved Tickets
                                     </span>
                                     <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         ✅
@@ -626,10 +626,10 @@ export default function ItIndex({
                                         {ticketStats.resolved + ticketStats.closed}
                                     </div>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Tiket berhasil diselesaikan
+                                        Tickets successfully resolved
                                     </p>
                                     <div className="mt-2.5 pt-2 border-t border-emerald-100/60 flex items-center justify-between text-[11px] font-bold text-emerald-700">
-                                        <span>Lihat Tiket Selesai</span>
+                                        <span>View Resolved Tickets</span>
                                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                                     </div>
                                 </div>
@@ -639,11 +639,11 @@ export default function ItIndex({
                             <div
                                 onClick={navigateToAssets}
                                 className="bg-white rounded-2xl p-4 sm:p-5 border border-red-200/80 shadow-2xs flex flex-col justify-between hover:shadow-md hover:border-red-300 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer group"
-                                title="Klik untuk melihat data inventaris aset IT"
+                                title="Click to view IT asset inventory"
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-bold text-red-700 uppercase tracking-wider group-hover:text-red-800 transition-colors">
-                                        Total Asset IT
+                                        Total IT Assets
                                     </span>
                                     <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-sm group-hover:scale-110 transition-transform">
                                         💻
@@ -654,10 +654,10 @@ export default function ItIndex({
                                         {assetStats.total}
                                     </div>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        {assetStats.in_use} Aktif Digunakan • {assetStats.maintenance} Servis
+                                        {assetStats.in_use} In Use • {assetStats.maintenance} In Service
                                     </p>
                                     <div className="mt-2.5 pt-2 border-t border-red-100/60 flex items-center justify-between text-[11px] font-bold text-red-700">
-                                        <span>Buka Inventaris Aset</span>
+                                        <span>Open Asset Inventory</span>
                                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                                     </div>
                                 </div>
@@ -671,17 +671,17 @@ export default function ItIndex({
                                 <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                                     <div>
                                         <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                                            Tiket Kendala IT Terbaru
+                                            Recent IT Support Tickets
                                         </h3>
                                         <p className="text-xs text-gray-500">
-                                            {isItManager ? 'Antrean kendala seluruh departemen hotel' : 'Tiket yang Anda laporkan'}
+                                            {isItManager ? 'Issue queue across all hotel departments' : 'Tickets reported by you'}
                                         </p>
                                     </div>
                                     <button
                                         onClick={() => setTab('tickets')}
                                         className="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline"
                                     >
-                                        Lihat Semua ({ticketStats.total}) →
+                                        View All ({ticketStats.total}) →
                                     </button>
                                 </div>
 
@@ -708,7 +708,7 @@ export default function ItIndex({
                                                         {t.title}
                                                     </h4>
                                                     <p className="text-xs text-gray-500 mt-0.5 truncate">
-                                                        Pelapor: <strong className="text-gray-700">{t.reporter?.user?.name || (t.reporter ? `Emp #${t.reporter.employee_number}` : 'Staff')}</strong> ({t.reporter?.department?.name || t.location || 'Hotel'})
+                                                        Reporter: <strong className="text-gray-700">{t.reporter?.user?.name || (t.reporter ? `Emp #${t.reporter.employee_number}` : 'Staff')}</strong> ({t.reporter?.department?.name || t.location || 'Hotel'})
                                                     </p>
                                                 </div>
                                             </div>
@@ -718,15 +718,15 @@ export default function ItIndex({
                                                     href={route('it.tickets.show', t.id)}
                                                     className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                                 >
-                                                    Detail Tiket
+                                                    Ticket Details
                                                 </Link>
                                                 {isItManager && (
                                                     <button
                                                         onClick={() => openQuickStatus(t)}
                                                         className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors"
-                                                        title="Update Status Cepat"
+                                                        title="Quick Status Update"
                                                     >
-                                                        ⚡ Ubah
+                                                        ⚡ Update
                                                     </button>
                                                 )}
                                             </div>
@@ -736,7 +736,7 @@ export default function ItIndex({
                                     {tickets.data.length === 0 && (
                                         <div className="py-10 text-center text-gray-400">
                                             <span className="text-3xl block mb-2">🎉</span>
-                                            <p className="text-sm font-medium">Tidak ada kendala IT aktif.</p>
+                                            <p className="text-sm font-medium">No active IT support issues.</p>
                                         </div>
                                     )}
                                 </div>
@@ -747,10 +747,10 @@ export default function ItIndex({
                                 <div>
                                     <div className="pb-3 border-b border-gray-100">
                                         <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                                            Status Aset IT Hotel
+                                            Hotel IT Asset Status
                                         </h3>
                                         <p className="text-xs text-gray-500">
-                                            Distribusi kondisi operasional perangkat
+                                            Device operational condition distribution
                                         </p>
                                     </div>
 
@@ -758,33 +758,33 @@ export default function ItIndex({
                                         <div className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
                                             <div className="flex items-center gap-2">
                                                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                                <span className="font-semibold text-emerald-900">In Use (Sedang Digunakan)</span>
+                                                <span className="font-semibold text-emerald-900">In Use (Active)</span>
                                             </div>
-                                            <span className="font-bold text-emerald-800">{assetStats.in_use} Unit</span>
+                                            <span className="font-bold text-emerald-800">{assetStats.in_use} Units</span>
                                         </div>
 
                                         <div className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-sky-50/70 border border-sky-100">
                                             <div className="flex items-center gap-2">
                                                 <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                                                <span className="font-semibold text-sky-900">Available (Siap Digunakan)</span>
+                                                <span className="font-semibold text-sky-900">Available (Ready)</span>
                                             </div>
-                                            <span className="font-bold text-sky-800">{assetStats.available} Unit</span>
+                                            <span className="font-bold text-sky-800">{assetStats.available} Units</span>
                                         </div>
 
                                         <div className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-amber-50/70 border border-amber-100">
                                             <div className="flex items-center gap-2">
                                                 <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                                                <span className="font-semibold text-amber-900">Maintenance / Perbaikan</span>
+                                                <span className="font-semibold text-amber-900">Maintenance</span>
                                             </div>
-                                            <span className="font-bold text-amber-800">{assetStats.maintenance} Unit</span>
+                                            <span className="font-bold text-amber-800">{assetStats.maintenance} Units</span>
                                         </div>
 
                                         <div className="flex items-center justify-between text-xs p-2.5 rounded-xl bg-gray-50 border border-gray-100">
                                             <div className="flex items-center gap-2">
                                                 <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                                                <span className="font-semibold text-gray-700">Disposed (Afkir / Rusak)</span>
+                                                <span className="font-semibold text-gray-700">Disposed</span>
                                             </div>
-                                            <span className="font-bold text-gray-700">{assetStats.disposed} Unit</span>
+                                            <span className="font-bold text-gray-700">{assetStats.disposed} Units</span>
                                         </div>
                                     </div>
                                 </div>
@@ -794,7 +794,7 @@ export default function ItIndex({
                                         onClick={() => setTab('assets')}
                                         className="w-full py-2.5 rounded-xl text-xs font-bold text-center text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                     >
-                                        Buka Data Inventaris Lengkap →
+                                        Open Full Inventory Data →
                                     </button>
                                 </div>
                             </div>
@@ -811,7 +811,7 @@ export default function ItIndex({
                                 <div className="relative flex-1">
                                     <input
                                         type="text"
-                                        placeholder="Cari no. tiket, judul kendala, atau lokasi..."
+                                        placeholder="Search ticket no, issue title, or location..."
                                         value={ticketSearch}
                                         onChange={(e) => setTicketSearch(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && applyTicketFilter()}
@@ -825,7 +825,7 @@ export default function ItIndex({
                                     onClick={applyTicketFilter}
                                     className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors"
                                 >
-                                    Cari
+                                    Search
                                 </button>
                             </div>
 
@@ -847,8 +847,8 @@ export default function ItIndex({
                                     }}
                                     className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
-                                    <option value="all">Semua Status</option>
-                                    <option value="Open">Open (Baru)</option>
+                                    <option value="all">All Statuses</option>
+                                    <option value="Open">Open</option>
                                     <option value="In Progress">In Progress</option>
                                     <option value="Pending Parts">Pending Parts</option>
                                     <option value="Resolved">Resolved</option>
@@ -872,7 +872,7 @@ export default function ItIndex({
                                     }}
                                     className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
-                                    <option value="all">Semua Prioritas</option>
+                                    <option value="all">All Priorities</option>
                                     <option value="Urgent">Urgent</option>
                                     <option value="High">High</option>
                                     <option value="Medium">Medium</option>
@@ -887,13 +887,13 @@ export default function ItIndex({
                                 <table className="w-full text-left text-xs sm:text-sm">
                                     <thead className="bg-gray-50/80 text-gray-600 font-bold border-b border-gray-200 uppercase tracking-wider text-[11px]">
                                         <tr>
-                                            <th className="py-3 px-4">No. Tiket & Tanggal</th>
-                                            <th className="py-3 px-4">Kendala / Masalah</th>
-                                            <th className="py-3 px-4">Pelapor & Lokasi</th>
-                                            <th className="py-3 px-4">Prioritas</th>
+                                            <th className="py-3 px-4">Ticket No & Date</th>
+                                            <th className="py-3 px-4">Issue / Problem</th>
+                                            <th className="py-3 px-4">Reporter & Location</th>
+                                            <th className="py-3 px-4">Priority</th>
                                             <th className="py-3 px-4">Status</th>
-                                            <th className="py-3 px-4">Teknisi IT</th>
-                                            <th className="py-3 px-4 text-right">Aksi</th>
+                                            <th className="py-3 px-4">IT Technician</th>
+                                            <th className="py-3 px-4 text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 text-gray-800">
@@ -904,7 +904,7 @@ export default function ItIndex({
                                                         {t.ticket_number}
                                                     </span>
                                                     <span className="text-[11px] text-gray-400">
-                                                        {new Date(t.created_at).toLocaleDateString('id-ID', {
+                                                        {new Date(t.created_at).toLocaleDateString('en-US', {
                                                             day: 'numeric',
                                                             month: 'short',
                                                             year: 'numeric',
@@ -934,7 +934,7 @@ export default function ItIndex({
                                                         {t.reporter?.user?.name || (t.reporter ? `Emp #${t.reporter.employee_number}` : '-')}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
-                                                        {t.reporter?.department?.name || '-'} • <span className="font-medium text-gray-700">{t.location || 'Area Hotel'}</span>
+                                                        {t.reporter?.department?.name || '-'} • <span className="font-medium text-gray-700">{t.location || 'Hotel Area'}</span>
                                                     </div>
                                                 </td>
 
@@ -962,7 +962,7 @@ export default function ItIndex({
                                                         </div>
                                                     ) : (
                                                         <span className="text-xs text-gray-400 italic">
-                                                            Belum ditugaskan
+                                                            Unassigned
                                                         </span>
                                                     )}
                                                 </td>
@@ -973,13 +973,13 @@ export default function ItIndex({
                                                             href={route('it.tickets.show', t.id)}
                                                             className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                                         >
-                                                            Buka Tiket
+                                                            Open Ticket
                                                         </Link>
                                                         {isItManager && (
                                                             <button
                                                                 onClick={() => openQuickStatus(t)}
                                                                 className="px-2 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors"
-                                                                title="Ubah Status"
+                                                                title="Update Status"
                                                             >
                                                                 ⚡
                                                             </button>
@@ -993,7 +993,7 @@ export default function ItIndex({
                                             <tr>
                                                 <td colSpan={7} className="py-12 text-center text-gray-400">
                                                     <span className="text-3xl block mb-2">🔍</span>
-                                                    <p className="text-sm font-medium">Tidak ada tiket kendala yang sesuai dengan filter.</p>
+                                                    <p className="text-sm font-medium">No support tickets match the selected filters.</p>
                                                 </td>
                                             </tr>
                                         )}
@@ -1004,7 +1004,7 @@ export default function ItIndex({
                             {/* Pagination */}
                             {tickets.last_page > 1 && (
                                 <div className="p-3.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                                    <span>Menampilkan halaman {tickets.current_page} dari {tickets.last_page}</span>
+                                    <span>Showing page {tickets.current_page} of {tickets.last_page}</span>
                                     <div className="flex items-center gap-1">
                                         {tickets.links.map((link, idx) => (
                                             <button
@@ -1035,7 +1035,7 @@ export default function ItIndex({
                                 <div className="relative flex-1">
                                     <input
                                         type="text"
-                                        placeholder="Cari kode aset, nama perangkat, brand, nomor seri, atau lokasi..."
+                                        placeholder="Search asset code, device name, brand, serial number, or location..."
                                         value={assetSearch}
                                         onChange={(e) => setAssetSearch(e.target.value)}
                                         onKeyDown={(e) => e.key === 'Enter' && applyAssetFilter()}
@@ -1049,7 +1049,7 @@ export default function ItIndex({
                                     onClick={applyAssetFilter}
                                     className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors"
                                 >
-                                    Cari
+                                    Search
                                 </button>
                             </div>
 
@@ -1071,7 +1071,7 @@ export default function ItIndex({
                                     }}
                                     className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
-                                    <option value="all">Semua Kategori</option>
+                                    <option value="all">All Categories</option>
                                     <option value="Desktop / PC">Desktop / PC</option>
                                     <option value="Laptop">Laptop</option>
                                     <option value="Printer / Scanner">Printer / Scanner</option>
@@ -1079,7 +1079,7 @@ export default function ItIndex({
                                     <option value="CCTV / Security">CCTV / Security</option>
                                     <option value="POS Terminal">POS Terminal</option>
                                     <option value="Server">Server</option>
-                                    <option value="Other">Lainnya</option>
+                                    <option value="Other">Other</option>
                                 </select>
 
                                 <select
@@ -1099,11 +1099,11 @@ export default function ItIndex({
                                     }}
                                     className="text-xs rounded-xl border-gray-200 focus:border-red-500 focus:ring-red-500 py-2"
                                 >
-                                    <option value="all">Semua Status</option>
-                                    <option value="In Use">In Use (Aktif)</option>
-                                    <option value="Available">Available (Tersedia)</option>
+                                    <option value="all">All Statuses</option>
+                                    <option value="In Use">In Use (Active)</option>
+                                    <option value="Available">Available (Ready)</option>
                                     <option value="Maintenance">Maintenance</option>
-                                    <option value="Disposed">Disposed (Afkir)</option>
+                                    <option value="Disposed">Disposed</option>
                                 </select>
                             </div>
                         </div>
@@ -1114,13 +1114,13 @@ export default function ItIndex({
                                 <table className="w-full text-left text-xs sm:text-sm">
                                     <thead className="bg-gray-50/80 text-gray-600 font-bold border-b border-gray-200 uppercase tracking-wider text-[11px]">
                                         <tr>
-                                            <th className="py-3 px-4">Kode Aset</th>
-                                            <th className="py-3 px-4">Nama Perangkat & Spesifikasi</th>
-                                            <th className="py-3 px-4">Kategori & Brand</th>
-                                            <th className="py-3 px-4">Lokasi & IP Address</th>
-                                            <th className="py-3 px-4">Pengguna (Employee)</th>
+                                            <th className="py-3 px-4">Asset Code</th>
+                                            <th className="py-3 px-4">Device Name & Specs</th>
+                                            <th className="py-3 px-4">Category & Brand</th>
+                                            <th className="py-3 px-4">Location & IP Address</th>
+                                            <th className="py-3 px-4">Assigned User</th>
                                             <th className="py-3 px-4">Status</th>
-                                            {isItManager && <th className="py-3 px-4 text-right">Aksi</th>}
+                                            {isItManager && <th className="py-3 px-4 text-right">Actions</th>}
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100 text-gray-800">
@@ -1180,7 +1180,7 @@ export default function ItIndex({
                                                         </div>
                                                     ) : (
                                                         <span className="text-xs text-gray-400 italic">
-                                                            Peralatan Umum / Pool
+                                                            General Equipment / Pool
                                                         </span>
                                                     )}
                                                 </td>
@@ -1204,7 +1204,7 @@ export default function ItIndex({
                                                                 onClick={() => setDeletingAsset(a)}
                                                                 className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                                             >
-                                                                Hapus
+                                                                Delete
                                                             </button>
                                                         </div>
                                                     </td>
@@ -1216,7 +1216,7 @@ export default function ItIndex({
                                             <tr>
                                                 <td colSpan={isItManager ? 7 : 6} className="py-12 text-center text-gray-400">
                                                     <span className="text-3xl block mb-2">🔍</span>
-                                                    <p className="text-sm font-medium">Tidak ada aset IT yang cocok dengan pencarian.</p>
+                                                    <p className="text-sm font-medium">No IT assets match the search criteria.</p>
                                                 </td>
                                             </tr>
                                         )}
@@ -1227,7 +1227,7 @@ export default function ItIndex({
                             {/* Pagination */}
                             {assets.last_page > 1 && (
                                 <div className="p-3.5 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-                                    <span>Menampilkan halaman {assets.current_page} dari {assets.last_page}</span>
+                                    <span>Showing page {assets.current_page} of {assets.last_page}</span>
                                     <div className="flex items-center gap-1">
                                         {assets.links.map((link, idx) => (
                                             <button
@@ -1263,7 +1263,7 @@ export default function ItIndex({
                                     IT Helpdesk Request
                                 </span>
                                 <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                                    Formulir Lapor Kendala IT
+                                    IT Support Request Form
                                 </h3>
                             </div>
                         </div>
@@ -1279,12 +1279,12 @@ export default function ItIndex({
                     <div className="space-y-4 text-xs sm:text-sm">
                         {/* Title */}
                         <div>
-                            <InputLabel htmlFor="ticket_title" value="Judul Kendala / Ringkasan Masalah *" />
+                            <InputLabel htmlFor="ticket_title" value="Issue Title / Problem Summary *" />
                             <TextInput
                                 id="ticket_title"
                                 type="text"
                                 className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                placeholder="Contoh: Printer Kasir Resto Paper Jam / WiFi Siak Tidak Bisa Connect"
+                                placeholder="e.g., Restaurant Cashier Printer Paper Jam / Meeting Room WiFi Connection Failed"
                                 value={ticketForm.data.title}
                                 onChange={(e) => ticketForm.setData('title', e.target.value)}
                                 required
@@ -1295,7 +1295,7 @@ export default function ItIndex({
                         {/* Category & Priority */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="ticket_category" value="Kategori Masalah *" />
+                                <InputLabel htmlFor="ticket_category" value="Issue Category *" />
                                 <select
                                     id="ticket_category"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
@@ -1303,18 +1303,18 @@ export default function ItIndex({
                                     onChange={(e) => ticketForm.setData('category', e.target.value)}
                                     required
                                 >
-                                    <option value="Hardware">Hardware (Komputer, Monitor, Mouse)</option>
+                                    <option value="Hardware">Hardware (Computer, Monitor, Peripherals)</option>
                                     <option value="Network & Internet">Network & WiFi Internet</option>
                                     <option value="Printer & Scanner">Printer & Scanner</option>
-                                    <option value="Software & OS">Software & Sistem Hotel (PMS/POS)</option>
-                                    <option value="Email & Account">Email & Akun Karyawan</option>
-                                    <option value="CCTV / Telepon">CCTV / PABX Telepon</option>
-                                    <option value="Other">Lainnya</option>
+                                    <option value="Software & OS">Software & Hotel Systems (PMS/POS)</option>
+                                    <option value="Email & Account">Email & User Accounts</option>
+                                    <option value="CCTV / Telepon">CCTV & Telephony (PABX)</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="ticket_priority" value="Tingkat Urgensi *" />
+                                <InputLabel htmlFor="ticket_priority" value="Urgency Level *" />
                                 <select
                                     id="ticket_priority"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
@@ -1322,10 +1322,10 @@ export default function ItIndex({
                                     onChange={(e) => ticketForm.setData('priority', e.target.value as any)}
                                     required
                                 >
-                                    <option value="Low">Low - Tidak mengganggu operasional segera</option>
-                                    <option value="Medium">Medium - Kendala normal, butuh penanganan</option>
-                                    <option value="High">High - Mengganggu operasional departemen</option>
-                                    <option value="Urgent">Urgent - Darurat! Berhenti operasional / melayani tamu</option>
+                                    <option value="Low">Low - Minor issue, no immediate operational impact</option>
+                                    <option value="Medium">Medium - Normal issue, requires standard resolution</option>
+                                    <option value="High">High - Impairs departmental workflow</option>
+                                    <option value="Urgent">Urgent - Critical! Direct guest or operational stoppage</option>
                                 </select>
                             </div>
                         </div>
@@ -1333,26 +1333,26 @@ export default function ItIndex({
                         {/* Location & Related Asset */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="ticket_location" value="Lokasi Kendala (Ruangan / Outlet)" />
+                                <InputLabel htmlFor="ticket_location" value="Issue Location (Room / Outlet)" />
                                 <TextInput
                                     id="ticket_location"
                                     type="text"
                                     className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                    placeholder="Contoh: Front Desk 1, Restoran Swiss-Cafe, Meeting Siak Lt 2"
+                                    placeholder="e.g., Front Desk 1, Swiss-Cafe Restaurant, Siak Meeting Room 2nd Fl"
                                     value={ticketForm.data.location}
                                     onChange={(e) => ticketForm.setData('location', e.target.value)}
                                 />
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="ticket_asset" value="Perangkat Terkait (Opsional)" />
+                                <InputLabel htmlFor="ticket_asset" value="Related IT Asset (Optional)" />
                                 <select
                                     id="ticket_asset"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={ticketForm.data.it_asset_id}
                                     onChange={(e) => ticketForm.setData('it_asset_id', e.target.value)}
                                 >
-                                    <option value="">-- Pilih Perangkat Jika Ada --</option>
+                                    <option value="">-- Select Asset if Applicable --</option>
                                     {assetsList.map((ast) => (
                                         <option key={ast.id} value={ast.id}>
                                             {ast.asset_code} - {ast.name} ({ast.location || ast.category})
@@ -1365,14 +1365,14 @@ export default function ItIndex({
                         {/* If IT Manager: choose reporter */}
                         {isItManager && (
                             <div>
-                                <InputLabel htmlFor="ticket_reporter" value="Pelapor Kendala (Karyawan)" />
+                                <InputLabel htmlFor="ticket_reporter" value="Reporting Employee" />
                                 <select
                                     id="ticket_reporter"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={ticketForm.data.reported_by_employee_id}
                                     onChange={(e) => ticketForm.setData('reported_by_employee_id', e.target.value)}
                                 >
-                                    <option value="">-- Diri Sendiri ({currentUser.name}) --</option>
+                                    <option value="">-- Self ({currentUser.name}) --</option>
                                     {employees.map((emp) => (
                                         <option key={emp.id} value={emp.id}>
                                             {emp.name} ({emp.department})
@@ -1384,12 +1384,12 @@ export default function ItIndex({
 
                         {/* Description */}
                         <div>
-                            <InputLabel htmlFor="ticket_desc" value="Deskripsi Lengkap Kendala *" />
+                            <InputLabel htmlFor="ticket_desc" value="Full Issue Description *" />
                             <textarea
                                 id="ticket_desc"
                                 rows={4}
                                 className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
-                                placeholder="Jelaskan secara detail apa yang terjadi, pesan error yang muncul, atau tindakan yang sudah dicoba..."
+                                placeholder="Describe in detail what happened, any error messages displayed, or troubleshooting steps already attempted..."
                                 value={ticketForm.data.description}
                                 onChange={(e) => ticketForm.setData('description', e.target.value)}
                                 required
@@ -1400,10 +1400,10 @@ export default function ItIndex({
 
                     <div className="pt-4 border-t border-gray-200 flex items-center justify-end gap-2">
                         <SecondaryButton type="button" onClick={() => setIsCreateTicketOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton disabled={ticketForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
-                            {ticketForm.processing ? 'Mengirim...' : 'Kirim Laporan IT'}
+                            {ticketForm.processing ? 'Submitting...' : 'Submit IT Ticket'}
                         </PrimaryButton>
                     </div>
                 </form>
@@ -1422,7 +1422,7 @@ export default function ItIndex({
                                     IT Asset Inventory
                                 </span>
                                 <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                                    {editingAsset ? 'Edit Data Asset IT' : 'Tambah Perangkat IT Baru'}
+                                    {editingAsset ? 'Edit IT Asset Details' : 'Add New IT Asset'}
                                 </h3>
                             </div>
                         </div>
@@ -1438,12 +1438,12 @@ export default function ItIndex({
                     <div className="space-y-4 text-xs sm:text-sm max-h-[70vh] overflow-y-auto pr-1">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="asset_code" value="Kode Asset IT *" />
+                                <InputLabel htmlFor="asset_code" value="IT Asset Code *" />
                                 <TextInput
                                     id="asset_code"
                                     type="text"
                                     className="mt-1 block w-full font-mono text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                    placeholder="Contoh: IT-PC-FO-01, IT-NET-AP-02"
+                                    placeholder="e.g., IT-PC-FO-01, IT-NET-AP-02"
                                     value={assetForm.data.asset_code}
                                     onChange={(e) => assetForm.setData('asset_code', e.target.value)}
                                     required
@@ -1452,12 +1452,12 @@ export default function ItIndex({
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="asset_name" value="Nama Perangkat *" />
+                                <InputLabel htmlFor="asset_name" value="Device Name *" />
                                 <TextInput
                                     id="asset_name"
                                     type="text"
                                     className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                    placeholder="Contoh: PC All-in-One HP ProOne 440 G9"
+                                    placeholder="e.g., HP ProOne 440 G9 All-in-One PC"
                                     value={assetForm.data.name}
                                     onChange={(e) => assetForm.setData('name', e.target.value)}
                                     required
@@ -1468,7 +1468,7 @@ export default function ItIndex({
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <InputLabel htmlFor="asset_category" value="Kategori Perangkat *" />
+                                <InputLabel htmlFor="asset_category" value="Device Category *" />
                                 <select
                                     id="asset_category"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
@@ -1483,12 +1483,12 @@ export default function ItIndex({
                                     <option value="CCTV / Security">CCTV / Security</option>
                                     <option value="POS Terminal">POS Terminal</option>
                                     <option value="Server">Server</option>
-                                    <option value="Other">Lainnya</option>
+                                    <option value="Other">Other</option>
                                 </select>
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="asset_brand" value="Brand / Merk" />
+                                <InputLabel htmlFor="asset_brand" value="Brand / Manufacturer" />
                                 <TextInput
                                     id="asset_brand"
                                     type="text"
@@ -1500,7 +1500,7 @@ export default function ItIndex({
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="asset_model" value="Model / Tipe" />
+                                <InputLabel htmlFor="asset_model" value="Model / Type" />
                                 <TextInput
                                     id="asset_model"
                                     type="text"
@@ -1514,7 +1514,7 @@ export default function ItIndex({
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <InputLabel htmlFor="asset_sn" value="Nomor Seri (Serial Number)" />
+                                <InputLabel htmlFor="asset_sn" value="Serial Number (S/N)" />
                                 <TextInput
                                     id="asset_sn"
                                     type="text"
@@ -1526,7 +1526,7 @@ export default function ItIndex({
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="asset_status" value="Status Kondisi *" />
+                                <InputLabel htmlFor="asset_status" value="Condition Status *" />
                                 <select
                                     id="asset_status"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
@@ -1534,10 +1534,10 @@ export default function ItIndex({
                                     onChange={(e) => assetForm.setData('status', e.target.value)}
                                     required
                                 >
-                                    <option value="Available">Available (Tersedia / Standby)</option>
-                                    <option value="In Use">In Use (Sedang Digunakan)</option>
-                                    <option value="Maintenance">Maintenance (Dalam Perbaikan)</option>
-                                    <option value="Disposed">Disposed (Afkir / Dihapus)</option>
+                                    <option value="Available">Available (Ready / Standby)</option>
+                                    <option value="In Use">In Use (Active)</option>
+                                    <option value="Maintenance">Maintenance (Under Repair)</option>
+                                    <option value="Disposed">Disposed (Decommissioned)</option>
                                 </select>
                             </div>
 
@@ -1556,26 +1556,26 @@ export default function ItIndex({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="asset_location" value="Lokasi Penempatan" />
+                                <InputLabel htmlFor="asset_location" value="Physical Location" />
                                 <TextInput
                                     id="asset_location"
                                     type="text"
                                     className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                    placeholder="Front Office, Server Room Lt 2, Ballroom"
+                                    placeholder="Front Office, Server Room 2nd Fl, Grand Ballroom"
                                     value={assetForm.data.location}
                                     onChange={(e) => assetForm.setData('location', e.target.value)}
                                 />
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="asset_employee" value="Karyawan Pengguna (Assigned)" />
+                                <InputLabel htmlFor="asset_employee" value="Assigned Employee" />
                                 <select
                                     id="asset_employee"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={assetForm.data.assigned_to_employee_id}
                                     onChange={(e) => assetForm.setData('assigned_to_employee_id', e.target.value)}
                                 >
-                                    <option value="">-- Tanpa Karyawan Tertentu (Perangkat Bersama) --</option>
+                                    <option value="">-- Shared Device / General Pool --</option>
                                     {employees.map((emp) => (
                                         <option key={emp.id} value={emp.id}>
                                             {emp.name} ({emp.department})
@@ -1587,12 +1587,12 @@ export default function ItIndex({
 
                         {/* Specs */}
                         <div>
-                            <InputLabel htmlFor="asset_specs" value="Spesifikasi Teknis (CPU, RAM, Storage, OS, dll)" />
+                            <InputLabel htmlFor="asset_specs" value="Technical Specifications (CPU, RAM, Storage, OS, etc.)" />
                             <textarea
                                 id="asset_specs"
                                 rows={2}
                                 className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
-                                placeholder="Contoh: Intel Core i5-12500, 16GB RAM, 512GB NVMe, Win 11 Pro"
+                                placeholder="e.g., Intel Core i5-12500, 16GB RAM, 512GB NVMe, Win 11 Pro"
                                 value={assetForm.data.specifications}
                                 onChange={(e) => assetForm.setData('specifications', e.target.value)}
                             />
@@ -1601,7 +1601,7 @@ export default function ItIndex({
                         {/* Dates & Cost */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
-                                <InputLabel htmlFor="purchase_date" value="Tanggal Pembelian" />
+                                <InputLabel htmlFor="purchase_date" value="Purchase Date" />
                                 <TextInput
                                     id="purchase_date"
                                     type="date"
@@ -1612,7 +1612,7 @@ export default function ItIndex({
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="warranty_expiry" value="Garansi Berakhir" />
+                                <InputLabel htmlFor="warranty_expiry" value="Warranty Expiry Date" />
                                 <TextInput
                                     id="warranty_expiry"
                                     type="date"
@@ -1623,7 +1623,7 @@ export default function ItIndex({
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="purchase_cost" value="Harga Pembelian (IDR)" />
+                                <InputLabel htmlFor="purchase_cost" value="Purchase Cost (IDR)" />
                                 <TextInput
                                     id="purchase_cost"
                                     type="number"
@@ -1637,12 +1637,12 @@ export default function ItIndex({
 
                         {/* Notes */}
                         <div>
-                            <InputLabel htmlFor="asset_notes" value="Catatan Tambahan" />
+                            <InputLabel htmlFor="asset_notes" value="Additional Notes" />
                             <textarea
                                 id="asset_notes"
                                 rows={2}
                                 className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
-                                placeholder="Catatan lisensi, kontak vendor servis, atau riwayat kerusakan..."
+                                placeholder="Software licenses, service vendor contacts, or maintenance history..."
                                 value={assetForm.data.notes}
                                 onChange={(e) => assetForm.setData('notes', e.target.value)}
                             />
@@ -1651,10 +1651,10 @@ export default function ItIndex({
 
                     <div className="pt-4 border-t border-gray-200 flex items-center justify-end gap-2">
                         <SecondaryButton type="button" onClick={() => setIsCreateAssetOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton disabled={assetForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
-                            {assetForm.processing ? 'Menyimpan...' : (editingAsset ? 'Simpan Perubahan' : 'Tambahkan Aset')}
+                            {assetForm.processing ? 'Saving...' : (editingAsset ? 'Save Changes' : 'Add IT Asset')}
                         </PrimaryButton>
                     </div>
                 </form>
@@ -1664,17 +1664,17 @@ export default function ItIndex({
             <Modal show={!!deletingAsset} onClose={() => setDeletingAsset(null)} maxWidth="md">
                 <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900">
-                        Hapus Asset IT?
+                        Delete IT Asset?
                     </h3>
                     <p className="mt-2 text-sm text-gray-500">
-                        Apakah Anda yakin ingin menghapus perangkat <strong className="text-gray-800">{deletingAsset?.asset_code} ({deletingAsset?.name})</strong>? Tindakan ini tidak dapat dibatalkan.
+                        Are you sure you want to delete IT asset <strong className="text-gray-800">{deletingAsset?.asset_code} ({deletingAsset?.name})</strong>? This action cannot be undone.
                     </p>
                     <div className="mt-6 flex justify-end gap-2">
                         <SecondaryButton onClick={() => setDeletingAsset(null)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <DangerButton onClick={confirmDeleteAsset}>
-                            Ya, Hapus Asset
+                            Yes, Delete Asset
                         </DangerButton>
                     </div>
                 </div>
@@ -1693,7 +1693,7 @@ export default function ItIndex({
                                     {quickStatusTicket?.ticket_number}
                                 </span>
                                 <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                                    Update Cepat Status Tiket IT
+                                    Quick IT Ticket Status Update
                                 </h3>
                             </div>
                         </div>
@@ -1712,12 +1712,12 @@ export default function ItIndex({
                                 {quickStatusTicket?.title}
                             </div>
                             <div className="text-xs text-gray-500 mt-1">
-                                Pelapor: {quickStatusTicket?.reporter?.user?.name || (quickStatusTicket?.reporter ? `Emp #${quickStatusTicket.reporter.employee_number}` : '-')} ({quickStatusTicket?.location || '-'})
+                                Reporter: {quickStatusTicket?.reporter?.user?.name || (quickStatusTicket?.reporter ? `Emp #${quickStatusTicket.reporter.employee_number}` : '-')} ({quickStatusTicket?.location || '-'})
                             </div>
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="quick_status" value="Ubah Status *" />
+                            <InputLabel htmlFor="quick_status" value="Update Status *" />
                             <select
                                 id="quick_status"
                                 className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
@@ -1725,24 +1725,24 @@ export default function ItIndex({
                                 onChange={(e) => statusForm.setData('status', e.target.value)}
                                 required
                             >
-                                <option value="Open">Open (Baru)</option>
-                                <option value="In Progress">In Progress (Sedang Dikerjakan)</option>
-                                <option value="Pending Parts">Pending Parts (Menunggu Spare Part/Vendor)</option>
-                                <option value="Resolved">Resolved (Masalah Terselesaikan)</option>
-                                <option value="Closed">Closed (Selesai & Ditutup)</option>
+                                <option value="Open">Open (New)</option>
+                                <option value="In Progress">In Progress (Working on it)</option>
+                                <option value="Pending Parts">Pending Parts (Awaiting Vendor / Parts)</option>
+                                <option value="Resolved">Resolved (Issue Fixed)</option>
+                                <option value="Closed">Closed (Resolved & Closed)</option>
                             </select>
                         </div>
 
                         {isItManager && (
                             <div>
-                                <InputLabel htmlFor="quick_assigned" value="Tugaskan Teknisi IT" />
+                                <InputLabel htmlFor="quick_assigned" value="Assign IT Technician" />
                                 <select
                                     id="quick_assigned"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={statusForm.data.assigned_to_user_id}
                                     onChange={(e) => statusForm.setData('assigned_to_user_id', e.target.value)}
                                 >
-                                    <option value="">-- Belum Ditugaskan --</option>
+                                    <option value="">-- Unassigned --</option>
                                     {itStaffUsers.map((st) => (
                                         <option key={st.id} value={st.id}>
                                             {st.name} ({st.email})
@@ -1754,12 +1754,12 @@ export default function ItIndex({
 
                         {['Resolved', 'Closed'].includes(statusForm.data.status) && (
                             <div>
-                                <InputLabel htmlFor="resolution_notes" value="Catatan Solusi / Penyelesaian" />
+                                <InputLabel htmlFor="resolution_notes" value="Resolution / Solution Notes" />
                                 <textarea
                                     id="resolution_notes"
                                     rows={2}
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
-                                    placeholder="Jelaskan tindakan perbaikan yang telah dilakukan..."
+                                    placeholder="Describe the corrective action taken to resolve the issue..."
                                     value={statusForm.data.resolution_notes}
                                     onChange={(e) => statusForm.setData('resolution_notes', e.target.value)}
                                 />
@@ -1767,12 +1767,12 @@ export default function ItIndex({
                         )}
 
                         <div>
-                            <InputLabel htmlFor="update_msg" value="Pesan Perkembangan (Tercatat di Timeline)" />
+                            <InputLabel htmlFor="update_msg" value="Progress Message (Recorded on Timeline)" />
                             <TextInput
                                 id="update_msg"
                                 type="text"
                                 className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                placeholder="Contoh: Teknisi sedang memeriksa kabel LAN di lokasi..."
+                                placeholder="e.g., Technician is inspecting network cable on-site..."
                                 value={statusForm.data.notes}
                                 onChange={(e) => statusForm.setData('notes', e.target.value)}
                             />
@@ -1781,10 +1781,10 @@ export default function ItIndex({
 
                     <div className="pt-4 border-t border-gray-200 flex items-center justify-end gap-2">
                         <SecondaryButton type="button" onClick={() => setQuickStatusTicket(null)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton disabled={statusForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
-                            {statusForm.processing ? 'Menyimpan...' : 'Perbarui Status'}
+                            {statusForm.processing ? 'Saving...' : 'Update Status'}
                         </PrimaryButton>
                     </div>
                 </form>

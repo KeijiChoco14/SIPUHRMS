@@ -39,11 +39,15 @@ const icons: Record<string, JSX.Element> = {
     'Master Key Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
     'Overview & Stats': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
     'IT Helpdesk Tickets': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
-    'Tiket Kendala Saya': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
+    'My Support Tickets': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
     'Helpdesk Tickets': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
     'Asset Inventory': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
-    'Permohonan ID Power Pro': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>,
+    'Power Pro ID Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>,
     'Profile Settings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
+    'Room Catalog': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
+    'My Borrowings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
+    'Security Queue': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
+    'Manage Rooms': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
 };
 
 const roleBadgeColors: Record<string, string> = {
@@ -54,6 +58,7 @@ const roleBadgeColors: Record<string, string> = {
     'Supervisor': 'bg-teal-100 text-teal-700',
     'Staff / Employee': 'bg-slate-100 text-slate-700',
     'OJT / Trainee': 'bg-cyan-100 text-cyan-700',
+    'Security': 'bg-emerald-100 text-emerald-800',
 };
 
 interface ModuleInfo {
@@ -197,6 +202,42 @@ export default function Authenticated({
             };
         }
 
+        // 2b. Room Borrowing & Key Management (Security & Facilities)
+        if (route().current('room-borrowing.*') || currentUrl.includes('/room-borrowing')) {
+            const canApprove = isSuperAdmin || isHRD || isManager || user.roles?.some((r: any) => r.name === 'Security');
+            const canManage = isSuperAdmin || isHRD || user.roles?.some((r: any) => r.name === 'Security');
+
+            return {
+                key: 'room-borrowing',
+                title: 'Room & Key Borrowing',
+                subtitle: 'Hotel Keys & Facility Custody',
+                badgeBg: 'bg-emerald-50',
+                badgeBorder: 'border-emerald-200',
+                dotColor: 'bg-emerald-600',
+                sections: [
+                    {
+                        title: 'Room Services',
+                        items: [
+                            { name: 'Room Catalog', route: 'room-borrowing.index', params: { tab: 'catalog' }, pattern: 'room-borrowing.*' },
+                            { name: 'My Borrowings', route: 'room-borrowing.index', params: { tab: 'my-borrowings' }, pattern: 'room-borrowing.*' },
+                        ],
+                    },
+                    canApprove ? {
+                        title: 'Security & Verification',
+                        items: [
+                            { name: 'Security Queue', route: 'room-borrowing.index', params: { tab: 'pending-returns' }, pattern: 'room-borrowing.*' },
+                        ],
+                    } : null,
+                    canManage ? {
+                        title: 'Room Administration',
+                        items: [
+                            { name: 'Manage Rooms', route: 'room-borrowing.index', params: { tab: 'manage-rooms' }, pattern: 'room-borrowing.*' },
+                        ],
+                    } : null,
+                ].filter(Boolean) as any[],
+            };
+        }
+
         // 3. Human Resources (HR)
         if (
             currentUrl.includes('view=hr') ||
@@ -309,18 +350,18 @@ export default function Authenticated({
             return {
                 key: 'it',
                 title: isItStaff ? 'IT Operations' : 'IT Helpdesk',
-                subtitle: isItStaff ? 'Inventory, Helpdesk & Sistem' : 'Layanan IT & Akses Sistem Hotel',
+                subtitle: isItStaff ? 'Inventory, Helpdesk & Systems' : 'Hotel IT Services & System Access',
                 badgeBg: 'bg-red-50',
                 badgeBorder: 'border-red-200',
                 dotColor: 'bg-red-600',
                 sections: [
                     {
-                        title: isItStaff ? 'IT Workspace' : 'Layanan IT Hotel',
+                        title: isItStaff ? 'IT Workspace' : 'Hotel IT Services',
                         items: [
                             isItStaff ? { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.index' } : null,
-                            { name: isItStaff ? 'IT Helpdesk Tickets' : 'Tiket Kendala Saya', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.*' },
+                            { name: isItStaff ? 'IT Helpdesk Tickets' : 'My Support Tickets', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.*' },
                             isItStaff ? { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.assets.*' } : null,
-                            { name: 'Permohonan ID Power Pro', route: 'power-pro.index', pattern: 'power-pro.*' },
+                            { name: 'Power Pro ID Requests', route: 'power-pro.index', pattern: 'power-pro.*' },
                         ].filter(Boolean) as any[],
                     },
                 ],
@@ -454,7 +495,7 @@ export default function Authenticated({
                             <button
                                 type="button"
                                 onClick={toggleSidebar}
-                                title="Tutup Sidebar (Ctrl+B)"
+                                title="Close Sidebar (Ctrl+B)"
                                 className="text-white/80 hover:text-white hover:bg-white/15 p-1.5 rounded-lg transition-all ml-2 shrink-0 group active:scale-95"
                             >
                                 <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -468,7 +509,7 @@ export default function Authenticated({
                             <Link
                                 href={route('dashboard')}
                                 className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-[#E31B23] transition-all border border-slate-200/60 group font-semibold text-xs shadow-2xs"
-                                title="Kembali ke Menu Utama (App Launcher)"
+                                title="Back to Main Menu (Desk Launcher)"
                             >
                                 <div className="w-6 h-6 rounded-lg bg-red-100 group-hover:bg-[#E31B23] text-[#E31B23] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -542,7 +583,7 @@ export default function Authenticated({
                                 type="button"
                                 onClick={toggleSidebar}
                                 className="w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors mt-2"
-                                title="Tutup Sidebar (Ctrl+B)"
+                                title="Collapse Sidebar (Ctrl+B)"
                             >
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
@@ -587,7 +628,7 @@ export default function Authenticated({
                                 <button
                                     type="button"
                                     onClick={toggleSidebar}
-                                    title="Buka Sidebar (Ctrl+B)"
+                                    title="Toggle Sidebar (Ctrl+B)"
                                     className="p-2 rounded-xl text-slate-500 hover:text-[#E31B23] hover:bg-red-50 transition-all focus:outline-none focus:ring-2 focus:ring-[#E31B23]/20 flex items-center gap-1.5 group active:scale-95"
                                 >
                                     <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -600,7 +641,7 @@ export default function Authenticated({
                                     <Link
                                         href={route('dashboard')}
                                         className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 transition-colors group shrink-0"
-                                        title="Kembali ke Menu Utama (Desk Launcher)"
+                                        title="Back to Main Menu (Desk Launcher)"
                                     >
                                         <div className="h-7 w-7 rounded-lg bg-[#E31B23] flex items-center justify-center p-1 shadow-xs shrink-0">
                                             <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />

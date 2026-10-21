@@ -13,9 +13,9 @@ export default function DirectoryIndex({ employees, departments, filters }: any)
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Direktori Staf Swiss-Belinn</h2>}
+            header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Swiss-Belinn Staff Directory</h2>}
         >
-            <Head title="Direktori Staf" />
+            <Head title="Staff Directory" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -25,7 +25,7 @@ export default function DirectoryIndex({ employees, departments, filters }: any)
                         <div className="flex-1 max-w-md relative">
                             <input 
                                 type="text"
-                                placeholder="Cari nama karyawan, nomor ID, email..."
+                                placeholder="Search employee name, ID number, email..."
                                 className="w-full rounded-xl border-slate-300 shadow-xs text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] pl-10 py-2.5"
                                 defaultValue={filters.search}
                                 onChange={handleSearch}
@@ -40,7 +40,7 @@ export default function DirectoryIndex({ employees, departments, filters }: any)
                                 defaultValue={filters.department_id || ''}
                                 onChange={handleDepartmentChange}
                             >
-                                <option value="">Semua Departemen</option>
+                                <option value="">All Departments</option>
                                 {departments.map((dept: any) => (
                                     <option key={dept.id} value={dept.id}>{dept.name}</option>
                                 ))}
@@ -62,7 +62,7 @@ export default function DirectoryIndex({ employees, departments, filters }: any)
                                     <div className="mt-12">
                                         <h3 className="text-base font-bold text-slate-900">{employee.user?.name || employee.employee_number}</h3>
                                         <p className="text-xs font-semibold text-[#E31B23] mt-0.5">{employee.user?.roles?.[0]?.name || 'Employee'}</p>
-                                        <p className="text-xs text-slate-500 mt-1">{employee.department?.name || 'Belum Ada Departemen'}</p>
+                                        <p className="text-xs text-slate-500 mt-1">{employee.department?.name || 'No Department Assigned'}</p>
                                     </div>
                                     
                                     <div className="mt-6 w-full space-y-2.5 pt-4 border-t border-slate-100">
@@ -91,8 +91,8 @@ export default function DirectoryIndex({ employees, departments, filters }: any)
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                 </svg>
                             </div>
-                            <h3 className="text-base font-semibold text-slate-900">Karyawan tidak ditemukan</h3>
-                            <p className="mt-1 text-xs text-slate-500">Coba ubah kata kunci pencarian atau filter departemen.</p>
+                            <h3 className="text-base font-semibold text-slate-900">No employees found</h3>
+                            <p className="mt-1 text-xs text-slate-500">Try adjusting your search query or department filter.</p>
                         </div>
                     )}
                 </div>

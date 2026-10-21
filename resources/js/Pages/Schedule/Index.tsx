@@ -91,18 +91,18 @@ export default function ScheduleIndex({ schedules, employees, shifts, startDate,
                     
                     <div className="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-xl p-1 shadow-2xs">
                         <button onClick={() => changeWeek(-7)} className="px-3 py-1.5 hover:bg-slate-100 rounded-lg text-slate-700 font-medium text-xs transition-colors">
-                            &larr; Minggu Lalu
+                            &larr; Previous Week
                         </button>
                         <span className="font-semibold text-xs px-3 text-slate-900 tabular-nums">
                             {getDisplayDate(dates[0])} - {getDisplayDate(dates[dates.length - 1])}
                         </span>
                         <button onClick={() => changeWeek(7)} className="px-3 py-1.5 hover:bg-slate-100 rounded-lg text-slate-700 font-medium text-xs transition-colors">
-                            Minggu Depan &rarr;
+                            Next Week &rarr;
                         </button>
                     </div>
 
                     <PrimaryButton onClick={() => router.get(route('shifts.index'))}>
-                        Kelola Shift
+                        Manage Shifts
                     </PrimaryButton>
                 </div>
 
@@ -173,7 +173,7 @@ export default function ScheduleIndex({ schedules, employees, shifts, startDate,
                                     onChange={e => setData('shift_id', e.target.value)}
                                     required
                                 >
-                                    <option value="" disabled>-- Pilih Shift --</option>
+                                    <option value="" disabled>-- Select Shift --</option>
                                     {shifts.map((shift: any) => (
                                         <option key={shift.id} value={shift.id}>
                                             {shift.name} ({shift.start_time.substring(0,5)} - {shift.end_time.substring(0,5)})
@@ -182,7 +182,7 @@ export default function ScheduleIndex({ schedules, employees, shifts, startDate,
                                 </select>
                             ) : (
                                 <div className="mt-1.5 p-3 bg-amber-50 text-amber-700 rounded-xl border border-amber-200 text-xs">
-                                    Belum ada shift. Silakan <button type="button" onClick={() => router.get(route('shifts.index'))} className="font-bold underline hover:text-amber-900">buat shift baru</button> terlebih dahulu.
+                                    No shifts available. Please <button type="button" onClick={() => router.get(route('shifts.index'))} className="font-bold underline hover:text-amber-900">create a new shift</button> first.
                                 </div>
                             )}
                             <InputError message={errors.shift_id} className="mt-1.5" />
@@ -204,11 +204,11 @@ export default function ScheduleIndex({ schedules, employees, shifts, startDate,
                                 }
                             }}
                         >
-                            {getScheduleForCell(selectedEmployee?.id, selectedDate) ? 'Hapus Shift' : 'Batal'}
+                            {getScheduleForCell(selectedEmployee?.id, selectedDate) ? 'Delete Shift' : 'Cancel'}
                         </button>
                         
                         <PrimaryButton disabled={processing || shifts.length === 0}>
-                            Simpan Jadwal
+                            Save Schedule
                         </PrimaryButton>
                     </div>
                 </form>

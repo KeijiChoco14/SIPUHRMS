@@ -104,4 +104,10 @@ class Employee extends Model
     {
         return $this->hasMany(MasterKeyRequest::class);
     }
+
+    public function roomBorrowings(): HasMany
+    {
+        return $this->hasMany(RoomBorrowingTransaction::class, 'borrower_employee_id');
+    }
 }
+

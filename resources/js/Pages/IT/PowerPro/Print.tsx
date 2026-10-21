@@ -67,7 +67,7 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
 
     const formatDate = (dateStr?: string) => {
         if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleDateString('id-ID', {
+        return new Date(dateStr).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
@@ -76,7 +76,7 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
 
     const formatDateTime = (dateStr?: string) => {
         if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleDateString('id-ID', {
+        return new Date(dateStr).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -99,11 +99,11 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        Kembali ke Daftar
+                        Back to List
                     </Link>
                     <span className="text-gray-300">|</span>
                     <span className="text-xs text-gray-500">
-                        Format Standar SOP IT Swiss-Belinn SKA Pekanbaru
+                        Swiss-Belinn SKA Pekanbaru Standard IT SOP Format
                     </span>
                 </div>
 
@@ -115,7 +115,7 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                         </svg>
-                        Cetak Formulir
+                        Print Form
                     </button>
                 </div>
             </div>
@@ -157,7 +157,7 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
 
                     <div className="mt-5 text-center">
                         <h2 className="text-sm sm:text-base font-extrabold uppercase tracking-wide text-gray-900 border-y border-gray-300 py-1.5 inline-block px-8">
-                            Formulir Permohonan Pembuatan / Perubahan User ID Sistem Power Pro
+                            Power Pro System User ID Creation / Modification Request Form
                         </h2>
                         <p className="text-[11px] text-gray-500 mt-1 italic">
                             (Property Management System & Point of Sales Access Authorization Form)
@@ -165,50 +165,50 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                     </div>
                 </div>
 
-                {/* Section A: Data Karyawan */}
+                {/* Section A: Employee Information */}
                 <div className="mb-5">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-white bg-gray-900 px-3 py-1 mb-2 rounded-xs">
-                        A. Data Karyawan / Pemohon (Employee Information)
+                        A. Employee Information
                     </h3>
                     <table className="w-full text-xs border border-gray-300">
                         <tbody>
                             <tr className="border-b border-gray-200">
-                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Nama Lengkap:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Full Name:</td>
                                 <td className="py-2 px-3 font-bold text-gray-900 w-1/4">{requestData.employee?.user?.name || '-'}</td>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">NIK / Employee ID:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Employee ID (NIK):</td>
                                 <td className="py-2 px-3 font-mono font-bold text-gray-900 w-1/4">{requestData.employee?.employee_number || '-'}</td>
                             </tr>
                             <tr className="border-b border-gray-200">
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Departemen:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Department:</td>
                                 <td className="py-2 px-3 text-gray-800">{requestData.department?.name || requestData.employee?.department?.name || '-'}</td>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Jabatan / Posisi:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Position / Role:</td>
                                 <td className="py-2 px-3 text-gray-800">{requestData.employee?.position?.name || '-'}</td>
                             </tr>
                             <tr>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Status Kepegawaian:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Employment Status:</td>
                                 <td className="py-2 px-3 text-gray-800">{requestData.employment_status || 'Permanent'}</td>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Tanggal Pengajuan:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Submission Date:</td>
                                 <td className="py-2 px-3 text-gray-800">{formatDate(requestData.requested_at || requestData.created_at)}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                {/* Section B: Detail Akses Sistem */}
+                {/* Section B: Access Specification */}
                 <div className="mb-5">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-white bg-gray-900 px-3 py-1 mb-2 rounded-xs">
-                        B. Detail Permohonan Akses Sistem (Access Specification)
+                        B. Access Specification
                     </h3>
                     <table className="w-full text-xs border border-gray-300">
                         <tbody>
                             <tr className="border-b border-gray-200">
-                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Jenis Permohonan:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Request Type:</td>
                                 <td className="py-2 px-3 font-bold text-red-700 w-1/4">{requestData.request_type_label}</td>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Role / Level Akses:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Role / Access Level:</td>
                                 <td className="py-2 px-3 font-semibold text-gray-900 w-1/4">{requestData.access_level}</td>
                             </tr>
                             <tr className="border-b border-gray-200">
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Modul Power Pro yang Diminta:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Requested Power Pro Modules:</td>
                                 <td colSpan={3} className="py-2 px-3 text-gray-800">
                                     <div className="flex flex-wrap gap-1.5">
                                         {Array.isArray(requestData.power_pro_modules) && requestData.power_pro_modules.map((m, idx) => (
@@ -220,7 +220,7 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                                 </td>
                             </tr>
                             <tr className="border-b border-gray-200">
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Hak Akses Khusus / Privileges:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Special Privileges / Authorizations:</td>
                                 <td colSpan={3} className="py-2 px-3 text-gray-800">
                                     {Array.isArray(requestData.special_privileges) && requestData.special_privileges.length > 0 ? (
                                         <div className="flex flex-wrap gap-1.5">
@@ -231,71 +231,71 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                                             ))}
                                         </div>
                                     ) : (
-                                        <span className="text-gray-400 italic">Tidak ada hak akses khusus transaksi</span>
+                                        <span className="text-gray-400 italic">No special transaction privileges</span>
                                     )}
                                 </td>
                             </tr>
                             <tr className="border-b border-gray-200">
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Usulan Username (Login ID):</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Proposed Username (Login ID):</td>
                                 <td colSpan={3} className="py-2 px-3 font-mono text-gray-800">
                                     {requestData.proposed_username || '-'}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Alasan / Keperluan Akses:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Purpose / Access Justification:</td>
                                 <td colSpan={3} className="py-2 px-3 text-gray-700 italic">
-                                    {requestData.reason || 'Kebutuhan operasional harian hotel sesuai tugas pokok dan fungsi jabatan.'}
+                                    {requestData.reason || 'Daily hotel operational requirements according to job responsibilities and duties.'}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                {/* Section C: Hasil Eksekusi Tim IT */}
+                {/* Section C: IT Execution & Issuance */}
                 <div className="mb-6">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-white bg-gray-900 px-3 py-1 mb-2 rounded-xs">
-                        C. Realisasi Pembuatan Oleh Tim IT (IT Execution & Issuance)
+                        C. IT Execution & Issuance
                     </h3>
                     <table className="w-full text-xs border border-gray-300">
                         <tbody>
                             <tr className="border-b border-gray-200">
-                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">User ID Resmi yang Diterbitkan:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Official Issued User ID:</td>
                                 <td className="py-2 px-3 font-mono font-bold text-sm text-red-700 w-1/4">
-                                    {requestData.created_user_id || '(Belum Terbit)'}
+                                    {requestData.created_user_id || '(Not Issued Yet)'}
                                 </td>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Tanggal Selesai Eksekusi:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold w-1/4 text-gray-600">Execution Completion Date:</td>
                                 <td className="py-2 px-3 text-gray-800 w-1/4">
                                     {formatDateTime(requestData.processed_at)}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">Catatan Petugas IT:</td>
+                                <td className="py-2 px-3 bg-gray-50 font-semibold text-gray-600">IT Officer Notes:</td>
                                 <td colSpan={3} className="py-2 px-3 text-gray-700">
-                                    {requestData.it_notes || 'Akun telah terdaftar di database Power Pro Server. Karyawan wajib menjaga kerahasiaan password dan tidak diperkenankan meminjamkan user ID kepada pihak lain.'}
+                                    {requestData.it_notes || 'Account has been registered on the Power Pro Server database. Employees are required to maintain password confidentiality and must not share their user ID with any other party.'}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                {/* Section D: Tanda Tangan & Otorisasi Formal */}
+                {/* Section D: Signatures & Approvals */}
                 <div>
                     <h3 className="text-xs font-bold uppercase tracking-wider text-white bg-gray-900 px-3 py-1 mb-2 rounded-xs">
-                        D. Lembar Pengesahan & Otorisasi (Signatures & Approvals)
+                        D. Signatures & Approvals
                     </h3>
                     <div className="grid grid-cols-4 border border-gray-300 text-center text-xs divide-x divide-gray-300">
-                        {/* 1. Pemohon */}
+                        {/* 1. Requester */}
                         <div className="p-3 flex flex-col justify-between h-44">
                             <div>
-                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Diajukan Oleh (Staff):</span>
-                                <span className="text-[10px] text-gray-400">Pemohon Akun</span>
+                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Requested By (Staff):</span>
+                                <span className="text-[10px] text-gray-400">Account Requester</span>
                             </div>
 
                             <div className="h-20 flex items-center justify-center my-1">
                                 {requestData.requester_signature ? (
-                                    <img src={requestData.requester_signature} alt="Sign Pemohon" className="max-h-full object-contain" />
+                                    <img src={requestData.requester_signature} alt="Requester Sign" className="max-h-full object-contain" />
                                 ) : (
-                                    <span className="text-[10px] text-gray-300 italic">Belum Tanda Tangan</span>
+                                    <span className="text-[10px] text-gray-300 italic">Not Signed</span>
                                 )}
                             </div>
 
@@ -303,22 +303,22 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                                 <p className="font-bold text-gray-900 border-t border-gray-400 pt-1 truncate">
                                     {requestData.requested_by_username || requestData.employee?.user?.name}
                                 </p>
-                                <p className="text-[9px] text-gray-500">Tgl: {formatDate(requestData.requested_at || requestData.created_at)}</p>
+                                <p className="text-[9px] text-gray-500">Date: {formatDate(requestData.requested_at || requestData.created_at)}</p>
                             </div>
                         </div>
 
                         {/* 2. Head of Department */}
                         <div className="p-3 flex flex-col justify-between h-44">
                             <div>
-                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Disetujui Oleh (HOD):</span>
-                                <span className="text-[10px] text-gray-400">Head of Department Terkait</span>
+                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Approved By (HOD):</span>
+                                <span className="text-[10px] text-gray-400">Respective Department Head</span>
                             </div>
 
                             <div className="h-20 flex items-center justify-center my-1">
                                 {requestData.approver_signature ? (
-                                    <img src={requestData.approver_signature} alt="Sign HOD" className="max-h-full object-contain" />
+                                    <img src={requestData.approver_signature} alt="HOD Sign" className="max-h-full object-contain" />
                                 ) : (
-                                    <span className="text-[10px] text-gray-300 italic">Belum Disetujui</span>
+                                    <span className="text-[10px] text-gray-300 italic">Not Approved</span>
                                 )}
                             </div>
 
@@ -326,22 +326,22 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                                 <p className="font-bold text-gray-900 border-t border-gray-400 pt-1 truncate">
                                     {requestData.approved_by_username || 'Head of Department'}
                                 </p>
-                                <p className="text-[9px] text-gray-500">Tgl: {formatDate(requestData.approved_at)}</p>
+                                <p className="text-[9px] text-gray-500">Date: {formatDate(requestData.approved_at)}</p>
                             </div>
                         </div>
 
                         {/* 3. IT Department */}
                         <div className="p-3 flex flex-col justify-between h-44">
                             <div>
-                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Dikerjakan Oleh (IT):</span>
+                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Processed By (IT):</span>
                                 <span className="text-[10px] text-gray-400">IT Officer / Supervisor</span>
                             </div>
 
                             <div className="h-20 flex items-center justify-center my-1">
                                 {requestData.it_signature ? (
-                                    <img src={requestData.it_signature} alt="Sign IT" className="max-h-full object-contain" />
+                                    <img src={requestData.it_signature} alt="IT Sign" className="max-h-full object-contain" />
                                 ) : (
-                                    <span className="text-[10px] text-gray-300 italic">Belum Dikerjakan</span>
+                                    <span className="text-[10px] text-gray-300 italic">Not Processed</span>
                                 )}
                             </div>
 
@@ -349,14 +349,14 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                                 <p className="font-bold text-gray-900 border-t border-gray-400 pt-1 truncate">
                                     {requestData.processed_by_username || hodIT?.user?.name || 'IT Department'}
                                 </p>
-                                <p className="text-[9px] text-gray-500">Tgl: {formatDate(requestData.processed_at)}</p>
+                                <p className="text-[9px] text-gray-500">Date: {formatDate(requestData.processed_at)}</p>
                             </div>
                         </div>
 
                         {/* 4. Management / GM */}
                         <div className="p-3 flex flex-col justify-between h-44">
                             <div>
-                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Diketahui Oleh:</span>
+                                <span className="font-bold text-gray-700 block uppercase text-[10px]">Acknowledged By:</span>
                                 <span className="text-[10px] text-gray-400">Financial Controller / GM</span>
                             </div>
 
@@ -377,10 +377,10 @@ export default function PowerProPrint({ requestData, hodIT, gmUser }: Props) {
                 {/* Footer notes */}
                 <div className="mt-6 pt-4 border-t border-gray-200 text-[10px] text-gray-500 flex justify-between items-center">
                     <div>
-                        Dokumen ini adalah arsip audit resmi IT Swiss-Belinn SKA Pekanbaru. Segala penyalahgunaan User ID merupakan tanggung jawab pemegang akun.
+                        This document is an official IT audit record of Swiss-Belinn SKA Pekanbaru. Any misuse of the User ID is the sole responsibility of the account holder.
                     </div>
                     <div className="font-mono">
-                        Dicetak: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        Printed: {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </div>
                 </div>
             </div>

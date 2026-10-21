@@ -56,28 +56,28 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Apakah Anda yakin ingin menghapus shift ini?')) {
+        if (confirm('Are you sure you want to delete this shift?')) {
             destroy(route('shifts.destroy', id));
         }
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Pengaturan Shift Kerja</h2>}>
-            <Head title="Shift Kerja" />
+        <AuthenticatedLayout header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Work Shift Settings</h2>}>
+            <Head title="Work Shifts" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50">
                             <div>
-                                <h3 className="text-base font-semibold text-slate-900">Daftar Shift Karyawan</h3>
-                                <p className="text-xs text-slate-500 mt-0.5">Kelola tipe shift, jam kerja operasional hotel, dan kode warna roster.</p>
+                                <h3 className="text-base font-semibold text-slate-900">Employee Shift List</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Manage shift types, hotel operational working hours, and roster color codes.</p>
                             </div>
                             <PrimaryButton onClick={() => openModal()}>
                                 <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
-                                Tambah Shift
+                                Add Shift
                             </PrimaryButton>
                         </div>
 
@@ -85,10 +85,10 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                             <table className="w-full text-sm text-left">
                                 <thead className="bg-slate-50/80 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200/80">
                                     <tr>
-                                        <th className="px-6 py-3.5">Warna</th>
-                                        <th className="px-6 py-3.5">Nama Shift</th>
-                                        <th className="px-6 py-3.5">Jam Operasional</th>
-                                        <th className="px-6 py-3.5 text-right">Aksi</th>
+                                        <th className="px-6 py-3.5">Color</th>
+                                        <th className="px-6 py-3.5">Shift Name</th>
+                                        <th className="px-6 py-3.5">Operating Hours</th>
+                                        <th className="px-6 py-3.5 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -100,8 +100,8 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
                                                 </div>
-                                                <p className="text-sm font-medium text-slate-700">Belum ada shift kerja</p>
-                                                <p className="text-xs text-slate-400 mt-1">Gunakan tombol "Tambah Shift" di atas untuk menambahkan shift baru.</p>
+                                                <p className="text-sm font-medium text-slate-700">No work shifts found</p>
+                                                <p className="text-xs text-slate-400 mt-1">Use the "Add Shift" button above to create a new shift.</p>
                                             </td>
                                         </tr>
                                     ) : (
@@ -126,7 +126,7 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                                                             onClick={() => handleDelete(shift.id)} 
                                                             className="text-rose-600 hover:text-rose-700 font-medium text-xs bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition-colors"
                                                         >
-                                                            Hapus
+                                                            Delete
                                                         </button>
                                                     </div>
                                                 </td>
@@ -142,11 +142,11 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
 
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="sm">
                 <form onSubmit={submit} className="p-6">
-                    <h2 className="text-lg font-bold text-slate-900 mb-5">{editingShift ? 'Edit Shift Kerja' : 'Tambah Shift Baru'}</h2>
+                    <h2 className="text-lg font-bold text-slate-900 mb-5">{editingShift ? 'Edit Work Shift' : 'Add New Shift'}</h2>
 
                     <div className="space-y-4">
                         <div>
-                            <InputLabel htmlFor="name" value="Nama Shift (Contoh: Pagi / Morning)" />
+                            <InputLabel htmlFor="name" value="Shift Name (e.g., Morning Shift)" />
                             <TextInput
                                 id="name"
                                 className="mt-1.5 block w-full"
@@ -160,7 +160,7 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="start_time" value="Jam Mulai" />
+                                <InputLabel htmlFor="start_time" value="Start Time" />
                                 <TextInput
                                     id="start_time"
                                     type="time"
@@ -172,7 +172,7 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                                 <InputError message={errors.start_time} className="mt-1.5" />
                             </div>
                             <div>
-                                <InputLabel htmlFor="end_time" value="Jam Selesai" />
+                                <InputLabel htmlFor="end_time" value="End Time" />
                                 <TextInput
                                     id="end_time"
                                     type="time"
@@ -186,7 +186,7 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="color" value="Warna Tag Shift" />
+                            <InputLabel htmlFor="color" value="Shift Color Tag" />
                             <div className="flex items-center gap-3 mt-1.5">
                                 <input
                                     id="color"
@@ -202,9 +202,9 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
-                        <SecondaryButton onClick={closeModal}>Batal</SecondaryButton>
+                        <SecondaryButton onClick={closeModal}>Cancel</SecondaryButton>
                         <PrimaryButton disabled={processing}>
-                            {processing ? 'Menyimpan...' : 'Simpan Shift'}
+                            {processing ? 'Saving...' : 'Save Shift'}
                         </PrimaryButton>
                     </div>
                 </form>

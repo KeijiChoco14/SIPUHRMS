@@ -41,22 +41,22 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Pengajuan Lembur (SPKL)</h2>}>
-            <Head title="Pengajuan Lembur" />
+        <AuthenticatedLayout header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Overtime Requests (SPKL)</h2>}>
+            <Head title="Overtime Requests" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50">
                             <div>
-                                <h3 className="text-base font-semibold text-slate-900">Riwayat Pengajuan Lembur</h3>
-                                <p className="text-xs text-slate-500 mt-0.5">Daftar permohonan Surat Perintah Kerja Lembur (SPKL) dan status verifikasi.</p>
+                                <h3 className="text-base font-semibold text-slate-900">Overtime Request History</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">List of Overtime Work Order (SPKL) requests and supervisor verification status.</p>
                             </div>
                             <PrimaryButton onClick={() => setIsModalOpen(true)}>
                                 <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
-                                Ajukan Lembur
+                                Request Overtime
                             </PrimaryButton>
                         </div>
 
@@ -64,9 +64,9 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
                             <table className="w-full text-sm text-left">
                                 <thead className="bg-slate-50/80 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200/80">
                                     <tr>
-                                        <th className="px-6 py-3.5">Tanggal</th>
-                                        <th className="px-6 py-3.5">Jam Lembur</th>
-                                        <th className="px-6 py-3.5">Alasan / Uraian Tugas</th>
+                                        <th className="px-6 py-3.5">Date</th>
+                                        <th className="px-6 py-3.5">Overtime Hours</th>
+                                        <th className="px-6 py-3.5">Reason / Task Description</th>
                                         <th className="px-6 py-3.5 text-center">Status</th>
                                     </tr>
                                 </thead>
@@ -79,8 +79,8 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
                                                 </div>
-                                                <p className="text-sm font-medium text-slate-700">Belum ada pengajuan lemur</p>
-                                                <p className="text-xs text-slate-400 mt-1">Gunakan tombol "Ajukan Lembur" di atas untuk membuat pengajuan baru.</p>
+                                                <p className="text-sm font-medium text-slate-700">No overtime requests found</p>
+                                                <p className="text-xs text-slate-400 mt-1">Use the "Request Overtime" button above to submit a new request.</p>
                                             </td>
                                         </tr>
                                     ) : (
@@ -110,11 +110,11 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
 
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="md">
                 <form onSubmit={submit} className="p-6">
-                    <h2 className="text-lg font-bold text-slate-900 mb-5">Ajukan Surat Perintah Kerja Lembur (SPKL)</h2>
+                    <h2 className="text-lg font-bold text-slate-900 mb-5">Submit Overtime Request (SPKL)</h2>
 
                     <div className="space-y-4">
                         <div>
-                            <InputLabel htmlFor="date" value="Tanggal Lembur" />
+                            <InputLabel htmlFor="date" value="Overtime Date" />
                             <TextInput
                                 id="date"
                                 type="date"
@@ -128,7 +128,7 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="start_time" value="Jam Mulai" />
+                                <InputLabel htmlFor="start_time" value="Start Time" />
                                 <TextInput
                                     id="start_time"
                                     type="time"
@@ -140,7 +140,7 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
                                 <InputError message={errors.start_time} className="mt-1.5" />
                             </div>
                             <div>
-                                <InputLabel htmlFor="end_time" value="Jam Selesai" />
+                                <InputLabel htmlFor="end_time" value="End Time" />
                                 <TextInput
                                     id="end_time"
                                     type="time"
@@ -154,12 +154,12 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="reason" value="Alasan / Uraian Tugas Lembur" />
+                            <InputLabel htmlFor="reason" value="Reason / Task Description" />
                             <textarea
                                 id="reason"
                                 className="mt-1.5 block w-full rounded-xl border-slate-300 text-sm text-slate-900 shadow-xs focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2.5 px-3"
                                 rows={3}
-                                placeholder="Jelaskan pekerjaan operasional yang membutuhkan lembur..."
+                                placeholder="Describe the operational duties requiring overtime..."
                                 value={data.reason}
                                 onChange={e => setData('reason', e.target.value)}
                                 required
@@ -169,9 +169,9 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
-                        <SecondaryButton onClick={closeModal}>Batal</SecondaryButton>
+                        <SecondaryButton onClick={closeModal}>Cancel</SecondaryButton>
                         <PrimaryButton disabled={processing}>
-                            {processing ? 'Menyimpan...' : 'Kirim Pengajuan'}
+                            {processing ? 'Saving...' : 'Submit Request'}
                         </PrimaryButton>
                     </div>
                 </form>

@@ -15,6 +15,8 @@ interface LauncherStats {
     totalDepartments?: number;
     openItTickets?: number;
     totalItAssets?: number;
+    pendingRoomReturns?: number;
+    myActiveRoomBorrowings?: number;
 }
 
 interface DashboardProps {
@@ -85,6 +87,7 @@ export default function Dashboard({
     const isHousekeeping = user.employee?.department?.name === 'Housekeeping';
     const canAccessHousekeeping = isAdmin || isHOD || isHousekeeping;
     const isItStaff = isSuperAdmin || isManager || (user.employee?.department?.name?.toLowerCase() === 'it');
+    const isSecurityUser = user.roles?.some((r: any) => r.name === 'Security') || isAdmin;
 
     // Listen for Ctrl+K / Cmd+K shortcut
     useEffect(() => {
@@ -159,16 +162,36 @@ export default function Dashboard({
             name: isItStaff ? 'IT Operations' : 'IT Helpdesk',
             description: isItStaff
                 ? 'IT Asset inventory, hardware tracking, and IT Helpdesk ticketing'
-                : 'Lapor kendala IT hotel, pantau status penanganan, dan respon teknisi',
+                : 'Report hotel IT issues, track resolution status, and technician response',
             category: 'IT & Facilities',
             href: isItStaff ? route('it.index', { tab: 'overview' }) : route('it.index', { tab: 'tickets' }),
             gradient: 'from-red-600 to-rose-700',
-            badge: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? `${launcherStats.openItTickets} Tiket Aktif` : (isItStaff && launcherStats.totalItAssets ? `${launcherStats.totalItAssets} Assets` : null),
+            badge: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? `${launcherStats.openItTickets} Active Tickets` : (isItStaff && launcherStats.totalItAssets ? `${launcherStats.totalItAssets} Assets` : null),
             badgeColor: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? 'bg-amber-500' : 'bg-red-600',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'room-borrowing',
+            name: 'Room & Key Borrowing',
+            description: 'Room catalog, key borrowing, and physical return verification at Security post',
+            category: 'Facilities & Security',
+            href: route('room-borrowing.index'),
+            gradient: 'from-emerald-600 via-teal-600 to-emerald-700',
+            badge: isSecurityUser && launcherStats.pendingRoomReturns && launcherStats.pendingRoomReturns > 0
+                ? `${launcherStats.pendingRoomReturns} Pending Return`
+                : launcherStats.myActiveRoomBorrowings && launcherStats.myActiveRoomBorrowings > 0
+                    ? `${launcherStats.myActiveRoomBorrowings} Key(s) Borrowed`
+                    : null,
+            badgeColor: isSecurityUser && launcherStats.pendingRoomReturns && launcherStats.pendingRoomReturns > 0 ? 'bg-amber-500' : 'bg-emerald-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
             ),
         },
@@ -243,7 +266,7 @@ export default function Dashboard({
                 </svg>
             ),
         },
-    ].filter(a => a.visible !== false), [launcherStats, pendingHrCount, isAdmin, isSuperAdmin, canAccessHousekeeping, isItStaff]);
+    ].filter(a => a.visible !== false), [launcherStats, pendingHrCount, isAdmin, isSuperAdmin, canAccessHousekeeping, isItStaff, isSecurityUser]);
 
     // Full catalog for Ctrl+K search (includes both core suites and all specific sub-modules)
     const allSearchableItems: AppItem[] = useMemo(() => [
@@ -686,7 +709,7 @@ export default function Dashboard({
                     <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E31B23] text-white shadow-xs">
-                                Ringkasan HR
+                                HR Overview
                             </span>
                             {isAdmin && (
                                 <>
@@ -694,31 +717,31 @@ export default function Dashboard({
                                         href={route('employees.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Data Karyawan
+                                        Employees
                                     </Link>
                                     <Link
                                         href={route('departments.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Departemen & Divisi
+                                        Departments & Divisions
                                     </Link>
                                     <Link
                                         href={route('attendance.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Log Kehadiran
+                                        Attendance Logs
                                     </Link>
                                     <Link
                                         href={route('schedules.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Jadwal & Shift
+                                        Schedules & Shifts
                                     </Link>
                                     <Link
                                         href={route('payroll.index')}
                                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Penggajian (Payroll)
+                                        Payroll Management
                                     </Link>
                                 </>
                             )}
@@ -726,27 +749,27 @@ export default function Dashboard({
                                 href={route('leave.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                             >
-                                Pengajuan Cuti
+                                Leave Requests
                             </Link>
                             <Link
                                 href={route('overtime.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                             >
-                                Lembur (SPKL)
+                                Overtime (SPKL)
                             </Link>
                             {canViewPerformance && (
                                 <Link
                                     href={route('performance.index')}
                                     className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                 >
-                                    Laporan & KPI
+                                    Reports & KPI
                                 </Link>
                             )}
                             <Link
                                 href={route('directory.index')}
                                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                             >
-                                Direktori Staf
+                                Staff Directory
                             </Link>
                         </div>
                     </div>
@@ -922,7 +945,7 @@ export default function Dashboard({
                                 <Link
                                     href={isAdmin ? route('attendance.index') : route('attendance.my')}
                                     className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/90 border border-emerald-200/60 transition-all hover:scale-102"
-                                    title="Akses data absensi harian"
+                                    title="Access daily attendance records"
                                 >
                                     <span>🕒</span>
                                     <span>{isAdmin ? 'Attendance Logs' : 'My Attendance'}</span>
@@ -930,7 +953,7 @@ export default function Dashboard({
                                 <Link
                                     href={route('leave.index')}
                                     className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-sky-700 bg-sky-50/70 hover:bg-sky-100/90 border border-sky-200/60 transition-all hover:scale-102"
-                                    title="Pengajuan atau persetujuan cuti"
+                                    title="Leave requests and approvals"
                                 >
                                     <span>🏖️</span>
                                     <span>Leave Requests</span>
@@ -943,7 +966,7 @@ export default function Dashboard({
                                 <Link
                                     href={route('overtime.index')}
                                     className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100/90 border border-rose-200/60 transition-all hover:scale-102"
-                                    title="Pengajuan atau persetujuan lembur SPKL"
+                                    title="Overtime requests and approvals"
                                 >
                                     <span>⚡</span>
                                     <span>Overtime (SPKL)</span>
@@ -956,7 +979,7 @@ export default function Dashboard({
                                 <Link
                                     href={isAdmin ? route('payroll.index') : route('payroll.my')}
                                     className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-teal-700 bg-teal-50/70 hover:bg-teal-100/90 border border-teal-200/60 transition-all hover:scale-102"
-                                    title="Slip gaji atau kelola payroll batch"
+                                    title="Payslips or manage payroll batch"
                                 >
                                     <span>💵</span>
                                     <span>{isAdmin ? 'Payroll Management' : 'My Payslips'}</span>
@@ -964,7 +987,7 @@ export default function Dashboard({
                                 <Link
                                     href={route('tasks.index')}
                                     className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-[#E31B23] bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
-                                    title="Daftar tugas pekerjaan aktif"
+                                    title="Active work tasks list"
                                 >
                                     <span>📋</span>
                                     <span>My Tasks</span>
@@ -972,10 +995,10 @@ export default function Dashboard({
                                 <Link
                                     href={route('it.index', { tab: 'tickets' })}
                                     className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-red-700 bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
-                                    title="Lapor kendala IT hotel atau pantau status tiket"
+                                    title="Report hotel IT issues or monitor ticket status"
                                 >
                                     <span>🛠️</span>
-                                    <span>Lapor IT</span>
+                                    <span>IT Support</span>
                                     {launcherStats.openItTickets && launcherStats.openItTickets > 0 && (
                                         <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
                                             {launcherStats.openItTickets}

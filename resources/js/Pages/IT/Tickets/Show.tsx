@@ -142,7 +142,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         <Link
                             href={route('it.index', { tab: 'tickets' })}
                             className="w-9 h-9 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center justify-center shadow-2xs transition-colors shrink-0"
-                            title="Kembali ke Daftar Tiket"
+                            title="Back to Ticket List"
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -157,7 +157,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                     {ticket.status}
                                 </span>
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getPriorityBadge(ticket.priority)}`}>
-                                    Prioritas {ticket.priority}
+                                    Priority: {ticket.priority}
                                 </span>
                             </div>
                             <h2 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight mt-0.5">
@@ -175,24 +175,24 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
-                                <span>Ubah Status / Penugasan</span>
+                                <span>Update Status / Assignment</span>
                             </button>
                         )}
 
                         {!isItManager && ticket.status === 'Resolved' && (
                             <button
                                 onClick={() => {
-                                    if (confirm('Konfirmasi bahwa kendala IT Anda telah terselesaikan dan tiket siap ditutup?')) {
+                                    if (confirm('Confirm that your IT issue has been resolved and this ticket is ready to close?')) {
                                         router.patch(route('it.tickets.status', ticket.id), {
                                             status: 'Closed',
-                                            notes: 'Pelapor mengonfirmasi kendala telah teratasi dan menutup tiket.',
+                                            notes: 'Reporter confirmed the issue was resolved and closed the ticket.',
                                         });
                                     }
                                 }}
                                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-2xs transition-all hover:scale-102 cursor-pointer"
                             >
                                 <span>✅</span>
-                                <span>Tutup Tiket (Kendala Selesai)</span>
+                                <span>Close Ticket (Issue Resolved)</span>
                             </button>
                         )}
 
@@ -200,7 +200,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                             <button
                                 onClick={() => setIsDeleteModalOpen(true)}
                                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer"
-                                title="Hapus Tiket"
+                                title="Delete Ticket"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -228,9 +228,9 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         {/* Issue Details Card */}
                         <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xs p-5 sm:p-6 space-y-4">
                             <div className="flex items-center justify-between pb-3 border-b border-gray-100 text-xs text-gray-500">
-                                <span>Kategori: <strong className="text-gray-800">{ticket.category}</strong></span>
+                                <span>Category: <strong className="text-gray-800">{ticket.category}</strong></span>
                                 <span>
-                                    Dilaporkan pada {new Date(ticket.created_at).toLocaleDateString('id-ID', {
+                                    Reported on {new Date(ticket.created_at).toLocaleDateString('en-US', {
                                         weekday: 'long',
                                         day: 'numeric',
                                         month: 'long',
@@ -243,7 +243,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
 
                             <div>
                                 <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-2">
-                                    Rincian Masalah / Deskripsi Kendala
+                                    Issue Details / Description
                                 </h3>
                                 <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap bg-gray-50/70 p-4 rounded-xl border border-gray-100">
                                     {ticket.description}
@@ -255,14 +255,14 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 <div className="p-4 rounded-xl bg-emerald-50/80 border border-emerald-200 space-y-1">
                                     <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase tracking-wider">
                                         <span>✅</span>
-                                        <span>Catatan Penyelesaian Masalah:</span>
+                                        <span>Resolution Notes:</span>
                                     </div>
                                     <p className="text-xs sm:text-sm text-emerald-950 whitespace-pre-wrap">
                                         {ticket.resolution_notes}
                                     </p>
                                     {ticket.resolved_at && (
                                         <p className="text-[11px] text-emerald-700 mt-1">
-                                            Selesai pada: {new Date(ticket.resolved_at).toLocaleString('id-ID')}
+                                            Resolved at: {new Date(ticket.resolved_at).toLocaleString('en-US')}
                                         </p>
                                     )}
                                 </div>
@@ -274,14 +274,14 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
                                 <div>
                                     <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                                        Riwayat & Diskusi Penanganan
+                                        Activity History & Discussion
                                     </h3>
                                     <p className="text-xs text-gray-500">
-                                        Jejak aktivitas, pergantian status, dan komunikasi tim
+                                        Activity log, status updates, and team communication
                                     </p>
                                 </div>
                                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                                    {ticket.updates?.length || 0} Aktivitas
+                                    {ticket.updates?.length || 0} Activities
                                 </span>
                             </div>
 
@@ -303,7 +303,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                                 <div className="flex items-center justify-between gap-2 flex-wrap mb-1">
                                                     <div className="flex items-center gap-1.5">
                                                         <strong className="text-gray-900 font-semibold">
-                                                            {upd.user?.name || 'Sistem'}
+                                                            {upd.user?.name || 'System'}
                                                         </strong>
                                                         {upd.status_to && upd.status_from !== upd.status_to && (
                                                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200">
@@ -312,7 +312,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                                         )}
                                                     </div>
                                                     <span className="text-[11px] text-gray-400">
-                                                        {new Date(upd.created_at).toLocaleDateString('id-ID', {
+                                                        {new Date(upd.created_at).toLocaleDateString('en-US', {
                                                             day: 'numeric',
                                                             month: 'short',
                                                             hour: '2-digit',
@@ -329,7 +329,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                     ))
                                 ) : (
                                     <div className="py-6 text-center text-gray-400 text-xs">
-                                        Belum ada riwayat update.
+                                        No activity history yet.
                                     </div>
                                 )}
                             </div>
@@ -337,11 +337,11 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                             {/* Reply Input Box */}
                             <form onSubmit={submitReply} className="pt-4 border-t border-gray-100 space-y-2">
                                 <label className="block text-xs font-bold text-gray-700">
-                                    Tulis Tanggapan / Update Perkembangan:
+                                    Write a Reply / Progress Update:
                                 </label>
                                 <textarea
                                     rows={3}
-                                    placeholder="Tulis pesan atau update status penanganan di sini..."
+                                    placeholder="Write a message or progress update here..."
                                     value={replyForm.data.message}
                                     onChange={(e) => replyForm.setData('message', e.target.value)}
                                     className="w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
@@ -349,7 +349,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 />
                                 <div className="flex justify-end">
                                     <PrimaryButton disabled={replyForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25 text-xs">
-                                        {replyForm.processing ? 'Mengirim...' : 'Kirim Tanggapan'}
+                                        {replyForm.processing ? 'Sending...' : 'Send Reply'}
                                     </PrimaryButton>
                                 </div>
                             </form>
@@ -361,7 +361,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         {/* Reporter & Location Card */}
                         <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xs p-5 space-y-4">
                             <h3 className="font-bold text-gray-900 text-sm pb-2 border-b border-gray-100">
-                                Informasi Pelapor
+                                Reporter Information
                             </h3>
 
                             <div className="flex items-center gap-3">
@@ -370,7 +370,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 </div>
                                 <div className="min-w-0">
                                     <div className="font-bold text-gray-900 text-sm truncate">
-                                        {ticket.reporter?.user?.name || (ticket.reporter ? `Emp #${ticket.reporter.employee_number}` : 'Karyawan Hotel')}
+                                        {ticket.reporter?.user?.name || (ticket.reporter ? `Emp #${ticket.reporter.employee_number}` : 'Hotel Employee')}
                                     </div>
                                     <div className="text-xs text-gray-500">
                                         {ticket.reporter?.department?.name || 'Department'}
@@ -385,13 +385,13 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
 
                             <div className="pt-2 border-t border-gray-100 space-y-2 text-xs">
                                 <div className="flex items-center justify-between text-gray-600">
-                                    <span>Lokasi Kendala:</span>
-                                    <strong className="text-gray-900">{ticket.location || 'Area Hotel'}</strong>
+                                    <span>Issue Location:</span>
+                                    <strong className="text-gray-900">{ticket.location || 'Hotel Area'}</strong>
                                 </div>
                                 <div className="flex items-center justify-between text-gray-600">
-                                    <span>Teknisi Ditugaskan:</span>
+                                    <span>Assigned Technician:</span>
                                     <strong className="text-red-700">
-                                        {ticket.assigned_user ? ticket.assigned_user.name : 'Belum Ditugaskan'}
+                                        {ticket.assigned_user ? ticket.assigned_user.name : 'Unassigned'}
                                     </strong>
                                 </div>
                             </div>
@@ -402,7 +402,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                             <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xs p-5 space-y-3">
                                 <div className="flex items-center justify-between pb-2 border-b border-gray-100">
                                     <h3 className="font-bold text-gray-900 text-sm">
-                                        Perangkat Terkait
+                                        Associated Device
                                     </h3>
                                     <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-bold">
                                         {ticket.asset.asset_code}
@@ -436,7 +436,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         ) : (
                             <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xs p-5 text-center text-xs text-gray-400">
                                 <span className="text-2xl block mb-1">💻</span>
-                                Tidak ada perangkat fisik yang ditautkan ke tiket ini.
+                                No physical device is linked to this ticket.
                             </div>
                         )}
                     </div>
@@ -456,7 +456,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                     {ticket.ticket_number}
                                 </span>
                                 <h3 className="text-lg font-bold text-gray-900 leading-tight">
-                                    Perbarui Status & Teknisi
+                                    Update Status & Technician
                                 </h3>
                             </div>
                         </div>
@@ -471,7 +471,7 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
 
                     <div className="space-y-4 text-xs sm:text-sm">
                         <div>
-                            <InputLabel htmlFor="status_select" value="Status Tiket *" />
+                            <InputLabel htmlFor="status_select" value="Ticket Status *" />
                             <select
                                 id="status_select"
                                 className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
@@ -479,24 +479,24 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 onChange={(e) => statusForm.setData('status', e.target.value as any)}
                                 required
                             >
-                                <option value="Open">Open - Tiket Baru</option>
-                                <option value="In Progress">In Progress - Sedang Dikerjakan</option>
-                                <option value="Pending Parts">Pending Parts - Menunggu Spare Part/Vendor</option>
-                                <option value="Resolved">Resolved - Masalah Selesai Diperbaiki</option>
-                                <option value="Closed">Closed - Tiket Ditutup</option>
+                                <option value="Open">Open - New Ticket</option>
+                                <option value="In Progress">In Progress - Working on it</option>
+                                <option value="Pending Parts">Pending Parts - Awaiting Parts/Vendor</option>
+                                <option value="Resolved">Resolved - Issue Fixed</option>
+                                <option value="Closed">Closed - Ticket Closed</option>
                             </select>
                         </div>
 
                         {isItManager && (
                             <div>
-                                <InputLabel htmlFor="technician_select" value="Tugaskan ke Teknisi IT" />
+                                <InputLabel htmlFor="technician_select" value="Assign to IT Technician" />
                                 <select
                                     id="technician_select"
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
                                     value={statusForm.data.assigned_to_user_id}
                                     onChange={(e) => statusForm.setData('assigned_to_user_id', e.target.value)}
                                 >
-                                    <option value="">-- Belum Ditugaskan --</option>
+                                    <option value="">-- Unassigned --</option>
                                     {itStaffUsers.map((st) => (
                                         <option key={st.id} value={st.id}>
                                             {st.name} ({st.email})
@@ -508,12 +508,12 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
 
                         {['Resolved', 'Closed'].includes(statusForm.data.status) && (
                             <div>
-                                <InputLabel htmlFor="res_notes" value="Catatan Solusi / Penyelesaian Masalah *" />
+                                <InputLabel htmlFor="res_notes" value="Resolution / Solution Notes *" />
                                 <textarea
                                     id="res_notes"
                                     rows={3}
                                     className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
-                                    placeholder="Jelaskan tindakan teknis yang telah diambil untuk menyelesaikan kendala..."
+                                    placeholder="Explain the technical steps taken to resolve the issue..."
                                     value={statusForm.data.resolution_notes}
                                     onChange={(e) => statusForm.setData('resolution_notes', e.target.value)}
                                     required={['Resolved', 'Closed'].includes(statusForm.data.status)}
@@ -522,12 +522,12 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         )}
 
                         <div>
-                            <InputLabel htmlFor="notes_input" value="Catatan Tambahan untuk Timeline (Opsional)" />
+                            <InputLabel htmlFor="notes_input" value="Additional Note for Timeline (Optional)" />
                             <TextInput
                                 id="notes_input"
                                 type="text"
                                 className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                placeholder="Contoh: Menunggu kabel pengganti dari vendor..."
+                                placeholder="e.g. Waiting for replacement cable from vendor..."
                                 value={statusForm.data.notes}
                                 onChange={(e) => statusForm.setData('notes', e.target.value)}
                             />
@@ -536,10 +536,10 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
 
                     <div className="pt-4 border-t border-gray-200 flex items-center justify-end gap-2">
                         <SecondaryButton type="button" onClick={() => setIsStatusModalOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton disabled={statusForm.processing} className="bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 text-white shadow-sm shadow-red-600/25">
-                            {statusForm.processing ? 'Menyimpan...' : 'Simpan Status'}
+                            {statusForm.processing ? 'Saving...' : 'Save Status'}
                         </PrimaryButton>
                     </div>
                 </form>
@@ -549,17 +549,17 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
             <Modal show={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} maxWidth="md">
                 <div className="p-6">
                     <h3 className="text-lg font-bold text-gray-900">
-                        Hapus Tiket IT?
+                        Delete IT Ticket?
                     </h3>
                     <p className="mt-2 text-sm text-gray-500">
-                        Apakah Anda yakin ingin menghapus tiket <strong className="text-gray-800">{ticket.ticket_number}</strong> beserta seluruh riwayat percakapannya? Tindakan ini tidak dapat dibatalkan.
+                        Are you sure you want to delete ticket <strong className="text-gray-800">{ticket.ticket_number}</strong> and all its activity history? This action cannot be undone.
                     </p>
                     <div className="mt-6 flex justify-end gap-2">
                         <SecondaryButton onClick={() => setIsDeleteModalOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <DangerButton onClick={confirmDeleteTicket}>
-                            Ya, Hapus Tiket
+                            Yes, Delete Ticket
                         </DangerButton>
                     </div>
                 </div>

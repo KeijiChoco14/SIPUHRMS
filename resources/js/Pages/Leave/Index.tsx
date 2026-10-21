@@ -41,22 +41,22 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Pengajuan Cuti Karyawan</h2>}>
-            <Head title="Cuti Karyawan" />
+        <AuthenticatedLayout header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Employee Leave Requests</h2>}>
+            <Head title="Leave Requests" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50">
                             <div>
-                                <h3 className="text-base font-semibold text-slate-900">Riwayat Pengajuan Cuti</h3>
-                                <p className="text-xs text-slate-500 mt-0.5">Daftar riwayat permohonan cuti dan status persetujuan HOD / HRD.</p>
+                                <h3 className="text-base font-semibold text-slate-900">Leave Request History</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">List of submitted leave applications and approval status from HOD / HRD.</p>
                             </div>
                             <PrimaryButton onClick={() => setIsModalOpen(true)}>
                                 <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
-                                Ajukan Cuti
+                                Request Leave
                             </PrimaryButton>
                         </div>
 
@@ -64,11 +64,11 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
                             <table className="w-full text-sm text-left">
                                 <thead className="bg-slate-50/80 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200/80">
                                     <tr>
-                                        <th className="px-6 py-3.5">Jenis Cuti</th>
-                                        <th className="px-6 py-3.5">Durasi</th>
-                                        <th className="px-6 py-3.5">Alasan</th>
+                                        <th className="px-6 py-3.5">Leave Type</th>
+                                        <th className="px-6 py-3.5">Duration</th>
+                                        <th className="px-6 py-3.5">Reason</th>
                                         <th className="px-6 py-3.5 text-center">Status</th>
-                                        <th className="px-6 py-3.5 text-right">Tanggal Pengajuan</th>
+                                        <th className="px-6 py-3.5 text-right">Date Requested</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -80,8 +80,8 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
                                                 </div>
-                                                <p className="text-sm font-medium text-slate-700">Belum ada permohonan cuti</p>
-                                                <p className="text-xs text-slate-400 mt-1">Gunakan tombol "Ajukan Cuti" di atas untuk membuat permohonan baru.</p>
+                                                <p className="text-sm font-medium text-slate-700">No leave requests found</p>
+                                                <p className="text-xs text-slate-400 mt-1">Use the "Request Leave" button above to submit a new application.</p>
                                             </td>
                                         </tr>
                                     ) : (
@@ -89,7 +89,7 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
                                             <tr key={req.id} className="hover:bg-slate-50/75 transition-colors">
                                                 <td className="px-6 py-4 font-semibold text-slate-900">{req.type}</td>
                                                 <td className="px-6 py-4 text-slate-600 tabular-nums">
-                                                    {req.start_date} s/d {req.end_date}
+                                                    {req.start_date} to {req.end_date}
                                                 </td>
                                                 <td className="px-6 py-4 text-slate-600 max-w-xs truncate">{req.reason}</td>
                                                 <td className="px-6 py-4 text-center">
@@ -98,7 +98,7 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
                                                     </Badge>
                                                 </td>
                                                 <td className="px-6 py-4 text-slate-500 text-xs text-right tabular-nums">
-                                                    {new Date(req.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    {new Date(req.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                                 </td>
                                             </tr>
                                         ))
@@ -112,29 +112,29 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
 
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="md">
                 <form onSubmit={submit} className="p-6">
-                    <h2 className="text-lg font-bold text-slate-900 mb-5">Ajukan Permohonan Cuti</h2>
+                    <h2 className="text-lg font-bold text-slate-900 mb-5">Submit Leave Request</h2>
 
                     <div className="space-y-4">
                         <div>
-                            <InputLabel htmlFor="type" value="Jenis Cuti" />
+                            <InputLabel htmlFor="type" value="Leave Type" />
                             <select
                                 id="type"
                                 className="mt-1.5 block w-full rounded-xl border-slate-300 text-sm text-slate-900 shadow-xs focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2.5 px-3"
                                 value={data.type}
                                 onChange={e => setData('type', e.target.value)}
                             >
-                                <option value="Annual">Annual Leave (Cuti Tahunan)</option>
-                                <option value="Sick">Sick Leave (Cuti Sakit)</option>
-                                <option value="Unpaid">Unpaid Leave (Cuti Tanpa Gaji)</option>
-                                <option value="Maternity">Maternity Leave (Cuti Melahirkan)</option>
-                                <option value="Other">Other (Lainnya)</option>
+                                <option value="Annual">Annual Leave</option>
+                                <option value="Sick">Sick Leave</option>
+                                <option value="Unpaid">Unpaid Leave</option>
+                                <option value="Maternity">Maternity Leave</option>
+                                <option value="Other">Other</option>
                             </select>
                             <InputError message={errors.type} className="mt-1.5" />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="start_date" value="Tanggal Mulai" />
+                                <InputLabel htmlFor="start_date" value="Start Date" />
                                 <TextInput
                                     id="start_date"
                                     type="date"
@@ -146,7 +146,7 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
                                 <InputError message={errors.start_date} className="mt-1.5" />
                             </div>
                             <div>
-                                <InputLabel htmlFor="end_date" value="Tanggal Selesai" />
+                                <InputLabel htmlFor="end_date" value="End Date" />
                                 <TextInput
                                     id="end_date"
                                     type="date"
@@ -160,12 +160,12 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="reason" value="Alasan Cuti" />
+                            <InputLabel htmlFor="reason" value="Reason for Leave" />
                             <textarea
                                 id="reason"
                                 className="mt-1.5 block w-full rounded-xl border-slate-300 text-sm text-slate-900 shadow-xs focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2.5 px-3"
                                 rows={3}
-                                placeholder="Jelaskan keperluan cuti..."
+                                placeholder="Explain the purpose of your leave request..."
                                 value={data.reason}
                                 onChange={e => setData('reason', e.target.value)}
                                 required
@@ -175,9 +175,9 @@ export default function LeaveIndex({ leaveRequests }: { leaveRequests: any[] }) 
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
-                        <SecondaryButton onClick={closeModal}>Batal</SecondaryButton>
+                        <SecondaryButton onClick={closeModal}>Cancel</SecondaryButton>
                         <PrimaryButton disabled={processing}>
-                            {processing ? 'Menyimpan...' : 'Kirim Permohonan'}
+                            {processing ? 'Saving...' : 'Submit Request'}
                         </PrimaryButton>
                     </div>
                 </form>

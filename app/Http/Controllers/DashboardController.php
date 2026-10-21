@@ -13,6 +13,7 @@ use App\Models\MasterKeyRequest;
 use App\Models\OvertimeRequest;
 use App\Models\PerformanceScore;
 use App\Models\Project;
+use App\Models\RoomBorrowingTransaction;
 use App\Models\Task;
 use App\Models\TaskActivity;
 use App\Models\WorkSchedule;
@@ -99,6 +100,22 @@ class DashboardController extends Controller
             $totalItAssetsCount = ItAsset::count();
         }
 
+        $pendingRoomReturnsCount = 0;
+        $myActiveRoomBorrowingsCount = 0;
+        if (Schema::hasTable('room_borrowing_transactions')) {
+            $isSecurityUser = $user->hasRole('Security') || $isAdmin;
+            if ($isSecurityUser) {
+                $pendingRoomReturnsCount = RoomBorrowingTransaction::where('status', RoomBorrowingTransaction::STATUS_PENDING_RETURN)->count();
+            }
+            if ($employeeId) {
+                $myActiveRoomBorrowingsCount = RoomBorrowingTransaction::where('borrower_employee_id', $employeeId)
+                    ->whereIn('status', [
+                        RoomBorrowingTransaction::STATUS_BORROWED,
+                        RoomBorrowingTransaction::STATUS_PENDING_RETURN,
+                    ])->count();
+            }
+        }
+
         $launcherStats = [
             'activeTasks' => $activeTasksCount,
             'masterKeyOnRequest' => $masterKeyOnRequestCount,
@@ -108,6 +125,8 @@ class DashboardController extends Controller
             'totalDepartments' => $departmentTotalCount,
             'openItTickets' => $openItTicketsCount,
             'totalItAssets' => $totalItAssetsCount,
+            'pendingRoomReturns' => $pendingRoomReturnsCount,
+            'myActiveRoomBorrowings' => $myActiveRoomBorrowingsCount,
         ];
 
         $data = [

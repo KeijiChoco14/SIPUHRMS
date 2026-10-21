@@ -36,11 +36,11 @@ export default function AttendanceIndex({ attendances, selectedDate }: any) {
                         
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
                             <div>
-                                <h3 className="text-base font-semibold text-slate-900">Catatan Kehadiran Karyawan</h3>
-                                <p className="text-xs text-slate-500 mt-0.5">Pantau status clock in, clock out, dan keterlambatan shift harian.</p>
+                                <h3 className="text-base font-semibold text-slate-900">Employee Attendance Log</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Monitor clock in, clock out, and daily shift punctuality status.</p>
                             </div>
                             <div className="flex items-center gap-3">
-                                <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Tanggal:</label>
+                                <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Date:</label>
                                 <input 
                                     type="date"
                                     className="rounded-xl border-slate-300 shadow-xs text-sm text-slate-900 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2 px-3"
@@ -55,13 +55,13 @@ export default function AttendanceIndex({ attendances, selectedDate }: any) {
                                 <table className="min-w-full divide-y divide-slate-200 text-left">
                                     <thead className="bg-slate-50/80">
                                         <tr>
-                                            <th className="px-6 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Karyawan</th>
-                                            <th className="px-6 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Departemen</th>
+                                            <th className="px-6 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Employee</th>
+                                            <th className="px-6 py-3.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Department</th>
                                             <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Clock In</th>
                                             <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Clock Out</th>
                                             <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                                             <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Late / OT</th>
-                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Sumber</th>
+                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Source</th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-slate-100">
@@ -112,8 +112,8 @@ export default function AttendanceIndex({ attendances, selectedDate }: any) {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
-                                <p className="text-sm font-medium text-slate-700">Tidak ada catatan kehadiran</p>
-                                <p className="text-xs text-slate-400 mt-1">Belum ada karyawan yang clock in pada tanggal ini.</p>
+                                <p className="text-sm font-medium text-slate-700">No attendance records found</p>
+                                <p className="text-xs text-slate-400 mt-1">No employees have clocked in on this selected date.</p>
                             </div>
                         )}
                     </div>

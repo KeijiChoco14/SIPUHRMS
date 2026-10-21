@@ -23,6 +23,7 @@ use App\Http\Controllers\TaskChecklistController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\MasterKeyRequestController;
 use App\Http\Controllers\PowerProRequestController;
+use App\Http\Controllers\RoomBorrowingController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -148,6 +149,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/master-keys/{masterKeyRequest}/renew', [MasterKeyRequestController::class, 'renew'])->name('master-keys.renew');
     Route::patch('/master-keys/{masterKeyRequest}/status', [MasterKeyRequestController::class, 'updateStatus'])->name('master-keys.status');
     Route::delete('/master-keys/{masterKeyRequest}', [MasterKeyRequestController::class, 'destroy'])->name('master-keys.destroy');
+
+    // Room Borrowing & Key Management Routes (Security & Facilities)
+    Route::get('/room-borrowing', [RoomBorrowingController::class, 'index'])->name('room-borrowing.index');
+    Route::post('/room-borrowing/borrow', [RoomBorrowingController::class, 'borrow'])->name('room-borrowing.borrow');
+    Route::post('/room-borrowing/{transaction}/return-request', [RoomBorrowingController::class, 'requestReturn'])->name('room-borrowing.return-request');
+    Route::post('/room-borrowing/{transaction}/confirm-return', [RoomBorrowingController::class, 'confirmReturn'])->name('room-borrowing.confirm-return');
+    Route::post('/room-borrowing/rooms', [RoomBorrowingController::class, 'storeRoom'])->name('room-borrowing.rooms.store');
+    Route::put('/room-borrowing/rooms/{room}', [RoomBorrowingController::class, 'updateRoom'])->name('room-borrowing.rooms.update');
+    Route::patch('/room-borrowing/rooms/{room}/toggle', [RoomBorrowingController::class, 'toggleRoomStatus'])->name('room-borrowing.rooms.toggle');
 
     // IT Operations & Helpdesk Routes
     Route::get('/it', [ItOperationsController::class, 'index'])->name('it.index');

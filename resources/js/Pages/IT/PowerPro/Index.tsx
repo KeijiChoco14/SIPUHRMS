@@ -136,20 +136,20 @@ interface Props {
 
 const AVAILABLE_MODULES = [
     { id: 'Front Office', label: 'Front Office (FO)', desc: 'Check-in, Check-out, Reservation, Room Folio & Billing' },
-    { id: 'Point of Sales (POS)', label: 'Point of Sales (POS)', desc: 'Restoran, Bar, Room Service, Banquet Kasir' },
+    { id: 'Point of Sales (POS)', label: 'Point of Sales (POS)', desc: 'Restaurant, Bar, Room Service, Banquet Cashier' },
     { id: 'Housekeeping', label: 'Housekeeping (HK)', desc: 'Room Status (Clean/Dirty/OOO), Linen, Mini Bar' },
     { id: 'Accounting / Back Office', label: 'Accounting / Finance', desc: 'Accounts Receivable (AR), AP, GL, Night Audit' },
-    { id: 'Purchasing & Receiving', label: 'Purchasing & Store', desc: 'Material Requisition, Receiving, Stock Opname' },
+    { id: 'Purchasing & Receiving', label: 'Purchasing & Store', desc: 'Material Requisition, Receiving, Stock Taking' },
     { id: 'Sales & Marketing', label: 'Sales & Catering', desc: 'Company Profile, Contract Rates, Banquet Event' },
 ];
 
 const AVAILABLE_PRIVILEGES = [
-    { id: 'Void / Cancel Transaction', label: 'Void / Pembatalan Tagihan' },
-    { id: 'Discount Override', label: 'Diskon Manual / Override' },
-    { id: 'Rate Change Override', label: 'Perubahan Harga Kamar' },
-    { id: 'Reprint Receipt / Folio', label: 'Cetak Ulang Bill / Struk' },
-    { id: 'Open Cash Drawer', label: 'Buka Laci Kasir (No Sale)' },
-    { id: 'Night Audit Posting', label: 'Posting Night Audit' },
+    { id: 'Void / Cancel Transaction', label: 'Void / Bill Cancellation' },
+    { id: 'Discount Override', label: 'Manual Discount / Override' },
+    { id: 'Rate Change Override', label: 'Room Rate Override' },
+    { id: 'Reprint Receipt / Folio', label: 'Reprint Bill / Folio' },
+    { id: 'Open Cash Drawer', label: 'Open Cash Drawer (No Sale)' },
+    { id: 'Night Audit Posting', label: 'Night Audit Posting' },
 ];
 
 export default function PowerProIndex({
@@ -298,14 +298,14 @@ export default function PowerProIndex({
     };
 
     const handleDelete = (item: PowerProRequestItem) => {
-        if (confirm(`Apakah Anda yakin ingin menghapus permohonan ${item.request_number}?`)) {
+        if (confirm(`Are you sure you want to delete request ${item.request_number}?`)) {
             router.delete(route('power-pro.destroy', item.id));
         }
     };
 
     const formatDate = (dateStr?: string) => {
         if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleDateString('id-ID', {
+        return new Date(dateStr).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -314,7 +314,7 @@ export default function PowerProIndex({
 
     const formatDateTime = (dateStr?: string) => {
         if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleDateString('id-ID', {
+        return new Date(dateStr).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -325,7 +325,7 @@ export default function PowerProIndex({
 
     return (
         <AuthenticatedLayout>
-            <Head title="Permohonan User ID Power Pro - IT Operations" />
+            <Head title="Power Pro User ID Request - IT Operations" />
 
             <div className="py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
                 {/* Header Banner */}
@@ -341,10 +341,10 @@ export default function PowerProIndex({
                                 </span>
                             </div>
                             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                                Permohonan User ID Power Pro
+                                Power Pro User ID Request
                             </h1>
                             <p className="mt-1 text-sm sm:text-base text-red-100 max-w-2xl">
-                                Formulir resmi otorisasi pembuatan, perubahan hak akses, dan penonaktifan akun Property Management System (PMS) & POS Hotel Swiss-Belinn SKA.
+                                Official authorization form for creating, modifying access rights, and deactivating Swiss-Belinn SKA Hotel Property Management System (PMS) & POS accounts.
                             </p>
                         </div>
 
@@ -367,7 +367,7 @@ export default function PowerProIndex({
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                                 </svg>
-                                Ajukan ID Power Pro
+                                Request Power Pro ID
                             </button>
                         </div>
                     </div>
@@ -383,9 +383,9 @@ export default function PowerProIndex({
                                 : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-xs'
                         }`}
                     >
-                        <span className="text-xs font-semibold text-gray-500 block">Total Permohonan</span>
+                        <span className="text-xs font-semibold text-gray-500 block">Total Requests</span>
                         <span className="text-2xl font-black text-gray-900 mt-1 block">{stats.total}</span>
-                        <span className="text-[11px] text-gray-400 mt-0.5 block">Semua riwayat pengajuan</span>
+                        <span className="text-[11px] text-gray-400 mt-0.5 block">All submission history</span>
                     </div>
 
                     <div
@@ -401,7 +401,7 @@ export default function PowerProIndex({
                             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                         </div>
                         <span className="text-2xl font-black text-amber-900 mt-1 block">{stats.on_request}</span>
-                        <span className="text-[11px] text-amber-600 mt-0.5 block">Menunggu review HOD</span>
+                        <span className="text-[11px] text-amber-600 mt-0.5 block">Awaiting HOD review</span>
                     </div>
 
                     <div
@@ -417,7 +417,7 @@ export default function PowerProIndex({
                             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                         </div>
                         <span className="text-2xl font-black text-blue-900 mt-1 block">{stats.approved}</span>
-                        <span className="text-[11px] text-blue-600 mt-0.5 block">Siap dieksekusi IT</span>
+                        <span className="text-[11px] text-blue-600 mt-0.5 block">Ready for IT execution</span>
                     </div>
 
                     <div
@@ -429,11 +429,11 @@ export default function PowerProIndex({
                         }`}
                     >
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-emerald-700">Selesai (Done)</span>
+                            <span className="text-xs font-semibold text-emerald-700">Completed (Done)</span>
                             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                         </div>
                         <span className="text-2xl font-black text-emerald-900 mt-1 block">{stats.done}</span>
-                        <span className="text-[11px] text-emerald-600 mt-0.5 block">User ID telah terbit</span>
+                        <span className="text-[11px] text-emerald-600 mt-0.5 block">User ID has been issued</span>
                     </div>
 
                     <div
@@ -444,9 +444,9 @@ export default function PowerProIndex({
                                 : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-xs'
                         }`}
                     >
-                        <span className="text-xs font-semibold text-rose-700 block">Ditolak</span>
+                        <span className="text-xs font-semibold text-rose-700 block">Rejected</span>
                         <span className="text-2xl font-black text-rose-900 mt-1 block">{stats.rejected}</span>
-                        <span className="text-[11px] text-rose-600 mt-0.5 block">Perlu revisi / dibatalkan</span>
+                        <span className="text-[11px] text-rose-600 mt-0.5 block">Needs revision / cancelled</span>
                     </div>
                 </div>
 
@@ -458,7 +458,7 @@ export default function PowerProIndex({
                                 type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Cari no. permohonan, nama karyawan, NIK, atau User ID..."
+                                placeholder="Search request no., employee name, employee number, or User ID..."
                                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 text-xs sm:text-sm text-gray-800 transition-all"
                             />
                             <svg className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -475,7 +475,7 @@ export default function PowerProIndex({
                                 }}
                                 className="px-3 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             >
-                                <option value="all">Semua Departemen</option>
+                                <option value="all">All Departments</option>
                                 {departments.map((dept) => (
                                     <option key={dept.id} value={dept.id}>
                                         {dept.name}
@@ -491,18 +491,18 @@ export default function PowerProIndex({
                                 }}
                                 className="px-3 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             >
-                                <option value="all">Semua Tipe Request</option>
-                                <option value="create_new">Pembuatan Baru</option>
-                                <option value="modify_access">Perubahan Akses</option>
-                                <option value="reset_password">Reset Password</option>
-                                <option value="deactivate">Penonaktifan Akun</option>
+                                <option value="all">All Request Types</option>
+                                <option value="create_new">New User ID Creation</option>
+                                <option value="modify_access">Access Rights Modification</option>
+                                <option value="reset_password">Password Reset</option>
+                                <option value="deactivate">Account Deactivation</option>
                             </select>
 
                             <button
                                 type="submit"
                                 className="px-4 py-2.5 rounded-xl bg-gray-900 hover:bg-gray-800 text-white text-xs font-semibold transition-all cursor-pointer"
                             >
-                                Cari
+                                Search
                             </button>
                         </div>
                     </form>
@@ -514,13 +514,13 @@ export default function PowerProIndex({
                         <table className="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr className="bg-gray-50/75 border-b border-gray-200 text-gray-500 uppercase tracking-wider font-bold">
-                                    <th className="py-3.5 px-4">No. Permohonan</th>
-                                    <th className="py-3.5 px-4">Karyawan & Dept</th>
-                                    <th className="py-3.5 px-4">Tipe & Modul Diminta</th>
-                                    <th className="py-3.5 px-4">Role & Hak Khusus</th>
-                                    <th className="py-3.5 px-4">User ID Terbit</th>
+                                    <th className="py-3.5 px-4">Request No.</th>
+                                    <th className="py-3.5 px-4">Employee & Dept</th>
+                                    <th className="py-3.5 px-4">Type & Requested Modules</th>
+                                    <th className="py-3.5 px-4">Role & Special Privileges</th>
+                                    <th className="py-3.5 px-4">Issued User ID</th>
                                     <th className="py-3.5 px-4">Status</th>
-                                    <th className="py-3.5 px-4 text-right">Aksi</th>
+                                    <th className="py-3.5 px-4 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
@@ -531,9 +531,9 @@ export default function PowerProIndex({
                                                 <svg className="w-12 h-12 text-gray-300 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
-                                                <p className="font-semibold text-gray-600">Belum ada permohonan User ID Power Pro</p>
+                                                <p className="font-semibold text-gray-600">No Power Pro User ID requests found</p>
                                                 <p className="text-[11px] text-gray-400">
-                                                    Klik tombol &quot;Ajukan ID Power Pro&quot; di atas untuk mengajukan akses sistem hotel.
+                                                    Click the &quot;Request Power Pro ID&quot; button above to request hotel system access.
                                                 </p>
                                             </div>
                                         </td>
@@ -590,7 +590,7 @@ export default function PowerProIndex({
                                                     <div className="font-medium text-gray-800">{item.access_level}</div>
                                                     {Array.isArray(item.special_privileges) && item.special_privileges.length > 0 && (
                                                         <div className="text-[10px] text-amber-700 font-medium mt-0.5 truncate max-w-xs">
-                                                            Hak: {item.special_privileges.join(', ')}
+                                                            Privileges: {item.special_privileges.join(', ')}
                                                         </div>
                                                     )}
                                                 </td>
@@ -605,7 +605,7 @@ export default function PowerProIndex({
                                                         </span>
                                                     ) : (
                                                         <span className="text-gray-400 font-mono text-[11px]">
-                                                            {item.proposed_username ? `(Usul: ${item.proposed_username})` : 'Belum Terbit'}
+                                                            {item.proposed_username ? `(Proposed: ${item.proposed_username})` : 'Not Issued'}
                                                         </span>
                                                     )}
                                                 </td>
@@ -624,7 +624,7 @@ export default function PowerProIndex({
                                                                 setActiveItem(item);
                                                                 setIsDetailOpen(true);
                                                             }}
-                                                            title="Lihat Detail & Riwayat"
+                                                            title="View Details & History"
                                                             className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -638,7 +638,7 @@ export default function PowerProIndex({
                                                             href={route('power-pro.print', item.id)}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            title="Cetak Formulir SOP Resmi"
+                                                            title="Print Official SOP Form"
                                                             className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -655,7 +655,7 @@ export default function PowerProIndex({
                                                                 }}
                                                                 className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] transition-colors"
                                                             >
-                                                                Setujui HOD
+                                                                Approve (HOD)
                                                             </button>
                                                         )}
 
@@ -673,7 +673,7 @@ export default function PowerProIndex({
                                                                 }}
                                                                 className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-[11px] transition-colors"
                                                             >
-                                                                Proses IT
+                                                                Process (IT)
                                                             </button>
                                                         )}
 
@@ -684,20 +684,20 @@ export default function PowerProIndex({
                                                                     setActiveItem(item);
                                                                     setIsRejectOpen(true);
                                                                 }}
-                                                                title="Tolak Permohonan"
+                                                                title="Reject Request"
                                                                 className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                                </svg>
-                                                            </button>
-                                                        )}
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    )}
 
                                                         {/* Delete */}
                                                         {canDelete && (
                                                             <button
                                                                 onClick={() => handleDelete(item)}
-                                                                title="Hapus Pengajuan"
+                                                                title="Delete Request"
                                                                 className="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -719,7 +719,7 @@ export default function PowerProIndex({
                     {requests.last_page > 1 && (
                         <div className="py-3 px-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                             <div>
-                                Menampilkan halaman <span className="font-semibold text-gray-800">{requests.current_page}</span> dari <span className="font-semibold text-gray-800">{requests.last_page}</span> ({requests.total} data)
+                                Showing page <span className="font-semibold text-gray-800">{requests.current_page}</span> of <span className="font-semibold text-gray-800">{requests.last_page}</span> ({requests.total} results)
                             </div>
                             <div className="flex gap-1">
                                 {requests.links.map((link, idx) => (
@@ -743,7 +743,7 @@ export default function PowerProIndex({
                 </div>
             </div>
 
-            {/* =================== MODAL 1: AJUKAN USER ID POWER PRO =================== */}
+            {/* =================== MODAL 1: REQUEST POWER PRO USER ID =================== */}
             <Modal show={isCreateOpen} onClose={() => setIsCreateOpen(false)} maxWidth="3xl">
                 <form onSubmit={handleCreateSubmit} className="flex flex-col max-h-[90vh]">
                     {/* Sticky Header */}
@@ -756,7 +756,7 @@ export default function PowerProIndex({
                                 <span className="text-xs text-gray-500 font-medium">Power Pro PMS Access</span>
                             </div>
                             <h2 className="text-base sm:text-lg font-bold text-gray-900 mt-1">
-                                Formulir Permohonan User ID Power Pro
+                                Power Pro User ID Request Form
                             </h2>
                         </div>
                         <button
@@ -772,18 +772,18 @@ export default function PowerProIndex({
 
                     {/* Scrollable Body */}
                     <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 text-xs sm:text-sm">
-                        {/* SECTION 1: DATA KARYAWAN & PERMOHONAN */}
+                        {/* SECTION 1: EMPLOYEE & REQUEST INFORMATION */}
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
                                 <div className="w-2 h-2 rounded-full bg-red-600"></div>
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                    1. Informasi Karyawan & Permohonan
+                                    1. Employee & Request Information
                                 </h3>
                             </div>
 
-                            {/* Dropdown Karyawan */}
+                            {/* Dropdown Employee */}
                             <div>
-                                <InputLabel htmlFor="employee_id" value="Karyawan yang Memerlukan Akun *" />
+                                <InputLabel htmlFor="employee_id" value="Employee Requiring Account *" />
                                 <select
                                     id="employee_id"
                                     value={createForm.data.employee_id}
@@ -791,7 +791,7 @@ export default function PowerProIndex({
                                     className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 shadow-xs"
                                     required
                                 >
-                                    <option value="">-- Pilih Karyawan yang Diajukan --</option>
+                                    <option value="">-- Select Employee --</option>
                                     {employees.map((emp) => (
                                         <option key={emp.id} value={emp.id}>
                                             {emp.user?.name} ({emp.employee_number}) - {emp.department?.name} ({emp.position?.name || 'Staff'})
@@ -813,7 +813,7 @@ export default function PowerProIndex({
                                                 <p className="font-bold text-xs sm:text-sm text-gray-900 leading-tight">
                                                     {selectedEmployee.user?.name}
                                                     <span className="ml-2 font-mono text-[11px] font-normal text-gray-500">
-                                                        NIK: {selectedEmployee.employee_number}
+                                                        ID: {selectedEmployee.employee_number}
                                                     </span>
                                                 </p>
                                                 <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -835,9 +835,9 @@ export default function PowerProIndex({
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {/* Jenis Permohonan */}
+                                {/* Request Type */}
                                 <div>
-                                    <InputLabel htmlFor="request_type" value="Jenis Permohonan *" />
+                                    <InputLabel htmlFor="request_type" value="Request Type *" />
                                     <select
                                         id="request_type"
                                         value={createForm.data.request_type}
@@ -845,72 +845,72 @@ export default function PowerProIndex({
                                         className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                         required
                                     >
-                                        <option value="create_new">Pembuatan User ID Baru</option>
-                                        <option value="modify_access">Perubahan Hak Akses / Jabatan</option>
-                                        <option value="reset_password">Reset Password Akun</option>
-                                        <option value="deactivate">Penonaktifan Akun (Resign / Mutasi)</option>
+                                        <option value="create_new">New User ID Creation</option>
+                                        <option value="modify_access">Access Rights / Role Modification</option>
+                                        <option value="reset_password">Account Password Reset</option>
+                                        <option value="deactivate">Account Deactivation (Resign / Transfer)</option>
                                     </select>
                                 </div>
 
-                                {/* Status Kepegawaian */}
+                                {/* Employment Status */}
                                 <div>
-                                    <InputLabel htmlFor="employment_status" value="Status Kepegawaian" />
+                                    <InputLabel htmlFor="employment_status" value="Employment Status" />
                                     <select
                                         id="employment_status"
                                         value={createForm.data.employment_status}
                                         onChange={(e) => createForm.setData('employment_status', e.target.value)}
                                         className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                     >
-                                        <option value="Permanent">Permanent (Karyawan Tetap)</option>
+                                        <option value="Permanent">Permanent</option>
                                         <option value="Contract">Contract (PKWT)</option>
                                         <option value="Daily Worker">Daily Worker (DW)</option>
-                                        <option value="Trainee / OJT">Trainee / OJT (Magang)</option>
+                                        <option value="Trainee / OJT">Trainee / Intern (OJT)</option>
                                     </select>
                                 </div>
 
-                                {/* Role / Level Akses */}
+                                {/* Role / Access Level */}
                                 <div>
-                                    <InputLabel htmlFor="access_level" value="Level Akses / Jabatan di Sistem *" />
+                                    <InputLabel htmlFor="access_level" value="System Role / Access Level *" />
                                     <TextInput
                                         id="access_level"
                                         value={createForm.data.access_level}
                                         onChange={(e) => createForm.setData('access_level', e.target.value)}
-                                        placeholder="Contoh: Receptionist, Cashier, Supervisor, Night Audit"
+                                        placeholder="e.g. Receptionist, Cashier, Supervisor, Night Audit"
                                         className="mt-1 w-full text-xs sm:text-sm"
                                         required
                                     />
                                     <InputError message={createForm.errors.access_level} className="mt-1" />
                                 </div>
 
-                                {/* Usulan Username */}
+                                {/* Proposed Username */}
                                 <div>
-                                    <InputLabel htmlFor="proposed_username" value="Usulan User ID (Opsional)" />
+                                    <InputLabel htmlFor="proposed_username" value="Proposed User ID (Optional)" />
                                     <TextInput
                                         id="proposed_username"
                                         value={createForm.data.proposed_username}
                                         onChange={(e) => createForm.setData('proposed_username', e.target.value.toUpperCase())}
-                                        placeholder="Contoh: FO_RUDI, POS_SINTA"
+                                        placeholder="e.g. FO_RUDI, POS_SINTA"
                                         className="mt-1 w-full text-xs sm:text-sm uppercase font-mono tracking-wider"
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* SECTION 2: MODUL POWER PRO */}
+                        {/* SECTION 2: REQUIRED POWER PRO MODULES */}
                         <div className="space-y-3 pt-2 border-t border-gray-100">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-red-600"></div>
                                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                        2. Modul Power Pro yang Dibutuhkan <span className="text-red-500">*</span>
+                                        2. Required Power Pro Modules <span className="text-red-500">*</span>
                                     </h3>
                                 </div>
                                 <span className="text-[11px] font-semibold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
-                                    {createForm.data.power_pro_modules.length} modul dipilih
+                                    {createForm.data.power_pro_modules.length} modules selected
                                 </span>
                             </div>
                             <p className="text-[11px] text-gray-500">
-                                Centang modul sistem yang akan digunakan oleh karyawan bersangkutan dalam operasional harian.
+                                Check the system modules that will be used by the employee in daily operations.
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -947,23 +947,23 @@ export default function PowerProIndex({
                             <InputError message={createForm.errors.power_pro_modules} className="mt-1" />
                         </div>
 
-                        {/* SECTION 3: HAK AKSES KHUSUS / PRIVILEGES */}
+                        {/* SECTION 3: SPECIAL PRIVILEGES */}
                         <div className="space-y-3 pt-2 border-t border-gray-100">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                        3. Hak Akses Khusus / Privileges (Opsional)
+                                        3. Special Access Rights / Privileges (Optional)
                                     </h3>
                                 </div>
                                 {createForm.data.special_privileges.length > 0 && (
                                     <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                                        {createForm.data.special_privileges.length} privileges aktif
+                                        {createForm.data.special_privileges.length} privileges active
                                     </span>
                                 )}
                             </div>
                             <p className="text-[11px] text-gray-500">
-                                Centang hanya jika karyawan memerlukan otorisasi transaksi sensitif finansial / operasional hotel.
+                                Check only if the employee requires authorization for sensitive financial / hotel operational transactions.
                             </p>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
@@ -992,40 +992,40 @@ export default function PowerProIndex({
                             </div>
                         </div>
 
-                        {/* SECTION 4: ALASAN & TANDA TANGAN */}
+                        {/* SECTION 4: PURPOSE & SIGNATURE */}
                         <div className="space-y-4 pt-2 border-t border-gray-100">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-gray-500"></div>
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                    4. Keperluan & Tanda Tangan Pemohon
+                                    4. Purpose & Requester Signature
                                 </h3>
                             </div>
 
                             <div>
-                                <InputLabel htmlFor="reason" value="Keperluan / Alasan Pengajuan" />
+                                <InputLabel htmlFor="reason" value="Purpose / Justification" />
                                 <textarea
                                     id="reason"
                                     rows={2}
                                     value={createForm.data.reason}
                                     onChange={(e) => createForm.setData('reason', e.target.value)}
-                                    placeholder="Contoh: Karyawan baru posisi Receptionist Shift Pagi/Sore, memerlukan akses check-in dan kasir front office."
+                                    placeholder="e.g. New employee in Morning/Evening Shift Receptionist position, requires check-in access and front office cashier."
                                     className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                                 />
                             </div>
 
                             <div>
                                 <div className="flex items-center justify-between mb-1">
-                                    <InputLabel value="Tanda Tangan Pemohon *" />
-                                    <span className="text-[11px] text-gray-400">Konfirmasi Pengajuan</span>
+                                    <InputLabel value="Requester Signature *" />
+                                    <span className="text-[11px] text-gray-400">Request Confirmation</span>
                                 </div>
                                 <p className="text-[11px] text-gray-500 mb-1.5">
-                                    Bubuhkan tanda tangan digital Anda di bawah ini sebagai pengesahan formulir permohonan.
+                                    Draw your digital signature below to validate this request form.
                                 </p>
                                 <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2 shadow-xs">
                                     <SignaturePad
                                         value={createForm.data.requester_signature}
                                         onChange={(val) => createForm.setData('requester_signature', val || '')}
-                                        title="Tanda Tangan Pemohon"
+                                        title="Requester Signature"
                                         height={120}
                                     />
                                 </div>
@@ -1039,27 +1039,27 @@ export default function PowerProIndex({
                             <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
-                            <span>Diteruskan ke HOD terkait untuk verifikasi sebelum pembuatan akun oleh IT.</span>
+                            <span>Forwarded to the respective HOD for verification before account creation by IT.</span>
                         </div>
                         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                             <SecondaryButton onClick={() => setIsCreateOpen(false)}>
-                                Batal
+                                Cancel
                             </SecondaryButton>
                             <PrimaryButton disabled={createForm.processing} className="bg-red-600 hover:bg-red-700 shadow-sm shadow-red-200">
-                                {createForm.processing ? 'Mengirimkan...' : 'Kirim Pengajuan ke HOD & IT'}
+                                {createForm.processing ? 'Submitting...' : 'Submit Request to HOD & IT'}
                             </PrimaryButton>
                         </div>
                     </div>
                 </form>
             </Modal>
 
-            {/* =================== MODAL 2: PERSETUJUAN HOD =================== */}
+            {/* =================== MODAL 2: HOD APPROVAL =================== */}
             <Modal show={isApproveOpen} onClose={() => setIsApproveOpen(false)} maxWidth="lg">
                 <form onSubmit={handleApproveSubmit} className="flex flex-col max-h-[90vh]">
                     <div className="shrink-0 flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-white">
                         <div>
-                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">Otorisasi HOD</span>
-                            <h2 className="text-base font-bold text-gray-900">Persetujuan Head of Department</h2>
+                            <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider block">HOD Authorization</span>
+                            <h2 className="text-base font-bold text-gray-900">Head of Department Approval</h2>
                         </div>
                         <button
                             type="button"
@@ -1076,46 +1076,46 @@ export default function PowerProIndex({
                         {activeItem && (
                             <div className="bg-blue-50/60 p-3.5 rounded-xl border border-blue-100 space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">No. Permohonan:</span>
+                                    <span className="text-gray-500">Request No.:</span>
                                     <strong className="text-blue-900 font-mono">{activeItem.request_number}</strong>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Karyawan:</span>
+                                    <span className="text-gray-500">Employee:</span>
                                     <strong className="text-gray-800">{activeItem.employee?.user?.name} ({activeItem.department?.name})</strong>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Tipe Request:</span>
+                                    <span className="text-gray-500">Request Type:</span>
                                     <span className="font-semibold text-gray-700">{activeItem.request_type_label}</span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Modul Dibutuhkan:</span>
+                                    <span className="text-gray-500">Required Modules:</span>
                                     <span className="font-medium text-gray-700">{activeItem.power_pro_modules?.join(', ')}</span>
                                 </div>
                             </div>
                         )}
 
                         <div>
-                            <InputLabel htmlFor="approval_notes" value="Catatan Persetujuan HOD (Opsional)" />
+                            <InputLabel htmlFor="approval_notes" value="HOD Approval Notes (Optional)" />
                             <textarea
                                 id="approval_notes"
                                 rows={2}
                                 value={approveForm.data.approval_notes}
                                 onChange={(e) => approveForm.setData('approval_notes', e.target.value)}
-                                placeholder="Contoh: Disetujui, harap segera diterbitkan User ID untuk operasional minggu ini."
+                                placeholder="e.g. Approved, please issue User ID for operations this week."
                                 className="mt-1 w-full rounded-xl border border-gray-200 text-xs text-gray-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                             />
                         </div>
 
                         <div>
-                            <InputLabel value="Tanda Tangan Digital HOD *" />
+                            <InputLabel value="HOD Digital Signature *" />
                             <p className="text-[11px] text-gray-500 mb-1.5">
-                                Bubuhkan tanda tangan digital Anda sebagai bukti persetujuan kepala departemen.
+                                Draw your digital signature as proof of department head approval.
                             </p>
                             <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2">
                                 <SignaturePad
                                     value={approveForm.data.approver_signature}
                                     onChange={(val) => approveForm.setData('approver_signature', val || '')}
-                                    title="Tanda Tangan HOD"
+                                    title="HOD Signature"
                                     height={115}
                                 />
                             </div>
@@ -1124,22 +1124,22 @@ export default function PowerProIndex({
 
                     <div className="shrink-0 flex items-center justify-end gap-2.5 border-t border-gray-100 px-6 py-3.5 bg-gray-50/80">
                         <SecondaryButton onClick={() => setIsApproveOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton disabled={approveForm.processing}>
-                            {approveForm.processing ? 'Memproses...' : 'Setujui & Teruskan ke IT'}
+                            {approveForm.processing ? 'Processing...' : 'Approve & Forward to IT'}
                         </PrimaryButton>
                     </div>
                 </form>
             </Modal>
 
-            {/* =================== MODAL 3: PENYELESAIAN IT (GENERATE USER ID) =================== */}
+            {/* =================== MODAL 3: IT RESOLUTION (GENERATE USER ID) =================== */}
             <Modal show={isProcessOpen} onClose={() => setIsProcessOpen(false)} maxWidth="lg">
                 <form onSubmit={handleProcessSubmit} className="flex flex-col max-h-[90vh]">
                     <div className="shrink-0 flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-white">
                         <div>
                             <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider block">IT Execution</span>
-                            <h2 className="text-base font-bold text-gray-900">Penerbitan User ID Power Pro</h2>
+                            <h2 className="text-base font-bold text-gray-900">Power Pro User ID Issuance</h2>
                         </div>
                         <button
                             type="button"
@@ -1156,20 +1156,20 @@ export default function PowerProIndex({
                         {activeItem && (
                             <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-200 space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Pemohon / Karyawan:</span>
+                                    <span className="text-gray-500">Requester / Employee:</span>
                                     <strong className="text-gray-900">{activeItem.employee?.user?.name} ({activeItem.department?.name})</strong>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Modul Dibutuhkan:</span>
+                                    <span className="text-gray-500">Required Modules:</span>
                                     <strong className="text-red-700">{activeItem.power_pro_modules?.join(', ')}</strong>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Level Akses:</span>
+                                    <span className="text-gray-500">Access Level:</span>
                                     <span className="text-gray-700">{activeItem.access_level}</span>
                                 </div>
                                 {activeItem.proposed_username && (
                                     <div className="flex items-center justify-between">
-                                        <span className="text-gray-500">Usulan Username:</span>
+                                        <span className="text-gray-500">Proposed Username:</span>
                                         <code className="font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">
                                             {activeItem.proposed_username}
                                         </code>
@@ -1179,40 +1179,40 @@ export default function PowerProIndex({
                         )}
 
                         <div>
-                            <InputLabel htmlFor="created_user_id" value="User ID Power Pro Resmi yang Dibuat *" />
+                            <InputLabel htmlFor="created_user_id" value="Official Power Pro User ID Created *" />
                             <TextInput
                                 id="created_user_id"
                                 value={processForm.data.created_user_id}
                                 onChange={(e) => processForm.setData('created_user_id', e.target.value.toUpperCase())}
-                                placeholder="Contoh: FO_RUDI_01"
+                                placeholder="e.g. FO_RUDI_01"
                                 className="mt-1 w-full text-sm font-mono font-bold uppercase tracking-wider text-red-800"
                                 required
                             />
                             <InputError message={processForm.errors.created_user_id} className="mt-1" />
                             <p className="text-[11px] text-gray-500 mt-1">
-                                Masukkan User ID login yang telah Anda buatkan di server database Power Pro.
+                                Enter the login User ID that you created in the Power Pro database server.
                             </p>
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="it_notes" value="Catatan / Keterangan IT (Opsional)" />
+                            <InputLabel htmlFor="it_notes" value="IT Notes / Remarks (Optional)" />
                             <textarea
                                 id="it_notes"
                                 rows={2}
                                 value={processForm.data.it_notes}
                                 onChange={(e) => processForm.setData('it_notes', e.target.value)}
-                                placeholder="Contoh: Akun sudah aktif di Workstation Terminal FO 1 & 2. Password default telah diserahkan langsung."
+                                placeholder="e.g. Account is active on FO Workstation Terminals 1 & 2. Default password handed over in person."
                                 className="mt-1 w-full rounded-xl border border-gray-200 text-xs text-gray-800"
                             />
                         </div>
 
                         <div>
-                            <InputLabel value="Tanda Tangan Petugas IT *" />
+                            <InputLabel value="IT Officer Signature *" />
                             <div className="border border-gray-200 rounded-xl overflow-hidden bg-white p-2 mt-1">
                                 <SignaturePad
                                     value={processForm.data.it_signature}
                                     onChange={(val) => processForm.setData('it_signature', val || '')}
-                                    title="Tanda Tangan IT Officer"
+                                    title="IT Officer Signature"
                                     height={115}
                                 />
                             </div>
@@ -1221,16 +1221,16 @@ export default function PowerProIndex({
 
                     <div className="shrink-0 flex items-center justify-end gap-2.5 border-t border-gray-100 px-6 py-3.5 bg-gray-50/80">
                         <SecondaryButton onClick={() => setIsProcessOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton disabled={processForm.processing} className="bg-red-600 hover:bg-red-700">
-                            {processForm.processing ? 'Menyimpan...' : 'Selesaikan & Terbitkan ID'}
+                            {processForm.processing ? 'Saving...' : 'Complete & Issue ID'}
                         </PrimaryButton>
                     </div>
                 </form>
             </Modal>
 
-            {/* =================== MODAL 4: DETAIL LENGKAP & RIWAYAT =================== */}
+            {/* =================== MODAL 4: FULL DETAILS & HISTORY =================== */}
             <Modal show={isDetailOpen} onClose={() => setIsDetailOpen(false)} maxWidth="3xl">
                 {activeItem && (
                     <div className="flex flex-col max-h-[90vh]">
@@ -1256,7 +1256,7 @@ export default function PowerProIndex({
                                     <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                                     </svg>
-                                    Cetak SOP
+                                    Print SOP
                                 </a>
                                 <button
                                     onClick={() => setIsDetailOpen(false)}
@@ -1274,16 +1274,16 @@ export default function PowerProIndex({
                             {/* Detail Info Grid */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs bg-gray-50/70 p-4 rounded-xl border border-gray-100">
                                 <div className="space-y-1.5">
-                                    <span className="text-gray-400 block font-bold uppercase tracking-wider text-[10px]">Data Karyawan</span>
+                                    <span className="text-gray-400 block font-bold uppercase tracking-wider text-[10px]">Employee Details</span>
                                     <p className="font-bold text-gray-900 text-sm">{activeItem.employee?.user?.name}</p>
-                                    <p className="text-gray-600">NIK: <strong className="text-gray-800">{activeItem.employee?.employee_number}</strong></p>
-                                    <p className="text-gray-600">Departemen: <strong className="text-gray-800">{activeItem.department?.name}</strong></p>
-                                    <p className="text-gray-600">Status Kepegawaian: <strong className="text-gray-800">{activeItem.employment_status || 'Permanent'}</strong></p>
+                                    <p className="text-gray-600">ID: <strong className="text-gray-800">{activeItem.employee?.employee_number}</strong></p>
+                                    <p className="text-gray-600">Department: <strong className="text-gray-800">{activeItem.department?.name}</strong></p>
+                                    <p className="text-gray-600">Employment Status: <strong className="text-gray-800">{activeItem.employment_status || 'Permanent'}</strong></p>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <span className="text-gray-400 block font-bold uppercase tracking-wider text-[10px]">Akses Sistem Power Pro</span>
-                                    <p className="font-semibold text-gray-800">Level Akses: {activeItem.access_level}</p>
+                                    <span className="text-gray-400 block font-bold uppercase tracking-wider text-[10px]">Power Pro System Access</span>
+                                    <p className="font-semibold text-gray-800">Access Level: {activeItem.access_level}</p>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {activeItem.power_pro_modules?.map((m, i) => (
                                             <span key={i} className="px-2 py-0.5 rounded bg-red-50 text-red-700 text-[10px] font-semibold border border-red-200">
@@ -1293,7 +1293,7 @@ export default function PowerProIndex({
                                     </div>
                                     {activeItem.created_user_id && (
                                         <div className="mt-2">
-                                            <span className="text-[10px] uppercase font-bold text-emerald-600 block">User ID Resmi Terbit:</span>
+                                            <span className="text-[10px] uppercase font-bold text-emerald-600 block">Official User ID Issued:</span>
                                             <span className="text-emerald-800 font-mono font-bold bg-emerald-50 px-2 py-1 rounded border border-emerald-200 inline-block text-sm">
                                                 {activeItem.created_user_id}
                                             </span>
@@ -1305,7 +1305,7 @@ export default function PowerProIndex({
                             {activeItem.special_privileges && activeItem.special_privileges.length > 0 && (
                                 <div>
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
-                                        Hak Akses Khusus / Privileges Terotorisasi
+                                        Authorized Special Rights / Privileges
                                     </span>
                                     <div className="flex flex-wrap gap-1.5">
                                         {activeItem.special_privileges.map((p, i) => (
@@ -1319,39 +1319,39 @@ export default function PowerProIndex({
 
                             {activeItem.reason && (
                                 <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-xs">
-                                    <span className="font-semibold text-gray-700 block mb-0.5">Keperluan / Justifikasi:</span>
+                                    <span className="font-semibold text-gray-700 block mb-0.5">Purpose / Justification:</span>
                                     <p className="text-gray-600">{activeItem.reason}</p>
                                 </div>
                             )}
 
                             {activeItem.it_notes && (
                                 <div className="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-100 text-xs">
-                                    <span className="font-semibold text-emerald-800 block mb-0.5">Catatan Tim IT:</span>
+                                    <span className="font-semibold text-emerald-800 block mb-0.5">IT Team Notes:</span>
                                     <p className="text-emerald-700">{activeItem.it_notes}</p>
                                 </div>
                             )}
 
                             {activeItem.rejection_reason && (
                                 <div className="bg-rose-50 p-3.5 rounded-xl border border-rose-200 text-xs">
-                                    <span className="font-semibold text-rose-800 block mb-0.5">Alasan Penolakan:</span>
+                                    <span className="font-semibold text-rose-800 block mb-0.5">Rejection Reason:</span>
                                     <p className="text-rose-700">{activeItem.rejection_reason}</p>
                                 </div>
                             )}
 
-                            {/* Timeline & Tanda Tangan */}
+                            {/* Timeline & Signatures */}
                             <div className="border-t border-gray-100 pt-4">
                                 <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-                                    Lembar Otorisasi & Tanda Tangan
+                                    Authorization & Signature Sheet
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    {/* Pemohon */}
+                                    {/* Requester */}
                                     <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase block">1. Pemohon</span>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase block">1. Requester</span>
                                         <div className="h-16 my-1 flex items-center justify-center">
                                             {activeItem.requester_signature ? (
                                                 <img src={activeItem.requester_signature} alt="Sign" className="max-h-full object-contain" />
                                             ) : (
-                                                <span className="text-[10px] text-gray-300 italic">Belum TTD</span>
+                                                <span className="text-[10px] text-gray-300 italic">Not Signed</span>
                                             )}
                                         </div>
                                         <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.requested_by_username || activeItem.employee?.user?.name}</p>
@@ -1360,12 +1360,12 @@ export default function PowerProIndex({
 
                                     {/* HOD */}
                                     <div className="border border-gray-200 rounded-xl p-3 text-center bg-gray-50/50">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase block">2. HOD Terkait</span>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase block">2. Respective HOD</span>
                                         <div className="h-16 my-1 flex items-center justify-center">
                                             {activeItem.approver_signature ? (
                                                 <img src={activeItem.approver_signature} alt="Sign" className="max-h-full object-contain" />
                                             ) : (
-                                                <span className="text-[10px] text-gray-300 italic">Belum Disetujui</span>
+                                                <span className="text-[10px] text-gray-300 italic">Not Approved</span>
                                             )}
                                         </div>
                                         <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.approved_by_username || '-'}</p>
@@ -1379,7 +1379,7 @@ export default function PowerProIndex({
                                             {activeItem.it_signature ? (
                                                 <img src={activeItem.it_signature} alt="Sign" className="max-h-full object-contain" />
                                             ) : (
-                                                <span className="text-[10px] text-gray-300 italic">Belum Diproses</span>
+                                                <span className="text-[10px] text-gray-300 italic">Not Processed</span>
                                             )}
                                         </div>
                                         <p className="font-semibold text-gray-800 text-[11px] truncate">{activeItem.processed_by_username || '-'}</p>
@@ -1391,7 +1391,7 @@ export default function PowerProIndex({
 
                         <div className="shrink-0 flex justify-end border-t border-gray-100 px-6 py-3.5 bg-gray-50/80">
                             <SecondaryButton onClick={() => setIsDetailOpen(false)}>
-                                Tutup
+                                Close
                             </SecondaryButton>
                         </div>
                     </div>
@@ -1405,21 +1405,21 @@ export default function PowerProIndex({
                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
-                        <h2 className="text-base font-bold text-gray-900">Tolak Permohonan</h2>
+                        <h2 className="text-base font-bold text-gray-900">Reject Request</h2>
                     </div>
 
                     <p className="text-xs text-gray-600">
-                        Apakah Anda yakin ingin menolak permohonan <strong className="text-gray-800">{activeItem?.request_number}</strong>? Berikan alasan penolakan untuk pemohon.
+                        Are you sure you want to reject request <strong className="text-gray-800">{activeItem?.request_number}</strong>? Provide a rejection reason for the requester.
                     </p>
 
                     <div>
-                        <InputLabel htmlFor="rejection_reason" value="Alasan Penolakan *" />
+                        <InputLabel htmlFor="rejection_reason" value="Rejection Reason *" />
                         <textarea
                             id="rejection_reason"
                             rows={3}
                             value={rejectForm.data.rejection_reason}
                             onChange={(e) => rejectForm.setData('rejection_reason', e.target.value)}
-                            placeholder="Sebutkan alasan penolakan..."
+                            placeholder="State the reason for rejection..."
                             className="mt-1 w-full rounded-xl border border-gray-200 text-xs text-gray-800"
                             required
                         />
@@ -1428,10 +1428,10 @@ export default function PowerProIndex({
 
                     <div className="flex justify-end gap-2 pt-2">
                         <SecondaryButton onClick={() => setIsRejectOpen(false)}>
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <DangerButton disabled={rejectForm.processing}>
-                            {rejectForm.processing ? 'Menolak...' : 'Konfirmasi Tolak'}
+                            {rejectForm.processing ? 'Rejecting...' : 'Confirm Rejection'}
                         </DangerButton>
                     </div>
                 </form>

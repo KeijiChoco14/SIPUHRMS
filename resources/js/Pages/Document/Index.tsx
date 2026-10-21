@@ -40,8 +40,8 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
             header={
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 className="font-bold text-xl text-slate-900 tracking-tight">Manajemen Dokumen & SOP</h2>
-                        <p className="text-xs text-slate-500 mt-0.5">Arsip regulasi internal, standar operasional prosedur, dan formulir hotel.</p>
+                        <h2 className="font-bold text-xl text-slate-900 tracking-tight">Documents & SOP Management</h2>
+                        <p className="text-xs text-slate-500 mt-0.5">Archive of internal hotel regulations, standard operating procedures, and forms.</p>
                     </div>
                     {isHR && (
                         <PrimaryButton 
@@ -50,13 +50,13 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
                             <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            {showForm ? 'Tutup Form' : 'Unggah Dokumen'}
+                            {showForm ? 'Close Form' : 'Upload Document'}
                         </PrimaryButton>
                     )}
                 </div>
             }
         >
-            <Head title="Manajemen Dokumen" />
+            <Head title="Documents Management" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -72,37 +72,37 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
 
                     {showForm && (
                         <div className="bg-white p-6 rounded-2xl shadow-xs border border-slate-200">
-                            <h3 className="text-base font-semibold text-slate-900 mb-4">Unggah Dokumen Baru</h3>
+                            <h3 className="text-base font-semibold text-slate-900 mb-4">Upload New Document</h3>
                             <form onSubmit={submit}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Judul Dokumen</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Document Title</label>
                                         <input 
                                             type="text" 
                                             value={data.title} 
-                                            placeholder="Nama dokumen resmi..."
+                                            placeholder="Official document name..."
                                             onChange={e => setData('title', e.target.value)}
                                             className="w-full rounded-xl border-slate-300 shadow-xs text-sm text-slate-900 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2.5 px-3"
                                         />
                                         {errors.title && <p className="text-rose-500 text-xs mt-1">{errors.title}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Kategori / Tipe Dokumen</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Document Type / Category</label>
                                         <select 
                                             value={data.type} 
                                             onChange={e => setData('type', e.target.value)}
                                             className="w-full rounded-xl border-slate-300 shadow-xs text-sm text-slate-900 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2.5 px-3"
                                         >
-                                            <option value="General">General (Umum)</option>
-                                            <option value="SOP">SOP (Standar Operasional)</option>
-                                            <option value="Policy">Company Policy (Kebijakan Hotel)</option>
-                                            <option value="Form">Form / Template (Formulir)</option>
+                                            <option value="General">General</option>
+                                            <option value="SOP">SOP (Standard Operating Procedure)</option>
+                                            <option value="Policy">Company Policy</option>
+                                            <option value="Form">Form / Template</option>
                                         </select>
                                         {errors.type && <p className="text-rose-500 text-xs mt-1">{errors.type}</p>}
                                     </div>
                                 </div>
                                 <div className="mb-5">
-                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">Berkas (PDF, Word, Excel - Maks 10MB)</label>
+                                    <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">File (PDF, Word, Excel - Max 10MB)</label>
                                     <input 
                                         type="file" 
                                         onChange={e => setData('file', e.target.files ? e.target.files[0] : null)}
@@ -112,13 +112,13 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
                                 </div>
                                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                                     <SecondaryButton onClick={() => setShowForm(false)}>
-                                        Batal
+                                        Cancel
                                     </SecondaryButton>
                                     <PrimaryButton 
                                         type="submit" 
                                         disabled={processing}
                                     >
-                                        {processing ? 'Mengunggah...' : 'Unggah Sekarang'}
+                                        {processing ? 'Uploading...' : 'Upload Now'}
                                     </PrimaryButton>
                                 </div>
                             </form>
@@ -129,11 +129,11 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
                         <table className="min-w-full divide-y divide-slate-200">
                             <thead className="bg-slate-50/80">
                                 <tr>
-                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Judul Dokumen</th>
-                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Tipe</th>
-                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Pengunggah</th>
-                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Tanggal</th>
-                                    <th className="px-6 py-3.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Aksi</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Document Title</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Uploaded By</th>
+                                    <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                                    <th className="px-6 py-3.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-slate-100">
@@ -159,7 +159,7 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
                                                 {doc.uploader?.name || '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 tabular-nums">
-                                                {new Date(doc.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                {new Date(doc.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <a 
@@ -169,7 +169,7 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
                                                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                     </svg>
-                                                    Unduh
+                                                    Download
                                                 </a>
                                             </td>
                                         </tr>
@@ -182,8 +182,8 @@ export default function DocumentIndex({ documents, auth, flash }: any) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
-                                            <p className="text-sm font-medium text-slate-700">Belum ada dokumen yang tersedia</p>
-                                            <p className="text-xs text-slate-400 mt-1">Dokumen SOP dan formulir yang diunggah akan muncul di sini.</p>
+                                            <p className="text-sm font-medium text-slate-700">No documents available</p>
+                                            <p className="text-xs text-slate-400 mt-1">Uploaded SOP documents and hotel forms will appear here.</p>
                                         </td>
                                     </tr>
                                 )}
