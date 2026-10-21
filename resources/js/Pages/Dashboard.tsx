@@ -112,9 +112,9 @@ export default function Dashboard({
             description: 'Manage team tasks, kanban boards, and project tracking',
             category: 'Operations',
             action: () => router.get(route('dashboard'), { view: 'tasks' }),
-            gradient: 'from-blue-500 to-indigo-600',
+            gradient: 'from-[#E31B23] to-[#c4141b]',
             badge: launcherStats.activeTasks && launcherStats.activeTasks > 0 ? `${launcherStats.activeTasks} Tasks` : null,
-            badgeColor: 'bg-indigo-600',
+            badgeColor: 'bg-[#E31B23]',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,9 +144,9 @@ export default function Dashboard({
             description: 'Integrated HR Suite: Records, attendance, leave, overtime, payroll & KPI',
             category: 'Human Capital',
             action: () => router.get(route('dashboard'), { view: 'hr' }),
-            gradient: 'from-purple-600 via-indigo-600 to-indigo-700',
+            gradient: 'from-red-600 via-rose-600 to-red-700',
             badge: pendingHrCount > 0 ? `${pendingHrCount} Pending` : launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null,
-            badgeColor: pendingHrCount > 0 ? 'bg-amber-500' : 'bg-purple-600',
+            badgeColor: pendingHrCount > 0 ? 'bg-amber-500' : 'bg-[#E31B23]',
             visible: isAdmin,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -235,7 +235,7 @@ export default function Dashboard({
             description: 'Personal work stats, individual attendance, and account performance',
             category: 'Personal',
             action: () => router.get(route('dashboard'), { view: 'overview' }),
-            gradient: 'from-indigo-700 to-sky-700',
+            gradient: 'from-slate-700 to-slate-900',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -346,7 +346,7 @@ export default function Dashboard({
             description: 'Staff performance evaluation, EPI scoring, and performance analytics',
             category: 'Human Capital',
             href: route('performance.index'),
-            gradient: 'from-indigo-600 to-violet-700',
+            gradient: 'from-amber-600 to-amber-700',
             visible: canViewPerformance,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -374,7 +374,7 @@ export default function Dashboard({
             description: 'Interactive visual board for task progress',
             category: 'Operations',
             href: route('tasks.kanban'),
-            gradient: 'from-blue-600 to-indigo-600',
+            gradient: 'from-blue-600 to-sky-600',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -388,7 +388,7 @@ export default function Dashboard({
             description: 'Monthly schedule and deadline calendar for tasks',
             category: 'Operations',
             href: route('tasks.calendar'),
-            gradient: 'from-indigo-500 to-purple-600',
+            gradient: 'from-[#E31B23] to-[#c4141b]',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -501,33 +501,33 @@ export default function Dashboard({
 
                 <div className="space-y-6">
                     {/* Action Tabs Bar */}
-                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+                    <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm shadow-indigo-600/30">
+                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E31B23] text-white shadow-xs">
                                 Task Summary
                             </span>
                             <Link
                                 href={route('tasks.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
                             >
                                 My Tasks
                             </Link>
                             <Link
                                 href={route('tasks.kanban')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
                             >
                                 Kanban Board
                             </Link>
                             <Link
                                 href={route('tasks.calendar')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
                             >
                                 Task Calendar
                             </Link>
                             {canViewProjects && (
                                 <Link
                                     href={route('projects.index')}
-                                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
                                 >
                                     Projects ({projectProgress.length})
                                 </Link>
@@ -536,7 +536,7 @@ export default function Dashboard({
 
                         <Link
                             href={route('tasks.create')}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-600/20 transition-all"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] shadow-xs transition-all"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -547,40 +547,40 @@ export default function Dashboard({
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <span className="text-xs text-gray-500 font-medium">To Do (Queue)</span>
-                            <p className="text-2xl font-bold text-gray-900 mt-1">{tasksSummary.todo}</p>
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                            <span className="text-xs text-slate-500 font-medium">To Do (Queue)</span>
+                            <p className="text-2xl font-bold text-slate-900 mt-1">{tasksSummary.todo}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mt-2"></span>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <span className="text-xs text-gray-500 font-medium">In Progress</span>
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                            <span className="text-xs text-slate-500 font-medium">In Progress</span>
                             <p className="text-2xl font-bold text-amber-600 mt-1">{tasksSummary.in_progress}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-amber-500 mt-2"></span>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <span className="text-xs text-gray-500 font-medium">Awaiting Review</span>
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                            <span className="text-xs text-slate-500 font-medium">Awaiting Review</span>
                             <p className="text-2xl font-bold text-purple-600 mt-1">{tasksSummary.review}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-purple-500 mt-2"></span>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <span className="text-xs text-gray-500 font-medium">Completed</span>
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                            <span className="text-xs text-slate-500 font-medium">Completed</span>
                             <p className="text-2xl font-bold text-emerald-600 mt-1">{tasksSummary.done}</p>
                             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mt-2"></span>
                         </div>
-                        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm col-span-2 sm:col-span-1">
-                            <span className="text-xs text-gray-500 font-medium">Overdue</span>
-                            <p className="text-2xl font-bold text-red-600 mt-1">{tasksSummary.overdue}</p>
-                            <span className="inline-block w-2 h-2 rounded-full bg-red-500 mt-2"></span>
+                        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs col-span-2 sm:col-span-1">
+                            <span className="text-xs text-slate-500 font-medium">Overdue</span>
+                            <p className="text-2xl font-bold text-[#E31B23] mt-1">{tasksSummary.overdue}</p>
+                            <span className="inline-block w-2 h-2 rounded-full bg-[#E31B23] mt-2"></span>
                         </div>
                     </div>
 
                     {/* Upcoming Deadlines & Recent Activities */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Upcoming Deadlines */}
-                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-gray-900 text-sm">Upcoming Deadlines</h3>
-                                <Link href={route('tasks.index')} className="text-xs text-indigo-600 hover:underline">
+                                <h3 className="font-bold text-slate-900 text-sm">Upcoming Deadlines</h3>
+                                <Link href={route('tasks.index')} className="text-xs text-[#E31B23] font-semibold hover:underline">
                                     View All →
                                 </Link>
                             </div>
@@ -590,13 +590,13 @@ export default function Dashboard({
                                         <Link
                                             key={task.id}
                                             href={route('tasks.show', task.id)}
-                                            className="p-3 rounded-xl bg-gray-50 hover:bg-indigo-50/50 transition-colors flex items-center justify-between gap-3 group border border-gray-100"
+                                            className="p-3 rounded-xl bg-slate-50 hover:bg-red-50/50 transition-colors flex items-center justify-between gap-3 group border border-slate-100"
                                         >
                                             <div className="min-w-0">
-                                                <p className="text-xs font-bold text-gray-900 group-hover:text-indigo-600 truncate">
+                                                <p className="text-xs font-bold text-slate-900 group-hover:text-[#E31B23] truncate">
                                                     {task.title}
                                                 </p>
-                                                <span className="text-[10px] text-gray-500">
+                                                <span className="text-[10px] text-slate-500">
                                                     Status: {task.status} • Priority: {task.priority}
                                                 </span>
                                             </div>
@@ -607,21 +607,21 @@ export default function Dashboard({
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-xs text-gray-500 text-center py-6">No tasks with upcoming deadlines.</p>
+                                <p className="text-xs text-slate-500 text-center py-6">No tasks with upcoming deadlines.</p>
                             )}
                         </div>
 
                         {/* Recent Activities */}
-                        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                        <div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-gray-900 text-sm">Recent Activities</h3>
-                                <span className="text-xs text-gray-400">Task Logs</span>
+                                <h3 className="font-bold text-slate-900 text-sm">Recent Activities</h3>
+                                <span className="text-xs text-slate-400">Task Logs</span>
                             </div>
                             {recentActivities.length > 0 ? (
                                 <div className="space-y-3">
                                     {recentActivities.map((act: any) => (
                                         <div key={act.id} className="flex items-start gap-3 text-xs">
-                                            <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
+                                            <div className="w-2 h-2 rounded-full bg-[#E31B23] mt-1.5 shrink-0" />
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-gray-800 font-medium truncate">
                                                     {act.employee?.user?.name || 'User'} {act.activity_type} on{' '}
@@ -683,70 +683,70 @@ export default function Dashboard({
 
                 <div className="space-y-6">
                     {/* Action Tabs Bar */}
-                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+                    <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-4">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm shadow-purple-600/30">
-                                HR Summary
+                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E31B23] text-white shadow-xs">
+                                Ringkasan HR
                             </span>
                             {isAdmin && (
                                 <>
                                     <Link
                                         href={route('employees.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Employee Records
+                                        Data Karyawan
                                     </Link>
                                     <Link
                                         href={route('departments.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Departments & Divisions
+                                        Departemen & Divisi
                                     </Link>
                                     <Link
                                         href={route('attendance.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Attendance Logs
+                                        Log Kehadiran
                                     </Link>
                                     <Link
                                         href={route('schedules.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Schedules & Shifts
+                                        Jadwal & Shift
                                     </Link>
                                     <Link
                                         href={route('payroll.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                     >
-                                        Payroll & Salaries
+                                        Penggajian (Payroll)
                                     </Link>
                                 </>
                             )}
                             <Link
                                 href={route('leave.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                             >
-                                Leave Requests
+                                Pengajuan Cuti
                             </Link>
                             <Link
                                 href={route('overtime.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                             >
-                                Overtime (SPKL)
+                                Lembur (SPKL)
                             </Link>
                             {canViewPerformance && (
                                 <Link
                                     href={route('performance.index')}
-                                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                                 >
-                                    Reports & KPI
+                                    Laporan & KPI
                                 </Link>
                             )}
                             <Link
                                 href={route('directory.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-colors"
+                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
                             >
-                                Staff Directory
+                                Direktori Staf
                             </Link>
                         </div>
                     </div>
@@ -834,13 +834,13 @@ export default function Dashboard({
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={handleSearchKeyDown}
                             placeholder="Search modules or apps..."
-                            className="w-full pl-10 pr-10 sm:pr-16 py-2 text-xs sm:text-sm bg-gray-100/90 hover:bg-gray-100 focus:bg-white border border-gray-200 focus:border-indigo-500 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all text-gray-800 placeholder-gray-400"
+                            className="w-full pl-10 pr-10 sm:pr-16 py-2 text-xs sm:text-sm bg-slate-100/90 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-[#E31B23] rounded-full focus:outline-none focus:ring-2 focus:ring-[#E31B23]/20 transition-all text-slate-800 placeholder-slate-400"
                         />
                         {searchQuery ? (
                             <button
                                 type="button"
                                 onClick={() => setSearchQuery('')}
-                                className="absolute right-3 p-1 text-gray-400 hover:text-gray-600 rounded-full cursor-pointer"
+                                className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 rounded-full cursor-pointer"
                                 title="Clear search"
                             >
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -849,8 +849,8 @@ export default function Dashboard({
                             </button>
                         ) : (
                             <div className="absolute right-3 hidden sm:flex items-center gap-1 pointer-events-none">
-                                <kbd className="px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 rounded shadow-2xs">Ctrl</kbd>
-                                <kbd className="px-1 py-0.5 text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 rounded shadow-2xs">K</kbd>
+                                <kbd className="px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 bg-white border border-slate-200 rounded shadow-2xs">Ctrl</kbd>
+                                <kbd className="px-1 py-0.5 text-[10px] font-semibold text-slate-500 bg-white border border-slate-200 rounded shadow-2xs">K</kbd>
                             </div>
                         )}
                     </div>
@@ -862,14 +862,14 @@ export default function Dashboard({
             <div className="py-4 sm:py-10 space-y-6 sm:space-y-10">
                 {/* Greeting & Header Bar */}
                 <div className="text-center max-w-2xl mx-auto space-y-2 px-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 max-w-full">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-red-50 text-[#E31B23] border border-red-100 max-w-full">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
                         <span className="truncate">{getTodayDate()} • Swiss-Belinn SKA Pekanbaru</span>
                     </div>
-                    <h1 className="text-xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                    <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                         {getGreeting()}, {user.name} 👋
                     </h1>
-                    <p className="text-xs sm:text-sm text-gray-500">
+                    <p className="text-xs sm:text-sm text-slate-500">
                         Select an application module below to open your workspace
                     </p>
                 </div>
@@ -879,28 +879,28 @@ export default function Dashboard({
                     <div className="max-w-4xl mx-auto px-2 sm:px-0">
                         <Link
                             href={route('announcements.index')}
-                            className="block p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-100/80 hover:border-indigo-200 shadow-xs hover:shadow-sm transition-all group"
+                            className="block p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-red-50/80 via-orange-50/50 to-amber-50/50 border border-red-100/80 hover:border-red-200 shadow-xs hover:shadow-sm transition-all group"
                         >
                             <div className="flex items-center gap-3">
-                                <span className="p-2 rounded-xl bg-indigo-600 text-white shadow-sm shrink-0">
+                                <span className="p-2 rounded-xl bg-[#E31B23] text-white shadow-xs shrink-0">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
                                     </svg>
                                 </span>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100/60 px-2 py-0.5 rounded-md">
+                                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#E31B23] bg-red-100/70 px-2 py-0.5 rounded-md">
                                             Latest Announcement
                                         </span>
-                                        <span className="text-xs text-gray-500 truncate">
+                                        <span className="text-xs text-slate-500 truncate">
                                             {announcements[0]?.title}
                                         </span>
                                     </div>
-                                    <p className="text-xs text-gray-700 font-medium truncate mt-0.5">
+                                    <p className="text-xs text-slate-700 font-medium truncate mt-0.5">
                                         {announcements[0]?.content}
                                     </p>
                                 </div>
-                                <span className="text-xs text-indigo-600 font-semibold group-hover:translate-x-1 transition-transform shrink-0 hidden sm:inline">
+                                <span className="text-xs text-[#E31B23] font-semibold group-hover:translate-x-1 transition-transform shrink-0 hidden sm:inline">
                                     Open →
                                 </span>
                             </div>
@@ -911,9 +911,9 @@ export default function Dashboard({
                 {/* Quick Actions Bar (Aksi Cepat Rutin) */}
                 {!searchQuery && (
                     <div className="max-w-4xl mx-auto px-2 sm:px-0">
-                        <div className="bg-white/85 backdrop-blur-md border border-gray-200/80 shadow-xs rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2.5">
+                        <div className="bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-xs rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2.5">
                             <div className="flex items-center gap-1.5 px-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#E31B23]"></span>
                                 <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                                     Quick Shortcuts
                                 </span>
@@ -963,7 +963,7 @@ export default function Dashboard({
                                 </Link>
                                 <Link
                                     href={route('tasks.index')}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100/90 border border-indigo-200/60 transition-all hover:scale-102"
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-[#E31B23] bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
                                     title="Daftar tugas pekerjaan aktif"
                                 >
                                     <span>📋</span>
@@ -971,7 +971,7 @@ export default function Dashboard({
                                 </Link>
                                 <Link
                                     href={route('it.index', { tab: 'tickets' })}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-red-700 bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
+                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-red-700 bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
                                     title="Lapor kendala IT hotel atau pantau status tiket"
                                 >
                                     <span>🛠️</span>
@@ -990,13 +990,13 @@ export default function Dashboard({
                 {/* APP LAUNCHER GRID (Frappe Desk style) */}
                 <div className="max-w-4xl mx-auto px-2 sm:px-0">
                     {searchQuery && (
-                        <div className="mb-4 flex items-center justify-between text-xs text-gray-500">
+                        <div className="mb-4 flex items-center justify-between text-xs text-slate-500">
                             <span>
-                                Showing {filteredApps.length} results for "<strong className="text-gray-800">{searchQuery}</strong>"
+                                Showing {filteredApps.length} results for "<strong className="text-slate-800">{searchQuery}</strong>"
                             </span>
                             <button
                                 onClick={() => setSearchQuery('')}
-                                className="text-indigo-600 hover:underline font-semibold"
+                                className="text-[#E31B23] hover:underline font-semibold"
                             >
                                 Clear search
                             </button>
@@ -1010,7 +1010,7 @@ export default function Dashboard({
                                         {/* Squircle App Icon */}
                                         <div className="relative">
                                             <div
-                                                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-[22px] bg-gradient-to-br ${app.gradient} flex items-center justify-center shadow-md shadow-gray-200/80 group-hover:shadow-xl group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 ease-out`}
+                                                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-[22px] bg-gradient-to-br ${app.gradient} flex items-center justify-center shadow-md shadow-slate-200/80 group-hover:shadow-xl group-hover:scale-105 group-hover:-translate-y-1 transition-all duration-300 ease-out`}
                                             >
                                                 {app.icon}
                                             </div>
@@ -1024,7 +1024,7 @@ export default function Dashboard({
                                         </div>
 
                                         {/* App Title */}
-                                        <span className="mt-2.5 sm:mt-3 text-xs sm:text-[13px] font-semibold text-gray-700 group-hover:text-indigo-600 text-center tracking-tight transition-colors line-clamp-2 max-w-[130px] sm:max-w-[120px] leading-snug">
+                                        <span className="mt-2.5 sm:mt-3 text-xs sm:text-[13px] font-semibold text-slate-700 group-hover:text-[#E31B23] text-center tracking-tight transition-colors line-clamp-2 max-w-[130px] sm:max-w-[120px] leading-snug">
                                             {app.name}
                                         </span>
                                     </div>

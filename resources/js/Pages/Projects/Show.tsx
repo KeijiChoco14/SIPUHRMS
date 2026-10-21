@@ -220,69 +220,69 @@ export default function Show({
                                                 router.post(route('projects.restore', project.id));
                                             }
                                         }}
-                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                                        title="Restore Project to Active Status"
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl shadow-xs transition-colors"
+                                        title="Pulihkan Proyek ke Status Aktif"
                                     >
-                                        <svg className="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
-                                        Restore Project
+                                        Pulihkan Proyek
                                     </button>
                                 ) : (
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            if (confirm('Archive this project? Archived projects will be hidden from the active list to prevent clutter.')) {
+                                            if (confirm('Arsipkan proyek ini?')) {
                                                 router.post(route('projects.archive', project.id));
                                             }
                                         }}
-                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                                        title="Archive Project"
+                                        className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-sm font-semibold rounded-xl shadow-xs transition-colors"
+                                        title="Arsipkan Proyek"
                                     >
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                         </svg>
-                                        Archive
+                                        Arsipkan
                                     </button>
                                 )}
 
                                 <button
                                     type="button"
                                     onClick={() => setShowEditProjectModal(true)}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-700 text-sm font-semibold rounded-xl shadow-xs transition-colors"
                                 >
-                                    <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
-                                    Edit Project
+                                    Edit Proyek
                                 </button>
 
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        if (confirm(`Are you sure you want to delete project "${project.name}"? All tasks inside it will be permanently deleted.`)) {
+                                        if (confirm(`Apakah Anda yakin ingin menghapus proyek "${project.name}"?`)) {
                                             router.delete(route('projects.destroy', project.id));
                                         }
                                     }}
-                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-red-200 hover:bg-red-50 text-red-600 hover:text-red-700 text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                                    title="Permanently Delete Project"
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 hover:text-rose-700 text-sm font-semibold rounded-xl shadow-xs transition-colors"
+                                    title="Hapus Proyek Permanen"
                                 >
-                                    <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
-                                    Delete Project
+                                    Hapus
                                 </button>
                             </>
                         )}
                         <button
                             type="button"
                             onClick={() => setShowTaskModal(true)}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg text-sm shadow-sm transition-colors"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white font-semibold rounded-xl text-sm shadow-xs hover:shadow transition-all duration-150"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            Add Task
+                            Tambah Tugas
                         </button>
                     </div>
                 </div>
@@ -353,23 +353,23 @@ export default function Show({
                                         <span className="font-medium text-gray-500">Progress Task</span>
                                         <span className={`font-bold ${isCompleted ? 'text-emerald-600' : 'text-gray-800'}`}>{progressPercent}%</span>
                                     </div>
-                                    <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
                                         <div
-                                            className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+                                            className={`h-full rounded-full transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-[#E31B23]'}`}
                                             style={{ width: `${progressPercent}%` }}
                                         />
                                     </div>
-                                    <div className="flex justify-between items-center text-[10px] text-gray-400 mt-1">
+                                    <div className="flex justify-between items-center text-[10px] text-slate-400 mt-1">
                                         <span>{completedTasks} of {totalTasks} {totalTasks === 1 ? 'task' : 'tasks'} completed</span>
                                     </div>
                                 </div>
 
-                                <div className="text-xs text-gray-500 flex items-center gap-3">
+                                <div className="text-xs text-slate-500 flex items-center gap-3">
                                     {project.start_date && (
                                         <span>Start: {new Date(project.start_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                                     )}
                                     {project.deadline && (
-                                        <span className={`font-medium flex items-center gap-1 ${isOverdue ? 'text-red-600 font-bold' : isCompleted ? 'text-emerald-600 font-semibold' : 'text-gray-600'}`}>
+                                        <span className={`font-medium flex items-center gap-1 ${isOverdue ? 'text-rose-600 font-bold' : isCompleted ? 'text-emerald-600 font-semibold' : 'text-slate-600'}`}>
                                             Deadline: {new Date(project.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             {isOverdue && ' (Overdue)'}
                                             {isCompleted && ' (Completed)'}
@@ -389,8 +389,8 @@ export default function Show({
                             return (
                                 <div 
                                     key={status} 
-                                    className={`flex-shrink-0 w-80 bg-gray-100/80 rounded-xl p-4 flex flex-col max-h-[75vh] border transition-all ${
-                                        isColumnDraggedOver ? 'border-indigo-400 bg-indigo-50/50 ring-2 ring-indigo-400/40' : 'border-gray-200/60'
+                                    className={`flex-shrink-0 w-80 bg-slate-100/80 rounded-2xl p-4 flex flex-col max-h-[75vh] border transition-all ${
+                                        isColumnDraggedOver ? 'border-red-400 bg-red-50/50 ring-2 ring-red-400/40' : 'border-slate-200'
                                     }`}
                                     onDragOver={(e) => {
                                         e.preventDefault();
@@ -423,9 +423,9 @@ export default function Show({
                                     }}
                                 >
                                     <div className="flex items-center justify-between mb-3 px-1">
-                                        <h3 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                                        <h3 className="font-bold text-sm text-slate-800 flex items-center gap-2">
                                             <span>{status}</span>
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-white text-gray-600 border border-gray-200 font-semibold">
+                                            <span className="text-xs px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 font-semibold">
                                                 {columnTasks.length}
                                             </span>
                                         </h3>
@@ -434,8 +434,8 @@ export default function Show({
                                     <div className="flex-1 overflow-y-auto space-y-3 pr-1 min-h-[140px]">
                                         {/* Drop placeholder preview */}
                                         {isColumnDraggedOver && (
-                                            <div className="border-2 border-dashed border-indigo-400 bg-indigo-100/70 rounded-xl p-3 text-center text-xs font-semibold text-indigo-700 flex items-center justify-center gap-2 shadow-sm animate-pulse">
-                                                <svg className="w-4 h-4 text-indigo-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <div className="border-2 border-dashed border-red-400 bg-red-100/70 rounded-xl p-3 text-center text-xs font-semibold text-red-700 flex items-center justify-center gap-2 shadow-xs animate-pulse">
+                                                <svg className="w-4 h-4 text-[#E31B23] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                                 </svg>
                                                 <span>Drop into {status}</span>
@@ -469,21 +469,21 @@ export default function Show({
                                                             setSelectedTask(task);
                                                         }
                                                     }}
-                                                    className={`group bg-white p-4 rounded-xl shadow-sm border transition-all duration-200 ${
+                                                    className={`group bg-white p-4 rounded-xl shadow-xs border transition-all duration-200 ${
                                                         canDrag ? 'cursor-grab active:cursor-grabbing select-none' : 'cursor-pointer'
                                                     } ${
                                                         isBeingDragged
-                                                            ? 'opacity-30 scale-95 border-dashed border-2 border-indigo-400 bg-indigo-50/50 rotate-1 shadow-inner'
-                                                            : 'border-gray-200/80 hover:shadow-md hover:border-indigo-300'
+                                                            ? 'opacity-30 scale-95 border-dashed border-2 border-red-400 bg-red-50/50 rotate-1 shadow-inner'
+                                                            : 'border-slate-200 hover:shadow-md hover:border-red-300'
                                                     }`}
                                                 >
                                                     <div className="flex justify-between items-start mb-2 gap-2">
-                                                        <h4 className="font-semibold text-gray-900 text-sm leading-snug group-hover:text-indigo-600 transition-colors">
+                                                        <h4 className="font-semibold text-slate-900 text-sm leading-snug group-hover:text-[#E31B23] transition-colors">
                                                             {task.title}
                                                         </h4>
                                                         {canDrag && (
                                                             <span 
-                                                                className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
+                                                                className="text-slate-300 group-hover:text-slate-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
                                                                 title="Drag and drop task card"
                                                             >
                                                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -494,7 +494,7 @@ export default function Show({
                                                     </div>
 
                                                     {task.description && (
-                                                        <p className="text-xs text-gray-500 line-clamp-2 mb-3">
+                                                        <p className="text-xs text-slate-500 line-clamp-2 mb-3">
                                                             {task.description}
                                                         </p>
                                                     )}
@@ -503,7 +503,7 @@ export default function Show({
                                                     {task.assignees?.length > 0 && (
                                                         <div className="flex flex-wrap gap-1 mb-3">
                                                             {task.assignees.map((a: any) => (
-                                                                <span key={a.id} className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full font-medium border border-indigo-100">
+                                                                <span key={a.id} className="text-[10px] px-2 py-0.5 bg-red-50 text-[#E31B23] rounded-full font-medium border border-red-100">
                                                                     {a.user?.name || a.employee_number}
                                                                 </span>
                                                             ))}
@@ -511,7 +511,7 @@ export default function Show({
                                                     )}
 
                                                     <div 
-                                                        className="flex justify-between items-center pt-2 border-t border-gray-50 mt-2" 
+                                                        className="flex justify-between items-center pt-2 border-t border-slate-100 mt-2" 
                                                         onClick={(e) => e.stopPropagation()}
                                                         onMouseDown={(e) => e.stopPropagation()}
                                                     >
@@ -519,14 +519,14 @@ export default function Show({
                                                             ${task.priority === 'Urgent' ? 'bg-red-50 text-red-700 border-red-200' : ''}
                                                             ${task.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' : ''}
                                                             ${task.priority === 'Normal' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                                                            ${task.priority === 'Low' ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                                                            ${task.priority === 'Low' ? 'bg-slate-50 text-slate-700 border-slate-200' : ''}
                                                         `}>
                                                             {task.priority}
                                                         </span>
 
                                                         {canEditTaskStatus(task) ? (
                                                             <select
-                                                                className={`text-[10px] font-semibold border rounded-md py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-indigo-500`}
+                                                                className={`text-[10px] font-semibold border rounded-md py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]`}
                                                                 value={task.status}
                                                                 onChange={(e) => updateTaskStatus(task.id, e.target.value)}
                                                                 onClick={(e) => e.stopPropagation()}
@@ -599,36 +599,36 @@ export default function Show({
 
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Task Title <span className="text-red-500">*</span></label>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1">Task Title <span className="text-[#E31B23]">*</span></label>
                                             <input
                                                 type="text"
                                                 value={data.title}
                                                 onChange={(e) => setData('title', e.target.value)}
-                                                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                className="block w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                                 placeholder="Task title..."
                                                 required
                                             />
-                                            {errors.title && <div className="text-red-500 text-xs mt-1">{errors.title}</div>}
+                                            {errors.title && <div className="text-rose-600 text-xs mt-1 font-medium">{errors.title}</div>}
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1">Description</label>
                                             <textarea
                                                 value={data.description}
                                                 onChange={(e) => setData('description', e.target.value)}
                                                 rows={3}
-                                                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                className="block w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                                 placeholder="Task details..."
                                             ></textarea>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Priority</label>
+                                                <label className="block text-sm font-semibold text-slate-700 mb-1">Priority</label>
                                                 <select
                                                     value={data.priority}
                                                     onChange={(e) => setData('priority', e.target.value)}
-                                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                    className="block w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                                 >
                                                     {priorities.map((p) => {
                                                         const val = typeof p === 'string' ? p : p.value;
@@ -638,11 +638,11 @@ export default function Show({
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-1">Status</label>
+                                                <label className="block text-sm font-semibold text-slate-700 mb-1">Status</label>
                                                 <select
                                                     value={data.status}
                                                     onChange={(e) => setData('status', e.target.value)}
-                                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                    className="block w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                                 >
                                                     {kanbanColumns.map((s) => (
                                                         <option key={s} value={s}>{s}</option>
@@ -652,17 +652,17 @@ export default function Show({
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Deadline</label>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1">Deadline</label>
                                             <input
                                                 type="date"
                                                 value={data.deadline}
                                                 onChange={(e) => setData('deadline', e.target.value)}
-                                                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                className="block w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                             />
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-1">Assignees</label>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1">Assignees</label>
                                             <AssigneeSelect
                                                 employees={employees}
                                                 selectedIds={data.assignees}
@@ -671,18 +671,18 @@ export default function Show({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="bg-gray-50 px-6 py-4 sm:flex sm:flex-row-reverse gap-2 border-t border-gray-100">
+                                <div className="bg-slate-50 px-6 py-4 sm:flex sm:flex-row-reverse gap-2 border-t border-slate-100 rounded-b-2xl">
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="w-full sm:w-auto inline-flex justify-center rounded-lg shadow-sm px-5 py-2 bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                                        className="w-full sm:w-auto inline-flex justify-center rounded-xl shadow-xs px-5 py-2.5 bg-[#E31B23] text-sm font-semibold text-white hover:bg-[#c4141b] active:bg-[#a30f15] transition-colors disabled:opacity-50"
                                     >
                                         Save Task
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setShowTaskModal(false)}
-                                        className="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                                        className="mt-2 sm:mt-0 w-full sm:w-auto inline-flex justify-center rounded-xl border border-slate-300 shadow-xs px-4 py-2.5 bg-white text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                                     >
                                         Cancel
                                     </button>

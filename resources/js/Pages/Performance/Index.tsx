@@ -7,6 +7,7 @@ import TextInput from '@/Components/TextInput';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import Badge from '@/Components/Badge';
 
 interface Period {
     id: number;
@@ -128,9 +129,20 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
         });
     };
 
+    const getCategoryVariant = (category: string) => {
+        switch (category) {
+            case 'Excellent': return 'success';
+            case 'Very Good': return 'info';
+            case 'Good': return 'brand';
+            case 'Needs Improvement': return 'warning';
+            case 'Evaluation Required': return 'danger';
+            default: return 'neutral';
+        }
+    };
+
     return (
         <AuthenticatedLayout
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Employee Performance (EPI)</h2>}
+            header={<h2 className="font-semibold text-xl text-slate-800 leading-tight">Employee Performance (EPI)</h2>}
         >
             <Head title="Employee Performance" />
 
@@ -139,7 +151,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
 
                     {/* Flash Notifications */}
                     {flash?.success && (
-                        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl flex items-center justify-between shadow-sm">
+                        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl flex items-center justify-between shadow-xs">
                             <div className="flex items-center gap-3">
                                 <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -150,7 +162,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                     )}
 
                     {flash?.error && (
-                        <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl flex items-center justify-between shadow-sm">
+                        <div className="bg-rose-50 border border-rose-200 text-rose-800 px-4 py-3 rounded-xl flex items-center justify-between shadow-xs">
                             <div className="flex items-center gap-3">
                                 <svg className="w-5 h-5 text-rose-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -161,18 +173,18 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                     )}
 
                     {/* Main Card */}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 p-6 sm:p-8">
+                    <div className="bg-white overflow-hidden shadow-xs rounded-2xl border border-slate-200 p-6 sm:p-8">
                         
                         {/* Control Bar */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
                             <div className="flex flex-wrap items-center gap-3">
-                                <label htmlFor="period_select" className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+                                <label htmlFor="period_select" className="text-sm font-semibold text-slate-700 whitespace-nowrap">
                                     Select Period:
                                 </label>
                                 
                                 <select 
                                     id="period_select"
-                                    className="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm min-w-[220px] w-64 text-sm font-medium text-gray-800 py-2 px-3 bg-white"
+                                    className="border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] rounded-xl shadow-xs min-w-[220px] w-64 text-sm font-medium text-slate-800 py-2 px-3 bg-white"
                                     value={selectedPeriodId || ''}
                                     onChange={handlePeriodChange}
                                 >
@@ -188,24 +200,24 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                 </select>
 
                                 {/* Add Period Button */}
-                                <button
+                                <SecondaryButton
                                     type="button"
                                     onClick={() => setShowCreateModal(true)}
-                                    className="inline-flex items-center gap-1.5 px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                    className="gap-1.5"
                                     title="Add New Evaluation Period"
                                 >
-                                    <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                     </svg>
                                     <span>New Period</span>
-                                </button>
+                                </SecondaryButton>
 
                                 {/* Delete Period Button */}
                                 {selectedPeriod && periods.length > 0 && (
                                     <button
                                         type="button"
                                         onClick={handleDeletePeriod}
-                                        className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                                        className="p-2 text-slate-400 hover:text-red-600 rounded-xl hover:bg-red-50 transition-colors"
                                         title={`Delete period "${selectedPeriod.name}"`}
                                     >
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -217,10 +229,10 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
 
                             {/* Calculate EPI Button */}
                             <div className="flex items-center gap-3">
-                                <button 
+                                <PrimaryButton 
                                     onClick={handleCalculate}
                                     disabled={!selectedPeriodId || isCalculating}
-                                    className="inline-flex items-center justify-center gap-2 bg-[#E31B23] hover:bg-[#b91c1c] active:bg-[#991b1b] text-white font-semibold py-2.5 px-5 rounded-lg shadow-sm hover:shadow transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="gap-2"
                                 >
                                     {isCalculating ? (
                                         <>
@@ -238,67 +250,61 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                             Calculate EPI
                                         </>
                                     )}
-                                </button>
+                                </PrimaryButton>
                             </div>
                         </div>
 
                         {/* Scores Table or Empty State */}
                         {scores && scores.length > 0 ? (
-                            <div className="overflow-x-auto mt-6">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
+                            <div className="overflow-x-auto mt-6 rounded-xl border border-slate-200">
+                                <table className="min-w-full divide-y divide-slate-200">
+                                    <thead className="bg-slate-50">
                                         <tr>
-                                            <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Employee</th>
-                                            <th className="px-6 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</th>
-                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Tasks Done</th>
-                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">On-Time</th>
-                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Final EPI</th>
-                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                                            <th className="px-6 py-3.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Action</th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Employee</th>
+                                            <th className="px-6 py-3.5 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">Department</th>
+                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Tasks Done</th>
+                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">On-Time</th>
+                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Final EPI</th>
+                                            <th className="px-6 py-3.5 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">Category</th>
+                                            <th className="px-6 py-3.5 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-100">
+                                    <tbody className="bg-white divide-y divide-slate-100">
                                         {scores.map((score) => (
-                                            <tr key={score.id} className="hover:bg-gray-50/70 transition-colors">
+                                            <tr key={score.id} className="hover:bg-slate-50/70 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm font-semibold text-gray-900">{score.employee?.user?.name || 'N/A'}</div>
-                                                    <div className="text-xs text-gray-400">{score.employee?.user?.email || ''}</div>
+                                                    <div className="text-sm font-semibold text-slate-900">{score.employee?.user?.name || 'N/A'}</div>
+                                                    <div className="text-xs text-slate-400">{score.employee?.user?.email || ''}</div>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                                                     {score.employee?.department?.name || 'N/A'}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-medium text-gray-700">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-center font-medium text-slate-700 tabular-nums">
                                                     <span className="text-emerald-600 font-semibold">{score.completed_tasks}</span>
-                                                    <span className="text-gray-400"> / </span>
+                                                    <span className="text-slate-400"> / </span>
                                                     <span>{score.assigned_tasks}</span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-700 font-medium">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-slate-700 font-medium tabular-nums">
                                                     {score.on_time_rate}%
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                    <span className="text-base font-bold text-gray-900">{score.final_epi}</span>
+                                                    <span className="text-base font-bold text-slate-900 tabular-nums">{score.final_epi}</span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                    <span className={`px-2.5 py-1 inline-flex text-xs leading-4 font-semibold rounded-full 
-                                                        ${score.category === 'Excellent' ? 'bg-emerald-100 text-emerald-800' : ''}
-                                                        ${score.category === 'Very Good' ? 'bg-blue-100 text-blue-800' : ''}
-                                                        ${score.category === 'Good' ? 'bg-amber-100 text-amber-800' : ''}
-                                                        ${score.category === 'Needs Improvement' ? 'bg-orange-100 text-orange-800' : ''}
-                                                        ${score.category === 'Evaluation Required' ? 'bg-rose-100 text-rose-800' : ''}
-                                                    `}>
+                                                    <Badge variant={getCategoryVariant(score.category)} dot>
                                                         {score.category}
-                                                    </span>
+                                                    </Badge>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                                                     <Link 
                                                         href={route('performance.show', [score.employee_id, score.performance_period_id])} 
-                                                        className="text-indigo-600 hover:text-indigo-900 font-semibold mr-4 inline-flex items-center gap-1"
+                                                        className="inline-flex items-center text-xs font-semibold text-[#E31B23] hover:text-[#c4141b] bg-red-50 hover:bg-red-100/80 px-2.5 py-1.5 rounded-lg transition-colors"
                                                     >
                                                         Detail
                                                     </Link>
                                                     <Link 
                                                         href={route('performance.assess', [score.employee_id, score.performance_period_id])} 
-                                                        className="text-emerald-600 hover:text-emerald-900 font-semibold inline-flex items-center gap-1"
+                                                        className="inline-flex items-center text-xs font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg transition-colors"
                                                     >
                                                         Assess
                                                     </Link>
@@ -310,33 +316,33 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                             </div>
                         ) : (
                             <div className="text-center py-16 px-4">
-                                <div className="w-16 h-16 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-base font-semibold text-gray-900 mb-1">
+                                <h3 className="text-base font-semibold text-slate-900 mb-1">
                                     {selectedPeriod 
                                         ? `No performance records found for "${selectedPeriod.name}"`
                                         : 'No period selected'}
                                 </h3>
-                                <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
+                                <p className="text-sm text-slate-500 max-w-md mx-auto mb-6">
                                     {selectedPeriod 
                                         ? 'Click "Calculate EPI" to generate performance metrics, task completion rates, and EPI rankings for all active employees.'
                                         : 'Please select or create a performance evaluation period to begin.'}
                                 </p>
                                 {selectedPeriod && (
-                                    <button
+                                    <PrimaryButton
                                         onClick={handleCalculate}
                                         disabled={isCalculating}
-                                        className="inline-flex items-center gap-2 bg-[#E31B23] hover:bg-[#b91c1c] text-white font-semibold py-2.5 px-6 rounded-lg text-sm shadow-sm transition-all"
+                                        className="gap-2"
                                     >
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        Calculate EPI for {selectedPeriod.name}
-                                    </button>
+                                        <span>Calculate EPI for {selectedPeriod.name}</span>
+                                    </PrimaryButton>
                                 )}
                             </div>
                         )}
@@ -364,14 +370,14 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                     </div>
 
                     {/* Mode Tabs */}
-                    <div className="flex border-b border-gray-200 mb-5">
+                    <div className="flex border-b border-slate-200 mb-5">
                         <button
                             type="button"
                             onClick={() => setCreateMode('monthly')}
                             className={`py-2 px-4 text-sm font-semibold border-b-2 transition-colors ${
                                 createMode === 'monthly'
-                                    ? 'border-indigo-600 text-indigo-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'border-[#E31B23] text-[#E31B23]'
+                                    : 'border-transparent text-slate-500 hover:text-slate-700'
                             }`}
                         >
                             Monthly (Quick)
@@ -381,8 +387,8 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                             onClick={() => setCreateMode('custom')}
                             className={`py-2 px-4 text-sm font-semibold border-b-2 transition-colors ${
                                 createMode === 'custom'
-                                    ? 'border-indigo-600 text-indigo-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'border-[#E31B23] text-[#E31B23]'
+                                    : 'border-transparent text-slate-500 hover:text-slate-700'
                             }`}
                         >
                             Custom Range
@@ -395,7 +401,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                 <InputLabel htmlFor="modal_month" value="Month" />
                                 <select
                                     id="modal_month"
-                                    className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm"
+                                    className="mt-1 block w-full border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] rounded-xl shadow-xs text-sm"
                                     value={selectedMonth}
                                     onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
                                 >
@@ -411,7 +417,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                 <InputLabel htmlFor="modal_year" value="Year" />
                                 <select
                                     id="modal_year"
-                                    className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm"
+                                    className="mt-1 block w-full border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] rounded-xl shadow-xs text-sm"
                                     value={selectedYear}
                                     onChange={(e) => setSelectedYear(parseInt(e.target.value))}
                                 >
@@ -423,14 +429,14 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                 </select>
                             </div>
 
-                            <div className="bg-gray-50 rounded-lg p-3 text-xs text-gray-600">
+                            <div className="bg-slate-50 rounded-xl p-3 text-xs text-slate-600 border border-slate-100">
                                 <div><strong>Name Preview:</strong> {MONTH_NAMES[selectedMonth - 1]} {selectedYear}</div>
                                 <div className="mt-1">
                                     <strong>Date Range:</strong> 1 {MONTH_NAMES[selectedMonth - 1]} {selectedYear} to end of month
                                 </div>
                             </div>
 
-                            <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-gray-100">
+                            <div className="mt-6 flex justify-end gap-3 pt-3 border-t border-slate-100">
                                 <SecondaryButton type="button" onClick={() => setShowCreateModal(false)}>
                                     Cancel
                                 </SecondaryButton>
@@ -459,7 +465,7 @@ export default function PerformanceIndex({ periods = [], selectedPeriodId, score
                                 <InputLabel htmlFor="custom_type" value="Period Type" />
                                 <select
                                     id="custom_type"
-                                    className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm"
+                                    className="mt-1 block w-full border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] rounded-xl shadow-xs text-sm"
                                     value={customData.type}
                                     onChange={(e) => setCustomData('type', e.target.value)}
                                 >

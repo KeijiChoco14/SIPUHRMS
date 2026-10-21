@@ -4,6 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 import CreateTaskModal from '@/Components/CreateTaskModal';
 import TaskDetailModal from '../Projects/TaskDetailModal';
 import TaskViewSwitcher from '@/Components/TaskViewSwitcher';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function Index({ auth, tasks, employees, statuses, priorities, filters, projects = [] }: any) {
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -64,34 +65,34 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                     </div>
                     <div className="flex items-center gap-3">
                         <TaskViewSwitcher current="list" />
-                        <button 
-                            onClick={() => setShowCreateModal(true)}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition-colors"
-                        >
-                            + Create Task
-                        </button>
+                        <PrimaryButton onClick={() => setShowCreateModal(true)}>
+                            <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Tambah Tugas
+                        </PrimaryButton>
                     </div>
                 </div>
             }
         >
-            <Head title="My Tasks" />
+            <Head title="Tugas Saya" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-100">
-                        <div className="p-6 text-gray-900">
+                    <div className="bg-white overflow-hidden shadow-xs rounded-2xl border border-slate-200">
+                        <div className="p-6 text-slate-900">
                             {/* Filter Tabs */}
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-100">
-                                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl border border-gray-200/60">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+                                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60">
                                     <Link
                                         href={route('tasks.index')}
                                         className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                                             !filters?.filter && !filters?.status
-                                                ? 'bg-white text-indigo-700 shadow-sm'
-                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                                ? 'bg-white text-[#E31B23] shadow-xs'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                                         }`}
                                     >
-                                        All Tasks
+                                        Semua Tugas
                                     </Link>
                                     <Link
                                         href={route('tasks.index', { filter: 'active' })}
@@ -128,57 +129,57 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                 <div className="flex items-center gap-3">
                                     {activeFilterLabel && (
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xs text-gray-500">
-                                                Filter: <span className="font-semibold text-indigo-600">{activeFilterLabel}</span>
+                                            <span className="text-xs text-slate-500">
+                                                Filter: <span className="font-semibold text-[#E31B23]">{activeFilterLabel}</span>
                                             </span>
                                             <Link
                                                 href={route('tasks.index')}
-                                                className="text-xs font-semibold text-gray-600 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-2.5 py-1 rounded-md transition-colors border border-gray-200"
+                                                className="text-xs font-semibold text-slate-600 hover:text-rose-600 bg-slate-100 hover:bg-rose-50 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
                                             >
                                                 ✕ Reset
                                             </Link>
                                         </div>
                                     )}
-                                    <span className="text-xs text-gray-400 font-medium">Total: {sortedTasks.length} {sortedTasks.length === 1 ? 'task' : 'tasks'}</span>
+                                    <span className="text-xs text-slate-400 font-medium">Total: {sortedTasks.length} {sortedTasks.length === 1 ? 'task' : 'tasks'}</span>
                                 </div>
                             </div>
 
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-base font-bold text-gray-800">
+                                <h3 className="text-base font-bold text-slate-800">
                                     {activeFilterLabel ? `Task List (${activeFilterLabel})` : 'Task List'}
                                 </h3>
                             </div>
                             
                             {tasks.length > 0 ? (
                                 <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-200">
-                                        <thead className="bg-gray-50">
+                                    <table className="min-w-full divide-y divide-slate-200">
+                                        <thead className="bg-slate-50">
                                             <tr>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Project</th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Task</th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Priority</th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deadline</th>
-                                                <th scope="col" className="relative px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Project</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Task</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Priority</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Deadline</th>
+                                                <th scope="col" className="relative px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white divide-y divide-gray-100">
+                                        <tbody className="bg-white divide-y divide-slate-100">
                                             {sortedTasks.map((task: any) => (
-                                                <tr key={task.id} className="hover:bg-gray-50/80 transition-colors">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <tr key={task.id} className="hover:bg-slate-50/80 transition-colors">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                                                         {task.project_id ? (
-                                                            <Link href={route('projects.show', task.project_id)} className="text-indigo-600 hover:text-indigo-900 font-medium">
+                                                            <Link href={route('projects.show', task.project_id)} className="text-[#E31B23] hover:text-[#c4141b] font-medium">
                                                                 {task.project?.name || 'Unknown Project'}
                                                             </Link>
                                                         ) : (
-                                                            <span className="text-gray-400 italic text-xs">Standalone Task</span>
+                                                            <span className="text-slate-400 italic text-xs">Standalone Task</span>
                                                         )}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <button
                                                             type="button"
                                                             onClick={() => setSelectedTask(task)}
-                                                            className="text-sm font-semibold text-gray-900 hover:text-indigo-600 text-left transition-colors cursor-pointer"
+                                                            className="text-sm font-semibold text-slate-900 hover:text-[#E31B23] text-left transition-colors cursor-pointer"
                                                         >
                                                             {task.title}
                                                         </button>
@@ -188,7 +189,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                             ${task.priority === 'Urgent' ? 'bg-red-50 text-red-700 border-red-200' : ''}
                                                             ${task.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' : ''}
                                                             ${task.priority === 'Normal' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
-                                                            ${task.priority === 'Low' ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                                                            ${task.priority === 'Low' ? 'bg-slate-50 text-slate-700 border-slate-200' : ''}
                                                         `}>
                                                             {task.priority}
                                                         </span>
@@ -199,12 +200,12 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                             task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 border-blue-200' :
                                                             task.status === 'Review' ? 'bg-amber-100 text-amber-700 border-amber-200' :
                                                             task.status === 'Done' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                                                            'bg-gray-100 text-gray-800 border-gray-200'
+                                                            'bg-slate-100 text-slate-800 border-slate-200'
                                                         }`}>
                                                             {task.status}
                                                         </span>
                                                     </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                                                    <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500">
                                                         {task.deadline ? new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -220,10 +221,10 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => setSelectedTask(task)}
-                                                                        className={`text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${
+                                                                        className={`text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors ${
                                                                             canEditThisTask 
-                                                                                ? 'text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100' 
-                                                                                : 'text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200'
+                                                                                ? 'text-[#E31B23] hover:text-[#c4141b] bg-red-50 hover:bg-red-100 ring-1 ring-red-100' 
+                                                                                : 'text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200'
                                                                         }`}
                                                                     >
                                                                         {canEditThisTask ? 'Detail & Edit' : 'Detail'}
@@ -231,9 +232,9 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                                 );
                                                             })()}
                                                             {task.project_id ? (
-                                                                <Link href={route('projects.show', task.project_id)} className="text-xs text-gray-400 hover:text-gray-600">Board</Link>
+                                                                <Link href={route('projects.show', task.project_id)} className="text-xs text-slate-400 hover:text-slate-600">Board</Link>
                                                             ) : (
-                                                                <Link href={route('tasks.kanban')} className="text-xs text-gray-400 hover:text-gray-600">Kanban</Link>
+                                                                <Link href={route('tasks.kanban')} className="text-xs text-slate-400 hover:text-slate-600">Kanban</Link>
                                                             )}
                                                         </div>
                                                     </td>
@@ -244,10 +245,10 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                 </div>
                             ) : (
                                 <div className="text-center py-12">
-                                    <p className="text-gray-500 text-sm mb-3">No tasks currently assigned to you.</p>
+                                    <p className="text-slate-500 text-sm mb-3">No tasks currently assigned to you.</p>
                                     <button 
                                         onClick={() => setShowCreateModal(true)}
-                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition-colors"
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#E31B23] text-white rounded-xl text-xs font-semibold hover:bg-[#c4141b] active:bg-[#a30f15] shadow-xs transition-colors"
                                     >
                                         + Create New Task
                                     </button>

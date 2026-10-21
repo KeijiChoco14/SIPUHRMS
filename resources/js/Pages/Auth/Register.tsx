@@ -85,7 +85,7 @@ export default function Register() {
                     <input
                         id="photo"
                         type="file"
-                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-[#E31B23] hover:file:bg-red-100 transition-colors"
                         onChange={(e) => setData('photo', e.target.files ? e.target.files[0] : null)}
                         accept="image/*"
                         required
@@ -139,7 +139,7 @@ export default function Register() {
                 <div className="mt-4 flex items-center justify-end">
                     <Link
                         href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        className="rounded-xl text-sm text-slate-600 underline hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E31B23] focus:ring-offset-2"
                     >
                         Already registered?
                     </Link>

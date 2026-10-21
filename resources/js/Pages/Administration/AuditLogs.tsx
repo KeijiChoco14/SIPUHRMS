@@ -2,6 +2,7 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { PageProps } from '@/types';
+import Badge from '@/Components/Badge';
 
 export default function AuditLogs({ auth, logs, filters }: PageProps<{ logs: any, filters: any }>) {
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -12,34 +13,43 @@ export default function AuditLogs({ auth, logs, filters }: PageProps<{ logs: any
         router.get(route('audit-logs.index'), { ...filters, action: e.target.value }, { preserveState: true, replace: true });
     };
 
-    const actionColor = (action: string) => {
+    const getActionVariant = (action: string) => {
         switch (action) {
-            case 'created': return 'bg-green-100 text-green-800';
-            case 'updated': return 'bg-blue-100 text-blue-800';
-            case 'deleted': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
+            case 'created': return 'success';
+            case 'updated': return 'info';
+            case 'deleted': return 'danger';
+            default: return 'neutral';
         }
     };
 
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Audit Logs</h2>}
+            header={<h2 className="font-semibold text-xl text-slate-800 leading-tight">Audit Logs</h2>}
         >
             <Head title="Audit Logs" />
 
-            <div className="py-12">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="py-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     {/* Filters */}
-                    <div className="mb-6 flex flex-wrap gap-4">
-                        <input
-                            type="text"
-                            placeholder="Search logs..."
-                            defaultValue={filters.search}
-                            onChange={handleSearch}
-                            className="border-gray-300 rounded-md shadow-sm sm:text-sm w-72 focus:ring-indigo-500 focus:border-indigo-500"
-                        />
-                        <select onChange={handleActionFilter} defaultValue={filters.action || ''} className="border-gray-300 rounded-md shadow-sm sm:text-sm">
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="relative w-72">
+                            <input
+                                type="text"
+                                placeholder="Search logs..."
+                                defaultValue={filters.search}
+                                onChange={handleSearch}
+                                className="w-full text-xs pl-8 pr-3 py-2 border-slate-300 rounded-xl shadow-xs focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23] text-slate-900"
+                            />
+                            <svg className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <select 
+                            onChange={handleActionFilter} 
+                            defaultValue={filters.action || ''} 
+                            className="text-xs border-slate-300 rounded-xl shadow-xs py-2 px-3 focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23] text-slate-900"
+                        >
                             <option value="">All Actions</option>
                             <option value="created">Created</option>
                             <option value="updated">Updated</option>
@@ -47,53 +57,57 @@ export default function AuditLogs({ auth, logs, filters }: PageProps<{ logs: any
                         </select>
                     </div>
 
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900 overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
+                    <div className="bg-white overflow-hidden shadow-xs rounded-2xl border border-slate-200">
+                        <div className="p-6 text-slate-900 overflow-x-auto">
+                            <table className="min-w-full divide-y divide-slate-200 text-xs">
+                                <thead className="bg-slate-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP</th>
+                                        <th className="px-6 py-3.5 text-left font-semibold text-slate-600 uppercase tracking-wider">Timestamp</th>
+                                        <th className="px-6 py-3.5 text-left font-semibold text-slate-600 uppercase tracking-wider">User</th>
+                                        <th className="px-6 py-3.5 text-left font-semibold text-slate-600 uppercase tracking-wider">Action</th>
+                                        <th className="px-6 py-3.5 text-left font-semibold text-slate-600 uppercase tracking-wider">Description</th>
+                                        <th className="px-6 py-3.5 text-left font-semibold text-slate-600 uppercase tracking-wider">IP Address</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <tbody className="bg-white divide-y divide-slate-100">
                                     {logs.data.map((log: any) => (
-                                        <tr key={log.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <tr key={log.id} className="hover:bg-slate-50/60 transition-colors">
+                                            <td className="px-6 py-3.5 whitespace-nowrap text-slate-500 tabular-nums">
                                                 {new Date(log.created_at).toLocaleString()}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            <td className="px-6 py-3.5 whitespace-nowrap font-semibold text-slate-900">
                                                 {log.user?.name || 'System'}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${actionColor(log.action)}`}>
+                                            <td className="px-6 py-3.5 whitespace-nowrap">
+                                                <Badge variant={getActionVariant(log.action)} dot>
                                                     {log.action}
-                                                </span>
+                                                </Badge>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
+                                            <td className="px-6 py-3.5 text-slate-600 max-w-md truncate">
                                                 {log.description}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
+                                            <td className="px-6 py-3.5 whitespace-nowrap text-slate-400 font-mono text-[11px]">
                                                 {log.ip_address}
                                             </td>
                                         </tr>
                                     ))}
                                     {logs.data.length === 0 && (
-                                        <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">No audit logs found.</td></tr>
+                                        <tr><td colSpan={5} className="px-6 py-8 text-center text-sm text-slate-400">No audit logs found.</td></tr>
                                     )}
                                 </tbody>
                             </table>
 
                             {logs.last_page > 1 && (
-                                <div className="mt-4 flex justify-center gap-2">
+                                <div className="mt-6 flex justify-center gap-1.5 pt-4 border-t border-slate-100">
                                     {logs.links.map((link: any, i: number) => (
                                         <Link
                                             key={i}
                                             href={link.url || '#'}
-                                            className={`px-3 py-1 rounded text-sm ${link.active ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                                                link.active 
+                                                    ? 'bg-[#E31B23] text-white shadow-xs' 
+                                                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                            } ${!link.url ? 'opacity-40 cursor-not-allowed' : ''}`}
                                             dangerouslySetInnerHTML={{ __html: link.label }}
                                         />
                                     ))}

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-21T09:47:00Z",
+  "title": "Design System: SIPU Swiss-Belinn SKA Pekanbaru",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Swiss-Belinn Red",
+        "canonical": "#E31B23",
+        "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#E31B23", "#ef4444", "#f87171", "#fef2f2"]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Slate Canvas",
+        "canonical": "#F8FAFC",
+        "tonalRamp": ["#0f172a", "#1e293b", "#334155", "#64748b", "#94a3b8", "#cbd5e1", "#e2e8f0", "#f8fafc"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles and major metrics." },
+      "body": { "displayName": "Body", "purpose": "Standard table cells, form inputs, notes." }
+    },
+    "shadows": [
+      { "name": "card-rest", "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)", "purpose": "Standard resting cards." },
+      { "name": "lift-hover", "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)", "purpose": "Hover lift." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for button and state transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button for key triggers and submissions in Swiss-Belinn Red.",
+      "html": "<button class=\"ds-btn-primary\">TAMBAH JADWAL</button>",
+      "css": ".ds-btn-primary { background: #E31B23; color: #ffffff; padding: 10px 20px; font-weight: 600; font-size: 14px; border: none; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s, transform 0.1s; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-primary:hover { background: #C4141B; } .ds-btn-primary:active { background: #A30F15; transform: scale(0.98); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary button for filters, cancels, and non-destructive actions.",
+      "html": "<button class=\"ds-btn-secondary\">Batal</button>",
+      "css": ".ds-btn-secondary { background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; padding: 10px 20px; font-weight: 500; font-size: 14px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s, border-color 0.15s; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; } .ds-btn-secondary:hover { background: #f8fafc; border-color: #94a3b8; }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive actions such as deleting items or rejecting requests.",
+      "html": "<button class=\"ds-btn-danger\">Hapus</button>",
+      "css": ".ds-btn-danger { background: #ef4444; color: #ffffff; border: none; padding: 10px 20px; font-weight: 600; font-size: 14px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.15s; cursor: pointer; } .ds-btn-danger:hover { background: #dc2626; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Standard form text input with Swiss-Belinn Red focus ring.",
+      "html": "<input type=\"text\" class=\"ds-input-text\" placeholder=\"Masukkan nama karyawan...\" />",
+      "css": ".ds-input-text { width: 100%; border: 1px solid #cbd5e1; border-radius: 12px; padding: 10px 14px; font-size: 14px; color: #0f172a; outline: none; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input-text:focus { border-color: #E31B23; box-shadow: 0 0 0 2px rgba(227, 27, 35, 0.2); }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-status",
+      "description": "Semantic pill badge for status indication.",
+      "html": "<span class=\"ds-badge-success\">Aktif</span>",
+      "css": ".ds-badge-success { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: 600; background: #ecfdf5; color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Hospitality Precision — Swiss-Belinn Signature Red",
+    "overview": "SIPU (Sistem Informasi Pengelolaan Usaha) is the operational pulse of Swiss-Belinn SKA Pekanbaru. The interface embodies the professionalism, warmth, and high standard of international hospitality operations. Every interaction is structured, clean, and immediately decipherable by hotel staff across all shifts.",
+    "keyCharacteristics": [
+      "Decisive Swiss-Belinn Red (#E31B23) commands attention for key actions, status highlights, and active states without visual noise.",
+      "Harmonized Component Geometry: unified rounded corners (rounded-xl for cards and buttons, rounded-lg for inputs).",
+      "Scannable Typography: Standardized Inter type hierarchy with legible weights.",
+      "Consistent Icon Grammar: inline SVG icons standardized at 16px or 20px with matching stroke widths."
+    ],
+    "rules": [
+      { "name": "The Single Brand Voice Rule", "body": "Swiss-Belinn Red (#E31B23) is reserved exclusively for the primary action on a view, active navigation links, and brand emblems.", "section": "colors" },
+      { "name": "The Semantic Status Rule", "body": "Colors outside the brand red and neutral scale are strictly semantic: emerald for success, amber for pending/warning, rose for danger/rejection, sky for info.", "section": "colors" },
+      { "name": "The Tabular Data Rule", "body": "All numeric counters, clock-in times, currency amounts, and dates in tables must use tabular-nums.", "section": "typography" },
+      { "name": "The Border-First Depth Rule", "body": "Every elevated container must have a crisp border (border border-slate-200/80). Shadows accompany borders, never replace them.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Swiss-Belinn Red (#E31B23) as the sole primary action color across all views.",
+      "Do ensure all interactive buttons use rounded-xl with consistent height and padding.",
+      "Do accompany button icons with mr-2 w-4 h-4 and ensure vertical alignment with text.",
+      "Do use standard semantic color badges for status representations."
+    ],
+    "donts": [
+      "Don't use arbitrary colors (bg-blue-600, bg-purple-600, bg-indigo-600) for primary buttons.",
+      "Don't mix corner radius styles on the same view.",
+      "Don't make secondary buttons look like disabled primary buttons.",
+      "Don't use pure black text (#000000); use slate-900 (#0F172A) for headers and slate-600 (#475569) for body copy."
+    ]
+  }
+}

@@ -7,7 +7,7 @@
         <title inertia>{{ config('app.name', 'SIPU Management') }}</title>
         <link rel="icon" type="image/jpeg" href="/logo/logoswissbell.jpg">
         <link rel="manifest" href="/manifest.json">
-        <meta name="theme-color" content="#4f46e5">
+        <meta name="theme-color" content="#E31B23">
         <link rel="apple-touch-icon" href="/logo/logoswissbell.jpg">
 
         <!-- Fonts -->

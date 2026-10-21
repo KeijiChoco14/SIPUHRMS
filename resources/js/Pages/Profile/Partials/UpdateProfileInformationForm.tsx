@@ -57,7 +57,7 @@ export default function UpdateProfileInformation({
                     <input
                         id="photo"
                         type="file"
-                        className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                        className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-[#E31B23] hover:file:bg-red-100 transition-colors"
                         onChange={(e) => setData('photo', e.target.files ? e.target.files[0] : null)}
                         accept="image/*"
                         required={!user.profile_photo_path}
@@ -121,14 +121,14 @@ export default function UpdateProfileInformation({
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                className="rounded-xl text-sm text-slate-600 underline hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E31B23] focus:ring-offset-2"
                             >
                                 Click here to re-send the verification email.
                             </Link>
                         </p>
 
                         {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-green-600">
+                            <div className="mt-2 text-sm font-medium text-emerald-600">
                                 A new verification link has been sent to your
                                 email address.
                             </div>

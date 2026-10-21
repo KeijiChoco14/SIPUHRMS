@@ -441,8 +441,8 @@ export default function MasterKeyIndex({
         switch (type) {
             case 'create_new':
                 return (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-indigo-50 text-indigo-700 border border-indigo-200">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-red-50 text-[#E31B23] border border-red-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#E31B23]"></span>
                         Create New
                     </span>
                 );
@@ -552,10 +552,10 @@ export default function MasterKeyIndex({
                 )}
 
                 {/* Header Banner */}
-                <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-indigo-900/50">
+                <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-slate-800">
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="space-y-2 max-w-2xl">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#E31B23]/20 text-red-300 border border-[#E31B23]/30">
                                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                                 Housekeeping Security SOP • 3-Month Evaluation Cycle
                             </div>
@@ -582,7 +582,7 @@ export default function MasterKeyIndex({
 
                             <button
                                 onClick={() => openFormModal('create_new')}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 transition-all cursor-pointer hover:scale-102 active:scale-98"
+                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white text-sm font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer hover:scale-102 active:scale-98"
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -688,14 +688,14 @@ export default function MasterKeyIndex({
                                     onClick={() => handleTabChange(tab.key)}
                                     className={`px-3 py-1.5 rounded-lg transition-all shrink-0 cursor-pointer ${
                                         filters.tab === tab.key
-                                            ? 'bg-white text-indigo-900 shadow-xs font-bold'
-                                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/50'
+                                            ? 'bg-white text-[#E31B23] shadow-xs font-bold'
+                                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
                                     }`}
                                 >
                                     {tab.label}
                                     {tab.count !== undefined && tab.count > 0 && (
                                         <span className={`ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] ${
-                                            filters.tab === tab.key ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-200 text-gray-700'
+                                            filters.tab === tab.key ? 'bg-red-50 text-[#E31B23] font-semibold' : 'bg-slate-200 text-slate-700'
                                         }`}>
                                             {tab.count}
                                         </span>
@@ -710,7 +710,7 @@ export default function MasterKeyIndex({
                             <select
                                 value={selectedReqType}
                                 onChange={(e) => setSelectedReqType(e.target.value)}
-                                className="text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 py-2"
+                                className="text-xs rounded-xl border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2 text-slate-800"
                             >
                                 <option value="">All Request Types</option>
                                 <option value="create_new">Create New</option>
@@ -722,7 +722,7 @@ export default function MasterKeyIndex({
                             <select
                                 value={selectedKeyType}
                                 onChange={(e) => setSelectedKeyType(e.target.value)}
-                                className="text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 py-2"
+                                className="text-xs rounded-xl border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2 text-slate-800"
                             >
                                 <option value="">All Key Types</option>
                                 {defaultKeyTypes.map(kt => (
@@ -737,16 +737,16 @@ export default function MasterKeyIndex({
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="Search key, remark, username..."
-                                    className="w-full text-xs pl-8 pr-3 py-2 rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="w-full text-xs pl-8 pr-3 py-2 rounded-xl border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] text-slate-800"
                                 />
-                                <svg className="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </div>
 
                             <button
                                 type="submit"
-                                className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                                className="px-3 py-2 bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                             >
                                 Filter
                             </button>
@@ -978,10 +978,10 @@ export default function MasterKeyIndex({
                                         dangerouslySetInnerHTML={{ __html: link.label }}
                                         className={`px-3 py-1.5 rounded-lg transition-colors ${
                                             link.active
-                                                ? 'bg-indigo-600 text-white font-bold'
+                                                ? 'bg-[#E31B23] text-white font-bold'
                                                 : link.url
-                                                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                : 'text-gray-300 pointer-events-none'
+                                                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                                : 'text-slate-300 pointer-events-none'
                                         }`}
                                     />
                                 ))}
@@ -1028,7 +1028,7 @@ export default function MasterKeyIndex({
                                         label: 'Create New',
                                         desc: 'New key',
                                         path: 'M12 4v16m8-8H4',
-                                        tone: 'text-indigo-600 bg-indigo-50',
+                                        tone: 'text-[#E31B23] bg-red-50',
                                     },
                                     {
                                         type: 'extension' as const,
@@ -1051,8 +1051,8 @@ export default function MasterKeyIndex({
                                         onClick={() => handleTypeChangeInForm(t.type)}
                                         className={`relative p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
                                             formData.request_type === t.type
-                                                ? 'border-indigo-500 bg-indigo-50/40 ring-2 ring-indigo-500/20'
-                                                : 'border-gray-200 hover:border-gray-300 bg-white'
+                                                ? 'border-[#E31B23] bg-red-50/40 ring-2 ring-[#E31B23]/20'
+                                                : 'border-slate-200 hover:border-slate-300 bg-white'
                                         }`}
                                     >
                                         <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg shrink-0 ${t.tone}`}>
@@ -1061,11 +1061,11 @@ export default function MasterKeyIndex({
                                             </svg>
                                         </span>
                                         <span className="min-w-0">
-                                            <span className="block text-xs font-bold text-gray-900">{t.label}</span>
-                                            <span className="block text-[10px] text-gray-500 leading-tight truncate">{t.desc}</span>
+                                            <span className="block text-xs font-bold text-slate-900">{t.label}</span>
+                                            <span className="block text-[10px] text-slate-500 leading-tight truncate">{t.desc}</span>
                                         </span>
                                         {formData.request_type === t.type && (
-                                            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-indigo-600"></span>
+                                            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E31B23]"></span>
                                         )}
                                     </button>
                                 ))}
@@ -1075,17 +1075,17 @@ export default function MasterKeyIndex({
 
                         {/* Optional Reference Dropdown for Extension or Replacement */}
                         {(formData.request_type === 'extension' || formData.request_type === 'replacement') && existingKeys.length > 0 && (
-                            <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                                 <InputLabel
                                     htmlFor="select_existing_key"
                                     value={`Select Key to ${formData.request_type === 'extension' ? 'Renew' : 'Replace'} (Optional):`}
-                                    className="text-indigo-900"
+                                    className="text-slate-900"
                                 />
                                 <select
                                     id="select_existing_key"
                                     value={formData.previous_request_id || ''}
                                     onChange={(e) => handleSelectExistingKey(e.target.value)}
-                                    className="mt-1 block w-full text-xs rounded-xl border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="mt-1 block w-full text-xs rounded-xl border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23]"
                                 >
                                     <option value="">-- Select from previous keys --</option>
                                     {existingKeys.map(k => (
@@ -1094,7 +1094,7 @@ export default function MasterKeyIndex({
                                         </option>
                                     ))}
                                 </select>
-                                <span className="text-[10px] text-indigo-700/80 mt-1 block">
+                                <span className="text-[10px] text-slate-500 mt-1 block">
                                     Selecting a key above will automatically populate the key number, room range, and requester name.
                                 </span>
                             </div>
@@ -1140,7 +1140,7 @@ export default function MasterKeyIndex({
                                     id="form_key_type"
                                     value={formData.key_type}
                                     onChange={(e) => setFormData('key_type', e.target.value)}
-                                    className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
+                                    className="mt-1 block w-full text-xs rounded-xl border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23]"
                                     required
                                 >
                                     {defaultKeyTypes.map(kt => (
@@ -1178,8 +1178,8 @@ export default function MasterKeyIndex({
                                         onClick={() => setFormData('room_range_access', cr)}
                                         className={`text-[10px] px-2 py-0.5 rounded cursor-pointer transition-colors ${
                                             formData.room_range_access === cr
-                                                ? 'bg-indigo-600 text-white font-medium shadow-xs'
-                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                                ? 'bg-[#E31B23] text-white font-medium shadow-xs'
+                                                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                                         }`}
                                     >
                                         + {cr}
@@ -1195,9 +1195,9 @@ export default function MasterKeyIndex({
                                 <InputLabel
                                     htmlFor="form_remark"
                                     value="Remark / Reason for Request *"
-                                    className="font-bold text-gray-900"
+                                    className="font-bold text-slate-900"
                                 />
-                                <span className="text-[10px] text-indigo-600 font-semibold">
+                                <span className="text-[10px] text-[#E31B23] font-semibold">
                                     {formData.request_type === 'create_new' && 'Reason for new key creation'}
                                     {formData.request_type === 'extension' && 'Reason for 3-month renewal'}
                                     {formData.request_type === 'replacement' && 'Reason for key replacement'}
@@ -1215,17 +1215,17 @@ export default function MasterKeyIndex({
                                         ? 'Explain the renewal reason (e.g., Periodic 3-month renewal for HK Q4 operational evaluation cycle).'
                                         : 'Explain the replacement reason (e.g., Previous RFID card cracked / sensor not responding at room 312).'
                                 }
-                                className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 leading-relaxed"
+                                className="mt-1 block w-full text-xs rounded-xl border-slate-300 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] leading-relaxed"
                                 required
                             />
-                            <p className="text-[10px] text-gray-500 mt-1">
+                            <p className="text-[10px] text-slate-500 mt-1">
                                 This entry is recorded in the hotel audit log and printed on the SOP handover form.
                             </p>
                             <InputError message={formErrors.remark} className="mt-1" />
                         </div>
 
                         {/* Masa Berlaku (3 Bulan) */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
                             <div>
                                 <InputLabel htmlFor="form_valid_from" value="Effective Start Date *" />
                                 <TextInput
@@ -1239,12 +1239,12 @@ export default function MasterKeyIndex({
                             </div>
 
                             <div>
-                                <span className="block text-xs font-medium text-gray-700">Valid Until (3 Months):</span>
-                                <div className="mt-1.5 p-2 bg-white rounded-lg border border-indigo-200 flex items-center justify-between text-xs">
-                                    <span className="font-bold text-indigo-700">
+                                <span className="block text-xs font-medium text-slate-700">Valid Until (3 Months):</span>
+                                <div className="mt-1.5 p-2 bg-white rounded-lg border border-red-200 flex items-center justify-between text-xs">
+                                    <span className="font-bold text-[#E31B23]">
                                         {computeValidUntilPreview(formData.valid_from, 3)}
                                     </span>
-                                    <span className="text-[10px] px-2 py-0.5 bg-indigo-50 text-indigo-700 font-semibold rounded">
+                                    <span className="text-[10px] px-2 py-0.5 bg-red-50 text-[#E31B23] font-semibold rounded">
                                         3-Month Cycle
                                     </span>
                                 </div>
@@ -1327,7 +1327,7 @@ export default function MasterKeyIndex({
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-500">Request Type:</span>
-                                    <span className="font-semibold text-indigo-700">{activeItem.request_type_label}</span>
+                                    <span className="font-semibold text-[#E31B23]">{activeItem.request_type_label}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-500">Master Key:</span>
@@ -1466,7 +1466,7 @@ export default function MasterKeyIndex({
                                 <div className="relative pl-6 space-y-5 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
                                     {/* Step 1: Requested */}
                                     <div className="relative">
-                                        <div className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[9px] font-bold">
+                                        <div className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-[#E31B23] text-white flex items-center justify-center text-[9px] font-bold">
                                             1
                                         </div>
                                         <div className="text-xs font-bold text-gray-900">

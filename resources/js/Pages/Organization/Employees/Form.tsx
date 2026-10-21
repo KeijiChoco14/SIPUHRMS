@@ -2,6 +2,8 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { PageProps } from '@/types';
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 
 export default function EmployeeForm({ auth, employee, currentRole, departments, positions, roles, supervisors, suggestedEmployeeNumber }: PageProps<{
     employee?: any,
@@ -42,10 +44,10 @@ export default function EmployeeForm({ auth, employee, currentRole, departments,
             user={auth.user}
             header={
                 <div className="flex items-center gap-4">
-                    <Link href={route('employees.index')} className="text-indigo-600 hover:text-indigo-800">
-                        ← Back
+                    <Link href={route('employees.index')} className="text-sm font-semibold text-[#E31B23] hover:text-[#c4141b] transition-colors">
+                        ← Back to List
                     </Link>
-                    <h2 className="font-semibold text-xl text-gray-800 leading-tight">
+                    <h2 className="font-semibold text-xl text-slate-800 leading-tight">
                         {isEditing ? `Edit: ${employee.user?.name}` : 'New Employee'}
                     </h2>
                 </div>
@@ -53,82 +55,82 @@ export default function EmployeeForm({ auth, employee, currentRole, departments,
         >
             <Head title={isEditing ? `Edit ${employee.user?.name}` : 'New Employee'} />
 
-            <div className="py-12">
+            <div className="py-8">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <form onSubmit={submit} className="p-6 space-y-6">
+                    <div className="bg-white overflow-hidden shadow-xs rounded-2xl border border-slate-200">
+                        <form onSubmit={submit} className="p-6 sm:p-8 space-y-6">
                             {/* Account Info */}
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Account Information</h3>
+                                <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2 mb-4">Account Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Full Name <span className="text-red-500">*</span></label>
-                                        <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" required />
-                                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Name <span className="text-red-500">*</span></label>
+                                        <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]" required />
+                                        {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Email <span className="text-red-500">*</span></label>
-                                        <input type="email" value={data.email} onChange={e => setData('email', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" required />
-                                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Email <span className="text-red-500">*</span></label>
+                                        <input type="email" value={data.email} onChange={e => setData('email', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]" required />
+                                        {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                                             Password {isEditing ? '(leave blank to keep current)' : <span className="text-red-500">*</span>}
                                         </label>
-                                        <input type="password" value={data.password} onChange={e => setData('password', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" required={!isEditing} />
-                                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                                        <input type="password" value={data.password} onChange={e => setData('password', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]" required={!isEditing} />
+                                        {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Role <span className="text-red-500">*</span></label>
-                                        <select value={data.role} onChange={e => setData('role', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Role <span className="text-red-500">*</span></label>
+                                        <select value={data.role} onChange={e => setData('role', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]" required>
                                             {roles.map(r => <option key={r} value={r}>{r}</option>)}
                                         </select>
-                                        {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+                                        {errors.role && <p className="text-red-600 text-xs mt-1">{errors.role}</p>}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Employee Info */}
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900 border-b pb-2 mb-4">Employee Information</h3>
+                                <h3 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2 mb-4">Employee Information</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Employee Number <span className="text-red-500">*</span></label>
-                                        <input type="text" value={data.employee_number} readOnly className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-gray-100 cursor-not-allowed text-gray-600" required />
-                                        {errors.employee_number && <p className="text-red-500 text-xs mt-1">{errors.employee_number}</p>}
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Employee Number <span className="text-red-500">*</span></label>
+                                        <input type="text" value={data.employee_number} readOnly className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23] bg-slate-100 cursor-not-allowed text-slate-600 font-mono" required />
+                                        {errors.employee_number && <p className="text-red-600 text-xs mt-1">{errors.employee_number}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Phone Number</label>
-                                        <input type="text" value={data.phone_number} onChange={e => setData('phone_number', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Phone Number</label>
+                                        <input type="text" value={data.phone_number} onChange={e => setData('phone_number', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Department</label>
-                                        <select value={data.department_id} onChange={e => setData('department_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Department</label>
+                                        <select value={data.department_id} onChange={e => setData('department_id', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]">
                                             <option value="">-- Select Department --</option>
                                             {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Position</label>
-                                        <select value={data.position_id} onChange={e => setData('position_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Position</label>
+                                        <select value={data.position_id} onChange={e => setData('position_id', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]">
                                             <option value="">-- Select Position --</option>
                                             {positions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Supervisor</label>
-                                        <select value={data.supervisor_id} onChange={e => setData('supervisor_id', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Supervisor</label>
+                                        <select value={data.supervisor_id} onChange={e => setData('supervisor_id', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]">
                                             <option value="">-- No Supervisor --</option>
                                             {supervisors.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Join Date</label>
-                                        <input type="date" value={data.join_date} onChange={e => setData('join_date', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Join Date</label>
+                                        <input type="date" value={data.join_date} onChange={e => setData('join_date', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Employment Status <span className="text-red-500">*</span></label>
-                                        <select value={data.employment_status} onChange={e => setData('employment_status', e.target.value)} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                                        <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Employment Status <span className="text-red-500">*</span></label>
+                                        <select value={data.employment_status} onChange={e => setData('employment_status', e.target.value)} className="mt-1 block w-full border-slate-300 rounded-xl shadow-xs text-sm focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]" required>
                                             <option value="Active">Active</option>
                                             <option value="Resigned">Resigned</option>
                                             <option value="On Leave">On Leave</option>
@@ -138,11 +140,16 @@ export default function EmployeeForm({ auth, employee, currentRole, departments,
                             </div>
 
                             {/* Submit */}
-                            <div className="flex justify-end gap-3 border-t pt-4">
-                                <Link href={route('employees.index')} className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</Link>
-                                <button type="submit" disabled={processing} className="px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+                            <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
+                                <Link 
+                                    href={route('employees.index')} 
+                                    className="inline-flex items-center px-4 py-2 bg-white border border-slate-300 rounded-xl font-semibold text-xs text-slate-700 uppercase tracking-widest shadow-xs hover:bg-slate-50 transition-colors"
+                                >
+                                    Cancel
+                                </Link>
+                                <PrimaryButton type="submit" disabled={processing}>
                                     {processing ? 'Saving...' : (isEditing ? 'Update Employee' : 'Create Employee')}
-                                </button>
+                                </PrimaryButton>
                             </div>
                         </form>
                     </div>

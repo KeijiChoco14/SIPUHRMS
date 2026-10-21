@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useForm } from '@inertiajs/react';
 import AssigneeSelect from './AssigneeSelect';
+import PrimaryButton from './PrimaryButton';
+import SecondaryButton from './SecondaryButton';
 
 const DEFAULT_EMPTY_ASSIGNEES: number[] = [];
 
@@ -205,21 +207,13 @@ export default function CreateTaskModal({
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-gray-50/80 px-5 py-3 sm:px-6 flex flex-row-reverse gap-2 border-t border-gray-100">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
-                            >
-                                {processing ? 'Creating...' : 'Create Task'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="inline-flex justify-center rounded-xl border border-gray-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                            >
-                                Cancel
-                            </button>
+                        <div className="bg-slate-50/80 px-5 py-3.5 sm:px-6 flex flex-row-reverse gap-3 border-t border-slate-100">
+                            <PrimaryButton type="submit" disabled={processing}>
+                                {processing ? 'Menyimpan...' : 'Buat Tugas'}
+                            </PrimaryButton>
+                            <SecondaryButton onClick={onClose}>
+                                Batal
+                            </SecondaryButton>
                         </div>
                     </form>
                 </div>

@@ -49,7 +49,7 @@ export default function EmployeeDashboard({ data }: { data: any }) {
         <div className="space-y-6">
             {/* Announcement Banner */}
             {announcements.length > 0 && (
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 p-6 text-white shadow-lg hover:shadow-indigo-500/20 transition-all duration-300">
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#E31B23] via-[#c4141b] to-[#991b1b] p-6 text-white shadow-lg hover:shadow-red-500/20 transition-all duration-300">
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvc3ZnPg==')] opacity-40" />
                     <div className="relative flex items-start gap-4">
                         <div className="flex-shrink-0 rounded-lg bg-white/10 p-2.5 backdrop-blur-sm">

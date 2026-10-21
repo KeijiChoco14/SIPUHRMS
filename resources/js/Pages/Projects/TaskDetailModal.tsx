@@ -280,10 +280,10 @@ export default function TaskDetailModal({
                     className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-xs font-semibold mx-0.5 align-baseline shadow-xs ${
                         isCurrentUser
                             ? 'bg-amber-100 text-amber-900 border border-amber-300 ring-1 ring-amber-400/50'
-                            : 'bg-indigo-50 text-indigo-700 border border-indigo-200/80 hover:bg-indigo-100/80'
+                            : 'bg-red-50 text-[#E31B23] border border-red-200/80 hover:bg-red-100/80'
                     }`}
                 >
-                    <span className="text-indigo-400 font-bold">@</span>
+                    <span className="text-red-400 font-bold">@</span>
                     <span>{mentionedName}</span>
                     {isCurrentUser && (
                         <span className="text-[10px] font-bold text-amber-700 bg-amber-200/70 px-1 rounded ml-0.5">
@@ -493,11 +493,11 @@ export default function TaskDetailModal({
                                 </div>
                             ) : (
                                 <div>
-                                    <h3 className="text-lg font-bold text-indigo-700 flex items-center gap-2">
-                                        <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    <h3 className="text-lg font-bold text-[#E31B23] flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                         Edit Task Information & Assignees
                                     </h3>
-                                    <p className="text-xs text-gray-500 mt-0.5">Update title, details, or manage assigned team members</p>
+                                    <p className="text-xs text-slate-500 mt-0.5">Update title, details, or manage assigned team members</p>
                                 </div>
                             )}
                         </div>
@@ -508,7 +508,7 @@ export default function TaskDetailModal({
                                 <button
                                     type="button"
                                     onClick={() => setIsEditing(true)}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition-colors border border-indigo-200"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-[#E31B23] text-xs font-semibold rounded-xl transition-colors border border-red-200"
                                     title="Edit Task"
                                 >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -521,14 +521,14 @@ export default function TaskDetailModal({
                                         setIsEditing(false);
                                         setEditError('');
                                     }}
-                                    className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors"
+                                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors"
                                 >
                                     Cancel Edit
                                 </button>
                             ))}
                             <button
                                 onClick={onClose}
-                                className="text-gray-400 hover:text-gray-600 rounded-lg p-1 hover:bg-gray-100 transition-colors"
+                                className="text-slate-400 hover:text-slate-600 rounded-lg p-1 hover:bg-slate-100 transition-colors"
                             >
                                 <span className="sr-only">Close</span>
                                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -540,7 +540,7 @@ export default function TaskDetailModal({
 
                     {/* Navigation Tabs (visible when not editing) */}
                     {!isEditing && (
-                        <div className="border-b border-gray-200 bg-white px-6 shrink-0 overflow-x-auto">
+                        <div className="border-b border-slate-200 bg-white px-6 shrink-0 overflow-x-auto">
                             <nav className="-mb-px flex space-x-6 min-w-max" aria-label="Tabs">
                                 {[
                                     { id: 'details', label: 'Details' },
@@ -553,8 +553,8 @@ export default function TaskDetailModal({
                                         onClick={() => setActiveTab(tab.id as any)}
                                         className={`${
                                             activeTab === tab.id
-                                                ? 'border-indigo-600 text-indigo-600'
-                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                ? 'border-[#E31B23] text-[#E31B23]'
+                                                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                                         } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-xs sm:text-sm`}
                                     >
                                         {tab.label}
@@ -584,7 +584,7 @@ export default function TaskDetailModal({
                                         type="text"
                                         value={editData.title}
                                         onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm font-medium"
+                                        className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm font-medium"
                                         placeholder="Enter task title..."
                                         required
                                     />
@@ -593,13 +593,13 @@ export default function TaskDetailModal({
                                 {/* Priority, Status, Deadline */}
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 mb-1">
                                             Priority <span className="text-red-500">*</span>
                                         </label>
                                         <select
                                             value={editData.priority}
                                             onChange={(e) => setEditData({ ...editData, priority: e.target.value })}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                            className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                         >
                                             {availablePriorities.map((p) => (
                                                 <option key={p} value={p}>{p}</option>
@@ -608,13 +608,13 @@ export default function TaskDetailModal({
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 mb-1">
                                             Status <span className="text-red-500">*</span>
                                         </label>
                                         <select
                                             value={editData.status}
                                             onChange={(e) => setEditData({ ...editData, status: e.target.value })}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                            className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                         >
                                             {availableStatuses.map((s) => (
                                                 <option key={s} value={s}>{s}</option>
@@ -623,14 +623,14 @@ export default function TaskDetailModal({
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-slate-700 mb-1">
                                             Due Date (Deadline)
                                         </label>
                                         <input
                                             type="date"
                                             value={editData.deadline}
                                             onChange={(e) => setEditData({ ...editData, deadline: e.target.value })}
-                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                            className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                         />
                                     </div>
                                 </div>
@@ -665,17 +665,17 @@ export default function TaskDetailModal({
                                         onChange={(e) => setEditData({ ...editData, description: e.target.value })}
                                         rows={4}
                                         placeholder="Instructions or notes regarding this task..."
-                                        className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                        className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                     />
                                 </div>
 
                                 {/* Form Actions */}
-                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-gray-100">
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-slate-100">
                                     <button
                                         type="button"
                                         disabled={isDeleting || isSaving}
                                         onClick={handleDeleteTask}
-                                        className="w-full sm:w-auto text-xs text-red-600 hover:text-red-800 font-semibold px-3 py-2 rounded border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+                                        className="w-full sm:w-auto text-xs text-red-600 hover:text-red-800 font-semibold px-3 py-2 rounded-xl border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
                                     >
                                         {isDeleting ? (
                                             <>
@@ -695,14 +695,14 @@ export default function TaskDetailModal({
                                             type="button"
                                             disabled={isSaving || isDeleting}
                                             onClick={() => setIsEditing(false)}
-                                            className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                            className="w-full sm:w-auto px-4 py-2 border border-slate-300 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={isSaving || isDeleting}
-                                            className="w-full sm:w-auto px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold shadow-sm transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                                            className="w-full sm:w-auto px-5 py-2 bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white rounded-xl text-sm font-semibold shadow-xs transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
                                         >
                                             {isSaving ? (
                                                 <>
@@ -743,7 +743,7 @@ export default function TaskDetailModal({
                                                     <button
                                                         type="button"
                                                         onClick={() => setIsEditing(true)}
-                                                        className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-full border border-indigo-200 inline-flex items-center gap-1 transition-colors"
+                                                        className="text-xs font-semibold text-[#E31B23] hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-full border border-red-200 inline-flex items-center gap-1 transition-colors"
                                                     >
                                                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                                                         Add / Manage Assignees
@@ -755,16 +755,16 @@ export default function TaskDetailModal({
                                                 {task.assignees?.map((assignee: any) => (
                                                     <span
                                                         key={assignee.id}
-                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-800 border border-indigo-200"
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-800 border border-red-200"
                                                     >
-                                                        <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                                                        <span className="w-2 h-2 rounded-full bg-[#E31B23]" />
                                                         <span>{assignee.user?.name || assignee.employee_number}</span>
                                                         {assignee.department?.name && (
-                                                            <span className="text-[10px] text-indigo-500">({assignee.department.name})</span>
+                                                            <span className="text-[10px] text-[#E31B23]">({assignee.department.name})</span>
                                                         )}
                                                         {assignee.pivot?.acknowledged_at && (
                                                             <span
-                                                                className="ml-1 text-green-600 font-bold"
+                                                                className="ml-1 text-emerald-600 font-bold"
                                                                 title={`Acknowledged on ${new Date(assignee.pivot.acknowledged_at).toLocaleString('en-US')}`}
                                                             >
                                                                 ✓
@@ -773,14 +773,14 @@ export default function TaskDetailModal({
                                                     </span>
                                                 ))}
                                                 {(!task.assignees || task.assignees.length === 0) && (
-                                                    <p className="text-sm text-gray-400 italic">No team members assigned to this task yet.</p>
+                                                    <p className="text-sm text-slate-400 italic">No team members assigned to this task yet.</p>
                                                 )}
                                             </div>
                                         </div>
 
                                         {/* Acknowledge Alert */}
                                         {isAssignee && !hasAcknowledged && (
-                                            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                                            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-amber-800">
@@ -789,7 +789,7 @@ export default function TaskDetailModal({
                                                     </div>
                                                     <button
                                                         onClick={acknowledgeTask}
-                                                        className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition-colors shrink-0 ml-4"
+                                                        className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 px-4 rounded-xl shadow-xs transition-colors shrink-0 ml-4"
                                                     >
                                                         Acknowledge Task
                                                     </button>
@@ -803,7 +803,7 @@ export default function TaskDetailModal({
                                                 <button
                                                     type="button"
                                                     onClick={() => setIsEditing(true)}
-                                                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors inline-flex items-center gap-1.5"
+                                                    className="px-4 py-2 bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white text-xs font-semibold rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
                                                 >
                                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                                     Edit Information & Assignees
@@ -822,28 +822,28 @@ export default function TaskDetailModal({
                                                 value={checklistForm.data.title}
                                                 onChange={(e) => checklistForm.setData('title', e.target.value)}
                                                 placeholder="Add new checklist item..."
-                                                className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+                                                className="flex-1 rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                             />
                                             <button
                                                 type="submit"
                                                 disabled={checklistForm.processing || !checklistForm.data.title.trim()}
-                                                className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+                                                className="bg-[#E31B23] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#c4141b] disabled:opacity-50 transition-colors"
                                             >
                                                 Add
                                             </button>
                                         </form>
 
-                                        <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden shadow-sm">
+                                        <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden shadow-xs">
                                             {task.checklists?.map((item: any) => (
-                                                <div key={item.id} className="flex items-center justify-between p-3.5 hover:bg-gray-50 transition-colors">
+                                                <div key={item.id} className="flex items-center justify-between p-3.5 hover:bg-slate-50 transition-colors">
                                                     <label className="flex items-center flex-1 cursor-pointer">
                                                         <input
                                                             type="checkbox"
                                                             checked={item.is_completed}
                                                             onChange={() => toggleChecklist(item)}
-                                                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                                                            className="h-4 w-4 text-[#E31B23] focus:ring-[#E31B23] border-slate-300 rounded-md"
                                                         />
-                                                        <span className={`ml-3 text-sm ${item.is_completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                                                        <span className={`ml-3 text-sm ${item.is_completed ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                                                             {item.title}
                                                         </span>
                                                     </label>
@@ -879,12 +879,12 @@ export default function TaskDetailModal({
                                                         className={`p-4 rounded-xl shadow-sm border transition-all duration-200 ${
                                                             isUserTagged 
                                                                 ? 'bg-amber-50/50 border-amber-200 ring-1 ring-amber-300/60' 
-                                                                : 'bg-white border-gray-200'
+                                                                : 'bg-white border-slate-200'
                                                         }`}
                                                     >
                                                         <div className="flex justify-between items-start mb-2">
                                                             <div className="flex items-center gap-2.5">
-                                                                <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
+                                                                <div className="h-7 w-7 rounded-full bg-gradient-to-tr from-[#E31B23] to-red-400 text-white font-bold text-xs flex items-center justify-center overflow-hidden shrink-0 shadow-xs">
                                                                     {comment.employee?.user?.profile_photo_url ? (
                                                                         <img src={comment.employee.user.profile_photo_url} alt="" className="h-full w-full object-cover" />
                                                                     ) : (
@@ -979,22 +979,22 @@ export default function TaskDetailModal({
                                                                             target="_blank"
                                                                             rel="noreferrer"
                                                                             download
-                                                                            className="inline-flex items-center gap-3 p-2.5 rounded-xl border border-gray-200/90 bg-gray-50/90 hover:bg-indigo-50/60 hover:border-indigo-200 shadow-xs hover:shadow-sm transition-all max-w-md group"
+                                                                            className="inline-flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-red-50/60 hover:border-red-200 shadow-xs hover:shadow-sm transition-all max-w-md group"
                                                                         >
-                                                                            <div className="h-9 w-9 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                                                            <div className="h-9 w-9 rounded-lg bg-red-100 text-[#E31B23] flex items-center justify-center shrink-0 group-hover:bg-[#E31B23] group-hover:text-white transition-colors">
                                                                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                                                                 </svg>
                                                                             </div>
                                                                             <div className="min-w-0 flex-1">
-                                                                                <p className="text-xs font-semibold text-gray-800 group-hover:text-indigo-600 truncate">
+                                                                                <p className="text-xs font-semibold text-slate-800 group-hover:text-[#E31B23] truncate">
                                                                                     {comment.file_name || 'Download Attachment'}
                                                                                 </p>
-                                                                                <p className="text-[10px] text-gray-400 mt-0.5">
+                                                                                <p className="text-[10px] text-slate-400 mt-0.5">
                                                                                     {sizeFormatted || 'Attachment'} • Click to view / download
                                                                                 </p>
                                                                             </div>
-                                                                            <div className="text-gray-400 group-hover:text-indigo-600 px-1">
+                                                                            <div className="text-slate-400 group-hover:text-[#E31B23] px-1">
                                                                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                                                                 </svg>
@@ -1008,25 +1008,25 @@ export default function TaskDetailModal({
                                                 );
                                             })}
                                             {task.comments?.length === 0 && (
-                                                <div className="text-center py-8 text-sm text-gray-400 bg-white rounded-xl border border-gray-200">
-                                                    No comments yet. Start the conversation and use <span className="font-semibold text-indigo-600">@</span> to mention teammates!
+                                                <div className="text-center py-8 text-sm text-slate-400 bg-white rounded-xl border border-slate-200">
+                                                    No comments yet. Start the conversation and use <span className="font-semibold text-[#E31B23]">@</span> to mention teammates!
                                                 </div>
                                             )}
                                         </div>
 
-                                        <form onSubmit={addComment} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative">
+                                        <form onSubmit={addComment} className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs relative">
                                             {/* Autocomplete Popup when typing @ */}
                                             {showMentionMenu && filteredMentions.length > 0 && (
-                                                <div className="absolute bottom-full mb-2 left-4 right-4 sm:left-4 sm:right-auto sm:w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-gray-100">
-                                                    <div className="p-2 bg-indigo-50/80 border-b border-indigo-100 flex items-center justify-between">
-                                                        <span className="text-[11px] font-semibold text-indigo-900 flex items-center gap-1.5">
+                                                <div className="absolute bottom-full mb-2 left-4 right-4 sm:left-4 sm:right-auto sm:w-80 bg-white border border-slate-200 rounded-xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-100">
+                                                    <div className="p-2 bg-red-50/80 border-b border-red-100 flex items-center justify-between">
+                                                        <span className="text-[11px] font-semibold text-red-950 flex items-center gap-1.5">
                                                             <span className="flex h-2 w-2 relative">
-                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E31B23]"></span>
                                                             </span>
                                                             Select Teammate to Mention (@)
                                                         </span>
-                                                        <span className="text-[10px] text-gray-400">↑↓ navigate • Enter select</span>
+                                                        <span className="text-[10px] text-slate-400">↑↓ navigate • Enter select</span>
                                                     </div>
                                                     <div className="max-h-52 overflow-y-auto py-1">
                                                         {filteredMentions.map((user, idx) => (
@@ -1035,10 +1035,10 @@ export default function TaskDetailModal({
                                                                 type="button"
                                                                 onClick={() => insertMention(user)}
                                                                 className={`w-full text-left px-3 py-2 flex items-center gap-2.5 transition-colors ${
-                                                                    idx === mentionIndex ? 'bg-indigo-50 text-indigo-900' : 'hover:bg-gray-50 text-gray-700'
+                                                                    idx === mentionIndex ? 'bg-red-50 text-red-950' : 'hover:bg-slate-50 text-slate-700'
                                                                 }`}
                                                             >
-                                                                <div className="h-7 w-7 rounded-full bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
+                                                                <div className="h-7 w-7 rounded-full bg-red-100 text-[#E31B23] font-bold text-xs flex items-center justify-center overflow-hidden shrink-0">
                                                                     {user.profilePhoto ? (
                                                                         <img src={user.profilePhoto} alt="" className="h-full w-full object-cover" />
                                                                     ) : (
@@ -1073,7 +1073,7 @@ export default function TaskDetailModal({
                                                     onKeyDown={handleCommentKeyDown}
                                                     rows={3}
                                                     placeholder="Write a message... Attach files/photos or type @ to mention teammates"
-                                                    className="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs sm:text-sm mb-2"
+                                                    className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-xs sm:text-sm mb-2"
                                                 />
                                             </div>
 
@@ -1087,16 +1087,16 @@ export default function TaskDetailModal({
 
                                             {/* File attachment preview inside chat composer */}
                                             {commentForm.data.file && (
-                                                <div className="mb-2.5 p-2 bg-indigo-50/80 border border-indigo-200/90 rounded-xl flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-150">
+                                                <div className="mb-2.5 p-2 bg-red-50/80 border border-red-200/90 rounded-xl flex items-center justify-between gap-3 shadow-xs animate-in fade-in duration-150">
                                                     <div className="flex items-center gap-2.5 overflow-hidden">
                                                         {commentFilePreview ? (
                                                             <img 
                                                                 src={commentFilePreview} 
                                                                 alt="Upload preview" 
-                                                                className="h-10 w-10 rounded-lg object-cover border border-indigo-200 shrink-0 bg-white" 
+                                                                className="h-10 w-10 rounded-lg object-cover border border-red-200 shrink-0 bg-white" 
                                                             />
                                                         ) : (
-                                                            <div className="h-10 w-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                                                            <div className="h-10 w-10 rounded-lg bg-red-100 text-[#E31B23] flex items-center justify-center shrink-0">
                                                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                                                 </svg>
@@ -1104,22 +1104,22 @@ export default function TaskDetailModal({
                                                         )}
                                                         <div className="min-w-0">
                                                             <div className="flex items-center gap-1.5">
-                                                                <span className="text-xs font-semibold text-indigo-950 truncate max-w-[200px] sm:max-w-xs">
+                                                                <span className="text-xs font-semibold text-slate-900 truncate max-w-[200px] sm:max-w-xs">
                                                                     {commentForm.data.file.name}
                                                                 </span>
-                                                                <span className="text-[10px] bg-indigo-200/70 text-indigo-800 font-medium px-1.5 py-0.2 rounded shrink-0">
+                                                                <span className="text-[10px] bg-red-100 text-red-800 font-medium px-1.5 py-0.5 rounded-full shrink-0">
                                                                     {commentForm.data.file.size > 1024 * 1024 
                                                                         ? `${(commentForm.data.file.size / (1024 * 1024)).toFixed(1)} MB` 
                                                                         : `${(commentForm.data.file.size / 1024).toFixed(0)} KB`}
                                                                 </span>
                                                             </div>
-                                                            <p className="text-[10px] text-indigo-600">Attached to message</p>
+                                                            <p className="text-[10px] text-red-600">Attached to message</p>
                                                         </div>
                                                     </div>
                                                     <button
                                                         type="button"
                                                         onClick={clearCommentFile}
-                                                        className="text-gray-400 hover:text-red-600 p-1 rounded-lg hover:bg-white/80 transition-colors shrink-0"
+                                                        className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-white/80 transition-colors shrink-0"
                                                         title="Remove attachment"
                                                     >
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1130,14 +1130,14 @@ export default function TaskDetailModal({
                                             )}
 
                                             {commentForm.errors.file && (
-                                                <p className="text-red-500 text-xs mb-2">{commentForm.errors.file}</p>
+                                                <p className="text-rose-600 text-xs mb-2">{commentForm.errors.file}</p>
                                             )}
                                             {commentForm.errors.content && (
-                                                <p className="text-red-500 text-xs mb-2">{commentForm.errors.content}</p>
+                                                <p className="text-rose-600 text-xs mb-2">{commentForm.errors.content}</p>
                                             )}
 
                                             {/* Quick Mention / Tag bar & Toolbar */}
-                                            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-gray-100">
+                                            <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-100">
                                                 <div className="flex flex-wrap items-center gap-1.5">
                                                     {/* Attach button */}
                                                     <button
@@ -1145,21 +1145,21 @@ export default function TaskDetailModal({
                                                         onClick={() => commentFileInputRef.current?.click()}
                                                         className={`text-[11px] px-2.5 py-1 rounded-full border transition-all flex items-center gap-1 font-medium ${
                                                             commentForm.data.file 
-                                                                ? 'bg-indigo-100 text-indigo-800 border-indigo-300 font-semibold shadow-xs' 
-                                                                : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-600'
+                                                                ? 'bg-red-50 text-[#E31B23] border-red-200 font-semibold shadow-xs ring-1 ring-red-100' 
+                                                                : 'bg-white text-slate-700 border-slate-300 hover:border-red-300 hover:bg-red-50/50 hover:text-[#E31B23]'
                                                         }`}
                                                         title="Attach file or image"
                                                     >
-                                                        <svg className="w-3.5 h-3.5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <svg className="w-3.5 h-3.5 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                                         </svg>
                                                         <span>{commentForm.data.file ? 'Attached' : 'Attach'}</span>
                                                     </button>
 
-                                                    <span className="text-[11px] font-medium text-gray-400 mx-0.5">•</span>
+                                                    <span className="text-[11px] font-medium text-slate-400 mx-0.5">•</span>
 
-                                                    <span className="text-[11px] font-medium text-gray-500 flex items-center gap-1">
-                                                        <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <span className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+                                                        <svg className="w-3.5 h-3.5 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                                                         </svg>
                                                         Tag:
@@ -1176,13 +1176,13 @@ export default function TaskDetailModal({
                                                                 onClick={() => insertMention(user)}
                                                                 className={`text-[11px] px-2 py-0.5 rounded-full border transition-all flex items-center gap-1 ${
                                                                     isTagged 
-                                                                        ? 'bg-indigo-100 text-indigo-800 border-indigo-300 font-semibold' 
-                                                                        : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-indigo-50 hover:text-indigo-600'
+                                                                        ? 'bg-red-50 text-[#E31B23] border-red-200 font-semibold ring-1 ring-red-100' 
+                                                                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-red-50/50 hover:text-[#E31B23]'
                                                                 }`}
                                                                 title={`Tag ${user.name}`}
                                                             >
                                                                 <span>@{user.name.split(' ')[0]}</span>
-                                                                {isTagged && <span className="text-indigo-600 font-bold">✓</span>}
+                                                                {isTagged && <span className="text-[#E31B23] font-bold">✓</span>}
                                                             </button>
                                                         );
                                                     })}
@@ -1192,19 +1192,19 @@ export default function TaskDetailModal({
                                                         <button
                                                             type="button"
                                                             onClick={() => setShowTagPicker(!showTagPicker)}
-                                                            className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-gray-300 text-gray-500 hover:text-indigo-600 hover:border-indigo-400 bg-white transition-colors flex items-center gap-1"
+                                                            className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-slate-300 text-slate-500 hover:text-[#E31B23] hover:border-red-300 bg-white transition-colors flex items-center gap-1"
                                                         >
                                                             <span>+ Select Employee</span>
                                                         </button>
 
                                                         {showTagPicker && (
-                                                            <div className="absolute bottom-full mb-2 left-0 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-2">
-                                                                <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-gray-100">
-                                                                    <span className="text-xs font-semibold text-gray-800">Mention Teammate</span>
+                                                            <div className="absolute bottom-full mb-2 left-0 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2.5">
+                                                                <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+                                                                    <span className="text-xs font-semibold text-slate-800">Mention Teammate</span>
                                                                     <button 
                                                                         type="button" 
                                                                         onClick={() => setShowTagPicker(false)}
-                                                                        className="text-gray-400 hover:text-gray-600 text-xs"
+                                                                        className="text-slate-400 hover:text-slate-600 text-xs"
                                                                     >
                                                                         ✕
                                                                     </button>
@@ -1215,11 +1215,11 @@ export default function TaskDetailModal({
                                                                             key={user.userId}
                                                                             type="button"
                                                                             onClick={() => insertMention(user)}
-                                                                            className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-indigo-50 text-xs flex items-center justify-between transition-colors group"
+                                                                            className="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-red-50 text-xs flex items-center justify-between transition-colors group"
                                                                         >
-                                                                            <span className="truncate group-hover:text-indigo-700">{user.name}</span>
+                                                                            <span className="truncate group-hover:text-[#E31B23] font-medium text-slate-700">{user.name}</span>
                                                                             {user.departmentName && (
-                                                                                <span className="text-[10px] text-gray-400 ml-1 shrink-0">{user.departmentName}</span>
+                                                                                <span className="text-[10px] text-slate-400 ml-1 shrink-0">{user.departmentName}</span>
                                                                             )}
                                                                         </button>
                                                                     ))}
@@ -1234,10 +1234,10 @@ export default function TaskDetailModal({
                                                     <button
                                                         type="submit"
                                                         disabled={commentForm.processing || (!commentForm.data.content.trim() && !commentForm.data.file)}
-                                                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-1.5 shadow-sm transition-colors"
+                                                        className="bg-[#E31B23] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-[#c4141b] active:bg-[#a30f15] focus:outline-none focus:ring-2 focus:ring-[#E31B23] focus:ring-offset-2 disabled:opacity-50 flex items-center gap-1.5 shadow-xs transition-colors"
                                                     >
                                                         {commentForm.processing ? (
-                                                            <>
+                                                             <>
                                                                 <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
@@ -1258,8 +1258,8 @@ export default function TaskDetailModal({
 
                                             {/* Tagged users summary banner */}
                                             {(commentForm.data.tagged_user_ids?.length > 0 || commentForm.data.content.includes('@')) && (
-                                                <div className="mt-2 text-[11px] text-indigo-700 bg-indigo-50/70 border border-indigo-100 rounded-lg p-2 flex items-center gap-1.5">
-                                                    <svg className="w-3.5 h-3.5 text-indigo-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                <div className="mt-2 text-[11px] text-red-700 bg-red-50/70 border border-red-100 rounded-xl p-2.5 flex items-center gap-1.5">
+                                                    <svg className="w-3.5 h-3.5 text-[#E31B23] shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                                                     </svg>
                                                     <span>Mentioned teammates (@) will automatically receive notifications and emails so they don't miss updates.</span>
@@ -1271,32 +1271,32 @@ export default function TaskDetailModal({
 
                                 {/* Activity History Tab */}
                                 {activeTab === 'activity' && (
-                                    <div className="space-y-4 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                                        <ul className="relative border-l border-gray-200 ml-3 space-y-6">
+                                    <div className="space-y-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                                        <ul className="relative border-l border-slate-200 ml-3 space-y-6">
                                             {task.activities?.map((activity: any) => (
                                                 <li key={activity.id} className="ml-6">
-                                                    <span className="absolute flex items-center justify-center w-6 h-6 bg-indigo-100 rounded-full -left-3 ring-8 ring-white">
-                                                        <svg className="w-3 h-3 text-indigo-700" fill="currentColor" viewBox="0 0 20 20">
+                                                    <span className="absolute flex items-center justify-center w-6 h-6 bg-red-100 rounded-full -left-3 ring-8 ring-white">
+                                                        <svg className="w-3 h-3 text-[#E31B23]" fill="currentColor" viewBox="0 0 20 20">
                                                             <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"></path>
                                                         </svg>
                                                     </span>
                                                     <div className="flex flex-col">
-                                                        <span className="text-xs sm:text-sm font-semibold text-gray-900">{activity.description}</span>
-                                                        <span className="text-[10px] text-gray-500 mt-0.5">
+                                                        <span className="text-xs sm:text-sm font-semibold text-slate-900">{activity.description}</span>
+                                                        <span className="text-[10px] text-slate-500 mt-0.5">
                                                             By {activity.employee?.user?.name || 'System'} • {new Date(activity.created_at).toLocaleString('en-US')}
                                                         </span>
                                                         {activity.old_value && activity.new_value && (
-                                                            <div className="mt-2 text-xs text-gray-600 bg-gray-50 p-2 border rounded-lg inline-block">
-                                                                <span className="line-through text-red-500 mr-2">{JSON.stringify(activity.old_value)}</span>
+                                                            <div className="mt-2 text-xs text-slate-600 bg-slate-50 p-2 border border-slate-200 rounded-lg inline-block">
+                                                                <span className="line-through text-rose-500 mr-2">{JSON.stringify(activity.old_value)}</span>
                                                                 <span>➔</span>
-                                                                <span className="ml-2 font-semibold text-green-600">{JSON.stringify(activity.new_value)}</span>
+                                                                <span className="ml-2 font-semibold text-emerald-600">{JSON.stringify(activity.new_value)}</span>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </li>
                                             ))}
                                             {task.activities?.length === 0 && (
-                                                <div className="text-sm text-gray-400 ml-4">No activity history yet.</div>
+                                                <div className="text-sm text-slate-400 ml-4">No activity history yet.</div>
                                             )}
                                         </ul>
                                     </div>

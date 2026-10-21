@@ -286,21 +286,21 @@ export default function Calendar({
     /* ---------------- Render ---------------- */
 
     const selectCls =
-        'py-1.5 pl-3 pr-8 text-xs font-semibold text-gray-700 rounded-xl border-gray-200 bg-gray-50 focus:border-indigo-500 focus:ring-indigo-500 cursor-pointer max-w-[170px]';
+        'py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-700 rounded-xl border-slate-200 bg-slate-50 focus:border-[#E31B23] focus:ring-[#E31B23] cursor-pointer max-w-[170px]';
 
     return (
         <AuthenticatedLayout
             header={
                 <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                        <h2 className="font-bold text-xl text-gray-900 leading-tight truncate">Team Calendar</h2>
-                        <p className="text-xs text-gray-500 mt-0.5 truncate">Monthly team task schedule & deadlines</p>
+                        <h2 className="font-bold text-xl text-slate-900 leading-tight truncate">Team Calendar</h2>
+                        <p className="text-xs text-slate-500 mt-0.5 truncate">Monthly team task schedule & deadlines</p>
                     </div>
                     <div className="flex items-center gap-2.5 shrink-0">
                         <TaskViewSwitcher current="calendar" />
                         <button
                             onClick={() => openCreate(toDateStr(new Date()))}
-                            className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-3.5 rounded-xl text-sm shadow-sm transition-colors"
+                            className="inline-flex items-center gap-1.5 bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white font-semibold py-2 px-3.5 rounded-xl text-sm shadow-xs transition-colors"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                             <span className="hidden xl:inline">Add new</span>
@@ -360,7 +360,7 @@ export default function Calendar({
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="Search tasks..."
-                            className="w-44 pl-8 pr-3 py-1.5 text-xs rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500"
+                            className="w-44 pl-8 pr-3 py-1.5 text-xs rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-[#E31B23] focus:ring-[#E31B23]"
                         />
                     </div>
 
@@ -383,11 +383,11 @@ export default function Calendar({
                     <button
                         onClick={() => setShowWaitingList(v => !v)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
-                            showWaitingList ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                            showWaitingList ? 'bg-red-50 text-[#E31B23] border-red-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
                         }`}
                     >
                         Waiting list
-                        <span className={`min-w-[18px] px-1.5 rounded-full text-[10px] font-bold ${showWaitingList ? 'bg-indigo-100' : 'bg-gray-100'}`}>
+                        <span className={`min-w-[18px] px-1.5 rounded-full text-[10px] font-bold ${showWaitingList ? 'bg-red-100 text-[#E31B23]' : 'bg-slate-100 text-slate-600'}`}>
                             {waitingTasks.length}
                         </span>
                     </button>
@@ -426,13 +426,13 @@ export default function Calendar({
                                         onDragLeave={() => setDragOverCell(null)}
                                         onDrop={() => dropOnDate(ds)}
                                         onDoubleClick={() => openCreate(ds)}
-                                        className={`group min-h-[128px] p-1.5 flex flex-col gap-1 border-gray-100 transition-colors ${lastCol ? '' : 'border-r'} ${lastRow ? '' : 'border-b'} ${
+                                        className={`group min-h-[128px] p-1.5 flex flex-col gap-1 border-slate-100 transition-colors ${lastCol ? '' : 'border-r'} ${lastRow ? '' : 'border-b'} ${
                                             isOver
-                                                ? 'bg-indigo-50 ring-2 ring-inset ring-indigo-300'
+                                                ? 'bg-red-50 ring-2 ring-inset ring-red-300'
                                                 : !inMonth
-                                                ? 'bg-gray-50/80'
+                                                ? 'bg-slate-50/80'
                                                 : isWeekend(date)
-                                                ? 'bg-gray-50/40'
+                                                ? 'bg-slate-50/40'
                                                 : 'bg-white'
                                         }`}
                                     >
@@ -441,10 +441,10 @@ export default function Calendar({
                                                 onClick={() => items.length > 0 && setDayPanel(date)}
                                                 className={`inline-flex items-center justify-center h-6 min-w-[24px] px-1 rounded-full text-xs font-bold transition-colors ${
                                                     isToday
-                                                        ? 'bg-indigo-600 text-white'
+                                                        ? 'bg-[#E31B23] text-white'
                                                         : inMonth
-                                                        ? 'text-gray-800 hover:bg-gray-100'
-                                                        : 'text-gray-300'
+                                                        ? 'text-slate-800 hover:bg-slate-100'
+                                                        : 'text-slate-300'
                                                 }`}
                                             >
                                                 {date.getDate()}
@@ -456,7 +456,7 @@ export default function Calendar({
                                                 <button
                                                     onClick={() => openCreate(ds)}
                                                     title="Add task"
-                                                    className="hidden group-hover:inline-flex items-center justify-center h-5 w-5 rounded-md text-gray-400 hover:text-indigo-600 hover:bg-indigo-50"
+                                                    className="hidden group-hover:inline-flex items-center justify-center h-5 w-5 rounded-md text-slate-400 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
                                                 >
                                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                                                 </button>
@@ -477,7 +477,7 @@ export default function Calendar({
                                         {items.length > MAX_CHIPS && (
                                             <button
                                                 onClick={() => setDayPanel(date)}
-                                                className="text-left px-1.5 py-0.5 rounded-md text-[11px] font-semibold text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/60"
+                                                className="text-left px-1.5 py-0.5 rounded-md text-[11px] font-semibold text-slate-500 hover:text-[#E31B23] hover:bg-red-50"
                                             >
                                                 +{items.length - MAX_CHIPS} more
                                             </button>
@@ -494,20 +494,20 @@ export default function Calendar({
                             onDragOver={e => onDragOver(e, 'waiting-list')}
                             onDragLeave={() => setDragOverCell(null)}
                             onDrop={dropOnWaitingList}
-                            className={`w-72 shrink-0 sticky top-0 bg-white rounded-2xl border shadow-sm flex flex-col max-h-[calc(100vh-15rem)] transition-colors ${
-                                dragOverCell === 'waiting-list' ? 'border-indigo-300 ring-2 ring-indigo-200 bg-indigo-50/30' : 'border-gray-200/80'
+                            className={`w-72 shrink-0 sticky top-0 bg-white rounded-2xl border shadow-xs flex flex-col max-h-[calc(100vh-15rem)] transition-colors ${
+                                dragOverCell === 'waiting-list' ? 'border-red-300 ring-2 ring-red-200 bg-red-50/30' : 'border-slate-200'
                             }`}
                         >
-                            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                            <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <h3 className="text-sm font-bold text-gray-900">Waiting list</h3>
-                                    <span className="bg-gray-100 text-gray-600 text-[11px] font-bold px-2 rounded-full">{displayedWaiting.length}</span>
+                                    <h3 className="text-sm font-bold text-slate-900">Waiting list</h3>
+                                    <span className="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 rounded-full">{displayedWaiting.length}</span>
                                 </div>
                                 <div className="flex items-center">
-                                    <button onClick={() => openCreate()} title="Add to waiting list" className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition-colors">
+                                    <button onClick={() => openCreate()} title="Add to waiting list" className="p-1.5 text-slate-400 hover:text-[#E31B23] hover:bg-slate-100 rounded-lg transition-colors">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
                                     </button>
-                                    <button onClick={() => setShowWaitingList(false)} title="Close" className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                                    <button onClick={() => setShowWaitingList(false)} title="Close" className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                     </button>
                                 </div>
@@ -515,13 +515,13 @@ export default function Calendar({
 
                             <div className="px-3 pt-3">
                                 <div className="relative">
-                                    <svg className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                    <svg className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                                     <input
                                         type="text"
                                         value={waitingSearch}
                                         onChange={e => setWaitingSearch(e.target.value)}
                                         placeholder="Search backlog..."
-                                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500"
+                                        className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-[#E31B23] focus:ring-[#E31B23]"
                                     />
                                 </div>
                                 <p className="text-[11px] text-gray-400 mt-2 px-0.5">Drag cards to a date to schedule, or drag here to unschedule.</p>
@@ -768,8 +768,8 @@ function DayPanel({
                         <TaskCard key={task.id} task={task} onSelect={() => onSelect(task)} />
                     ))}
                 </div>
-                <div className="px-4 py-3 border-t border-gray-100">
-                    <button onClick={onCreate} className="w-full py-2 rounded-xl border border-dashed border-gray-300 text-xs font-semibold text-gray-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/40">
+                <div className="px-4 py-3 border-t border-slate-100">
+                    <button onClick={onCreate} className="w-full py-2 rounded-xl border border-dashed border-slate-300 text-xs font-semibold text-slate-500 hover:text-[#E31B23] hover:border-red-300 hover:bg-red-50/40 transition-colors">
                         + Add task to this date
                     </button>
                 </div>
@@ -804,15 +804,15 @@ function MobileView({
 
     return (
         <div className="lg:hidden space-y-4">
-            <div className="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-3">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-3">
                 <div className="flex items-center justify-between mb-2">
-                    <span className="font-bold text-sm text-gray-900">{month.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                    <span className="font-bold text-sm text-slate-900">{month.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
                     <div className="flex items-center gap-1">
-                        <button onClick={() => shiftMonth(-1)} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100">
+                        <button onClick={() => shiftMonth(-1)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                         </button>
-                        <button onClick={goToday} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-gray-100 text-gray-700">Today</button>
-                        <button onClick={() => shiftMonth(1)} className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100">
+                        <button onClick={goToday} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700">Today</button>
+                        <button onClick={() => shiftMonth(1)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
                         </button>
                     </div>
@@ -820,7 +820,7 @@ function MobileView({
 
                 <div className="grid grid-cols-7 mb-1">
                     {WEEKDAYS.map(d => (
-                        <div key={d} className="text-center text-[10px] font-semibold uppercase text-gray-400 py-1">{d.charAt(0)}</div>
+                        <div key={d} className="text-center text-[10px] font-semibold uppercase text-slate-400 py-1">{d.charAt(0)}</div>
                     ))}
                 </div>
                 <div className="grid grid-cols-7 gap-y-1">
@@ -835,16 +835,16 @@ function MobileView({
                                 onClick={() => setMobileDate(d)}
                                 className={`mx-auto flex flex-col items-center justify-center h-10 w-10 rounded-xl text-sm font-semibold transition-colors ${
                                     selected
-                                        ? 'bg-indigo-600 text-white'
+                                        ? 'bg-[#E31B23] text-white shadow-xs'
                                         : isToday
-                                        ? 'bg-indigo-50 text-indigo-700'
+                                        ? 'bg-red-50 text-[#E31B23]'
                                         : inMonth
-                                        ? 'text-gray-700 hover:bg-gray-50'
-                                        : 'text-gray-300'
+                                        ? 'text-slate-700 hover:bg-slate-50'
+                                        : 'text-slate-300'
                                 }`}
                             >
                                 {d.getDate()}
-                                <span className={`h-1 w-1 rounded-full mt-0.5 ${count > 0 ? (selected ? 'bg-white' : 'bg-indigo-500') : 'bg-transparent'}`} />
+                                <span className={`h-1 w-1 rounded-full mt-0.5 ${count > 0 ? (selected ? 'bg-white' : 'bg-[#E31B23]') : 'bg-transparent'}`} />
                             </button>
                         );
                     })}
@@ -853,12 +853,12 @@ function MobileView({
 
             <div className="flex items-center justify-between px-1">
                 <div>
-                    <h3 className="font-bold text-sm text-gray-900">
+                    <h3 className="font-bold text-sm text-slate-900">
                         {mobileDate.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
                     </h3>
-                    <span className="text-xs text-gray-500">{dayTasks.length} {dayTasks.length === 1 ? 'task' : 'tasks'} · {formatTotal(dayTasks)}</span>
+                    <span className="text-xs text-slate-500">{dayTasks.length} {dayTasks.length === 1 ? 'task' : 'tasks'} · {formatTotal(dayTasks)}</span>
                 </div>
-                <button onClick={() => onCreate(toDateStr(mobileDate))} className="px-3 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-xl shadow-sm">
+                <button onClick={() => onCreate(toDateStr(mobileDate))} className="px-3 py-1.5 text-xs font-semibold bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white rounded-xl shadow-xs transition-colors">
                     + Add
                 </button>
             </div>

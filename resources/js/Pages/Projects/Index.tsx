@@ -49,10 +49,10 @@ export default function Index({ projects, auth, filters }: any) {
                     </div>
                     <Link 
                         href={route('projects.create')} 
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex-shrink-0"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white text-sm font-semibold rounded-xl shadow-xs hover:shadow transition-all duration-150 flex-shrink-0"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                        New Project
+                        Proyek Baru
                     </Link>
                 </div>
             }
@@ -60,17 +60,17 @@ export default function Index({ projects, auth, filters }: any) {
             <Head title="Projects" />
 
             {/* Filter Tabs & Status Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4 mb-4 pb-2 border-b border-gray-100">
-                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-gray-100/80 rounded-xl border border-gray-200/60">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-4 mb-4 pb-2 border-b border-slate-100">
+                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/60">
                     <Link
                         href={route('projects.index', { status: 'all' })}
                         className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                             isAllSelected
-                                ? 'bg-white text-indigo-700 shadow-sm'
-                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                ? 'bg-white text-[#E31B23] shadow-xs'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                         }`}
                     >
-                        All Projects
+                        Semua Proyek
                     </Link>
                     <Link
                         href={route('projects.index', { status: 'Active' })}
@@ -117,18 +117,18 @@ export default function Index({ projects, auth, filters }: any) {
                 <div className="flex items-center gap-3">
                     {activeStatus && activeStatus !== 'all' && (
                         <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500">
-                                Filter: <span className="font-semibold text-indigo-600">{activeStatus}</span>
+                            <span className="text-xs text-slate-500">
+                                Filter: <span className="font-semibold text-[#E31B23]">{activeStatus}</span>
                             </span>
                             <Link
                                 href={route('projects.index')}
-                                className="text-xs font-semibold text-gray-600 hover:text-red-600 bg-gray-100 hover:bg-red-50 px-2.5 py-1 rounded-md transition-colors border border-gray-200"
+                                className="text-xs font-semibold text-slate-600 hover:text-rose-600 bg-slate-100 hover:bg-rose-50 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
                             >
                                 ✕ Reset Filter
                             </Link>
                         </div>
                     )}
-                    <span className="text-xs text-gray-400 font-medium">Total: {projects.total ?? projects.data?.length ?? 0} {(projects.total ?? projects.data?.length ?? 0) === 1 ? 'project' : 'projects'}</span>
+                    <span className="text-xs text-slate-400 font-medium">Total: {projects.total ?? projects.data?.length ?? 0} {(projects.total ?? projects.data?.length ?? 0) === 1 ? 'project' : 'projects'}</span>
                 </div>
             </div>
 
@@ -139,7 +139,7 @@ export default function Index({ projects, auth, filters }: any) {
                         : (project.progress || 0);
                     const isCompleted = project.status === 'Completed' || (project.total_tasks > 0 && (project.completed_tasks || 0) >= project.total_tasks) || progressPercent >= 100;
                     const status = statusConfig[isCompleted && project.status !== 'Archived' ? 'Completed' : project.status] || statusConfig['Planning'];
-                    const progressColor = isCompleted ? 'bg-emerald-500' : progressPercent >= 75 ? 'bg-emerald-500' : progressPercent >= 40 ? 'bg-blue-500' : progressPercent >= 20 ? 'bg-amber-500' : 'bg-gray-300';
+                    const progressColor = isCompleted ? 'bg-emerald-500' : progressPercent >= 75 ? 'bg-emerald-500' : progressPercent >= 40 ? 'bg-blue-500' : progressPercent >= 20 ? 'bg-amber-500' : 'bg-slate-300';
                     const isOverdue = project.deadline && new Date(project.deadline) < new Date() && !isCompleted && project.status !== 'Archived' && project.status !== 'Cancelled';
                     const isProjectCreator = project.created_by === auth?.user?.id 
                         || (project.owner_id && auth?.user?.employee?.id === project.owner_id) 
@@ -149,7 +149,7 @@ export default function Index({ projects, auth, filters }: any) {
                         <Link 
                             key={project.id} 
                             href={route('projects.show', project.id)}
-                            className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                            className="group bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
                         >
                             {/* Colored top bar */}
                             <div className={`h-1.5 ${status.dot}`} />
@@ -158,7 +158,7 @@ export default function Index({ projects, auth, filters }: any) {
                                 {/* Header */}
                                 <div className="flex items-start justify-between gap-3 mb-3">
                                     <div className="min-w-0 flex-1">
-                                        <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">{project.name}</h3>
+                                        <h3 className="font-semibold text-slate-900 group-hover:text-[#E31B23] transition-colors truncate">{project.name}</h3>
                                         {project.department?.name && (
                                             <p className="text-xs text-gray-400 mt-0.5">{project.department.name}</p>
                                         )}
@@ -236,7 +236,7 @@ export default function Index({ projects, auth, filters }: any) {
                                                 <Link
                                                     href={route('projects.edit', project.id)}
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="text-xs font-semibold text-gray-500 hover:text-indigo-600 bg-gray-50 hover:bg-indigo-50 px-2 py-1 rounded-md border border-gray-200 hover:border-indigo-200 transition-colors inline-flex items-center gap-1"
+                                                    className="text-xs font-semibold text-slate-500 hover:text-[#E31B23] bg-slate-50 hover:bg-red-50/50 px-2 py-1 rounded-lg border border-slate-200 hover:border-red-200 transition-colors inline-flex items-center gap-1"
                                                     title="Edit Project"
                                                 >
                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -248,7 +248,7 @@ export default function Index({ projects, auth, filters }: any) {
                                                 <button
                                                     type="button"
                                                     onClick={(e) => handleDelete(e, project.id, project.name)}
-                                                    className="text-xs font-semibold text-red-600 hover:text-red-700 bg-gray-50 hover:bg-red-50 px-2 py-1 rounded-md border border-gray-200 hover:border-red-200 transition-colors inline-flex items-center gap-1"
+                                                    className="text-xs font-semibold text-rose-600 hover:text-rose-700 bg-slate-50 hover:bg-rose-50 px-2 py-1 rounded-lg border border-slate-200 hover:border-rose-200 transition-colors inline-flex items-center gap-1"
                                                     title="Permanently Delete Project"
                                                 >
                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -258,7 +258,7 @@ export default function Index({ projects, auth, filters }: any) {
                                                 </button>
                                             </>
                                         )}
-                                        <span className="text-xs text-indigo-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span className="text-xs text-[#E31B23] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                                             Board →
                                         </span>
                                     </div>
@@ -271,13 +271,13 @@ export default function Index({ projects, auth, filters }: any) {
 
             {projects.data.length === 0 && (
                 <div className="text-center py-16">
-                    <div className="inline-flex rounded-full bg-indigo-50 p-4 mb-4">
-                        <svg className="w-8 h-8 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    <div className="inline-flex rounded-full bg-red-50 p-4 mb-4">
+                        <svg className="w-8 h-8 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-1">
                         {activeStatus ? `No projects found with status "${activeStatus}"` : 'No projects yet'}
                     </h3>
-                    <p className="text-sm text-gray-500 mb-4">
+                    <p className="text-sm text-slate-500 mb-4">
                         {activeStatus 
                             ? 'Try changing the status filter or reset filter to see other projects' 
                             : 'Get started by creating a new project for your team'}
@@ -286,14 +286,14 @@ export default function Index({ projects, auth, filters }: any) {
                         {activeStatus && (
                             <Link 
                                 href={route('projects.index')} 
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-700 text-sm font-semibold rounded-xl hover:bg-slate-200 transition-colors"
                             >
                                 Reset Filter
                             </Link>
                         )}
                         <Link 
                             href={route('projects.create')} 
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-[#E31B23] text-white text-sm font-semibold rounded-xl hover:bg-[#c4141b] active:bg-[#a30f15] shadow-xs transition-colors"
                         >
                             Create Project
                         </Link>

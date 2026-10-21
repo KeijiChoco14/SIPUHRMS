@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/react';
 import TaskDetailModal from '../Projects/TaskDetailModal';
 import CreateTaskModal from '@/Components/CreateTaskModal';
 import TaskViewSwitcher from '@/Components/TaskViewSwitcher';
+import PrimaryButton from '@/Components/PrimaryButton';
 
 const columnConfig: Record<string, { color: string; bg: string; border: string; icon: JSX.Element }> = {
     'To Do': {
@@ -156,12 +157,12 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                     </div>
                     <div className="flex items-center gap-3">
                         <TaskViewSwitcher current="kanban" />
-                        <button 
-                            onClick={() => setShowCreateModal(true)}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl text-sm shadow-sm transition-colors"
-                        >
-                            + Create Task
-                        </button>
+                        <PrimaryButton onClick={() => setShowCreateModal(true)}>
+                            <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Tambah Tugas
+                        </PrimaryButton>
                     </div>
                 </div>
             }
@@ -212,7 +213,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                             >
                                 {/* Column Header */}
                                 <div className={`flex items-center gap-2 px-3 py-2.5 rounded-t-xl ${config.bg} border ${config.border} border-b-0 transition-all ${
-                                    isColumnDraggedOver ? 'ring-2 ring-indigo-400 border-indigo-400' : ''
+                                    isColumnDraggedOver ? 'ring-2 ring-red-400 border-red-400' : ''
                                 }`}>
                                     <span className={config.color}>{config.icon}</span>
                                     <h3 className={`font-bold text-sm ${config.color}`}>{status}</h3>
@@ -224,14 +225,14 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                 {/* Task Cards Container */}
                                 <div className={`border ${
                                     isColumnDraggedOver 
-                                        ? 'border-indigo-400 bg-indigo-50/40 ring-2 ring-indigo-400/30' 
-                                        : `${config.border} bg-gray-50/50`
+                                        ? 'border-red-400 bg-red-50/40 ring-2 ring-red-400/30' 
+                                        : `${config.border} bg-slate-50/50`
                                 } border-t-0 rounded-b-xl p-2.5 space-y-2.5 min-h-[260px] max-h-[72vh] overflow-y-auto transition-all duration-150`}>
                                     
                                     {/* Drop Target Preview Banner */}
                                     {isColumnDraggedOver && (
-                                        <div className="border-2 border-dashed border-indigo-400 bg-indigo-100/70 rounded-xl p-3 text-center text-xs font-semibold text-indigo-700 flex items-center justify-center gap-2 shadow-sm animate-pulse">
-                                            <svg className="w-4 h-4 text-indigo-600 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <div className="border-2 border-dashed border-red-400 bg-red-100/70 rounded-xl p-3 text-center text-xs font-semibold text-red-700 flex items-center justify-center gap-2 shadow-xs animate-pulse">
+                                            <svg className="w-4 h-4 text-[#E31B23] animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                                             </svg>
                                             <span>Drop into {status} column</span>
@@ -266,20 +267,20 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                         setSelectedTask(task);
                                                     }
                                                 }}
-                                                className={`group bg-white rounded-xl shadow-sm border transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
+                                                className={`group bg-white rounded-xl shadow-xs border transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
                                                     isBeingDragged
-                                                        ? 'opacity-30 scale-95 border-dashed border-2 border-indigo-400 bg-indigo-50/50 rotate-1 shadow-inner'
-                                                        : 'hover:shadow-md hover:-translate-y-0.5 border-gray-200/80 hover:border-indigo-300'
+                                                        ? 'opacity-30 scale-95 border-dashed border-2 border-red-400 bg-red-50/50 rotate-1 shadow-inner'
+                                                        : 'hover:shadow-md hover:-translate-y-0.5 border-slate-200 hover:border-red-300'
                                                 } ${isOverdue && !isBeingDragged ? 'border-red-200 ring-1 ring-red-100' : ''}`}
                                             >
                                                 <div className="p-3.5">
                                                     {/* Task Title + Drag Handle Icon */}
                                                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                                                        <h4 className="font-semibold text-sm text-gray-900 leading-snug group-hover:text-indigo-600 transition-colors">
+                                                        <h4 className="font-semibold text-sm text-slate-900 leading-snug group-hover:text-[#E31B23] transition-colors">
                                                             {task.title}
                                                         </h4>
                                                         <span 
-                                                            className="text-gray-300 group-hover:text-gray-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
+                                                            className="text-slate-300 group-hover:text-slate-500 transition-colors shrink-0 pt-0.5 cursor-grab active:cursor-grabbing"
                                                             title="Drag and drop task card"
                                                         >
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -289,7 +290,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                     </div>
                                                     
                                                     {/* Project Name */}
-                                                    <p className="text-[11px] text-gray-400 mb-2.5 truncate">{task.project?.name}</p>
+                                                    <p className="text-[11px] text-slate-400 mb-2.5 truncate">{task.project?.name}</p>
 
                                                     {/* Priority + Deadline Row */}
                                                     <div className="flex items-center justify-between mb-3">
@@ -297,7 +298,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                             {task.priority}
                                                         </span>
                                                         {task.deadline && (
-                                                            <span className={`text-[10px] font-medium flex items-center gap-1 ${isOverdue ? 'text-red-500' : 'text-gray-400'}`}>
+                                                            <span className={`text-[10px] font-medium flex items-center gap-1 ${isOverdue ? 'text-rose-500' : 'text-slate-400'}`}>
                                                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                                                 {new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                                                             </span>
@@ -306,19 +307,19 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
 
                                                     {/* Footer */}
                                                     <div 
-                                                        className="flex items-center justify-between pt-2.5 border-t border-gray-50" 
+                                                        className="flex items-center justify-between pt-2.5 border-t border-slate-100" 
                                                         onClick={e => e.stopPropagation()}
                                                         onMouseDown={e => e.stopPropagation()}
                                                     >
                                                         {/* Assignee Avatars */}
                                                         <div className="flex -space-x-2">
                                                             {assigneeNames.slice(0, 3).map((name: string, idx: number) => (
-                                                                <div key={idx} className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white" title={name}>
+                                                                <div key={idx} className="h-6 w-6 rounded-full bg-gradient-to-br from-[#E31B23] to-red-400 text-white flex items-center justify-center text-[9px] font-bold border-2 border-white" title={name}>
                                                                     {name.charAt(0)}
                                                                 </div>
                                                             ))}
                                                             {assigneeNames.length > 3 && (
-                                                                <div className="h-6 w-6 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-[9px] font-bold border-2 border-white">
+                                                                <div className="h-6 w-6 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center text-[9px] font-bold border-2 border-white">
                                                                     +{assigneeNames.length - 3}
                                                                 </div>
                                                             )}
@@ -327,19 +328,19 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                         {/* Quick Actions */}
                                                         <div className="flex items-center gap-2">
                                                             {task.comments?.length > 0 && (
-                                                                <span className="flex items-center gap-0.5 text-[10px] text-gray-400">
+                                                                <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
                                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                                                                     {task.comments.length}
                                                                 </span>
                                                             )}
                                                             {((task.comments?.filter((c: any) => c.file_path)?.length || 0) + (task.attachments?.length || 0)) > 0 && (
-                                                                <span className="flex items-center gap-0.5 text-[10px] text-gray-400" title="Attachments">
+                                                                <span className="flex items-center gap-0.5 text-[10px] text-slate-400" title="Attachments">
                                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
                                                                     {(task.comments?.filter((c: any) => c.file_path)?.length || 0) + (task.attachments?.length || 0)}
                                                                 </span>
                                                             )}
                                                             <select 
-                                                                className={`text-[10px] border rounded font-semibold py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-indigo-500`}
+                                                                className={`text-[10px] border rounded font-semibold py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]`}
                                                                 value={task.status}
                                                                 onChange={(e) => updateTaskStatus(task.id, e.target.value)}
                                                                 onClick={e => e.stopPropagation()}

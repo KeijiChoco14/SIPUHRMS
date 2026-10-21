@@ -388,9 +388,9 @@ export default function Authenticated({
             key: 'general',
             title: 'Workspace',
             subtitle: 'Swiss-Belinn SKA',
-            badgeBg: 'bg-gray-100',
-            badgeBorder: 'border-gray-200',
-            dotColor: 'bg-indigo-600',
+            badgeBg: 'bg-slate-100',
+            badgeBorder: 'border-slate-200',
+            dotColor: 'bg-[#E31B23]',
             sections: [
                 {
                     title: 'Workspace',
@@ -423,7 +423,7 @@ export default function Authenticated({
     };
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+        <div className="min-h-screen bg-[#f8fafc] flex overflow-x-hidden selection:bg-[#E31B23] selection:text-white">
             {/* Desktop Sidebar (Only rendered when hideSidebar is false) */}
             {!hideSidebar && (
                 <aside
@@ -431,7 +431,7 @@ export default function Authenticated({
                     aria-hidden={!isSidebarOpen}
                     className={`hidden md:flex flex-col shrink-0 h-screen sticky top-0 bg-white/80 backdrop-blur-xl shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300 ease-in-out overflow-hidden z-20 ${
                         isSidebarOpen
-                            ? 'w-64 border-r border-gray-200/50 opacity-100'
+                            ? 'w-64 border-r border-slate-200/60 opacity-100'
                             : 'w-0 border-r-0 border-transparent opacity-0 pointer-events-none'
                     }`}
                 >
@@ -441,14 +441,14 @@ export default function Authenticated({
                         }`}
                     >
                         {/* Brand Header with Close / Collapse Button */}
-                        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-gray-100 bg-gradient-to-r from-indigo-600 to-indigo-700">
+                        <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-red-700/20 bg-[#E31B23]">
                             <Link href="/" className="flex items-center min-w-0">
-                                <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden shrink-0">
+                                <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center overflow-hidden shrink-0">
                                     <ApplicationLogo className="h-full w-full object-cover" />
                                 </div>
                                 <div className="ml-2.5 min-w-0">
                                     <span className="font-bold text-white text-xs tracking-tight block truncate">SIPU Management</span>
-                                    <span className="block text-[9px] text-indigo-200 leading-none">Swiss-Belinn SKA</span>
+                                    <span className="block text-[9px] text-red-100 leading-none">Swiss-Belinn SKA</span>
                                 </div>
                             </Link>
                             <button
@@ -464,13 +464,13 @@ export default function Authenticated({
                         </div>
 
                         {/* Quick Link: Return to Desk Launcher (Main Menu) */}
-                        <div className="p-3 pb-2 border-b border-gray-100/80">
+                        <div className="p-3 pb-2 border-b border-slate-100">
                             <Link
                                 href={route('dashboard')}
-                                className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-700 transition-all border border-gray-200/60 group font-semibold text-xs shadow-2xs"
+                                className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-[#E31B23] transition-all border border-slate-200/60 group font-semibold text-xs shadow-2xs"
                                 title="Kembali ke Menu Utama (App Launcher)"
                             >
-                                <div className="w-6 h-6 rounded-lg bg-indigo-100 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+                                <div className="w-6 h-6 rounded-lg bg-red-100 group-hover:bg-[#E31B23] text-[#E31B23] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                                     </svg>
@@ -506,12 +506,12 @@ export default function Authenticated({
                                                         href={getItemHref(item)}
                                                         className={`group flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
                                                             active
-                                                                ? 'bg-gradient-to-r from-indigo-50 to-indigo-100/50 text-indigo-700 shadow-sm shadow-indigo-100/50 ring-1 ring-indigo-50 font-semibold'
-                                                                : 'text-gray-600 hover:bg-gray-50/80 hover:text-gray-900 hover:translate-x-1'
+                                                                ? 'bg-red-50 text-[#E31B23] shadow-xs ring-1 ring-red-100 font-semibold'
+                                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1'
                                                         }`}
                                                     >
-                                                        <span className={`transition-colors shrink-0 ${active ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                                                            {icons[item.name] || <span className="w-5 h-5 rounded bg-gray-200 inline-block" />}
+                                                        <span className={`transition-colors shrink-0 ${active ? 'text-[#E31B23]' : 'text-slate-400 group-hover:text-slate-600'}`}>
+                                                            {icons[item.name] || <span className="w-5 h-5 rounded bg-slate-200 inline-block" />}
                                                         </span>
                                                         <span className="truncate">{item.name}</span>
                                                     </Link>
@@ -524,14 +524,14 @@ export default function Authenticated({
                         </div>
 
                         {/* User Profile & Collapse Sidebar Footer */}
-                        <div className="border-t border-gray-100 p-3 bg-white/50">
-                            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
-                                <div className="h-8 w-8 rounded-full overflow-hidden border border-gray-200 shadow-xs shrink-0">
+                        <div className="border-t border-slate-100 p-3 bg-white/50">
+                            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                                <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-200 shadow-xs shrink-0">
                                     <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-semibold text-gray-800 truncate">{user.name}</p>
-                                    <span className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-semibold ${roleBadgeColors[userRole] || 'bg-gray-100 text-gray-600'}`}>
+                                    <p className="text-xs font-semibold text-slate-800 truncate">{user.name}</p>
+                                    <span className={`inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-semibold ${roleBadgeColors[userRole] || 'bg-slate-100 text-slate-600'}`}>
                                         {userRole}
                                     </span>
                                 </div>
@@ -541,7 +541,7 @@ export default function Authenticated({
                             <button
                                 type="button"
                                 onClick={toggleSidebar}
-                                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-medium text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors mt-2"
+                                className="w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-medium text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors mt-2"
                                 title="Tutup Sidebar (Ctrl+B)"
                             >
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -557,14 +557,14 @@ export default function Authenticated({
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
                 {/* Topbar */}
-                <header className="bg-white/70 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-30 shadow-sm transition-all duration-300">
+                <header className="bg-white/70 backdrop-blur-lg border-b border-slate-200/60 sticky top-0 z-30 shadow-xs transition-all duration-300">
                     <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
 
                         {/* Mobile menu button */}
                         <div className="flex items-center md:hidden">
                             <button
                                 onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
-                                className="inline-flex items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 transition-colors"
+                                className="inline-flex items-center justify-center rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#E31B23] transition-colors"
                             >
                                 <span className="sr-only">Open main menu</span>
                                 {showingNavigationDropdown ? (
@@ -574,10 +574,10 @@ export default function Authenticated({
                                 )}
                             </button>
                             <Link href="/" className="ml-3 md:hidden flex items-center">
-                                <div className="h-7 w-7 rounded-lg bg-indigo-600 flex items-center justify-center overflow-hidden">
+                                <div className="h-7 w-7 rounded-lg bg-[#E31B23] flex items-center justify-center overflow-hidden">
                                     <ApplicationLogo className="h-full w-full object-cover" />
                                 </div>
-                                <span className="ml-2 font-bold text-gray-800 text-sm">SIPU Management</span>
+                                <span className="ml-2 font-bold text-slate-800 text-sm">SIPU Management</span>
                             </Link>
                         </div>
 
@@ -588,7 +588,7 @@ export default function Authenticated({
                                     type="button"
                                     onClick={toggleSidebar}
                                     title="Buka Sidebar (Ctrl+B)"
-                                    className="p-2 rounded-xl text-gray-500 hover:text-indigo-600 hover:bg-indigo-50/60 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500/20 flex items-center gap-1.5 group active:scale-95"
+                                    className="p-2 rounded-xl text-slate-500 hover:text-[#E31B23] hover:bg-red-50 transition-all focus:outline-none focus:ring-2 focus:ring-[#E31B23]/20 flex items-center gap-1.5 group active:scale-95"
                                 >
                                     <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 6h16M4 12h16M4 18h16" />
@@ -599,16 +599,16 @@ export default function Authenticated({
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href={route('dashboard')}
-                                        className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-gray-100 transition-colors group shrink-0"
+                                        className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 transition-colors group shrink-0"
                                         title="Kembali ke Menu Utama (Desk Launcher)"
                                     >
-                                        <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center p-1 shadow-sm shrink-0">
+                                        <div className="h-7 w-7 rounded-lg bg-[#E31B23] flex items-center justify-center p-1 shadow-xs shrink-0">
                                             <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
                                         </div>
-                                        <span className="font-bold text-gray-800 text-xs tracking-tight hidden sm:inline">SIPU</span>
+                                        <span className="font-bold text-slate-800 text-xs tracking-tight hidden sm:inline">SIPU</span>
                                     </Link>
-                                    <span className="text-gray-300 hidden sm:inline">|</span>
-                                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/80 text-xs font-semibold text-gray-700 border border-gray-200/60 shrink-0">
+                                    <span className="text-slate-300 hidden sm:inline">|</span>
+                                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-200/60 shrink-0">
                                         <span className={`w-2 h-2 rounded-full ${activeModuleInfo.dotColor}`}></span>
                                         <span>{activeModuleInfo.title}</span>
                                     </div>
@@ -620,12 +620,12 @@ export default function Authenticated({
                         {hideSidebar && (
                             <div className="hidden md:flex items-center gap-3 shrink-0 mr-6">
                                 <Link href={route('dashboard')} className="flex items-center gap-2.5 group">
-                                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-700 flex items-center justify-center shadow-sm overflow-hidden p-1.5 group-hover:scale-105 transition-transform">
+                                    <div className="h-9 w-9 rounded-xl bg-[#E31B23] flex items-center justify-center shadow-xs overflow-hidden p-1.5 group-hover:scale-105 transition-transform">
                                         <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
                                     </div>
                                     <div>
-                                        <span className="font-bold text-gray-900 text-sm tracking-tight leading-none group-hover:text-indigo-600 transition-colors">SIPU Management</span>
-                                        <span className="block text-[10px] text-gray-400 leading-none mt-0.5">Swiss-Belinn SKA</span>
+                                        <span className="font-bold text-slate-900 text-sm tracking-tight leading-none group-hover:text-[#E31B23] transition-colors">SIPU Management</span>
+                                        <span className="block text-[10px] text-slate-400 leading-none mt-0.5">Swiss-Belinn SKA</span>
                                     </div>
                                 </Link>
                             </div>
@@ -643,19 +643,19 @@ export default function Authenticated({
                             {/* Notifications Dropdown */}
                             <Dropdown>
                                 <Dropdown.Trigger>
-                                    <button className="relative flex items-center justify-center p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50/50 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                    <button className="relative flex items-center justify-center p-2.5 text-slate-400 hover:text-[#E31B23] hover:bg-red-50 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#E31B23]/20">
                                         <svg className="w-5 h-5 transition-transform duration-300 hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                         {(usePage().props.auth as any).notifications?.length > 0 && (
                                             <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
                                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E31B23]"></span>
                                             </span>
                                         )}
                                     </button>
                                 </Dropdown.Trigger>
-                                <Dropdown.Content contentClasses="w-80 bg-white py-0">
-                                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-                                        <h3 className="text-sm font-semibold text-gray-800">Notifications</h3>
+                                <Dropdown.Content contentClasses="w-80 bg-white py-0 rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                                        <h3 className="text-sm font-semibold text-slate-800">Notifications</h3>
                                     </div>
                                     <div className="max-h-64 overflow-y-auto">
                                         {(usePage().props.auth as any).notifications?.length > 0 ? (
@@ -666,39 +666,39 @@ export default function Authenticated({
                                                     router.delete(route('notifications.destroy', notif.id), {
                                                         preserveScroll: true,
                                                         preserveState: true,
-                                                    });
+                                                     });
                                                 };
                                                 const isMention = notif.data?.type === 'comment_mention';
 
                                                 const content = (
-                                                    <div className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer group flex justify-between items-start gap-2.5 ${isMention ? 'bg-indigo-50/20' : ''}`}>
+                                                    <div className={`px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group flex justify-between items-start gap-2.5 ${isMention ? 'bg-red-50/30' : ''}`}>
                                                         <div className="flex items-start gap-2.5 flex-1 min-w-0">
                                                             {isMention ? (
-                                                                <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+                                                                <div className="w-7 h-7 rounded-full bg-red-100 text-[#E31B23] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
                                                                     @
                                                                 </div>
                                                             ) : (
-                                                                <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                                                                <div className="w-7 h-7 rounded-full bg-slate-100 text-[#E31B23] flex items-center justify-center shrink-0 mt-0.5">
                                                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                                                     </svg>
                                                                 </div>
                                                             )}
                                                             <div className="flex-1 min-w-0">
-                                                                <p className="text-xs text-gray-800 leading-snug font-medium line-clamp-2">{notif.data.message}</p>
+                                                                <p className="text-xs text-slate-800 leading-snug font-medium line-clamp-2">{notif.data.message}</p>
                                                                 <div className="flex items-center gap-1.5 mt-1">
                                                                     {isMention && (
-                                                                        <span className="text-[9px] bg-indigo-100 text-indigo-700 font-semibold px-1 rounded">
+                                                                        <span className="text-[9px] bg-red-100 text-[#E31B23] font-semibold px-1 rounded">
                                                                             Tagged
                                                                         </span>
                                                                     )}
-                                                                    <span className="text-[10px] text-gray-400">{new Date(notif.created_at).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                                                                    <span className="text-[10px] text-slate-400">{new Date(notif.created_at).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <button 
                                                             onClick={handleDeleteNotification}
-                                                            className="text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                                                            className="text-slate-300 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-all shrink-0"
                                                             title="Delete Notification"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -715,7 +715,7 @@ export default function Authenticated({
                                                 );
                                             })
                                         ) : (
-                                            <div className="px-4 py-6 text-center text-sm text-gray-500">
+                                            <div className="px-4 py-6 text-center text-sm text-slate-500">
                                                 No new notifications
                                             </div>
                                         )}
@@ -726,12 +726,12 @@ export default function Authenticated({
                             {/* User Profile Dropdown */}
                             <Dropdown>
                                 <Dropdown.Trigger>
-                                    <button className="flex items-center gap-2.5 text-sm font-medium text-gray-500 hover:text-gray-900 focus:outline-none transition-all duration-300 rounded-xl px-2 py-1.5 hover:bg-gray-100/50 hover:shadow-sm">
-                                        <div className="h-9 w-9 rounded-full overflow-hidden shadow-md ring-2 ring-white shrink-0">
+                                    <button className="flex items-center gap-2.5 text-sm font-medium text-slate-500 hover:text-slate-900 focus:outline-none transition-all duration-300 rounded-xl px-2 py-1.5 hover:bg-slate-100/50 hover:shadow-xs">
+                                        <div className="h-9 w-9 rounded-full overflow-hidden shadow-xs ring-2 ring-white shrink-0">
                                             <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
                                         </div>
-                                        <span className="hidden sm:inline-block text-gray-700 font-medium">{user.name}</span>
-                                        <svg className="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <span className="hidden sm:inline-block text-slate-700 font-medium">{user.name}</span>
+                                        <svg className="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                         </svg>
                                     </button>
@@ -747,18 +747,18 @@ export default function Authenticated({
 
                     {/* Mobile Search slot (Desk Launcher on mobile) */}
                     {header && hideSidebar && (
-                        <div className="md:hidden border-t border-gray-100/80 bg-white/95 px-4 py-2.5">
+                        <div className="md:hidden border-t border-slate-100 bg-white/95 px-4 py-2.5">
                             {header}
                         </div>
                     )}
 
                     {/* Mobile Navigation Menu */}
-                    <div className={`${showingNavigationDropdown ? 'block' : 'hidden'} md:hidden border-t border-gray-200 bg-white`}>
+                    <div className={`${showingNavigationDropdown ? 'block' : 'hidden'} md:hidden border-t border-slate-200 bg-white`}>
                         <div className="space-y-1 pt-2 pb-3 px-2 max-h-[70vh] overflow-y-auto">
                             {/* Return to Desk Launcher on mobile */}
                             <div className="mb-2">
                                 <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard') && !currentUrl.includes('view=')}>
-                                    <span className="flex items-center gap-2 font-bold text-indigo-600">
+                                    <span className="flex items-center gap-2 font-bold text-[#E31B23]">
                                         {icons['Main Menu'] || icons['Menu Utama']}
                                         Main Menu (Desk Launcher)
                                     </span>
@@ -827,12 +827,12 @@ export default function Authenticated({
             {/* Global Loading Top Bar & Floating Notification */}
             {isNavigating && (
                 <>
-                    <div className="fixed top-0 left-0 right-0 h-1 z-[99999] overflow-hidden bg-indigo-100/60 pointer-events-none">
-                        <div className="h-full w-1/2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-full animate-indeterminate" />
+                    <div className="fixed top-0 left-0 right-0 h-1 z-[99999] overflow-hidden bg-red-100/60 pointer-events-none">
+                        <div className="h-full w-1/2 bg-gradient-to-r from-[#E31B23] via-red-500 to-[#b51219] rounded-full animate-indeterminate" />
                     </div>
 
-                    <div className="fixed bottom-6 right-6 z-[99999] flex items-center gap-3 px-4 py-2.5 rounded-xl bg-gray-900/90 text-white backdrop-blur-md shadow-2xl border border-white/10 pointer-events-none transition-all duration-200">
-                        <svg className="animate-spin h-4 w-4 text-indigo-400 shrink-0" fill="none" viewBox="0 0 24 24">
+                    <div className="fixed bottom-6 right-6 z-[99999] flex items-center gap-3 px-4 py-2.5 rounded-xl bg-slate-900/90 text-white backdrop-blur-md shadow-2xl border border-white/10 pointer-events-none transition-all duration-200">
+                        <svg className="animate-spin h-4 w-4 text-[#E31B23] shrink-0" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                         </svg>

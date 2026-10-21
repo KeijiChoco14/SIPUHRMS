@@ -653,7 +653,7 @@ export default function PowerProIndex({
                                                                     setActiveItem(item);
                                                                     setIsApproveOpen(true);
                                                                 }}
-                                                                className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-[11px] transition-colors"
+                                                                className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] transition-colors"
                                                             >
                                                                 Setujui HOD
                                                             </button>
@@ -1126,7 +1126,7 @@ export default function PowerProIndex({
                         <SecondaryButton onClick={() => setIsApproveOpen(false)}>
                             Batal
                         </SecondaryButton>
-                        <PrimaryButton disabled={approveForm.processing} className="bg-blue-600 hover:bg-blue-700">
+                        <PrimaryButton disabled={approveForm.processing}>
                             {approveForm.processing ? 'Memproses...' : 'Setujui & Teruskan ke IT'}
                         </PrimaryButton>
                     </div>

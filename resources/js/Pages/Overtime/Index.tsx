@@ -7,6 +7,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputError from '@/Components/InputError';
+import Badge from '@/Components/Badge';
 
 export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: any[] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,130 +32,146 @@ export default function OvertimeIndex({ overtimeRequests }: { overtimeRequests: 
         reset();
     };
 
-    const getStatusColor = (status: string) => {
+    const getStatusVariant = (status: string) => {
         switch (status) {
-            case 'Approved': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-            case 'Rejected': return 'bg-red-100 text-red-700 border-red-200';
-            default: return 'bg-amber-100 text-amber-700 border-amber-200';
+            case 'Approved': return 'success';
+            case 'Rejected': return 'danger';
+            default: return 'warning';
         }
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">My Overtime Requests</h2>}>
-            <Head title="My Overtime" />
+        <AuthenticatedLayout header={<h2 className="font-bold text-xl text-slate-900 tracking-tight">Pengajuan Lembur (SPKL)</h2>}>
+            <Head title="Pengajuan Lembur" />
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50/50">
-                    <div>
-                        <h3 className="text-lg font-bold text-gray-900">Overtime History</h3>
-                        <p className="text-sm text-gray-500 mt-1">View your past and upcoming overtime requests.</p>
-                    </div>
-                    <PrimaryButton onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
-                        + Request Overtime
-                    </PrimaryButton>
-                </div>
+            <div className="py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                        <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50">
+                            <div>
+                                <h3 className="text-base font-semibold text-slate-900">Riwayat Pengajuan Lembur</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">Daftar permohonan Surat Perintah Kerja Lembur (SPKL) dan status verifikasi.</p>
+                            </div>
+                            <PrimaryButton onClick={() => setIsModalOpen(true)}>
+                                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                Ajukan Lembur
+                            </PrimaryButton>
+                        </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-left">
-                        <thead className="bg-gray-50 text-gray-500 font-medium border-b border-gray-200">
-                            <tr>
-                                <th className="px-6 py-4">Date</th>
-                                <th className="px-6 py-4">Time</th>
-                                <th className="px-6 py-4">Reason</th>
-                                <th className="px-6 py-4">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {overtimeRequests.length === 0 ? (
-                                <tr>
-                                    <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                                        You haven't made any overtime requests yet.
-                                    </td>
-                                </tr>
-                            ) : (
-                                overtimeRequests.map((req) => (
-                                    <tr key={req.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-gray-900">{req.date}</td>
-                                        <td className="px-6 py-4 text-gray-600">
-                                            {req.start_time} - {req.end_time}
-                                        </td>
-                                        <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{req.reason}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full border ${getStatusColor(req.status)}`}>
-                                                {req.status}
-                                            </span>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left">
+                                <thead className="bg-slate-50/80 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200/80">
+                                    <tr>
+                                        <th className="px-6 py-3.5">Tanggal</th>
+                                        <th className="px-6 py-3.5">Jam Lembur</th>
+                                        <th className="px-6 py-3.5">Alasan / Uraian Tugas</th>
+                                        <th className="px-6 py-3.5 text-center">Status</th>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {overtimeRequests.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-16 text-center text-slate-500">
+                                                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3">
+                                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <p className="text-sm font-medium text-slate-700">Belum ada pengajuan lemur</p>
+                                                <p className="text-xs text-slate-400 mt-1">Gunakan tombol "Ajukan Lembur" di atas untuk membuat pengajuan baru.</p>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        overtimeRequests.map((req) => (
+                                            <tr key={req.id} className="hover:bg-slate-50/75 transition-colors">
+                                                <td className="px-6 py-4 font-semibold text-slate-900 tabular-nums">
+                                                    {req.date}
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-600 tabular-nums">
+                                                    {req.start_time} - {req.end_time}
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-600 max-w-md truncate">{req.reason}</td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <Badge variant={getStatusVariant(req.status)} dot>
+                                                        {req.status}
+                                                    </Badge>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <Modal show={isModalOpen} onClose={closeModal} maxWidth="md">
                 <form onSubmit={submit} className="p-6">
-                    <h2 className="text-lg font-bold text-gray-900 mb-6">Request Overtime</h2>
+                    <h2 className="text-lg font-bold text-slate-900 mb-5">Ajukan Surat Perintah Kerja Lembur (SPKL)</h2>
 
                     <div className="space-y-4">
                         <div>
-                            <InputLabel htmlFor="date" value="Date" />
+                            <InputLabel htmlFor="date" value="Tanggal Lembur" />
                             <TextInput
                                 id="date"
                                 type="date"
-                                className="mt-1 block w-full"
+                                className="mt-1.5 block w-full"
                                 value={data.date}
                                 onChange={e => setData('date', e.target.value)}
                                 required
                             />
-                            <InputError message={errors.date} className="mt-2" />
+                            <InputError message={errors.date} className="mt-1.5" />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="start_time" value="Start Time" />
+                                <InputLabel htmlFor="start_time" value="Jam Mulai" />
                                 <TextInput
                                     id="start_time"
                                     type="time"
-                                    className="mt-1 block w-full"
+                                    className="mt-1.5 block w-full"
                                     value={data.start_time}
                                     onChange={e => setData('start_time', e.target.value)}
                                     required
                                 />
-                                <InputError message={errors.start_time} className="mt-2" />
+                                <InputError message={errors.start_time} className="mt-1.5" />
                             </div>
                             <div>
-                                <InputLabel htmlFor="end_time" value="End Time" />
+                                <InputLabel htmlFor="end_time" value="Jam Selesai" />
                                 <TextInput
                                     id="end_time"
                                     type="time"
-                                    className="mt-1 block w-full"
+                                    className="mt-1.5 block w-full"
                                     value={data.end_time}
                                     onChange={e => setData('end_time', e.target.value)}
                                     required
                                 />
-                                <InputError message={errors.end_time} className="mt-2" />
+                                <InputError message={errors.end_time} className="mt-1.5" />
                             </div>
                         </div>
 
                         <div>
-                            <InputLabel htmlFor="reason" value="Reason" />
+                            <InputLabel htmlFor="reason" value="Alasan / Uraian Tugas Lembur" />
                             <textarea
                                 id="reason"
-                                className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                className="mt-1.5 block w-full rounded-xl border-slate-300 text-sm text-slate-900 shadow-xs focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2.5 px-3"
                                 rows={3}
+                                placeholder="Jelaskan pekerjaan operasional yang membutuhkan lembur..."
                                 value={data.reason}
                                 onChange={e => setData('reason', e.target.value)}
                                 required
                             ></textarea>
-                            <InputError message={errors.reason} className="mt-2" />
+                            <InputError message={errors.reason} className="mt-1.5" />
                         </div>
                     </div>
 
-                    <div className="mt-6 flex justify-end gap-3">
-                        <SecondaryButton onClick={closeModal}>Cancel</SecondaryButton>
-                        <PrimaryButton disabled={processing} className="bg-indigo-600 hover:bg-indigo-700">
-                            Submit Request
+                    <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <SecondaryButton onClick={closeModal}>Batal</SecondaryButton>
+                        <PrimaryButton disabled={processing}>
+                            {processing ? 'Menyimpan...' : 'Kirim Pengajuan'}
                         </PrimaryButton>
                     </div>
                 </form>
