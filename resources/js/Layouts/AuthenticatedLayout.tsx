@@ -334,7 +334,6 @@ export default function Authenticated({
                         items: [
                             { name: 'Announcements', route: 'announcements.index', pattern: 'announcements.index' },
                             { name: 'Documents', route: 'documents.index', pattern: 'documents.index' },
-                            { name: 'Employee Directory', route: 'directory.index', pattern: 'directory.index' },
                         ],
                     },
                 ],
@@ -358,9 +357,9 @@ export default function Authenticated({
                     {
                         title: isItStaff ? 'IT Workspace' : 'Hotel IT Services',
                         items: [
-                            isItStaff ? { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.index' } : null,
+                            isItStaff ? { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.*' } : null,
                             { name: isItStaff ? 'IT Helpdesk Tickets' : 'My Support Tickets', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.*' },
-                            isItStaff ? { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.assets.*' } : null,
+                            isItStaff ? { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.*' } : null,
                             { name: 'Power Pro ID Requests', route: 'power-pro.index', pattern: 'power-pro.*' },
                         ].filter(Boolean) as any[],
                     },
@@ -454,7 +453,7 @@ export default function Authenticated({
         if (item.params?.tab) {
             return (
                 route().current(item.pattern) &&
-                (currentUrl.includes(`tab=${item.params.tab}`) || (!currentUrl.includes('tab=') && item.params.tab === 'overview'))
+                (currentUrl.includes(`tab=${item.params.tab}`) || (!currentUrl.includes('tab=') && (item.params.tab === 'overview' || (item.params.tab === 'catalog' && currentUrl.includes('room-borrowing')))))
             );
         }
         if (item.route === 'dashboard') {
@@ -547,7 +546,7 @@ export default function Authenticated({
                                                         href={getItemHref(item)}
                                                         className={`group flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
                                                             active
-                                                                ? 'bg-red-50 text-[#E31B23] shadow-xs ring-1 ring-red-100 font-semibold'
+                                                                ? 'bg-red-50 text-[#E31B23] shadow-xs ring-1 ring-red-100 font-semibold hover:bg-red-100/70 hover:translate-x-0.5'
                                                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1'
                                                         }`}
                                                     >

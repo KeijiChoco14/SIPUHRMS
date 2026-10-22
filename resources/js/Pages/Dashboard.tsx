@@ -196,20 +196,6 @@ export default function Dashboard({
             ),
         },
         {
-            id: 'directory',
-            name: 'Staff Directory',
-            description: 'Contact directory of all employees, departments, and positions',
-            category: 'Company',
-            href: route('directory.index'),
-            gradient: 'from-cyan-500 to-blue-500',
-            visible: true,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            ),
-        },
-        {
             id: 'announcements',
             name: 'Announcements',
             description: 'Company memos, official news, and hotel announcements',
@@ -507,67 +493,33 @@ export default function Dashboard({
                                 Task Management Workspace
                             </h2>
                         </div>
-                        <Link
-                            href={route('dashboard')}
-                            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors shrink-0"
-                            title="Back to Desk Launcher"
-                        >
-                            <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                            <span className="hidden sm:inline">Desk Launcher</span>
-                        </Link>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Link
+                                href={route('tasks.create')}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold text-white bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] shadow-xs transition-all"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Create New Task</span>
+                            </Link>
+                            <Link
+                                href={route('dashboard')}
+                                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors shrink-0"
+                                title="Back to Desk Launcher"
+                            >
+                                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                                <span className="hidden sm:inline">Desk Launcher</span>
+                            </Link>
+                        </div>
                     </div>
                 }
             >
                 <Head title="Task Management Workspace - Swiss-Belinn" />
 
                 <div className="space-y-6">
-                    {/* Action Tabs Bar */}
-                    <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E31B23] text-white shadow-xs">
-                                Task Summary
-                            </span>
-                            <Link
-                                href={route('tasks.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
-                            >
-                                My Tasks
-                            </Link>
-                            <Link
-                                href={route('tasks.kanban')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
-                            >
-                                Kanban Board
-                            </Link>
-                            <Link
-                                href={route('tasks.calendar')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
-                            >
-                                Task Calendar
-                            </Link>
-                            {canViewProjects && (
-                                <Link
-                                    href={route('projects.index')}
-                                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50 transition-colors"
-                                >
-                                    Projects ({projectProgress.length})
-                                </Link>
-                            )}
-                        </div>
-
-                        <Link
-                            href={route('tasks.create')}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] shadow-xs transition-all"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Create New Task
-                        </Link>
-                    </div>
-
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
@@ -705,75 +657,6 @@ export default function Dashboard({
                 <Head title="Human Resources (HR) - Swiss-Belinn" />
 
                 <div className="space-y-6">
-                    {/* Action Tabs Bar */}
-                    <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-200 flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#E31B23] text-white shadow-xs">
-                                HR Overview
-                            </span>
-                            {isAdmin && (
-                                <>
-                                    <Link
-                                        href={route('employees.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                                    >
-                                        Employees
-                                    </Link>
-                                    <Link
-                                        href={route('departments.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                                    >
-                                        Departments & Divisions
-                                    </Link>
-                                    <Link
-                                        href={route('attendance.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                                    >
-                                        Attendance Logs
-                                    </Link>
-                                    <Link
-                                        href={route('schedules.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                                    >
-                                        Schedules & Shifts
-                                    </Link>
-                                    <Link
-                                        href={route('payroll.index')}
-                                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                                    >
-                                        Payroll Management
-                                    </Link>
-                                </>
-                            )}
-                            <Link
-                                href={route('leave.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                            >
-                                Leave Requests
-                            </Link>
-                            <Link
-                                href={route('overtime.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                            >
-                                Overtime (SPKL)
-                            </Link>
-                            {canViewPerformance && (
-                                <Link
-                                    href={route('performance.index')}
-                                    className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                                >
-                                    Reports & KPI
-                                </Link>
-                            )}
-                            <Link
-                                href={route('directory.index')}
-                                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#E31B23] hover:bg-red-50/70 transition-colors"
-                            >
-                                Staff Directory
-                            </Link>
-                        </div>
-                    </div>
-
                     {/* HR Dashboard partial */}
                     <HRDashboard data={{ ...hrData, announcements }} />
                 </div>

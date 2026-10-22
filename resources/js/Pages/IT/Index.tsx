@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import Modal from '@/Components/Modal';
@@ -141,6 +141,12 @@ export default function ItIndex({
 }: PageProps) {
     const [tab, setTab] = useState<'overview' | 'assets' | 'tickets'>(activeTab || 'overview');
 
+    useEffect(() => {
+        if (activeTab) {
+            setTab(activeTab);
+        }
+    }, [activeTab]);
+
     // Modals state
     const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false);
     const [isCreateAssetOpen, setIsCreateAssetOpen] = useState(false);
@@ -167,6 +173,17 @@ export default function ItIndex({
                 ticket_status: status,
                 ticket_search: ticketSearch,
                 ticket_priority: ticketPriority,
+            },
+            { preserveState: true }
+        );
+    };
+
+    const navigateToTickets = () => {
+        setTab('tickets');
+        router.get(
+            route('it.index'),
+            {
+                tab: 'tickets',
             },
             { preserveState: true }
         );
@@ -458,8 +475,8 @@ export default function ItIndex({
                     </div>
                 )}
 
-                {/* Tab Switcher / Non-IT Banner */}
-                {!isItManager ? (
+                {/* Non-IT Banner */}
+                {!isItManager && (
                     <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-red-50 text-red-700 flex items-center justify-center text-lg shrink-0">
@@ -484,65 +501,6 @@ export default function ItIndex({
                                 </span>
                             )}
                         </div>
-                    </div>
-                ) : (
-                    <div className="border-b border-gray-200 bg-white rounded-2xl p-1.5 shadow-2xs flex items-center gap-1 sm:gap-2">
-                        <button
-                            onClick={() => {
-                                setTab('overview');
-                                router.get(route('it.index', { tab: 'overview' }), {}, { preserveState: true });
-                            }}
-                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                                tab === 'overview'
-                                    ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                            }`}
-                        >
-                            <span>📊</span>
-                            <span>Overview & Stats</span>
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setTab('tickets');
-                                router.get(route('it.index', { tab: 'tickets' }), {}, { preserveState: true });
-                            }}
-                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
-                                tab === 'tickets'
-                                    ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                            }`}
-                        >
-                            <span>🎫</span>
-                            <span>Helpdesk Tickets</span>
-                            {(ticketStats.open + ticketStats.in_progress) > 0 && (
-                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                    tab === 'tickets' ? 'bg-white text-red-800' : 'bg-amber-500 text-white'
-                                }`}>
-                                    {ticketStats.open + ticketStats.in_progress}
-                                </span>
-                            )}
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                setTab('assets');
-                                router.get(route('it.index', { tab: 'assets' }), {}, { preserveState: true });
-                            }}
-                            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-                                tab === 'assets'
-                                    ? 'bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm'
-                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                            }`}
-                        >
-                            <span>🖥️</span>
-                            <span>Asset Inventory</span>
-                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                tab === 'assets' ? 'bg-white text-red-800' : 'bg-gray-200 text-gray-700'
-                            }`}>
-                                {assetStats.total}
-                            </span>
-                        </button>
                     </div>
                 )}
 
@@ -678,7 +636,7 @@ export default function ItIndex({
                                         </p>
                                     </div>
                                     <button
-                                        onClick={() => setTab('tickets')}
+                                        onClick={navigateToTickets}
                                         className="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline"
                                     >
                                         View All ({ticketStats.total}) →
@@ -791,7 +749,7 @@ export default function ItIndex({
 
                                 <div className="mt-6 pt-4 border-t border-gray-100">
                                     <button
-                                        onClick={() => setTab('assets')}
+                                        onClick={navigateToAssets}
                                         className="w-full py-2.5 rounded-xl text-xs font-bold text-center text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
                                     >
                                         Open Full Inventory Data →
