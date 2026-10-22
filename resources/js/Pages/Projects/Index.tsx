@@ -52,7 +52,7 @@ export default function Index({ projects, auth, filters }: any) {
                         className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#E31B23] hover:bg-[#c4141b] active:bg-[#a30f15] text-white text-sm font-semibold rounded-xl shadow-xs hover:shadow transition-all duration-150 flex-shrink-0"
                     >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-                        Proyek Baru
+                        New Project
                     </Link>
                 </div>
             }
@@ -70,7 +70,7 @@ export default function Index({ projects, auth, filters }: any) {
                                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                         }`}
                     >
-                        Semua Proyek
+                        All Projects
                     </Link>
                     <Link
                         href={route('projects.index', { status: 'Active' })}

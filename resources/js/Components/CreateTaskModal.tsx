@@ -209,10 +209,10 @@ export default function CreateTaskModal({
                         </div>
                         <div className="bg-slate-50/80 px-5 py-3.5 sm:px-6 flex flex-row-reverse gap-3 border-t border-slate-100">
                             <PrimaryButton type="submit" disabled={processing}>
-                                {processing ? 'Menyimpan...' : 'Buat Tugas'}
+                                {processing ? 'Creating...' : 'Create Task'}
                             </PrimaryButton>
                             <SecondaryButton onClick={onClose}>
-                                Batal
+                                Cancel
                             </SecondaryButton>
                         </div>
                     </form>

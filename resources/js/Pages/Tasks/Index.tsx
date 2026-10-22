@@ -69,13 +69,13 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                             <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                             </svg>
-                            Tambah Tugas
+                            Create Task
                         </PrimaryButton>
                     </div>
                 </div>
             }
         >
-            <Head title="Tugas Saya" />
+            <Head title="My Tasks" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -92,7 +92,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
                                         }`}
                                     >
-                                        Semua Tugas
+                                        All Tasks
                                     </Link>
                                     <Link
                                         href={route('tasks.index', { filter: 'active' })}
