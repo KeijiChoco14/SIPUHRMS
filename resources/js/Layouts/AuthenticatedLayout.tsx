@@ -482,13 +482,13 @@ export default function Authenticated({
                     >
                         {/* Brand Header with Close / Collapse Button */}
                         <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-red-700/20 bg-[#E31B23]">
-                            <Link href="/" className="flex items-center min-w-0">
-                                <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center overflow-hidden shrink-0">
+                            <Link href="/" className="flex items-center min-w-0 group" title="Swiss-Belinn SKA Pekanbaru">
+                                <div className="h-8 w-8 rounded-xl overflow-hidden shrink-0 ring-1 ring-white/30 shadow-xs">
                                     <ApplicationLogo className="h-full w-full object-cover" />
                                 </div>
                                 <div className="ml-2.5 min-w-0">
-                                    <span className="font-bold text-white text-xs tracking-tight block truncate">SIPU Management</span>
-                                    <span className="block text-[9px] text-red-100 leading-none">Swiss-Belinn SKA</span>
+                                    <span className="font-bold text-white text-xs tracking-tight block truncate">Swiss-Belinn</span>
+                                    <span className="block text-[9px] text-red-100 leading-none">SKA Pekanbaru</span>
                                 </div>
                             </Link>
                             <button
@@ -613,11 +613,10 @@ export default function Authenticated({
                                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
                                 )}
                             </button>
-                            <Link href="/" className="ml-3 md:hidden flex items-center">
-                                <div className="h-7 w-7 rounded-lg bg-[#E31B23] flex items-center justify-center overflow-hidden">
+                            <Link href={route('dashboard')} className="ml-3 md:hidden flex items-center" title="Swiss-Belinn SKA Pekanbaru">
+                                <div className="h-8 w-8 rounded-xl overflow-hidden shadow-xs ring-1 ring-slate-200">
                                     <ApplicationLogo className="h-full w-full object-cover" />
                                 </div>
-                                <span className="ml-2 font-bold text-slate-800 text-sm">SIPU Management</span>
                             </Link>
                         </div>
 
@@ -639,13 +638,12 @@ export default function Authenticated({
                                 <div className="flex items-center gap-2">
                                     <Link
                                         href={route('dashboard')}
-                                        className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-slate-100 transition-colors group shrink-0"
+                                        className="flex items-center gap-2 px-1.5 py-1 rounded-xl hover:bg-slate-100 transition-colors group shrink-0"
                                         title="Back to Main Menu (Desk Launcher)"
                                     >
-                                        <div className="h-7 w-7 rounded-lg bg-[#E31B23] flex items-center justify-center p-1 shadow-xs shrink-0">
-                                            <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
+                                        <div className="h-8 w-8 rounded-xl overflow-hidden shadow-xs shrink-0 ring-1 ring-slate-200/80">
+                                            <ApplicationLogo className="h-full w-full object-cover" />
                                         </div>
-                                        <span className="font-bold text-slate-800 text-xs tracking-tight hidden sm:inline">SIPU</span>
                                     </Link>
                                     <span className="text-slate-300 hidden sm:inline">|</span>
                                     <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-xs font-semibold text-slate-700 border border-slate-200/60 shrink-0">
@@ -658,14 +656,14 @@ export default function Authenticated({
 
                         {/* Logo on desktop when sidebar is hidden (Frappe Desk mode) */}
                         {hideSidebar && (
-                            <div className="hidden md:flex items-center gap-3 shrink-0 mr-6">
-                                <Link href={route('dashboard')} className="flex items-center gap-2.5 group">
-                                    <div className="h-9 w-9 rounded-xl bg-[#E31B23] flex items-center justify-center shadow-xs overflow-hidden p-1.5 group-hover:scale-105 transition-transform">
-                                        <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
-                                    </div>
-                                    <div>
-                                        <span className="font-bold text-slate-900 text-sm tracking-tight leading-none group-hover:text-[#E31B23] transition-colors">SIPU Management</span>
-                                        <span className="block text-[10px] text-slate-400 leading-none mt-0.5">Swiss-Belinn SKA</span>
+                            <div className="hidden md:flex items-center shrink-0 mr-5">
+                                <Link 
+                                    href={route('dashboard')} 
+                                    className="flex items-center group transition-transform hover:scale-105 active:scale-95" 
+                                    title="Swiss-Belinn SKA Pekanbaru"
+                                >
+                                    <div className="h-10 w-10 rounded-xl overflow-hidden shadow-xs ring-1 ring-slate-200/80 bg-white">
+                                        <ApplicationLogo className="h-full w-full object-cover" />
                                     </div>
                                 </Link>
                             </div>
@@ -857,10 +855,28 @@ export default function Authenticated({
                 )}
 
                 {/* Page Content */}
-                <main className={`flex-1 overflow-y-auto transition-all duration-300 ${hideSidebar ? 'p-4 sm:p-6 lg:p-10' : 'p-4 sm:p-6 lg:p-8'}`}>
-                    <div className={hideSidebar ? 'max-w-6xl mx-auto' : isSidebarOpen ? 'max-w-7xl mx-auto' : 'w-full max-w-[1650px] mx-auto'}>
+                <main className={`flex-1 flex flex-col overflow-y-auto transition-all duration-300 ${hideSidebar ? 'p-4 sm:p-6 lg:p-10' : 'p-4 sm:p-6 lg:p-8'}`}>
+                    <div className={`flex-1 ${hideSidebar ? 'max-w-6xl mx-auto w-full' : isSidebarOpen ? 'max-w-7xl mx-auto w-full' : 'w-full max-w-[1650px] mx-auto'}`}>
                         {children}
                     </div>
+
+                    {/* Global Page Footer */}
+                    <footer className={`mt-12 pt-6 pb-2 border-t border-slate-200/70 text-xs text-slate-500 ${hideSidebar ? 'max-w-6xl mx-auto w-full' : isSidebarOpen ? 'max-w-7xl mx-auto w-full' : 'w-full max-w-[1650px] mx-auto'}`}>
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-slate-500">
+                                <span>&copy; {new Date().getFullYear()} <strong className="text-slate-700 font-semibold">Swiss-Belinn SKA Pekanbaru</strong>.</span>
+                                <span className="hidden sm:inline text-slate-300">•</span>
+                                <span className="text-slate-400">All rights reserved.</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-slate-500">
+                                <span>Developed by</span>
+                                <span className="inline-flex items-center gap-1.5 font-bold text-slate-800 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/90 text-xs transition-colors shadow-2xs">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#E31B23]"></span>
+                                    Stackbit
+                                </span>
+                            </div>
+                        </div>
+                    </footer>
                 </main>
             </div>
 

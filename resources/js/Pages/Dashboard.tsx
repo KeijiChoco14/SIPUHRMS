@@ -980,15 +980,12 @@ export default function Dashboard({
                     )}
                 </div>
 
-                {/* Desk Footer Quick Stats */}
+                {/* Desk Quick Stats */}
                 <div className="pt-8 border-t border-gray-200/60 max-w-4xl mx-auto flex flex-wrap items-center justify-between text-xs text-gray-400 gap-4">
                     <div className="flex items-center gap-4">
                         <span>Role: <strong className="text-gray-700 font-semibold">{role}</strong></span>
                         <span>•</span>
                         <span>Core Workspaces: <strong className="text-gray-700 font-semibold">{coreApps.length}</strong></span>
-                    </div>
-                    <div className="text-[11px] text-gray-400">
-                        SIPU Management System • Swiss-Belinn SKA Pekanbaru
                     </div>
                 </div>
             </div>

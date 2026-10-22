@@ -21,11 +21,15 @@ export default function Settings({ auth }: PageProps) {
                                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
                                         <dt className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Application Name</dt>
-                                        <dd className="mt-1 text-sm font-bold text-slate-900">SIPU Management</dd>
+                                        <dd className="mt-1 text-sm font-bold text-slate-900">Swiss-Belinn Hotel Management System</dd>
                                     </div>
                                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
                                         <dt className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Organization</dt>
                                         <dd className="mt-1 text-sm font-bold text-slate-900">Swiss-Belinn SKA Pekanbaru</dd>
+                                    </div>
+                                    <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
+                                        <dt className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Developer Team</dt>
+                                        <dd className="mt-1 text-sm font-bold text-[#E31B23]">Stackbit</dd>
                                     </div>
                                     <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/70">
                                         <dt className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Version</dt>

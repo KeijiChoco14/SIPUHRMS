@@ -1,5 +1,6 @@
 import { PageProps } from '@/types';
 import { Head, Link } from '@inertiajs/react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Welcome({
     auth,
@@ -8,7 +9,7 @@ export default function Welcome({
 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
     return (
         <>
-            <Head title="Welcome - SIPU Management" />
+            <Head title="Welcome - Swiss-Belinn SKA Pekanbaru" />
             <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-[#E31B23] selection:text-white">
                 
                 {/* Navbar */}
@@ -16,10 +17,10 @@ export default function Welcome({
                     <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
                         <div className="flex lg:flex-1">
                             <a href="#" className="-m-1.5 p-1.5 flex items-center gap-3">
-                                <div className="h-10 w-10 bg-[#E31B23] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md shadow-red-200">
-                                    SB
+                                <div className="h-10 w-10 rounded-xl overflow-hidden shadow-sm ring-1 ring-slate-200">
+                                    <ApplicationLogo className="h-full w-full object-cover" />
                                 </div>
-                                <span className="font-bold text-xl tracking-tight text-slate-900">SIPU Management</span>
+                                <span className="font-bold text-xl tracking-tight text-slate-900">Swiss-Belinn SKA</span>
                             </a>
                         </div>
                         <div className="flex flex-1 justify-end gap-x-4">
@@ -65,7 +66,7 @@ export default function Welcome({
                                 </div>
                             </div>
                             <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">
-                                Empower your workforce with SIPU Management
+                                Empower your workforce with Swiss-Belinn SKA
                             </h1>
                             <p className="mt-6 text-lg leading-8 text-slate-600">
                                 Internal office management system designed for Swiss-Belinn SKA Pekanbaru. Streamline task assignments, attendance tracking, and performance assessments in one place.
@@ -157,15 +158,18 @@ export default function Welcome({
                 
                 {/* Footer */}
                 <footer className="bg-white border-t border-gray-100">
-                    <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
-                        <div className="mt-8 md:order-1 md:mt-0 flex justify-center md:justify-start gap-4">
-                            <p className="text-center text-xs leading-5 text-gray-500">
-                                &copy; {new Date().getFullYear()} Swiss-Belinn SKA Pekanbaru - SIPU Management. All rights reserved.
+                    <div className="mx-auto max-w-7xl px-6 py-8 md:flex md:items-center md:justify-between lg:px-8">
+                        <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-4 text-xs text-gray-500">
+                            <p>
+                                &copy; {new Date().getFullYear()} <strong className="text-gray-700 font-semibold">Swiss-Belinn SKA Pekanbaru</strong>. All rights reserved.
                             </p>
-                            <span className="text-gray-300">|</span>
-                            <p className="text-center text-xs leading-5 text-gray-400">
-                                Laravel v{laravelVersion} • PHP v{phpVersion}
-                            </p>
+                            <div className="flex items-center gap-1.5 text-gray-500">
+                                <span>Developed by</span>
+                                <span className="inline-flex items-center gap-1.5 font-bold text-slate-800 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 text-xs shadow-2xs">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#E31B23]"></span>
+                                    Stackbit
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </footer>

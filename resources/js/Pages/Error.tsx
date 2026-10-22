@@ -36,12 +36,12 @@ export default function ErrorPage({
             {/* Top Brand Navbar */}
             <header className="max-w-6xl w-full mx-auto flex items-center justify-between py-4">
                 <Link href="/" className="flex items-center gap-3 group">
-                    <div className="h-10 w-10 rounded-xl bg-rose-600 flex items-center justify-center p-2 shadow-lg shadow-rose-600/30 group-hover:scale-105 transition-transform">
-                        <ApplicationLogo className="h-full w-full object-contain filter brightness-0 invert" />
+                    <div className="h-10 w-10 rounded-xl overflow-hidden shadow-lg shadow-rose-600/30 group-hover:scale-105 transition-transform ring-1 ring-white/20">
+                        <ApplicationLogo className="h-full w-full object-cover" />
                     </div>
                     <div>
-                        <span className="font-bold text-white text-base tracking-tight leading-none block">SIPU Management</span>
-                        <span className="text-[10px] text-slate-400 leading-none mt-1 block">Swiss-Belinn SKA Pekanbaru</span>
+                        <span className="font-bold text-white text-base tracking-tight leading-none block">Swiss-Belinn SKA</span>
+                        <span className="text-[10px] text-slate-400 leading-none mt-1 block">Hotel Management System</span>
                     </div>
                 </Link>
 
@@ -128,8 +128,13 @@ export default function ErrorPage({
             </main>
 
             {/* Footer */}
-            <footer className="text-center py-4 text-[11px] text-slate-500">
-                SIPU Security Subsystem • Swiss-Belinn SKA Pekanbaru
+            <footer className="text-center py-4 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-center gap-2">
+                <span>&copy; {new Date().getFullYear()} Swiss-Belinn SKA Pekanbaru. All rights reserved.</span>
+                <span className="hidden sm:inline text-slate-600">•</span>
+                <div className="flex items-center gap-1.5 text-slate-400">
+                    <span>Developed by</span>
+                    <span className="font-bold text-slate-200">Stackbit</span>
+                </div>
             </footer>
         </div>
     );
