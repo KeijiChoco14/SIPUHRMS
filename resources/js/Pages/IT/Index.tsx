@@ -61,6 +61,7 @@ interface Ticket {
     };
     assigned_to_user_id?: number;
     assigned_user?: { id: number; name: string; email: string };
+    assigned_users?: { id: number; name: string; email: string }[];
     it_asset_id?: number;
     asset?: { id: number; asset_code: string; name: string };
     location?: string;
@@ -295,18 +296,26 @@ export default function ItIndex({
     };
 
     // Quick Status Update Form
-    const statusForm = useForm({
+    const statusForm = useForm<{
+        status: string;
+        assigned_user_ids: number[];
+        resolution_notes: string;
+        notes: string;
+    }>({
         status: 'Open',
-        assigned_to_user_id: '',
+        assigned_user_ids: [],
         resolution_notes: '',
         notes: '',
     });
 
     const openQuickStatus = (t: Ticket) => {
         setQuickStatusTicket(t);
+        const assignedIds = t.assigned_users && t.assigned_users.length > 0
+            ? t.assigned_users.map((u) => u.id)
+            : (t.assigned_to_user_id ? [t.assigned_to_user_id] : []);
         statusForm.setData({
             status: t.status,
-            assigned_to_user_id: t.assigned_to_user_id ? String(t.assigned_to_user_id) : '',
+            assigned_user_ids: assignedIds,
             resolution_notes: t.resolution_notes || '',
             notes: '',
         });
@@ -909,7 +918,21 @@ export default function ItIndex({
                                                 </td>
 
                                                 <td className="py-3.5 px-4">
-                                                    {t.assigned_user ? (
+                                                    {t.assigned_users && t.assigned_users.length > 0 ? (
+                                                        <div className="flex items-center gap-1.5 flex-wrap max-w-xs">
+                                                            {t.assigned_users.map((u) => (
+                                                                <span
+                                                                    key={u.id}
+                                                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200"
+                                                                >
+                                                                    <span className="w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[9px] font-bold">
+                                                                        {u.name.charAt(0)}
+                                                                    </span>
+                                                                    <span>{u.name}</span>
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    ) : t.assigned_user ? (
                                                         <div className="flex items-center gap-1.5">
                                                             <div className="w-6 h-6 rounded-full bg-red-700 text-white flex items-center justify-center text-[10px] font-bold">
                                                                 {t.assigned_user.name.charAt(0)}
@@ -1692,21 +1715,96 @@ export default function ItIndex({
                         </div>
 
                         {isItManager && (
-                            <div>
-                                <InputLabel htmlFor="quick_assigned" value="Assign IT Technician" />
-                                <select
-                                    id="quick_assigned"
-                                    className="mt-1 block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500"
-                                    value={statusForm.data.assigned_to_user_id}
-                                    onChange={(e) => statusForm.setData('assigned_to_user_id', e.target.value)}
-                                >
-                                    <option value="">-- Unassigned --</option>
-                                    {itStaffUsers.map((st) => (
-                                        <option key={st.id} value={st.id}>
-                                            {st.name} ({st.email})
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <InputLabel value="Assign to IT Technician (Bisa Lebih dari 1 Orang)" />
+                                    <span className="text-[11px] text-gray-500 font-medium">
+                                        {statusForm.data.assigned_user_ids.length > 0
+                                            ? `${statusForm.data.assigned_user_ids.length} teknisi dipilih`
+                                            : 'Belum ada teknisi'}
+                                    </span>
+                                </div>
+
+                                {/* Selected Technicians Badges */}
+                                <div className="min-h-[44px] p-2 bg-gray-50/90 rounded-xl border border-gray-200">
+                                    {statusForm.data.assigned_user_ids.length > 0 ? (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {statusForm.data.assigned_user_ids.map((id) => {
+                                                const st = itStaffUsers.find((u) => u.id === id);
+                                                if (!st) return null;
+                                                return (
+                                                    <span
+                                                        key={st.id}
+                                                        className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 text-xs px-2.5 py-1 rounded-lg font-medium border border-red-200"
+                                                    >
+                                                        <span className="w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[9px] font-bold">
+                                                            {st.name.charAt(0)}
+                                                        </span>
+                                                        <span>{st.name}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                statusForm.setData(
+                                                                    'assigned_user_ids',
+                                                                    statusForm.data.assigned_user_ids.filter((uid) => uid !== st.id)
+                                                                );
+                                                            }}
+                                                            className="ml-1 text-red-400 hover:text-red-700 hover:bg-red-100 rounded-full p-0.5"
+                                                            title="Hapus teknisi"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </span>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="text-xs text-gray-400 italic py-1 px-1">
+                                            -- Belum ada teknisi yang ditugaskan (Unassigned) --
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Dropdown to select/add IT technician */}
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        id="quick_assigned"
+                                        className="block w-full rounded-xl border-gray-300 text-xs sm:text-sm focus:border-red-500 focus:ring-red-500 cursor-pointer"
+                                        value=""
+                                        onChange={(e) => {
+                                            const selectedId = parseInt(e.target.value);
+                                            if (selectedId && !statusForm.data.assigned_user_ids.includes(selectedId)) {
+                                                statusForm.setData('assigned_user_ids', [
+                                                    ...statusForm.data.assigned_user_ids,
+                                                    selectedId,
+                                                ]);
+                                            }
+                                        }}
+                                    >
+                                        <option value="" disabled>
+                                            + Pilih / Tambah Teknisi IT...
                                         </option>
-                                    ))}
-                                </select>
+                                        {itStaffUsers
+                                            .filter((st) => !statusForm.data.assigned_user_ids.includes(st.id))
+                                            .map((st) => (
+                                                <option key={st.id} value={st.id}>
+                                                    {st.name} ({st.email})
+                                                </option>
+                                            ))}
+                                    </select>
+                                    {statusForm.data.assigned_user_ids.length > 0 && (
+                                        <button
+                                            type="button"
+                                            onClick={() => statusForm.setData('assigned_user_ids', [])}
+                                            className="shrink-0 text-xs text-gray-500 hover:text-red-600 font-semibold px-2.5 py-2 rounded-lg border border-gray-200 hover:border-red-200 bg-white"
+                                        >
+                                            Reset
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="text-[11px] text-gray-400">
+                                    Pilih satu atau lebih teknisi IT untuk ditugaskan pada tiket ini.
+                                </p>
                             </div>
                         )}
 

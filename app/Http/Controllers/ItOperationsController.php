@@ -134,11 +134,11 @@ class ItOperationsController extends Controller
             })->select('id', 'asset_code', 'name', 'category', 'location')->orderBy('asset_code')->get();
         }
 
-        // Tickets query
         $ticketsQuery = ItTicket::with([
             'reporter.user',
             'reporter.department',
             'assignedUser',
+            'assignedUsers:id,name,email',
             'asset',
             'updates.user',
         ])->latest();
@@ -175,7 +175,7 @@ class ItOperationsController extends Controller
         $itStaffUsers = User::whereHas('employee.department', function ($q) {
             $q->where('name', 'IT');
         })->orWhereHas('roles', function ($q) {
-            $q->whereIn('name', ['Super Admin', 'General Manager']);
+            $q->whereIn('name', ['Super Admin', 'HRD / Admin', 'General Manager']);
         })->select('id', 'name', 'email')->get();
 
         return Inertia::render('IT/Index', [
@@ -353,6 +353,7 @@ class ItOperationsController extends Controller
             'reporter.user',
             'reporter.department',
             'assignedUser',
+            'assignedUsers:id,name,email',
             'asset',
             'updates.user',
         ]);
@@ -384,6 +385,8 @@ class ItOperationsController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|string|in:Open,In Progress,Pending Parts,Resolved,Closed',
+            'assigned_user_ids' => 'nullable|array',
+            'assigned_user_ids.*' => 'exists:users,id',
             'assigned_to_user_id' => 'nullable|exists:users,id',
             'resolution_notes' => 'nullable|string',
             'notes' => 'nullable|string',
@@ -394,8 +397,16 @@ class ItOperationsController extends Controller
 
         $ticket->status = $newStatus;
 
-        if ($isItManager && array_key_exists('assigned_to_user_id', $validated)) {
-            $ticket->assigned_to_user_id = $validated['assigned_to_user_id'];
+        if ($isItManager) {
+            if (array_key_exists('assigned_user_ids', $validated)) {
+                $assignedUserIds = array_values(array_filter(array_map('intval', (array) ($validated['assigned_user_ids'] ?? []))));
+                $ticket->assignedUsers()->sync($assignedUserIds);
+                $ticket->assigned_to_user_id = !empty($assignedUserIds) ? $assignedUserIds[0] : null;
+            } elseif (array_key_exists('assigned_to_user_id', $validated)) {
+                $singleId = $validated['assigned_to_user_id'] ? (int) $validated['assigned_to_user_id'] : null;
+                $ticket->assigned_to_user_id = $singleId;
+                $ticket->assignedUsers()->sync($singleId ? [$singleId] : []);
+            }
         }
 
         if (!empty($validated['resolution_notes'])) {

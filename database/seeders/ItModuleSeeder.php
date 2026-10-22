@@ -202,6 +202,9 @@ class ItModuleSeeder extends Seeder
             'it_asset_id' => $asset4->id,
             'location' => 'Swiss-Cafe Restaurant POS Counter',
         ]);
+        if ($adminUser) {
+            $ticket1->assignedUsers()->sync([$adminUser->id]);
+        }
 
         ItTicketUpdate::create([
             'it_ticket_id' => $ticket1->id,
@@ -257,6 +260,9 @@ class ItModuleSeeder extends Seeder
             'resolved_at' => Carbon::now()->subHours(18),
             'resolution_notes' => 'Dilakukan band steering 5GHz dan peningkatan alokasi bandwidth QoS untuk VLAN Meeting Room. Sinyal stabil kembali.',
         ]);
+        if ($adminUser) {
+            $ticket3->assignedUsers()->sync([$adminUser->id]);
+        }
 
         ItTicketUpdate::create([
             'it_ticket_id' => $ticket3->id,
