@@ -20,21 +20,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class MasterKeyRequestController extends Controller
 {
     /**
-     * Ensure the master_key_requests table exists, attempting auto-migration if missing.
+     * Ensure the master_key_requests table exists.
      */
     private function ensureTableExists(): bool
     {
-        if (Schema::hasTable('master_key_requests') && Schema::hasColumn('master_key_requests', 'request_by')) {
-            return true;
-        }
-
-        try {
-            Artisan::call('migrate', ['--force' => true]);
-        } catch (\Throwable $e) {
-            Log::warning('Auto migrate master_key_requests failed: ' . $e->getMessage());
-        }
-
-        return Schema::hasTable('master_key_requests');
+        return Schema::hasTable('master_key_requests') && Schema::hasColumn('master_key_requests', 'request_by');
     }
 
     /**

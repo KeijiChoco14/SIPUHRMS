@@ -39,4 +39,8 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'attendance' => [
+        'sync_key' => env('ATTENDANCE_SYNC_KEY'),
+    ],
+
 ];

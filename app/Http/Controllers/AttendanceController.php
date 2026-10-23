@@ -47,14 +47,26 @@ class AttendanceController extends Controller
     // For manual sync simulation API
     public function sync(Request $request)
     {
+        $syncKey = config('services.attendance.sync_key');
+        $providedKey = $request->header('X-Attendance-Api-Key')
+            ?? $request->bearerToken()
+            ?? $request->input('api_key');
+
+        $isAuthorizedKey = ! empty($syncKey) && hash_equals((string) $syncKey, (string) $providedKey);
+        $isAuthorizedUser = Auth::check() && Auth::user()->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+
+        if (! $isAuthorizedKey && ! $isAuthorizedUser) {
+            abort(401, 'Unauthorized: Invalid or missing attendance synchronization API credentials.');
+        }
+
         $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
             'date' => 'required|date',
             'clock_in' => 'nullable|date_format:H:i',
             'clock_out' => 'nullable|date_format:H:i',
-            'status' => 'required|string',
-            'late_duration_minutes' => 'integer',
-            'overtime_minutes' => 'integer',
+            'status' => 'required|string|max:50',
+            'late_duration_minutes' => 'nullable|integer|min:0|max:1440',
+            'overtime_minutes' => 'nullable|integer|min:0|max:1440',
         ]);
 
         Attendance::updateOrCreate(

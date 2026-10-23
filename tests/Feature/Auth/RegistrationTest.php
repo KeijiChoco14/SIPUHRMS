@@ -18,11 +18,15 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'phone_number' => '081234567890',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'photo' => \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg'),
         ]);
 
         $this->assertAuthenticated();

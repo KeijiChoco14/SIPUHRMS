@@ -10,13 +10,61 @@ use Illuminate\Support\Facades\Storage;
 
 class TaskCommentController extends Controller
 {
+    /**
+     * Check if user is authorized to interact with the task.
+     */
+    protected function canAccessTask($user, Task $task): bool
+    {
+        if ($user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+            return true;
+        }
+
+        if ($task->created_by === $user->id) {
+            return true;
+        }
+
+        $employee = $user->employee;
+        if (! $employee) {
+            return false;
+        }
+
+        if ($task->assignees()->where('employee_id', $employee->id)->exists()) {
+            return true;
+        }
+
+        if ($task->project && ($task->project->created_by === $user->id || ($task->project->owner_id && $task->project->owner_id === $employee->id))) {
+            return true;
+        }
+
+        if ($employee->department_id) {
+            if ($task->assignees()->where('department_id', $employee->department_id)->exists()) {
+                return true;
+            }
+            if ($task->project && $task->project->department_id === $employee->department_id) {
+                return true;
+            }
+        }
+
+        // Open/unassigned tasks with no restricted assignees or creator can be accessed by any active employee
+        if (is_null($task->created_by) && ! $task->assignees()->exists()) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function store(Request $request, Task $task)
     {
+        $user = Auth::user();
+        if (! $this->canAccessTask($user, $task)) {
+            abort(403, 'You do not have permission to comment on this task.');
+        }
+
         $validated = $request->validate([
-            'content' => 'nullable|string',
+            'content' => 'nullable|string|max:5000',
             'tagged_user_ids' => 'nullable|array',
             'tagged_user_ids.*' => 'integer|exists:users,id',
-            'file' => 'nullable|file|max:20480', // max 20MB
+            'file' => 'nullable|file|max:20480|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,webp,zip,csv,txt',
         ]);
 
         $content = trim($validated['content'] ?? '');
@@ -26,7 +74,7 @@ class TaskCommentController extends Controller
             return back()->withErrors(['content' => 'Please provide a comment message or attach a file.']);
         }
 
-        $employee = Auth::user()->employee;
+        $employee = $user->employee;
         if (! $employee) {
             return back()->with('error', 'Only employees can comment on tasks.');
         }
@@ -109,12 +157,16 @@ class TaskCommentController extends Controller
 
     public function destroy(TaskComment $comment)
     {
-        if (Auth::user()->employee?->id !== $comment->employee_id) {
-            abort(403);
+        $user = Auth::user();
+        $isOwner = $user->employee && $user->employee->id === $comment->employee_id;
+        $isPrivileged = $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+
+        if (! $isOwner && ! $isPrivileged) {
+            abort(403, 'You do not have permission to delete this comment.');
         }
 
         $task = $comment->task;
-        $employeeId = Auth::user()->employee?->id;
+        $employeeId = $user->employee?->id;
 
         if ($comment->file_path) {
             Storage::disk('public')->delete($comment->file_path);
