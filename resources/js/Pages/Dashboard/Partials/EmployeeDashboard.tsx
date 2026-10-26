@@ -36,6 +36,7 @@ export default function EmployeeDashboard({ data }: { data: any }) {
     const announcements = data?.announcements || [];
     const leaveStats = data?.leaveStats || { pending: 0, approved: 0 };
     const recentActivities = data?.recentActivities || [];
+    const myServiceRequests = data?.myServiceRequests || [];
 
     const statCards = [
         { key: 'todo', label: 'To Do', gradient: 'from-slate-500 to-slate-600', href: route('tasks.index', { status: 'To Do' }), hint: 'View To Do tasks', icon: <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg> },
@@ -138,6 +139,71 @@ export default function EmployeeDashboard({ data }: { data: any }) {
                         View Leave Requests →
                     </Link>
                 </div>
+            </div>
+
+            {/* My Active Service Requests (Unified Services Hub) */}
+            <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100/80 p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-xl bg-red-50 text-[#E31B23]">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-900 text-sm">My Active Service Requests</h3>
+                            <p className="text-xs text-gray-500">Track all your active requests across IT, Keys, Facilities, and HR</p>
+                        </div>
+                    </div>
+                    {myServiceRequests.length > 0 && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            {myServiceRequests.length} Active
+                        </span>
+                    )}
+                </div>
+
+                {myServiceRequests.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {myServiceRequests.map((req: any, index: number) => (
+                            <Link
+                                key={`${req.type}-${req.id}-${index}`}
+                                href={req.url}
+                                className="group flex flex-col justify-between p-4 rounded-xl border border-gray-100 hover:border-red-200 bg-gray-50/50 hover:bg-white hover:shadow-md transition-all duration-200"
+                            >
+                                <div>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                            req.badge_color === 'emerald' ? 'bg-emerald-100 text-emerald-800' :
+                                            req.badge_color === 'rose' ? 'bg-rose-100 text-rose-800' :
+                                            req.badge_color === 'amber' ? 'bg-amber-100 text-amber-800' :
+                                            req.badge_color === 'blue' ? 'bg-blue-100 text-blue-800' :
+                                            'bg-purple-100 text-purple-800'
+                                        }`}>
+                                            {req.type}
+                                        </span>
+                                        <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-gray-200 text-gray-700 shadow-2xs">
+                                            {req.status}
+                                        </span>
+                                    </div>
+                                    <h4 className="text-xs font-bold text-gray-800 group-hover:text-[#E31B23] transition-colors line-clamp-1">
+                                        {req.title}
+                                    </h4>
+                                </div>
+                                <div className="mt-3 flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-gray-100">
+                                    <span>{new Date(req.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                                    <span className="text-[#E31B23] font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                                        View Details →
+                                    </span>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="py-6 px-4 text-center rounded-xl bg-gray-50/50 border border-dashed border-gray-200">
+                        <p className="text-xs font-medium text-gray-500">No active service requests pending right now.</p>
+                        <p className="text-[11px] text-gray-400 mt-0.5">Need a room key, IT help, leave, or overtime? Submit a request using Quick Actions or the module menus.</p>
+                    </div>
+                )}
             </div>
 
             {/* Task Overview */}

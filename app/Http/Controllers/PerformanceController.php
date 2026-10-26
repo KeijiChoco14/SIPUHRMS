@@ -58,7 +58,7 @@ class PerformanceController extends Controller
 
         $user = auth()->user();
         $isOwner = $user->employee && $user->employee->id === $employee->id;
-        $isHR = $user->hasAnyRole(['HRD / Admin', 'General Manager']);
+        $isHR = $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
         $isSupervisor = $user->employee && $employee->supervisor_id === $user->employee->id;
 
         if (! $isOwner && ! $isHR && ! $isSupervisor) {
@@ -100,7 +100,7 @@ class PerformanceController extends Controller
         $employee = Employee::with(['user', 'department'])->findOrFail($employee_id);
         $user = auth()->user();
 
-        $isHR = $user->hasAnyRole(['HRD / Admin', 'General Manager']);
+        $isHR = $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
         $isSupervisor = $user->employee && $employee->supervisor_id === $user->employee->id;
 
         if (! $isHR && ! $isSupervisor) {
@@ -132,7 +132,7 @@ class PerformanceController extends Controller
         $employee = Employee::findOrFail($employee_id);
         $user = auth()->user();
 
-        $isHR = $user->hasAnyRole(['HRD / Admin', 'General Manager']);
+        $isHR = $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
         $isSupervisor = $user->employee && $employee->supervisor_id === $user->employee->id;
 
         if (! $isHR && ! $isSupervisor) {

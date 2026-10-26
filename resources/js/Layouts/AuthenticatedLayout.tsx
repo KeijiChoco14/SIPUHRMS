@@ -17,6 +17,9 @@ const icons: Record<string, JSX.Element> = {
     Projects: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>,
     'My Tasks': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
     Kanban: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>,
+    'Kanban Board': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>,
+    'HR Overview': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
+    'Documents & SOPs': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>,
     Calendar: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>,
     Employees: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>,
     Departments: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
@@ -43,6 +46,7 @@ const icons: Record<string, JSX.Element> = {
     'Helpdesk Tickets': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
     'Asset Inventory': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
     'Power Pro ID Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>,
+    'PowerPro ID Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>,
     'Profile Settings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
     'Room Catalog': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
     'My Borrowings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
@@ -110,6 +114,20 @@ export default function Authenticated({
         });
     };
 
+    // Collapsible navigation sections state
+    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+    const toggleSection = (title: string) => {
+        setCollapsedSections(prev => ({ ...prev, [title]: !prev[title] }));
+    };
+
+    // Auto-expand section containing active item on page navigation
+    useEffect(() => {
+        const activeSection = activeModuleInfo.sections.find(s => s.items?.some((item: any) => isItemActive(item)));
+        if (activeSection && collapsedSections[activeSection.title]) {
+            setCollapsedSections(prev => ({ ...prev, [activeSection.title]: false }));
+        }
+    }, [currentUrl]);
+
     // Keyboard shortcut Ctrl+B / Cmd+B to toggle sidebar
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -154,7 +172,7 @@ export default function Authenticated({
 
     // Detect active module and provide strictly contextual menus
     const activeModuleInfo = useMemo<ModuleInfo>(() => {
-        // 1. Task Management
+        // A. Task Management
         if (
             currentUrl.includes('view=tasks') ||
             route().current('tasks.*') ||
@@ -169,11 +187,11 @@ export default function Authenticated({
                 dotColor: 'bg-blue-600',
                 sections: [
                     {
-                        title: 'Task Workspace',
+                        title: 'Task Management',
                         items: [
                             { name: 'Task Summary', route: 'dashboard', params: { view: 'tasks' }, pattern: 'dashboard' },
                             { name: 'My Tasks', route: 'tasks.index', pattern: 'tasks.index' },
-                            { name: 'Kanban', route: 'tasks.kanban', pattern: 'tasks.kanban' },
+                            { name: 'Kanban Board', route: 'tasks.kanban', pattern: 'tasks.kanban' },
                             { name: 'Calendar', route: 'tasks.calendar', pattern: 'tasks.calendar' },
                             canViewProjects ? { name: 'Projects', route: 'projects.index', pattern: 'projects.*' } : null,
                         ].filter(Boolean) as any[],
@@ -182,12 +200,12 @@ export default function Authenticated({
             };
         }
 
-        // 2. Housekeeping (HK)
+        // B. Housekeeping
         if (route().current('master-keys.*') || currentUrl.includes('/master-keys')) {
             return {
                 key: 'housekeeping',
-                title: 'Housekeeping (HK)',
-                subtitle: 'Hotel Key Operations',
+                title: 'Housekeeping',
+                subtitle: 'Master Key Custody',
                 badgeBg: 'bg-amber-50',
                 badgeBorder: 'border-amber-200',
                 dotColor: 'bg-amber-500',
@@ -202,14 +220,14 @@ export default function Authenticated({
             };
         }
 
-        // 2b. Room Borrowing & Key Management (Security & Facilities)
+        // E. Room & Key Management (Cross-department service)
         if (route().current('room-borrowing.*') || currentUrl.includes('/room-borrowing')) {
             const canApprove = isSuperAdmin || isHRD || isManager || user.roles?.some((r: any) => r.name === 'Security');
             const canManage = isSuperAdmin || isHRD || user.roles?.some((r: any) => r.name === 'Security');
 
             return {
                 key: 'room-borrowing',
-                title: 'Room & Key Borrowing',
+                title: 'Room & Key Management',
                 subtitle: 'Hotel Keys & Facility Custody',
                 badgeBg: 'bg-emerald-50',
                 badgeBorder: 'border-emerald-200',
@@ -238,7 +256,7 @@ export default function Authenticated({
             };
         }
 
-        // 3. Human Resources (HR)
+        // C. Human Resources
         if (
             currentUrl.includes('view=hr') ||
             route().current('employees.*') ||
@@ -262,20 +280,20 @@ export default function Authenticated({
         ) {
             return {
                 key: 'hr',
-                title: 'Human Resources (HR)',
+                title: 'Human Resources',
                 subtitle: 'People & Organization',
                 badgeBg: 'bg-purple-50',
                 badgeBorder: 'border-purple-200',
                 dotColor: 'bg-purple-600',
                 sections: [
-                    isAdmin && {
-                        title: 'HR Summary',
+                    {
+                        title: 'HR Overview',
                         items: [
-                            { name: 'HR Dashboard', route: 'dashboard', params: { view: 'hr' }, pattern: 'dashboard' },
+                            { name: isAdmin ? 'HR Dashboard' : 'HR Overview', route: 'dashboard', params: { view: 'hr' }, pattern: 'dashboard' },
                         ],
                     },
                     {
-                        title: 'Employees & Organization',
+                        title: 'People & Organization',
                         items: [
                             isAdmin ? { name: 'Employees', route: 'employees.index', pattern: 'employees.*' } : null,
                             isAdmin ? { name: 'Departments', route: 'departments.index', pattern: 'departments.*' } : null,
@@ -283,7 +301,7 @@ export default function Authenticated({
                         ].filter(Boolean) as any[],
                     },
                     {
-                        title: 'Attendance & Schedules',
+                        title: 'Attendance & Scheduling',
                         items: [
                             { name: 'My Attendance', route: 'attendance.my', pattern: 'attendance.my' },
                             isAdmin ? { name: 'Attendance Logs', route: 'attendance.index', pattern: 'attendance.index' } : null,
@@ -314,7 +332,7 @@ export default function Authenticated({
             };
         }
 
-        // 4. Company & Documents
+        // F. Knowledge & Information (Consolidated Announcements & Documents)
         if (
             route().current('announcements.*') ||
             route().current('documents.*') ||
@@ -322,25 +340,25 @@ export default function Authenticated({
             currentUrl.includes('/documents')
         ) {
             return {
-                key: 'company',
-                title: 'Company & Documents',
-                subtitle: 'Archives & Information',
+                key: 'knowledge',
+                title: 'Knowledge & Information',
+                subtitle: 'Announcements & SOP Documents',
                 badgeBg: 'bg-teal-50',
                 badgeBorder: 'border-teal-200',
                 dotColor: 'bg-teal-600',
                 sections: [
                     {
-                        title: 'Hotel Information',
+                        title: 'Knowledge & Information',
                         items: [
                             { name: 'Announcements', route: 'announcements.index', pattern: 'announcements.index' },
-                            { name: 'Documents', route: 'documents.index', pattern: 'documents.index' },
+                            { name: 'Documents & SOPs', route: 'documents.index', pattern: 'documents.index' },
                         ],
                     },
                 ],
             };
         }
 
-        // 5. IT Operations & Helpdesk
+        // D. IT Operations
         if (
             route().current('it.*') ||
             route().current('power-pro.*') ||
@@ -348,26 +366,41 @@ export default function Authenticated({
         ) {
             return {
                 key: 'it',
-                title: isItStaff ? 'IT Operations' : 'IT Helpdesk',
+                title: 'IT Operations',
                 subtitle: isItStaff ? 'Inventory, Helpdesk & Systems' : 'Hotel IT Services & System Access',
                 badgeBg: 'bg-red-50',
                 badgeBorder: 'border-red-200',
                 dotColor: 'bg-red-600',
                 sections: [
-                    {
-                        title: isItStaff ? 'IT Workspace' : 'Hotel IT Services',
+                    isItStaff ? {
+                        title: 'IT Workspace',
                         items: [
-                            isItStaff ? { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.*' } : null,
-                            { name: isItStaff ? 'IT Helpdesk Tickets' : 'My Support Tickets', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.*' },
-                            isItStaff ? { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.*' } : null,
-                            { name: 'Power Pro ID Requests', route: 'power-pro.index', pattern: 'power-pro.*' },
-                        ].filter(Boolean) as any[],
+                            { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.*' },
+                        ],
+                    } : null,
+                    {
+                        title: 'IT Helpdesk',
+                        items: [
+                            { name: 'IT Helpdesk Tickets', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.*' },
+                        ],
                     },
-                ],
+                    isItStaff ? {
+                        title: 'Asset Management',
+                        items: [
+                            { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.*' },
+                        ],
+                    } : null,
+                    {
+                        title: 'Account & Access Requests',
+                        items: [
+                            { name: 'PowerPro ID Requests', route: 'power-pro.index', pattern: 'power-pro.*' },
+                        ],
+                    },
+                ].filter(Boolean) as any[],
             };
         }
 
-        // 6. System Administration
+        // G. System Settings
         if (
             route().current('roles.*') ||
             route().current('audit-logs.*') ||
@@ -378,14 +411,14 @@ export default function Authenticated({
         ) {
             return {
                 key: 'admin',
-                title: 'System & Administration',
+                title: 'System Settings',
                 subtitle: 'Super Admin Center',
                 badgeBg: 'bg-slate-100',
                 badgeBorder: 'border-slate-200',
                 dotColor: 'bg-slate-700',
                 sections: [
                     {
-                        title: 'Administration',
+                        title: 'System Settings',
                         items: [
                             { name: 'Roles & Permissions', route: 'roles.index', pattern: 'roles.*' },
                             { name: 'Audit Logs', route: 'audit-logs.index', pattern: 'audit-logs.*' },
@@ -396,7 +429,7 @@ export default function Authenticated({
             };
         }
 
-        // 6. Personal Profile & Overview
+        // H. Personal Dashboard (My Workspace)
         if (
             currentUrl.includes('view=overview') ||
             route().current('profile.*') ||
@@ -404,14 +437,14 @@ export default function Authenticated({
         ) {
             return {
                 key: 'overview',
-                title: 'Account & Profile',
-                subtitle: 'Personal Space',
+                title: 'My Workspace',
+                subtitle: 'Personal Space & Shortcuts',
                 badgeBg: 'bg-sky-50',
                 badgeBorder: 'border-sky-200',
                 dotColor: 'bg-sky-600',
                 sections: [
                     {
-                        title: 'Personal Space',
+                        title: 'My Workspace',
                         items: [
                             { name: 'Personal Dashboard', route: 'dashboard', params: { view: 'overview' }, pattern: 'dashboard' },
                             { name: 'Profile Settings', route: 'profile.edit', pattern: 'profile.*' },
@@ -453,7 +486,13 @@ export default function Authenticated({
         if (item.params?.tab) {
             return (
                 route().current(item.pattern) &&
-                (currentUrl.includes(`tab=${item.params.tab}`) || (!currentUrl.includes('tab=') && (item.params.tab === 'overview' || (item.params.tab === 'catalog' && currentUrl.includes('room-borrowing')))))
+                (currentUrl.includes(`tab=${item.params.tab}`) ||
+                    (!currentUrl.includes('tab=') && (
+                        (item.params.tab === 'overview' && isItStaff) ||
+                        (item.params.tab === 'tickets' && !isItStaff) ||
+                        (item.params.tab === 'catalog' && currentUrl.includes('room-borrowing'))
+                    ))
+                )
             );
         }
         if (item.route === 'dashboard') {
@@ -463,13 +502,13 @@ export default function Authenticated({
     };
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex overflow-x-hidden selection:bg-[#E31B23] selection:text-white">
+        <div className="h-screen bg-[#f8fafc] flex overflow-hidden selection:bg-[#E31B23] selection:text-white">
             {/* Desktop Sidebar (Only rendered when hideSidebar is false) */}
             {!hideSidebar && (
                 <aside
                     aria-label="Sidebar Navigation"
                     aria-hidden={!isSidebarOpen}
-                    className={`hidden md:flex flex-col shrink-0 h-screen sticky top-0 bg-white/80 backdrop-blur-xl shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300 ease-in-out overflow-hidden z-20 ${
+                    className={`hidden md:flex flex-col shrink-0 h-full bg-white/80 backdrop-blur-xl shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-all duration-300 ease-in-out overflow-hidden z-20 ${
                         isSidebarOpen
                             ? 'w-64 border-r border-slate-200/60 opacity-100'
                             : 'w-0 border-r-0 border-transparent opacity-0 pointer-events-none'
@@ -504,7 +543,7 @@ export default function Authenticated({
                         </div>
 
                         {/* Quick Link: Return to Desk Launcher (Main Menu) */}
-                        <div className="p-3 pb-2 border-b border-slate-100">
+                        <div className="shrink-0 p-3 pb-2 border-b border-slate-100">
                             <Link
                                 href={route('dashboard')}
                                 className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-700 hover:text-[#E31B23] transition-all border border-slate-200/60 group font-semibold text-xs shadow-2xs"
@@ -520,7 +559,7 @@ export default function Authenticated({
                         </div>
 
                         {/* Active Module Indicator Card */}
-                        <div className="px-3 pt-3 pb-1">
+                        <div className="shrink-0 px-3 pt-3 pb-1">
                             <div className={`p-2.5 rounded-xl ${activeModuleInfo.badgeBg} border ${activeModuleInfo.badgeBorder}`}>
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block leading-tight">Active Module</span>
                                 <div className="flex items-center gap-1.5 mt-0.5">
@@ -532,39 +571,58 @@ export default function Authenticated({
 
                         {/* Module Navigation (Only active module menus) */}
                         <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
-                            {activeModuleInfo.sections.map((section, idx) => (
-                                <div key={idx}>
-                                    <h3 className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
-                                        {section.title}
-                                    </h3>
-                                    <ul className="space-y-0.5">
-                                        {section.items.map((item: any, itemIdx: number) => {
-                                            const active = isItemActive(item);
-                                            return (
-                                                <li key={itemIdx}>
-                                                    <Link
-                                                        href={getItemHref(item)}
-                                                        className={`group flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
-                                                            active
-                                                                ? 'bg-red-50 text-[#E31B23] shadow-xs ring-1 ring-red-100 font-semibold hover:bg-red-100/70 hover:translate-x-0.5'
-                                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1'
-                                                        }`}
-                                                    >
-                                                        <span className={`transition-colors shrink-0 ${active ? 'text-[#E31B23]' : 'text-slate-400 group-hover:text-slate-600'}`}>
-                                                            {icons[item.name] || <span className="w-5 h-5 rounded bg-slate-200 inline-block" />}
-                                                        </span>
-                                                        <span className="truncate">{item.name}</span>
-                                                    </Link>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                </div>
-                            ))}
+                            {activeModuleInfo.sections.map((section, idx) => {
+                                const isCollapsed = !!collapsedSections[section.title];
+
+                                return (
+                                    <div key={idx} className="transition-all duration-200">
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleSection(section.title)}
+                                            className="w-full flex items-center justify-between px-3 py-1.5 text-[10px] font-bold text-gray-500 hover:text-gray-800 uppercase tracking-widest mb-1.5 group select-none cursor-pointer rounded-lg hover:bg-slate-100/70 transition-all active:scale-[0.99]"
+                                            title={isCollapsed ? `Expand ${section.title}` : `Collapse ${section.title}`}
+                                        >
+                                            <span className="truncate">{section.title}</span>
+                                            <svg
+                                                className={`w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition-transform duration-200 ease-in-out shrink-0 pointer-events-none ${isCollapsed ? '-rotate-90' : 'rotate-0'}`}
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                        {!isCollapsed && (
+                                            <ul className="space-y-0.5 animate-fadeIn">
+                                                {section.items.map((item: any, itemIdx: number) => {
+                                                    const active = isItemActive(item);
+                                                    return (
+                                                        <li key={itemIdx}>
+                                                            <Link
+                                                                href={getItemHref(item)}
+                                                                className={`group flex items-center gap-3 px-3 py-2 text-[13px] font-medium rounded-xl transition-all duration-200 ${
+                                                                    active
+                                                                        ? 'bg-red-50 text-[#E31B23] shadow-xs ring-1 ring-red-100 font-semibold hover:bg-red-100/70 hover:translate-x-0.5'
+                                                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1'
+                                                                }`}
+                                                            >
+                                                                <span className={`transition-colors shrink-0 ${active ? 'text-[#E31B23]' : 'text-slate-400 group-hover:text-slate-600'}`}>
+                                                                    {icons[item.name] || <span className="w-5 h-5 rounded bg-slate-200 inline-block" />}
+                                                                </span>
+                                                                <span className="truncate">{item.name}</span>
+                                                            </Link>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         {/* User Profile & Collapse Sidebar Footer */}
-                        <div className="border-t border-slate-100 p-3 bg-white/50">
+                        <div className="shrink-0 border-t border-slate-100 p-3 bg-white/50">
                             <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
                                 <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-200 shadow-xs shrink-0">
                                     <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
@@ -595,7 +653,10 @@ export default function Authenticated({
             )}
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
+            <div 
+                className="flex-1 flex flex-col min-w-0 h-full overflow-y-auto overflow-x-hidden transition-all duration-300"
+                scroll-region="true"
+            >
                 {/* Topbar */}
                 <header className="bg-white/70 backdrop-blur-lg border-b border-slate-200/60 sticky top-0 z-30 shadow-xs transition-all duration-300">
                     <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -851,22 +912,45 @@ export default function Authenticated({
                                 <span>Module: {activeModuleInfo.title}</span>
                             </div>
 
-                            {activeModuleInfo.sections.map((section, idx) => (
-                                <div key={idx} className="mb-3">
-                                    <div className="px-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{section.title}</div>
-                                    {section.items.map((item: any, itemIdx: number) => {
-                                        const active = isItemActive(item);
-                                        return (
-                                            <ResponsiveNavLink key={itemIdx} href={getItemHref(item)} active={active}>
-                                                <span className="flex items-center gap-2">
-                                                    {icons[item.name] || <span className="w-5 h-5 rounded bg-gray-200 inline-block" />}
-                                                    {item.name}
-                                                </span>
-                                            </ResponsiveNavLink>
-                                        );
-                                    })}
-                                </div>
-                            ))}
+                            {activeModuleInfo.sections.map((section, idx) => {
+                                const isCollapsed = !!collapsedSections[section.title];
+
+                                return (
+                                    <div key={idx} className="mb-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleSection(section.title)}
+                                            className="w-full flex items-center justify-between px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1 group cursor-pointer hover:bg-slate-50 rounded"
+                                            title={isCollapsed ? `Expand ${section.title}` : `Collapse ${section.title}`}
+                                        >
+                                            <span>{section.title}</span>
+                                            <svg
+                                                className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ease-in-out shrink-0 pointer-events-none ${isCollapsed ? '-rotate-90' : 'rotate-0'}`}
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                        {!isCollapsed && (
+                                            <div className="space-y-0.5">
+                                                {section.items.map((item: any, itemIdx: number) => {
+                                                    const active = isItemActive(item);
+                                                    return (
+                                                        <ResponsiveNavLink key={itemIdx} href={getItemHref(item)} active={active}>
+                                                            <span className="flex items-center gap-2">
+                                                                {icons[item.name] || <span className="w-5 h-5 rounded bg-gray-200 inline-block" />}
+                                                                {item.name}
+                                                            </span>
+                                                        </ResponsiveNavLink>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div className="border-t border-gray-200 px-4 py-3">

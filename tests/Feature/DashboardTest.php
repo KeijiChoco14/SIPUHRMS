@@ -47,17 +47,17 @@ class DashboardTest extends TestCase
         );
     }
 
-    public function test_employee_cannot_access_hr_module_via_url(): void
+    public function test_employee_can_access_hr_module_as_employee_portal(): void
     {
         $user = User::factory()->create();
         $user->assignRole('Staff / Employee');
 
         $response = $this->actingAs($user)->get('/dashboard?view=hr');
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
         $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Error')
-            ->where('status', 403)
+            ->component('Dashboard')
+            ->has('employeeHrData')
         );
     }
 

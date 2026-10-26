@@ -11,6 +11,7 @@ use App\Models\ItTicket;
 use App\Models\LeaveRequest;
 use App\Models\MasterKeyRequest;
 use App\Models\OvertimeRequest;
+use App\Models\Payroll;
 use App\Models\PerformanceScore;
 use App\Models\Project;
 use App\Models\RoomBorrowingTransaction;
@@ -50,11 +51,6 @@ class DashboardController extends Controller
         $isSupervisor = $user->hasRole('Supervisor') || $isHOD;
         $isAdmin = $isSuperAdmin || $isHRD || $isGM;
         $canAccessHousekeeping = $isAdmin || $isHOD || $isHK;
-
-        // Access validation: HR module is restricted to HRD, GM, and Super Admin
-        if ($view === 'hr' && !$isAdmin) {
-            abort(403, 'Access Denied: The Human Resources (HR) module can only be accessed by HRD, General Manager, or Administrator.');
-        }
 
         // Dynamic badge counters
         $activeTasksCount = 0;
@@ -152,6 +148,143 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Unified Personal Service Requests Aggregation (Read-only summary across modules)
+        $myRecentServiceRequests = [];
+        if ($employeeId) {
+            // 1. My Room Borrowings
+            if (Schema::hasTable('room_borrowing_transactions')) {
+                $borrowings = RoomBorrowingTransaction::with('room')
+                    ->where('borrower_employee_id', $employeeId)
+                    ->whereIn('status', [RoomBorrowingTransaction::STATUS_BORROWED, RoomBorrowingTransaction::STATUS_PENDING_RETURN])
+                    ->get()
+                    ->map(fn($b) => [
+                        'id' => 'rb-' . $b->id,
+                        'module' => 'Room & Key',
+                        'type' => 'Room Key Borrowing',
+                        'title' => $b->room ? ($b->room->name . ' (' . $b->room->room_number . ')') : 'Room Key',
+                        'reference' => $b->transaction_number,
+                        'status' => $b->status === RoomBorrowingTransaction::STATUS_BORROWED ? 'Active Loan' : 'Pending Return',
+                        'raw_status' => $b->status,
+                        'status_color' => $b->status === RoomBorrowingTransaction::STATUS_BORROWED ? 'emerald' : 'amber',
+                        'date' => $b->borrowed_at ? $b->borrowed_at->format('d M Y, H:i') : null,
+                        'link' => route('room-borrowing.index', ['tab' => 'my-borrowings']),
+                    ]);
+                $myRecentServiceRequests = array_merge($myRecentServiceRequests, $borrowings->toArray());
+            }
+
+            // 2. My IT Tickets
+            if (Schema::hasTable('it_tickets')) {
+                $tickets = ItTicket::where('reported_by_employee_id', $employeeId)
+                    ->whereIn('status', ['Open', 'In Progress'])
+                    ->latest()
+                    ->limit(5)
+                    ->get()
+                    ->map(fn($t) => [
+                        'id' => 'it-' . $t->id,
+                        'module' => 'IT Helpdesk',
+                        'type' => 'IT Support Ticket',
+                        'title' => $t->title,
+                        'reference' => $t->ticket_number,
+                        'status' => $t->status,
+                        'raw_status' => $t->status,
+                        'status_color' => $t->status === 'Open' ? 'rose' : 'amber',
+                        'date' => $t->created_at ? $t->created_at->format('d M Y, H:i') : null,
+                        'link' => route('it.tickets.show', $t->id),
+                    ]);
+                $myRecentServiceRequests = array_merge($myRecentServiceRequests, $tickets->toArray());
+            }
+
+            // 3. My Power Pro Requests
+            if (Schema::hasTable('power_pro_requests')) {
+                $powerPros = \App\Models\PowerProRequest::where(function($q) use ($user, $employeeId) {
+                        $q->where('requested_by_user_id', $user->id);
+                        if ($employeeId) {
+                            $q->orWhere('employee_id', $employeeId);
+                        }
+                    })
+                    ->whereIn('status', ['On Request', 'Approved'])
+                    ->latest()
+                    ->limit(5)
+                    ->get()
+                    ->map(fn($p) => [
+                        'id' => 'pp-' . $p->id,
+                        'module' => 'IT Operations',
+                        'type' => 'PowerPro User ID',
+                        'title' => 'PMS Access Request (' . $p->access_level . ')',
+                        'reference' => $p->request_number,
+                        'status' => $p->status,
+                        'raw_status' => $p->status,
+                        'status_color' => $p->status === 'On Request' ? 'amber' : 'blue',
+                        'date' => $p->created_at ? $p->created_at->format('d M Y, H:i') : null,
+                        'link' => route('power-pro.index'),
+                    ]);
+                $myRecentServiceRequests = array_merge($myRecentServiceRequests, $powerPros->toArray());
+            }
+
+            // 4. My Master Key Requests
+            if ($canAccessHousekeeping && Schema::hasTable('master_key_requests')) {
+                $keys = MasterKeyRequest::where('employee_id', $employeeId)
+                    ->where('status', 'On Request')
+                    ->latest()
+                    ->limit(5)
+                    ->get()
+                    ->map(fn($k) => [
+                        'id' => 'mk-' . $k->id,
+                        'module' => 'Housekeeping',
+                        'type' => 'Master Key Request',
+                        'title' => $k->key_type . ' (' . $k->key_number . ')',
+                        'reference' => $k->request_number,
+                        'status' => $k->status,
+                        'raw_status' => $k->status,
+                        'status_color' => 'amber',
+                        'date' => $k->created_at ? $k->created_at->format('d M Y, H:i') : null,
+                        'link' => route('master-keys.index'),
+                    ]);
+                $myRecentServiceRequests = array_merge($myRecentServiceRequests, $keys->toArray());
+            }
+
+            // 5. My Leave Requests
+            $leaves = LeaveRequest::where('employee_id', $employeeId)
+                ->where('status', 'Pending')
+                ->latest()
+                ->limit(3)
+                ->get()
+                ->map(fn($l) => [
+                    'id' => 'lv-' . $l->id,
+                    'module' => 'Human Resources',
+                    'type' => 'Leave Request (' . $l->type . ')',
+                    'title' => $l->reason,
+                    'reference' => 'LV-' . $l->id,
+                    'status' => $l->status,
+                    'raw_status' => $l->status,
+                    'status_color' => 'amber',
+                    'date' => $l->created_at ? $l->created_at->format('d M Y, H:i') : null,
+                    'link' => route('leave.index'),
+                ]);
+            $myRecentServiceRequests = array_merge($myRecentServiceRequests, $leaves->toArray());
+
+            // 6. My Overtime Requests
+            $overtimes = OvertimeRequest::where('employee_id', $employeeId)
+                ->where('status', 'Pending')
+                ->latest()
+                ->limit(3)
+                ->get()
+                ->map(fn($o) => [
+                    'id' => 'ot-' . $o->id,
+                    'module' => 'Human Resources',
+                    'type' => 'Overtime (SPKL)',
+                    'title' => $o->reason,
+                    'reference' => 'OT-' . $o->id,
+                    'status' => $o->status,
+                    'raw_status' => $o->status,
+                    'status_color' => 'amber',
+                    'date' => $o->created_at ? $o->created_at->format('d M Y, H:i') : null,
+                    'link' => route('overtime.index'),
+                ]);
+            $myRecentServiceRequests = array_merge($myRecentServiceRequests, $overtimes->toArray());
+        }
+
+        $data['myServiceRequests'] = $myRecentServiceRequests;
         $data['employeeData'] = [
             'tasksSummary' => [
                 'todo' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'To Do')->count(),
@@ -169,6 +302,7 @@ class DashboardController extends Controller
             'latestPerformanceScore' => $latestScore,
             'leaveStats' => $leaveStats,
             'recentActivities' => $recentActivities,
+            'myServiceRequests' => $myRecentServiceRequests,
         ];
 
         // 2. Supervisor Data
@@ -279,6 +413,62 @@ class DashboardController extends Controller
             'pendingLeaves' => LeaveRequest::where('status', 'Pending')->count(),
             'pendingOvertime' => OvertimeRequest::where('status', 'Pending')->count(),
             'departmentPerformance' => $departmentPerformance,
+        ];
+
+        // 5. Employee Personal HR Data (for Employee Self-Service / Non-admin HR View)
+        $myAttendanceToday = null;
+        $myMonthlyAttendance = [
+            'present' => 0,
+            'late' => 0,
+            'absent' => 0,
+            'total' => 0,
+        ];
+        $latestPayslip = null;
+        $myRecentLeaves = [];
+        $myRecentOvertime = [];
+
+        if ($employeeId) {
+            $myAttendanceToday = Attendance::where('employee_id', $employeeId)
+                ->where('date', $today->format('Y-m-d'))
+                ->first();
+
+            $monthAttendances = Attendance::where('employee_id', $employeeId)
+                ->where('date', 'like', $today->format('Y-m') . '%')
+                ->get();
+
+            $myMonthlyAttendance = [
+                'present' => $monthAttendances->where('status', 'Present')->count(),
+                'late' => $monthAttendances->where('status', 'Late')->count(),
+                'absent' => $monthAttendances->where('status', 'Absent')->count(),
+                'total' => $monthAttendances->count(),
+            ];
+
+            if (Schema::hasTable('payrolls')) {
+                $latestPayslip = Payroll::with('period')
+                    ->where('employee_id', $employeeId)
+                    ->latest()
+                    ->first();
+            }
+
+            $myRecentLeaves = LeaveRequest::where('employee_id', $employeeId)
+                ->orderBy('created_at', 'desc')
+                ->limit(3)
+                ->get();
+
+            $myRecentOvertime = OvertimeRequest::where('employee_id', $employeeId)
+                ->orderBy('created_at', 'desc')
+                ->limit(3)
+                ->get();
+        }
+
+        $data['employeeHrData'] = [
+            'attendanceToday' => $myAttendanceToday,
+            'monthlyAttendance' => $myMonthlyAttendance,
+            'leaveStats' => $leaveStats,
+            'recentLeaves' => $myRecentLeaves,
+            'recentOvertime' => $myRecentOvertime,
+            'pendingOvertime' => $pendingOvertimeCount,
+            'latestPayslip' => $latestPayslip,
         ];
 
         return Inertia::render('Dashboard', $data);

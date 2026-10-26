@@ -500,9 +500,11 @@ class PowerProRequestController extends Controller
     {
         $user = Auth::user();
         $perms = $this->getUserPermissions($user);
+        $isOwner = $powerProRequest->requested_by_user_id === $user->id 
+            || ($user->employee && $powerProRequest->employee_id === $user->employee->id);
 
-        if ($powerProRequest->status !== 'On Request' && !$perms['isAdmin']) {
-            abort(403, 'Akses Ditolak: Permohonan yang telah diproses tidak dapat dihapus.');
+        if (!$perms['isAdmin'] && (!$isOwner || $powerProRequest->status !== 'On Request')) {
+            abort(403, 'Akses Ditolak: Anda hanya dapat membatalkan permohonan milik Anda sendiri yang masih berstatus On Request.');
         }
 
         $reqNumber = $powerProRequest->request_number;

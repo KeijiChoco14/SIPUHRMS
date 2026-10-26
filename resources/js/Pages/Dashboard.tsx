@@ -5,6 +5,7 @@ import EmployeeDashboard from './Dashboard/Partials/EmployeeDashboard';
 import SupervisorDashboard from './Dashboard/Partials/SupervisorDashboard';
 import HRDashboard from './Dashboard/Partials/HRDashboard';
 import ManagerDashboard from './Dashboard/Partials/ManagerDashboard';
+import EmployeeHRDashboard from './Dashboard/Partials/EmployeeHRDashboard';
 
 interface LauncherStats {
     activeTasks?: number;
@@ -28,6 +29,7 @@ interface DashboardProps {
     supervisorData?: any;
     hrData?: any;
     managerData?: any;
+    employeeHrData?: any;
 }
 
 interface AppItem {
@@ -70,9 +72,11 @@ export default function Dashboard({
     supervisorData,
     hrData,
     managerData,
+    employeeHrData,
 }: DashboardProps) {
     const user = usePage().props.auth.user as any;
     const [searchQuery, setSearchQuery] = useState('');
+    const [adminHrTab, setAdminHrTab] = useState<'management' | 'self-service'>('management');
     const searchInputRef = useRef<HTMLInputElement>(null);
 
     const isSuperAdmin = user.roles?.some((r: any) => r.name === 'Super Admin');
@@ -143,14 +147,22 @@ export default function Dashboard({
         },
         {
             id: 'human-resources',
-            name: 'Human Resources (HR)',
-            description: 'Integrated HR Suite: Records, attendance, leave, overtime, payroll & KPI',
+            name: isAdmin ? 'Human Resources (HR)' : (isSupervisor ? 'HR & Team Hub' : 'Human Resources (HR)'),
+            description: isAdmin
+                ? 'Integrated HR Suite: Records, attendance, leave, overtime, payroll & KPI'
+                : (isSupervisor
+                    ? 'Team attendance, approvals, employee directory & HR self-service'
+                    : 'Employee Self-Service: My attendance, leave requests, overtime (SPKL) & payslips'),
             category: 'Human Capital',
             action: () => router.get(route('dashboard'), { view: 'hr' }),
             gradient: 'from-red-600 via-rose-600 to-red-700',
-            badge: pendingHrCount > 0 ? `${pendingHrCount} Pending` : launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null,
-            badgeColor: pendingHrCount > 0 ? 'bg-amber-500' : 'bg-[#E31B23]',
-            visible: isAdmin,
+            badge: isAdmin
+                ? (pendingHrCount > 0 ? `${pendingHrCount} Pending` : launcherStats.totalEmployees && launcherStats.totalEmployees > 0 ? `${launcherStats.totalEmployees} Staff` : null)
+                : (isSupervisor
+                    ? ((launcherStats.pendingLeaves || 0) + (launcherStats.pendingOvertime || 0) > 0 ? `${(launcherStats.pendingLeaves || 0) + (launcherStats.pendingOvertime || 0)} Pending` : null)
+                    : ((launcherStats.pendingLeaves || 0) + (launcherStats.pendingOvertime || 0) > 0 ? `${(launcherStats.pendingLeaves || 0) + (launcherStats.pendingOvertime || 0)} Requests` : null)),
+            badgeColor: (pendingHrCount > 0 || (launcherStats.pendingLeaves || 0) + (launcherStats.pendingOvertime || 0) > 0) ? 'bg-amber-500' : 'bg-[#E31B23]',
+            visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -177,8 +189,8 @@ export default function Dashboard({
         },
         {
             id: 'room-borrowing',
-            name: 'Room & Key Borrowing',
-            description: 'Room catalog, key borrowing, and physical return verification at Security post',
+            name: 'Room & Key Management',
+            description: 'Room catalog, key custody, and physical return verification at Security post',
             category: 'Facilities & Security',
             href: route('room-borrowing.index'),
             gradient: 'from-emerald-600 via-teal-600 to-emerald-700',
@@ -196,30 +208,16 @@ export default function Dashboard({
             ),
         },
         {
-            id: 'announcements',
-            name: 'Announcements',
-            description: 'Company memos, official news, and hotel announcements',
-            category: 'Company',
+            id: 'knowledge-information',
+            name: 'Knowledge & Information',
+            description: 'Company announcements, hotel SOP digital repository, and policy archives',
+            category: 'Knowledge & Information',
             href: route('announcements.index'),
-            gradient: 'from-pink-500 to-rose-600',
+            gradient: 'from-teal-600 via-emerald-600 to-teal-700',
             visible: true,
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                </svg>
-            ),
-        },
-        {
-            id: 'documents',
-            name: 'Documents & SOP',
-            description: 'Digital repository of SOPs, hotel forms, and policy archives',
-            category: 'Company',
-            href: route('documents.index'),
-            gradient: 'from-slate-600 to-gray-700',
-            visible: true,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
             ),
         },
@@ -252,7 +250,7 @@ export default function Dashboard({
                 </svg>
             ),
         },
-    ].filter(a => a.visible !== false), [launcherStats, pendingHrCount, isAdmin, isSuperAdmin, canAccessHousekeeping, isItStaff, isSecurityUser]);
+    ].filter(a => a.visible !== false), [launcherStats, pendingHrCount, isAdmin, isSuperAdmin, isSupervisor, canAccessHousekeeping, isItStaff, isSecurityUser]);
 
     // Full catalog for Ctrl+K search (includes both core suites and all specific sub-modules)
     const allSearchableItems: AppItem[] = useMemo(() => [
@@ -405,10 +403,11 @@ export default function Dashboard({
                 </svg>
             ),
         },
+
         {
             id: 'it-tickets',
             name: 'IT Helpdesk Tickets',
-            description: 'Lapor dan pantau penanganan masalah IT, WiFi, printer, dan komputer',
+            description: 'Report and track hotel IT issues, WiFi, hardware, and network requests',
             category: 'IT & Facilities',
             href: route('it.index', { tab: 'tickets' }),
             gradient: 'from-red-600 to-rose-600',
@@ -422,7 +421,7 @@ export default function Dashboard({
         {
             id: 'it-assets',
             name: 'IT Asset Inventory',
-            description: 'Daftar hardware IT hotel, PC, laptop, switch, printer, dan AP',
+            description: 'Hotel IT hardware inventory, workstations, switches, printers, and access points',
             category: 'IT & Facilities',
             href: route('it.index', { tab: 'assets' }),
             gradient: 'from-rose-600 to-red-700',
@@ -430,6 +429,48 @@ export default function Dashboard({
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'directory',
+            name: 'Employee Directory',
+            description: 'Hotel internal staff directory, department phone extensions, and contacts',
+            category: 'Human Capital',
+            href: route('directory.index'),
+            gradient: 'from-purple-500 to-indigo-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'announcements',
+            name: 'Announcements',
+            description: 'Company memos, official news, and hotel announcements',
+            category: 'Knowledge & Information',
+            href: route('announcements.index'),
+            gradient: 'from-pink-500 to-rose-600',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'documents',
+            name: 'Documents & SOPs',
+            description: 'Digital repository of SOPs, hotel forms, and policy archives',
+            category: 'Knowledge & Information',
+            href: route('documents.index'),
+            gradient: 'from-slate-600 to-gray-700',
+            visible: true,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
             ),
         },
@@ -627,7 +668,7 @@ export default function Dashboard({
                 header={
                     <div className="flex items-center justify-between gap-3 min-w-0 w-full">
                         <div className="min-w-0">
-                            <div className="hidden sm:flex items-center gap-2 text-xs text-purple-600 font-semibold mb-0.5">
+                            <div className="hidden sm:flex items-center gap-2 text-xs text-[#E31B23] font-semibold mb-0.5">
                                 <Link href={route('dashboard')} className="hover:underline flex items-center gap-1">
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -638,27 +679,58 @@ export default function Dashboard({
                                 <span className="text-gray-500 truncate">Human Resources (HR)</span>
                             </div>
                             <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 leading-tight truncate">
-                                Human Resources Workspace
+                                {isAdmin ? 'Human Resources Workspace' : (isSupervisor ? 'HR & Team Oversight' : 'Employee HR Portal')}
                             </h2>
                         </div>
-                        <Link
-                            href={route('dashboard')}
-                            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors shrink-0"
-                            title="Back to Desk Launcher"
-                        >
-                            <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                            <span className="hidden sm:inline">Desk Launcher</span>
-                        </Link>
+                        <div className="flex items-center gap-2.5">
+                            {isAdmin && (
+                                <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+                                    <button
+                                        type="button"
+                                        onClick={() => setAdminHrTab('management')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            adminHrTab === 'management'
+                                                ? 'bg-white text-slate-900 shadow-xs'
+                                                : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        Management Suite
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAdminHrTab('self-service')}
+                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            adminHrTab === 'self-service'
+                                                ? 'bg-white text-slate-900 shadow-xs'
+                                                : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        My HR Portal
+                                    </button>
+                                </div>
+                            )}
+                            <Link
+                                href={route('dashboard')}
+                                className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition-colors shrink-0"
+                                title="Back to Desk Launcher"
+                            >
+                                <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                                <span className="hidden sm:inline">Desk Launcher</span>
+                            </Link>
+                        </div>
                     </div>
                 }
             >
                 <Head title="Human Resources (HR) - Swiss-Belinn" />
 
                 <div className="space-y-6">
-                    {/* HR Dashboard partial */}
-                    <HRDashboard data={{ ...hrData, announcements }} />
+                    {isAdmin && adminHrTab === 'management' ? (
+                        <HRDashboard data={{ ...hrData, announcements }} />
+                    ) : (
+                        <EmployeeHRDashboard data={{ ...employeeHrData, supervisorData: isSupervisor ? supervisorData : null, announcements, role, user }} />
+                    )}
                 </div>
             </AuthenticatedLayout>
         );
