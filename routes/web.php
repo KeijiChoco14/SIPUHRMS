@@ -10,6 +10,7 @@ use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ItOperationsController;
+use App\Http\Controllers\ItRegistrationController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\OvertimeRequestController;
 use App\Http\Controllers\ShiftController;
@@ -43,9 +44,9 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'approved'])->name('dashboard');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'approved'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -174,6 +175,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/it/tickets/{ticket}/status', [ItOperationsController::class, 'updateTicketStatus'])->name('it.tickets.status');
     Route::post('/it/tickets/{ticket}/updates', [ItOperationsController::class, 'addTicketUpdate'])->name('it.tickets.updates');
     Route::delete('/it/tickets/{ticket}', [ItOperationsController::class, 'destroyTicket'])->name('it.tickets.destroy');
+
+    // IT Registration Approvals
+    Route::get('/it/registrations', [ItRegistrationController::class, 'index'])->name('it.registrations.index');
+    Route::post('/it/registrations/{user}/approve', [ItRegistrationController::class, 'approve'])->name('it.registrations.approve');
+    Route::post('/it/registrations/{user}/reject', [ItRegistrationController::class, 'reject'])->name('it.registrations.reject');
 
     // Power Pro User Access Request Routes (IT Operations)
     Route::get('/it/power-pro', [PowerProRequestController::class, 'index'])->name('power-pro.index');

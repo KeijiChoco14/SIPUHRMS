@@ -45,4 +45,32 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'pending',
+            'approved_by' => null,
+            'approved_at' => null,
+            'rejection_reason' => null,
+        ]);
+    }
+
+    public function approved(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'approved',
+            'approved_at' => now(),
+            'rejection_reason' => null,
+        ]);
+    }
+
+    public function rejected(?string $reason = 'Identity could not be verified by hotel management'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'rejected',
+            'approved_at' => now(),
+            'rejection_reason' => $reason,
+        ]);
+    }
 }

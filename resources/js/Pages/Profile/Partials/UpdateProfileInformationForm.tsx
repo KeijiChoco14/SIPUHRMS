@@ -113,28 +113,7 @@ export default function UpdateProfileInformation({
                     <InputError className="mt-2" message={errors.phone_number as string | undefined} />
                 </div>
 
-                {mustVerifyEmail && user.email_verified_at === null && (
-                    <div>
-                        <p className="mt-2 text-sm text-gray-800">
-                            Your email address is unverified.
-                            <Link
-                                href={route('verification.send')}
-                                method="post"
-                                as="button"
-                                className="rounded-xl text-sm text-slate-600 underline hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#E31B23] focus:ring-offset-2"
-                            >
-                                Click here to re-send the verification email.
-                            </Link>
-                        </p>
 
-                        {status === 'verification-link-sent' && (
-                            <div className="mt-2 text-sm font-medium text-emerald-600">
-                                A new verification link has been sent to your
-                                email address.
-                            </div>
-                        )}
-                    </div>
-                )}
 
                 <div className="flex items-center gap-4">
                     <PrimaryButton disabled={processing}>Save</PrimaryButton>

@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Notifications\VerifyEmailNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -15,9 +13,9 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'username', 'email', 'email_verified_at', 'password', 'phone_number', 'status', 'terms_accepted_at', 'profile_photo_path'])]
+#[Fillable(['name', 'username', 'email', 'email_verified_at', 'password', 'phone_number', 'status', 'approved_by', 'approved_at', 'rejection_reason', 'terms_accepted_at', 'profile_photo_path'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
@@ -35,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'approved_at' => 'datetime',
             'terms_accepted_at' => 'datetime',
             'password' => 'hashed',
         ];
@@ -62,27 +61,52 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
-    /**
-     * Send the email verification notification using branded English template.
-     */
-    public function sendEmailVerificationNotification(): void
-    {
-        $this->notify(new VerifyEmailNotification);
-    }
-
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return in_array($this->status, ['active', 'approved'], true);
+    }
+
+    public function isApproved(): bool
+    {
+        return in_array($this->status, ['active', 'approved'], true);
+    }
+
+    public function isPending(): bool
+    {
+        return in_array($this->status, ['pending', 'pending_approval'], true);
     }
 
     public function isPendingApproval(): bool
     {
-        return $this->status === 'pending_approval';
+        return $this->isPending();
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
     }
 
     public function isDisabled(): bool
     {
         return $this->status === 'disabled';
+    }
+
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * Check if this user is authorized to manage and approve registrations.
+     * Authorized: Super Admin, General Manager, or IT Department staff.
+     */
+    public function canManageRegistrations(): bool
+    {
+        if ($this->hasAnyRole(['Super Admin', 'General Manager'])) {
+            return true;
+        }
+
+        return (bool) ($this->employee && $this->employee->department && strtolower($this->employee->department->name) === 'it');
     }
 
     public function employee()

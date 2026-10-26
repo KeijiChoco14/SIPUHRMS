@@ -393,6 +393,7 @@ export default function Authenticated({
                     {
                         title: 'Account & Access Requests',
                         items: [
+                            ...(isItStaff ? [{ name: 'Registration Approvals', route: 'it.registrations.index', pattern: 'it.registrations.*' }] : []),
                             { name: 'PowerPro ID Requests', route: 'power-pro.index', pattern: 'power-pro.*' },
                         ],
                     },

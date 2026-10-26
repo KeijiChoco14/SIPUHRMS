@@ -87,12 +87,30 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if ($user->isPendingApproval()) {
+        if ($user->isPending()) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'login' => 'Your account is pending approval. Please wait for administrator activation.',
-                'email' => 'Your account is pending approval. Please wait for administrator activation.',
+                'login' => 'Your registration is awaiting approval from the IT Department. Please contact the IT Department directly if you require assistance.',
+                'email' => 'Your registration is awaiting approval from the IT Department. Please contact the IT Department directly if you require assistance.',
+            ]);
+        }
+
+        if ($user->isRejected()) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'login' => 'Your registration has not been approved. Please contact the IT Department for further information.',
+                'email' => 'Your registration has not been approved. Please contact the IT Department for further information.',
+            ]);
+        }
+
+        if (! $user->isActive()) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'login' => 'Your registration is awaiting approval from the IT Department. Please contact the IT Department directly if you require assistance.',
+                'email' => 'Your registration is awaiting approval from the IT Department. Please contact the IT Department directly if you require assistance.',
             ]);
         }
 

@@ -4,13 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Employee;
 use App\Models\User;
-use App\Notifications\VerifyEmailNotification;
-use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\URL;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -155,7 +152,7 @@ class AuthComprehensiveTest extends TestCase
 
         $this->assertGuest();
         $response->assertSessionHasErrors([
-            'login' => 'Your account is pending approval. Please wait for administrator activation.',
+            'login' => 'Your registration is awaiting approval from the IT Department. Please contact the IT Department directly if you require assistance.',
         ]);
     }
 
@@ -183,32 +180,29 @@ class AuthComprehensiveTest extends TestCase
      */
     public function test_self_registration_creates_account_with_least_privileged_role(): void
     {
-        Notification::fake();
-
         $response = $this->post('/register', [
             'name' => 'Budi Santoso',
             'username' => 'budi_santoso',
             'email' => 'budi.santoso@swiss-belhotel.com',
+            'phone_number' => '+6281234567890',
             'password' => 'SwissBel2026!',
             'password_confirmation' => 'SwissBel2026!',
             'terms' => true,
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('verification.notice', absolute: false));
+        $this->assertGuest();
+        $response->assertRedirect(route('registration.pending', absolute: false));
 
         $user = User::where('email', 'budi.santoso@swiss-belhotel.com')->first();
         $this->assertNotNull($user);
         $this->assertEquals('budi_santoso', $user->username);
-        $this->assertEquals('active', $user->status);
-        $this->assertNull($user->email_verified_at);
+        $this->assertEquals('pending', $user->status);
+        $this->assertEquals('+6281234567890', $user->phone_number);
         $this->assertNotNull($user->terms_accepted_at);
         $this->assertTrue($user->hasRole('Staff / Employee'));
         $this->assertNotNull($user->employee);
         $this->assertNotEmpty($user->employee->employee_number);
-        $this->assertEquals('Active', $user->employee->employment_status);
-
-        Notification::assertSentTo($user, VerifyEmailNotification::class);
+        $this->assertEquals('Active', $user->employee->account_status);
     }
 
     public function test_self_registration_blocks_privilege_escalation(): void
@@ -217,6 +211,7 @@ class AuthComprehensiveTest extends TestCase
             'name' => 'Attacker',
             'username' => 'attacker_hacker',
             'email' => 'attacker@gmail.com',
+            'phone_number' => '+6281299990000',
             'password' => 'HackerPass123!',
             'password_confirmation' => 'HackerPass123!',
             'terms' => true,
@@ -230,6 +225,7 @@ class AuthComprehensiveTest extends TestCase
         $this->assertFalse($user->hasRole('Super Admin'));
         $this->assertFalse($user->hasRole('HRD / Admin'));
         $this->assertTrue($user->hasRole('Staff / Employee'));
+        $this->assertEquals('pending', $user->status);
     }
 
     public function test_self_registration_rejects_duplicate_username_case_insensitively(): void
@@ -243,6 +239,7 @@ class AuthComprehensiveTest extends TestCase
             'name' => 'Duplicate Username Tester',
             'username' => 'EXISTING_USER',
             'email' => 'new_email@swiss-belhotel.com',
+            'phone_number' => '+6281234567891',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'terms' => true,
@@ -262,6 +259,7 @@ class AuthComprehensiveTest extends TestCase
             'name' => 'Duplicate Email Tester',
             'username' => 'user_two',
             'email' => 'DUPLICATE@swiss-belhotel.com',
+            'phone_number' => '+6281234567892',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'terms' => true,
@@ -276,6 +274,7 @@ class AuthComprehensiveTest extends TestCase
             'name' => 'Invalid User',
             'username' => 'invalid username with spaces!',
             'email' => 'test_invalid@swiss-belhotel.com',
+            'phone_number' => '+6281234567893',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'terms' => true,
@@ -290,6 +289,7 @@ class AuthComprehensiveTest extends TestCase
             'name' => 'No Terms User',
             'username' => 'no_terms_user',
             'email' => 'noterms@swiss-belhotel.com',
+            'phone_number' => '+6281234567894',
             'password' => 'Password123!',
             'password_confirmation' => 'Password123!',
             'terms' => false,
@@ -299,66 +299,40 @@ class AuthComprehensiveTest extends TestCase
     }
 
     /**
-     * 3. EMAIL VERIFICATION TESTS
+     * 3. IT APPROVAL ENFORCEMENT TESTS
      */
-    public function test_unverified_user_cannot_access_protected_module_routes(): void
+    public function test_pending_user_cannot_access_protected_module_routes(): void
     {
-        $user = User::factory()->unverified()->create([
-            'status' => 'active',
+        $user = User::factory()->pending()->create([
+            'status' => 'pending',
         ]);
 
         $response = $this->actingAs($user)->get('/dashboard');
 
-        $response->assertRedirect('/verify-email');
+        $this->assertGuest();
+        $response->assertRedirect('/login');
     }
 
-    public function test_valid_signed_verification_url_verifies_email(): void
+    public function test_rejected_user_cannot_access_protected_module_routes(): void
     {
-        Event::fake();
-
-        $user = User::factory()->unverified()->create([
-            'status' => 'active',
+        $user = User::factory()->rejected()->create([
+            'status' => 'rejected',
         ]);
 
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1($user->getEmailForVerification())]
-        );
+        $response = $this->actingAs($user)->get('/dashboard');
 
-        $response = $this->actingAs($user)->get($verificationUrl);
-
-        Event::assertDispatched(Verified::class);
-        $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(route('dashboard', absolute: false) . '?verified=1');
+        $this->assertGuest();
+        $response->assertRedirect('/login');
     }
 
-    public function test_tampered_signature_is_rejected(): void
+    public function test_approved_user_can_access_protected_module_routes(): void
     {
-        $user = User::factory()->unverified()->create();
+        $user = User::factory()->approved()->create([
+            'status' => 'approved',
+        ]);
 
-        $verificationUrl = URL::temporarySignedRoute(
-            'verification.verify',
-            now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1('tampered_hash')]
-        );
+        $response = $this->actingAs($user)->get('/dashboard');
 
-        $response = $this->actingAs($user)->get($verificationUrl);
-
-        $this->assertFalse($user->fresh()->hasVerifiedEmail());
-    }
-
-    public function test_resend_verification_email_is_rate_limited(): void
-    {
-        Notification::fake();
-
-        $user = User::factory()->unverified()->create();
-
-        // First resend request succeeds
-        $response = $this->actingAs($user)->post('/email/verification-notification');
-        $response->assertRedirect();
-        $response->assertSessionHas('status', 'verification-link-sent');
-
-        Notification::assertSentTo($user, VerifyEmailNotification::class);
+        $response->assertStatus(200);
     }
 }

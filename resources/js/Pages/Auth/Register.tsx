@@ -19,6 +19,7 @@ export default function Register({
         name: '',
         username: '',
         email: '',
+        phone_number: '',
         password: '',
         password_confirmation: '',
         terms: false,
@@ -98,6 +99,26 @@ export default function Register({
                         Staff with an official hotel email must register using their <span className="font-semibold text-slate-700">@{corporateDomain}</span> address. Other team members may use their personal email.
                     </p>
                     <InputError message={errors.email} className="mt-1.5" />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                    <InputLabel htmlFor="phone_number" value="Phone Number" />
+                    <TextInput
+                        id="phone_number"
+                        type="tel"
+                        name="phone_number"
+                        value={data.phone_number}
+                        placeholder="Enter your phone number"
+                        className="mt-1.5 block w-full text-sm"
+                        autoComplete="tel"
+                        onChange={(e) => setData('phone_number', e.target.value)}
+                        required
+                    />
+                    <p className="mt-1 text-[11px] text-slate-500 leading-tight">
+                        Active Indonesian phone number (e.g. 08123456789 or +628123456789) for IT Department review.
+                    </p>
+                    <InputError message={errors.phone_number} className="mt-1.5" />
                 </div>
 
                 {/* Password with Visibility Toggle */}
@@ -183,7 +204,7 @@ export default function Register({
                             required
                         />
                         <span className="ms-2 text-xs text-slate-600 leading-normal">
-                            I accept the internal Swiss-Belinn account-use policy. I understand that email verification is required and module authorizations remain subject to management verification.
+                            I accept the internal Swiss-Belinn account-use policy. I understand that account activation requires IT Department review and approval.
                         </span>
                     </label>
                     <InputError message={errors.terms} className="mt-1.5" />
