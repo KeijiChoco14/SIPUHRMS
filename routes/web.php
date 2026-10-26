@@ -73,6 +73,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // Notifications Route
+    Route::delete('/notifications', function () {
+        Illuminate\Support\Facades\Auth::user()->notifications()->delete();
+        return back();
+    })->name('notifications.destroyAll');
+
     Route::delete('/notifications/{id}', function ($id) {
         Illuminate\Support\Facades\Auth::user()->notifications()->where('id', $id)->delete();
         return back();

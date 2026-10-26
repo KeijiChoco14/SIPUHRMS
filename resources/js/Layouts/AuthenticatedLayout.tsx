@@ -691,11 +691,40 @@ export default function Authenticated({
                                         )}
                                     </button>
                                 </Dropdown.Trigger>
-                                <Dropdown.Content contentClasses="w-80 bg-white py-0 rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                                        <h3 className="text-sm font-semibold text-slate-800">Notifications</h3>
+                                <Dropdown.Content contentClasses="w-80 sm:w-96 bg-white py-0 rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-sm font-semibold text-slate-800">Notifications</h3>
+                                            {(usePage().props.auth as any).notifications?.length > 0 && (
+                                                <span className="text-[11px] font-semibold bg-red-100 text-[#E31B23] px-2 py-0.5 rounded-full">
+                                                    {(usePage().props.auth as any).notifications.length}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {(usePage().props.auth as any).notifications?.length > 0 && (
+                                            <button 
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    if (confirm('Are you sure you want to delete all notifications?')) {
+                                                        router.delete(route('notifications.destroyAll'), {
+                                                            preserveScroll: true,
+                                                            preserveState: true,
+                                                        });
+                                                    }
+                                                }}
+                                                className="text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 px-2 py-1 rounded-md transition-colors flex items-center gap-1.5"
+                                                title="Delete all notifications"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span>Delete all</span>
+                                            </button>
+                                        )}
                                     </div>
-                                    <div className="max-h-64 overflow-y-auto">
+                                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
                                         {(usePage().props.auth as any).notifications?.length > 0 ? (
                                             (usePage().props.auth as any).notifications.map((notif: any) => {
                                                 const handleDeleteNotification = (e: React.MouseEvent) => {
@@ -708,52 +737,65 @@ export default function Authenticated({
                                                 };
                                                 const isMention = notif.data?.type === 'comment_mention';
 
-                                                const content = (
-                                                    <div className={`px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer group flex justify-between items-start gap-2.5 ${isMention ? 'bg-red-50/30' : ''}`}>
-                                                        <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                                                            {isMention ? (
-                                                                <div className="w-7 h-7 rounded-full bg-red-100 text-[#E31B23] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
-                                                                    @
-                                                                </div>
-                                                            ) : (
-                                                                <div className="w-7 h-7 rounded-full bg-slate-100 text-[#E31B23] flex items-center justify-center shrink-0 mt-0.5">
-                                                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                                                    </svg>
-                                                                </div>
-                                                            )}
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="text-xs text-slate-800 leading-snug font-medium line-clamp-2">{notif.data.message}</p>
-                                                                <div className="flex items-center gap-1.5 mt-1">
-                                                                    {isMention && (
-                                                                        <span className="text-[9px] bg-red-100 text-[#E31B23] font-semibold px-1 rounded">
-                                                                            Tagged
-                                                                        </span>
-                                                                    )}
-                                                                    <span className="text-[10px] text-slate-400">{new Date(notif.created_at).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                                                                </div>
+                                                const notificationBody = (
+                                                    <>
+                                                        {isMention ? (
+                                                            <div className="w-7 h-7 rounded-full bg-red-100 text-[#E31B23] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+                                                                @
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-7 h-7 rounded-full bg-slate-100 text-[#E31B23] flex items-center justify-center shrink-0 mt-0.5">
+                                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                                </svg>
+                                                            </div>
+                                                        )}
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-xs text-slate-800 leading-snug font-medium line-clamp-2 hover:text-[#E31B23] transition-colors">{notif.data.message}</p>
+                                                            <div className="flex items-center gap-1.5 mt-1">
+                                                                {isMention && (
+                                                                    <span className="text-[9px] bg-red-100 text-[#E31B23] font-semibold px-1 rounded">
+                                                                        Tagged
+                                                                    </span>
+                                                                )}
+                                                                <span className="text-[10px] text-slate-400">{new Date(notif.created_at).toLocaleString('en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                                                             </div>
                                                         </div>
+                                                    </>
+                                                );
+
+                                                return (
+                                                    <div 
+                                                        key={notif.id}
+                                                        className={`px-3.5 py-3 hover:bg-slate-50 transition-colors flex items-start justify-between gap-2.5 ${isMention ? 'bg-red-50/30' : ''}`}
+                                                    >
+                                                        {notif.data.action_url ? (
+                                                            <Link href={notif.data.action_url} className="flex items-start gap-2.5 flex-1 min-w-0">
+                                                                {notificationBody}
+                                                            </Link>
+                                                        ) : (
+                                                            <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                                                                {notificationBody}
+                                                            </div>
+                                                        )}
                                                         <button 
+                                                            type="button"
                                                             onClick={handleDeleteNotification}
-                                                            className="text-slate-300 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                                                            className="text-slate-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md transition-colors shrink-0"
                                                             title="Delete Notification"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                         </button>
                                                     </div>
                                                 );
-                                                
-                                                return notif.data.action_url ? (
-                                                    <Link key={notif.id} href={notif.data.action_url} className="block">
-                                                        {content}
-                                                    </Link>
-                                                ) : (
-                                                    <div key={notif.id}>{content}</div>
-                                                );
                                             })
                                         ) : (
-                                            <div className="px-4 py-6 text-center text-sm text-slate-500">
+                                            <div className="px-4 py-8 text-center text-sm text-slate-500">
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                                    </svg>
+                                                </div>
                                                 No new notifications
                                             </div>
                                         )}
