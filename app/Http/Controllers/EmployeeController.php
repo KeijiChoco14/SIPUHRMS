@@ -22,10 +22,16 @@ class EmployeeController extends Controller
         $query = Employee::with(['user', 'department', 'position', 'supervisor.user']);
 
         if ($search = $request->input('search')) {
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            })->orWhere('employee_number', 'like', "%{$search}%");
+            $hasUsernameCol = \Illuminate\Support\Facades\Schema::hasColumn('users', 'username');
+            $query->where(function ($sub) use ($search, $hasUsernameCol) {
+                $sub->whereHas('user', function ($q) use ($search, $hasUsernameCol) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                    if ($hasUsernameCol) {
+                        $q->orWhere('username', 'like', "%{$search}%");
+                    }
+                })->orWhere('employee_number', 'like', "%{$search}%");
+            });
         }
 
         if ($department = $request->input('department')) {

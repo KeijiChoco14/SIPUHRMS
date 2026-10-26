@@ -15,10 +15,14 @@ class DirectoryController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('user', function ($uq) use ($search) {
+            $hasUsernameCol = \Illuminate\Support\Facades\Schema::hasColumn('users', 'username');
+            $query->where(function ($q) use ($search, $hasUsernameCol) {
+                $q->whereHas('user', function ($uq) use ($search, $hasUsernameCol) {
                     $uq->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
+                    if ($hasUsernameCol) {
+                        $uq->orWhere('username', 'like', "%{$search}%");
+                    }
                 })
                     ->orWhere('employee_number', 'like', "%{$search}%");
             });

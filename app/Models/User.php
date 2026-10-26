@@ -171,10 +171,15 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected function defaultProfilePhotoUrl(): string
     {
-        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
+        $rawName = trim((string)($this->name ?? 'User'));
+        if ($rawName === '') {
+            $rawName = 'User';
+        }
+
+        $initials = trim(collect(explode(' ', $rawName))->map(function ($segment) {
             return mb_substr($segment, 0, 1);
         })->join(' '));
 
-        return 'https://ui-avatars.com/api/?name='.urlencode($name).'&color=7F9CF5&background=EBF4FF';
+        return 'https://ui-avatars.com/api/?name='.urlencode($initials ?: 'U').'&color=7F9CF5&background=EBF4FF';
     }
 }
