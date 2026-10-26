@@ -70,13 +70,6 @@ class RegisteredUserController extends Controller
         $normalizedUsername = Str::lower(trim($validated['username']));
         $normalizedEmail = Str::lower(trim($validated['email']));
 
-        // Check if there is an unlinked employee record matching this email
-        $existingEmployee = Employee::whereNull('user_id')
-            ->where(function ($q) use ($normalizedEmail) {
-                $q->whereRaw('LOWER(phone_number) = ?', [$normalizedEmail]);
-            })
-            ->first();
-
         // Create the user record with least-privileged initial status
         $user = User::create([
             'name' => $validated['name'],
@@ -92,10 +85,8 @@ class RegisteredUserController extends Controller
         $defaultRole = Role::firstOrCreate(['name' => 'Staff / Employee']);
         $user->assignRole($defaultRole);
 
-        // Link to existing employee record if identified
-        if ($existingEmployee) {
-            $existingEmployee->update(['user_id' => $user->id]);
-        }
+        // Ensure an associated Employee profile exists so the user immediately appears in Employees & Directory
+        $user->ensureEmployeeProfile();
 
         // Fire registered event to dispatch VerifyEmailNotification
         event(new Registered($user));

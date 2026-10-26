@@ -92,36 +92,43 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Ensure the user has an associated Employee profile.
-     * Automatically creates a default employee profile for management/admin roles if missing.
+     * Automatically creates a default employee profile for any registered user if missing.
      */
-    public function ensureEmployeeProfile(): ?Employee
+    public function ensureEmployeeProfile(): Employee
     {
         if ($this->employee) {
             return $this->employee;
         }
+
+        $departmentId = null;
+        $employmentStatus = 'Active';
 
         if ($this->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
             $department = Department::firstOrCreate(
                 ['name' => 'Management'],
                 ['description' => 'Executive & Hotel Management']
             );
-
-            $employee = Employee::firstOrCreate(
-                ['user_id' => $this->id],
-                [
-                    'employee_number' => 'SBH-' . str_pad((string)$this->id, 3, '0', STR_PAD_LEFT),
-                    'department_id' => $department->id,
-                    'employment_status' => 'Permanent',
-                    'account_status' => 'Active',
-                    'join_date' => now()->toDateString(),
-                ]
-            );
-
-            $this->setRelation('employee', $employee);
-            return $employee;
+            $departmentId = $department->id;
+            $employmentStatus = 'Permanent';
         }
 
-        return null;
+        $employeeNumber = Employee::generateNextEmployeeNumber();
+
+        $employee = Employee::firstOrCreate(
+            ['user_id' => $this->id],
+            [
+                'employee_number' => $employeeNumber,
+                'phone_number' => $this->phone_number ?? null,
+                'department_id' => $departmentId,
+                'position_id' => null,
+                'employment_status' => $employmentStatus,
+                'account_status' => 'Active',
+                'join_date' => now()->toDateString(),
+            ]
+        );
+
+        $this->setRelation('employee', $employee);
+        return $employee;
     }
 
     protected function profilePhotoUrl(): Attribute

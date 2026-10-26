@@ -204,6 +204,9 @@ class AuthComprehensiveTest extends TestCase
         $this->assertNull($user->email_verified_at);
         $this->assertNotNull($user->terms_accepted_at);
         $this->assertTrue($user->hasRole('Staff / Employee'));
+        $this->assertNotNull($user->employee);
+        $this->assertNotEmpty($user->employee->employee_number);
+        $this->assertEquals('Active', $user->employee->employment_status);
 
         Notification::assertSentTo($user, VerifyEmailNotification::class);
     }

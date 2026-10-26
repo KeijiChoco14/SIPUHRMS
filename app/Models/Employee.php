@@ -25,6 +25,29 @@ class Employee extends Model
         'profile_photo',
     ];
 
+    /**
+     * Generate the next unique employee number in SBH-xxx format.
+     */
+    public static function generateNextEmployeeNumber(): string
+    {
+        $latestEmployee = static::orderBy('id', 'desc')->first();
+        $nextNumber = 1;
+
+        if ($latestEmployee && preg_match('/-(\d+)$/', $latestEmployee->employee_number, $matches)) {
+            $nextNumber = intval($matches[1]) + 1;
+        } else {
+            $nextNumber = (static::max('id') ?? 0) + 1;
+        }
+
+        $candidate = 'SBH-' . str_pad((string)$nextNumber, 3, '0', STR_PAD_LEFT);
+        while (static::where('employee_number', $candidate)->exists()) {
+            $nextNumber++;
+            $candidate = 'SBH-' . str_pad((string)$nextNumber, 3, '0', STR_PAD_LEFT);
+        }
+
+        return $candidate;
+    }
+
     protected function phoneNumber(): Attribute
     {
         return Attribute::make(
