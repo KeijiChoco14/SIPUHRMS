@@ -158,7 +158,7 @@ class RoomBorrowingController extends Controller
     public function borrow(BorrowRoomRequest $request)
     {
         $user = Auth::user();
-        $employee = $user->employee;
+        $employee = $user->employee ?? $user->ensureEmployeeProfile();
 
         if (!$employee) {
             return back()->withErrors(['message' => 'Employee profile not found for this account.']);

@@ -65,12 +65,13 @@ class PayrollController extends Controller
     public function myPayslips(Request $request)
     {
         $user = Auth::user();
-        if (! $user->employee) {
+        $employee = $user->employee ?? $user->ensureEmployeeProfile();
+        if (! $employee) {
             abort(403);
         }
 
         $payrolls = Payroll::with('period')
-            ->where('employee_id', $user->employee->id)
+            ->where('employee_id', $employee->id)
             ->orderBy('created_at', 'desc')
             ->get();
 

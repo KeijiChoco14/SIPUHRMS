@@ -3,36 +3,46 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\OvertimeRequest;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
 class OvertimeRequestController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        
-        // If HR/Admin/Manager, they can see all requests
-        if ($user->hasRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
-            $requests = OvertimeRequest::with(['employee.user', 'approver'])
+        $isApprover = $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+        $employee = $user->employee ?? $user->ensureEmployeeProfile();
+
+        $tab = $request->query('tab', $isApprover ? 'approvals' : 'my');
+
+        // Personal overtime requests of authenticated user
+        $myRequests = $employee
+            ? OvertimeRequest::with(['approver'])
+                ->where('employee_id', $employee->id)
                 ->orderBy('created_at', 'desc')
-                ->get();
-            return Inertia::render('Overtime/Approvals', [
-                'overtimeRequests' => $requests
-            ]);
-        }
-        
-        // Otherwise, Employee sees only their own
-        $employee = $user->employee;
-        $requests = OvertimeRequest::with(['approver'])
-            ->where('employee_id', $employee?->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
+                ->get()
+            : collect([]);
+
+        // All employee overtime requests for authorized approvers
+        $allRequests = $isApprover
+            ? OvertimeRequest::with(['employee.user', 'employee.department', 'approver'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+            : collect([]);
+
+        $pendingApprovalsCount = $isApprover
+            ? OvertimeRequest::where('status', 'Pending')->count()
+            : 0;
+
         return Inertia::render('Overtime/Index', [
-            'overtimeRequests' => $requests
+            'overtimeRequests' => ($isApprover && $tab === 'approvals') ? $allRequests : $myRequests,
+            'myRequests' => $myRequests,
+            'allRequests' => $allRequests,
+            'canApprove' => $isApprover,
+            'activeTab' => $tab,
+            'pendingApprovalsCount' => $pendingApprovalsCount,
         ]);
     }
 
@@ -45,10 +55,11 @@ class OvertimeRequestController extends Controller
             'reason' => 'required|string',
         ]);
 
-        $employee = Auth::user()->employee;
+        $user = Auth::user();
+        $employee = $user->employee ?? $user->ensureEmployeeProfile();
         
         if (!$employee) {
-            return back()->with('error', 'Only employees can request overtime.');
+            return back()->with('error', 'Only employees with active profiles can request overtime.');
         }
 
         OvertimeRequest::create([

@@ -9,29 +9,40 @@ use Illuminate\Support\Facades\Auth;
 
 class LeaveRequestController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        
-        // If HR/Admin/Manager, they can see all requests or approvals
-        if ($user->hasRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
-            $requests = LeaveRequest::with(['employee.user', 'approver'])
+        $isApprover = $user->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager']);
+        $employee = $user->employee ?? $user->ensureEmployeeProfile();
+
+        $tab = $request->query('tab', $isApprover ? 'approvals' : 'my');
+
+        // Personal leave requests of authenticated user
+        $myRequests = $employee
+            ? LeaveRequest::with(['approver'])
+                ->where('employee_id', $employee->id)
                 ->orderBy('created_at', 'desc')
-                ->get();
-            return Inertia::render('Leave/Approvals', [
-                'leaveRequests' => $requests
-            ]);
-        }
-        
-        // Otherwise, Employee sees only their own
-        $employee = $user->employee;
-        $requests = LeaveRequest::with(['approver'])
-            ->where('employee_id', $employee?->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
+                ->get()
+            : collect([]);
+
+        // All employee leave requests for authorized approvers
+        $allRequests = $isApprover
+            ? LeaveRequest::with(['employee.user', 'employee.department', 'approver'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+            : collect([]);
+
+        $pendingApprovalsCount = $isApprover
+            ? LeaveRequest::where('status', 'Pending')->count()
+            : 0;
+
         return Inertia::render('Leave/Index', [
-            'leaveRequests' => $requests
+            'leaveRequests' => ($isApprover && $tab === 'approvals') ? $allRequests : $myRequests,
+            'myRequests' => $myRequests,
+            'allRequests' => $allRequests,
+            'canApprove' => $isApprover,
+            'activeTab' => $tab,
+            'pendingApprovalsCount' => $pendingApprovalsCount,
         ]);
     }
 
@@ -44,10 +55,11 @@ class LeaveRequestController extends Controller
             'reason' => 'required|string',
         ]);
 
-        $employee = Auth::user()->employee;
+        $user = Auth::user();
+        $employee = $user->employee ?? $user->ensureEmployeeProfile();
         
         if (!$employee) {
-            return back()->with('error', 'Only employees can request leave.');
+            return back()->with('error', 'Only employees with active profiles can request leave.');
         }
 
         LeaveRequest::create([

@@ -251,4 +251,64 @@ class RolePermissionAuditTest extends TestCase
         $response = $this->actingAs($admin)->get("/performance/{$subordinateEmp->id}/{$period->id}");
         $response->assertStatus(200);
     }
+
+    public function test_super_admin_can_view_and_request_leave(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Super Admin');
+
+        // Can access /leave with approvals and personal view
+        $response = $this->actingAs($admin)->get('/leave');
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Leave/Index')
+            ->where('canApprove', true)
+            ->has('myRequests')
+            ->has('allRequests')
+        );
+
+        // Can submit a leave request
+        $leaveResponse = $this->actingAs($admin)->post('/leave', [
+            'type' => 'Annual',
+            'start_date' => now()->addDays(5)->toDateString(),
+            'end_date' => now()->addDays(7)->toDateString(),
+            'reason' => 'Annual vacation time off',
+        ]);
+        $leaveResponse->assertRedirect();
+
+        $this->assertDatabaseHas('leave_requests', [
+            'reason' => 'Annual vacation time off',
+            'status' => 'Pending',
+        ]);
+    }
+
+    public function test_super_admin_can_view_and_request_overtime(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('Super Admin');
+
+        // Can access /overtime with approvals and personal view
+        $response = $this->actingAs($admin)->get('/overtime');
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Overtime/Index')
+            ->where('canApprove', true)
+            ->has('myRequests')
+            ->has('allRequests')
+        );
+
+        // Can submit an overtime request
+        $otResponse = $this->actingAs($admin)->post('/overtime', [
+            'date' => now()->toDateString(),
+            'start_time' => '17:00',
+            'end_time' => '20:00',
+            'reason' => 'Quarterly server maintenance and backup audit',
+        ]);
+        $otResponse->assertRedirect();
+
+        $this->assertDatabaseHas('overtime_requests', [
+            'reason' => 'Quarterly server maintenance and backup audit',
+            'status' => 'Pending',
+        ]);
+    }
 }

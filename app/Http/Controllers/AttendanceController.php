@@ -27,13 +27,14 @@ class AttendanceController extends Controller
     public function myAttendance(Request $request)
     {
         $user = Auth::user();
-        if (! $user->employee) {
+        $employee = $user->employee ?? $user->ensureEmployeeProfile();
+        if (! $employee) {
             abort(403, 'Your account is not linked to an active employee record.');
         }
 
         $month = $request->query('month', date('Y-m'));
 
-        $attendances = Attendance::where('employee_id', $user->employee->id)
+        $attendances = Attendance::where('employee_id', $employee->id)
             ->where('date', 'like', $month.'%')
             ->orderBy('date', 'desc')
             ->get();

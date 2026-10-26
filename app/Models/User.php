@@ -44,6 +44,40 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class);
     }
 
+    /**
+     * Ensure the user has an associated Employee profile.
+     * Automatically creates a default employee profile for management/admin roles if missing.
+     */
+    public function ensureEmployeeProfile(): ?Employee
+    {
+        if ($this->employee) {
+            return $this->employee;
+        }
+
+        if ($this->hasAnyRole(['Super Admin', 'HRD / Admin', 'General Manager'])) {
+            $department = Department::firstOrCreate(
+                ['name' => 'Management'],
+                ['description' => 'Executive & Hotel Management']
+            );
+
+            $employee = Employee::firstOrCreate(
+                ['user_id' => $this->id],
+                [
+                    'employee_number' => 'SBH-' . str_pad((string)$this->id, 3, '0', STR_PAD_LEFT),
+                    'department_id' => $department->id,
+                    'employment_status' => 'Permanent',
+                    'account_status' => 'Active',
+                    'join_date' => now()->toDateString(),
+                ]
+            );
+
+            $this->setRelation('employee', $employee);
+            return $employee;
+        }
+
+        return null;
+    }
+
     protected function profilePhotoUrl(): Attribute
     {
         return Attribute::make(
