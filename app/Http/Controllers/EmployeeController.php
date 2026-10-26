@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
@@ -93,11 +94,27 @@ class EmployeeController extends Controller
             'role' => 'required|string|exists:roles,name',
         ]);
 
+        $emailPrefix = Str::lower(explode('@', $validated['email'])[0] ?? '');
+        $cleanUsername = preg_replace('/[^a-zA-Z0-9._]/', '_', $emailPrefix);
+        if (strlen($cleanUsername) < 3) {
+            $cleanUsername = 'emp_' . Str::lower(str_replace('-', '_', $validated['employee_number']));
+        }
+        $candidateUsername = $cleanUsername;
+        $counter = 1;
+        while (User::where('username', $candidateUsername)->exists()) {
+            $candidateUsername = $cleanUsername . '_' . $counter;
+            $counter++;
+        }
+
         // Create user account
         $user = User::create([
             'name' => $validated['name'],
+            'username' => $candidateUsername,
             'email' => $validated['email'],
             'password' => bcrypt($validated['password']),
+            'status' => 'active',
+            'email_verified_at' => now(),
+            'terms_accepted_at' => now(),
         ]);
         $user->assignRole($validated['role']);
 

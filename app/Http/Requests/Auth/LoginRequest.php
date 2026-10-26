@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -28,14 +30,27 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'login' => ['required_without:email', 'string'],
+            'email' => ['required_without:login', 'string'],
             'password' => ['required', 'string'],
             'remember' => ['nullable', 'boolean'],
         ];
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * Get custom error messages for validator.
+     */
+    public function messages(): array
+    {
+        return [
+            'login.required_without' => 'Please enter your email or username.',
+            'email.required_without' => 'Please enter your email or username.',
+            'password.required' => 'Please enter your password.',
+        ];
+    }
+
+    /**
+     * Attempt to authenticate the request's credentials via email or username.
      *
      * @throws ValidationException
      */
@@ -43,13 +58,45 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $identifier = trim((string) ($this->input('login') ?? $this->input('email') ?? ''));
+        $normalized = Str::lower($identifier);
+
+        // Find user by normalized email or username
+        $user = User::where(function ($q) use ($normalized) {
+            $q->whereRaw('LOWER(email) = ?', [$normalized])
+              ->orWhereRaw('LOWER(username) = ?', [$normalized]);
+        })->first();
+
+        // Generic error message if user not found or password incorrect (prevents account enumeration)
+        if (! $user || ! Hash::check($this->input('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'login' => 'Invalid email or username or password.',
+                'email' => 'Invalid email or username or password.',
             ]);
         }
+
+        // Account status verification
+        if ($user->isDisabled()) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'login' => 'Your account is disabled. Please contact the administrator.',
+                'email' => 'Your account is disabled. Please contact the administrator.',
+            ]);
+        }
+
+        if ($user->isPendingApproval()) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'login' => 'Your account is pending approval. Please wait for administrator activation.',
+                'email' => 'Your account is pending approval. Please wait for administrator activation.',
+            ]);
+        }
+
+        Auth::login($user, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
     }
@@ -70,6 +117,10 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
+            'login' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
             'email' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
@@ -82,6 +133,7 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        $identifier = Str::lower(trim((string) ($this->input('login') ?? $this->input('email') ?? '')));
+        return Str::transliterate($identifier . '|' . $this->ip());
     }
 }

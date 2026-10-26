@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\VerifyEmailNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -14,9 +15,9 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['name', 'email', 'password', 'phone_number'])]
+#[Fillable(['name', 'username', 'email', 'email_verified_at', 'password', 'phone_number', 'status', 'terms_accepted_at', 'profile_photo_path'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
@@ -24,7 +25,6 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
-
 
     /**
      * Get the attributes that should be cast.
@@ -35,8 +35,54 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (empty($user->username) && !empty($user->email)) {
+                $base = \Illuminate\Support\Str::lower(preg_replace('/[^a-zA-Z0-9._]/', '_', explode('@', $user->email)[0] ?? ''));
+                if (strlen($base) < 3) {
+                    $base = 'usr_' . \Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(4));
+                }
+                $candidate = $base;
+                $counter = 1;
+                while (static::where('username', $candidate)->exists()) {
+                    $candidate = $base . '_' . $counter;
+                    $counter++;
+                }
+                $user->username = $candidate;
+            }
+            if (empty($user->status)) {
+                $user->status = 'active';
+            }
+        });
+    }
+
+    /**
+     * Send the email verification notification using branded English template.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    public function isPendingApproval(): bool
+    {
+        return $this->status === 'pending_approval';
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->status === 'disabled';
     }
 
     public function employee()

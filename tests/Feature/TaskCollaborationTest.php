@@ -22,6 +22,7 @@ class TaskCollaborationTest extends TestCase
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
 
         $employee = Employee::create([
@@ -66,6 +67,7 @@ class TaskCollaborationTest extends TestCase
             'name' => 'Author User',
             'email' => 'author@example.com',
             'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
 
         $authorEmployee = Employee::create([
@@ -78,6 +80,7 @@ class TaskCollaborationTest extends TestCase
             'name' => 'Tagged Person',
             'email' => 'tagged@example.com',
             'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
 
         $taggedEmployee = Employee::create([
@@ -122,6 +125,7 @@ class TaskCollaborationTest extends TestCase
             'name' => 'Author Two',
             'email' => 'author2@example.com',
             'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
 
         Employee::create([
@@ -134,6 +138,7 @@ class TaskCollaborationTest extends TestCase
             'name' => 'Colleague User',
             'email' => 'colleague@example.com',
             'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
 
         Employee::create([
