@@ -1,4 +1,3 @@
-
 name: Deploy SIPU Management
 
 on:
@@ -56,6 +55,27 @@ jobs:
         with:
           name: sipu-frontend-build
           path: public-build
+
+      - name: Diagnose VPS network connectivity
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+        run: |
+          set -eu
+
+          if [ -z "$VPS_HOST" ] || [ -z "$VPS_PORT" ]; then
+            echo "VPS_HOST or VPS_PORT is missing."
+            exit 1
+          fi
+
+          echo "Testing TCP connectivity to VPS..."
+          if timeout 10 bash -c \
+            'exec 3<>/dev/tcp/$VPS_HOST/$VPS_PORT' 2>/dev/null; then
+            echo "TCP connection successful."
+          else
+            echo "TCP connection failed or timed out."
+            exit 1
+          fi
 
       - name: Configure SSH
         env:
