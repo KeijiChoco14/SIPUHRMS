@@ -59,8 +59,8 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Index', [
             'tasks' => $tasks,
             'filters' => $request->only(['filter', 'status']),
-            'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
-            'projects' => \App\Models\Project::select('id', 'name', 'status')->get(),
+            'employees' => fn () => \App\Models\Employee::with(['user', 'department'])->get(),
+            'projects' => fn () => \App\Models\Project::select('id', 'name', 'status')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);

@@ -152,7 +152,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
             header={
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h2 className="font-bold text-xl text-gray-900">My Kanban Board</h2>
+                        <h2 className="font-bold text-xl text-gray-900">My List</h2>
                         <p className="text-sm text-gray-500 mt-0.5">Drag and drop task cards between columns to update status instantly</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -167,7 +167,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                 </div>
             }
         >
-            <Head title="My Kanban" />
+            <Head title="My List" />
 
             <div className="mt-2">
                 {/* Kanban Board */}

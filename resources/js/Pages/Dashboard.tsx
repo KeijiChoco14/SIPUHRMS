@@ -377,7 +377,7 @@ export default function Dashboard({
         },
         {
             id: 'kanban',
-            name: 'Kanban Board',
+            name: 'My List',
             description: 'Interactive visual board for task progress',
             category: 'Operations',
             href: route('tasks.kanban'),
@@ -945,7 +945,7 @@ export default function Dashboard({
                                     title="Active work tasks list"
                                 >
                                     <span>📋</span>
-                                    <span>My Tasks</span>
+                                    <span>List Task</span>
                                 </Link>
                                 <Link
                                     href={route('it.index', { tab: 'tickets' })}

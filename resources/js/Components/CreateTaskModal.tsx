@@ -165,14 +165,36 @@ export default function CreateTaskModal({
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Scheduled Date / Deadline</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Start Date</label>
+                                        <input
+                                            type="date"
+                                            value={data.start_date}
+                                            onChange={e => {
+                                                const val = e.target.value;
+                                                setData(d => ({
+                                                    ...d,
+                                                    start_date: val,
+                                                    deadline: d.deadline && d.deadline >= val ? d.deadline : val,
+                                                }));
+                                            }}
+                                            className="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Deadline (End)</label>
                                         <input
                                             type="date"
                                             value={data.deadline}
+                                            min={data.start_date || undefined}
                                             onChange={e => {
-                                                setData(d => ({ ...d, deadline: e.target.value, start_date: d.start_date || e.target.value }));
+                                                const val = e.target.value;
+                                                setData(d => ({
+                                                    ...d,
+                                                    deadline: val,
+                                                    start_date: d.start_date || val,
+                                                }));
                                             }}
                                             className="mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3"
                                         />

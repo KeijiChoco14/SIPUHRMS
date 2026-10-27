@@ -33,101 +33,104 @@ class RoomBorrowingController extends Controller
         $canManageRooms = $user->can('room.manage');
         $isSecurity = $user->hasRole('Security');
 
+        // Check if user belongs to IT department, Super Admin, or General Manager
+        $isItStaff = $user->hasAnyRole(['Super Admin', 'General Manager'])
+            || ($employee && $employee->department && strtolower($employee->department->name) === 'it');
+
         $search = $request->input('search', '');
         $statusFilter = $request->input('status', 'ALL');
-        $tab = $request->input('tab', 'catalog');
 
-        // Query active rooms for catalog
-        $roomsQuery = Room::query()
-            ->with([
-                'activeTransaction.borrower.user:id,name,email',
-                'activeTransaction.borrower.department:id,name',
-            ])
-            ->where('is_active', true);
+        // Default tab is now the unified borrowing form ('borrow')
+        $tab = $request->input('tab', 'borrow');
 
-        if ($search) {
-            $roomsQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('room_number', 'like', "%{$search}%")
-                    ->orWhere('location', 'like', "%{$search}%")
-                    ->orWhere('key_code', 'like', "%{$search}%");
-            });
+        // Non-IT staff cannot view the Room Catalog tab; redirect/fallback to borrowing form
+        if ($tab === 'catalog' && !$isItStaff) {
+            $tab = 'borrow';
         }
 
-        if (in_array($statusFilter, [Room::STATUS_AVAILABLE, Room::STATUS_BORROWED, Room::STATUS_PENDING_RETURN])) {
-            $roomsQuery->where('status', $statusFilter);
-        }
-
-        $rooms = $roomsQuery->orderBy('room_number', 'asc')->get();
-
-        // Calculate actual overview statistics
-        $stats = [
+        // Overview statistics (lightweight count queries on indexed columns)
+        $stats = fn () => [
             'total' => Room::where('is_active', true)->count(),
             'available' => Room::where('is_active', true)->where('status', Room::STATUS_AVAILABLE)->count(),
             'borrowed' => Room::where('is_active', true)->where('status', Room::STATUS_BORROWED)->count(),
             'pending_return' => Room::where('is_active', true)->where('status', Room::STATUS_PENDING_RETURN)->count(),
         ];
 
-        // My Active Borrowing Transactions
-        $myActiveBorrowings = [];
-        $myHistory = [];
-        if ($employee) {
-            $myActiveBorrowings = RoomBorrowingTransaction::with(['room'])
-                ->where('borrower_employee_id', $employee->id)
-                ->whereIn('status', [
-                    RoomBorrowingTransaction::STATUS_BORROWED,
-                    RoomBorrowingTransaction::STATUS_PENDING_RETURN,
+        // 1. Rooms for Borrow Form & Catalog
+        // Only queried when on 'borrow' or 'catalog' tab, avoiding eager-loading borrowers and large payloads on other tabs
+        $rooms = fn () => in_array($tab, ['borrow', 'catalog']) ? (
+            Room::query()
+                ->with([
+                    'activeTransaction.borrower.user:id,name,email',
+                    'activeTransaction.borrower.department:id,name',
                 ])
-                ->orderBy('borrowed_at', 'desc')
-                ->get();
-
-            $myHistory = RoomBorrowingTransaction::with([
-                'room',
-                'securityUser:id,name',
-            ])
-                ->where('borrower_employee_id', $employee->id)
-                ->where('status', RoomBorrowingTransaction::STATUS_RETURNED)
-                ->orderBy('returned_at', 'desc')
-                ->limit(20)
-                ->get();
-        }
-
-        // Pending Returns Queue (for Security and Administrators)
-        $pendingReturns = [];
-        $recentAuditTransactions = [];
-        if ($canApproveReturn) {
-            $pendingReturns = RoomBorrowingTransaction::with([
-                'room',
-                'borrower.user:id,name,email',
-                'borrower.department:id,name',
-                'borrower.position:id,name',
-            ])
-                ->where('status', RoomBorrowingTransaction::STATUS_PENDING_RETURN)
-                ->orderBy('return_requested_at', 'asc')
-                ->get();
-
-            $recentAuditTransactions = RoomBorrowingTransaction::with([
-                'room',
-                'borrower.user:id,name',
-                'borrower.department:id,name',
-                'securityUser:id,name',
-            ])
-                ->where('status', RoomBorrowingTransaction::STATUS_RETURNED)
-                ->orderBy('returned_at', 'desc')
-                ->limit(15)
-                ->get();
-        }
-
-        // All Rooms list for management tab (including inactive)
-        $allRoomsForAdmin = [];
-        if ($canManageRooms) {
-            $allRoomsForAdmin = Room::withCount('transactions')
+                ->where('is_active', true)
+                ->when($search, function ($q) use ($search) {
+                    $q->where(function ($sub) use ($search) {
+                        $sub->where('name', 'like', "%{$search}%")
+                            ->orWhere('room_number', 'like', "%{$search}%")
+                            ->orWhere('location', 'like', "%{$search}%")
+                            ->orWhere('key_code', 'like', "%{$search}%");
+                    });
+                })
+                ->when(in_array($statusFilter, [Room::STATUS_AVAILABLE, Room::STATUS_BORROWED, Room::STATUS_PENDING_RETURN]), function ($q) use ($statusFilter) {
+                    $q->where('status', $statusFilter);
+                })
                 ->orderBy('room_number', 'asc')
-                ->get();
-        }
+                ->get()
+        ) : [];
 
-        // Stable entry point URL for QR Code
-        $qrUrl = url('/room-borrowing');
+        // 2. My Active Borrowing Transactions (needed for active borrowings badge and My Borrowings tab)
+        $myActiveBorrowings = fn () => $employee ? RoomBorrowingTransaction::with(['room'])
+            ->where('borrower_employee_id', $employee->id)
+            ->whereIn('status', [
+                RoomBorrowingTransaction::STATUS_BORROWED,
+                RoomBorrowingTransaction::STATUS_PENDING_RETURN,
+            ])
+            ->orderBy('borrowed_at', 'desc')
+            ->get() : [];
+
+        // 3. My History (HEAVY: 20 returned transactions with security user) - ONLY evaluated when tab is 'my-borrowings'
+        $myHistory = fn () => ($employee && $tab === 'my-borrowings') ? RoomBorrowingTransaction::with([
+            'room',
+            'securityUser:id,name',
+        ])
+            ->where('borrower_employee_id', $employee->id)
+            ->where('status', RoomBorrowingTransaction::STATUS_RETURNED)
+            ->orderBy('returned_at', 'desc')
+            ->limit(20)
+            ->get() : [];
+
+        // 4. Pending Returns Queue (for Security and Administrators)
+        $pendingReturns = fn () => $canApproveReturn ? RoomBorrowingTransaction::with([
+            'room',
+            'borrower.user:id,name,email',
+            'borrower.department:id,name',
+            'borrower.position:id,name',
+        ])
+            ->where('status', RoomBorrowingTransaction::STATUS_PENDING_RETURN)
+            ->orderBy('return_requested_at', 'asc')
+            ->get() : [];
+
+        // 5. Recent Audit Transactions (HEAVY: 15 records with 4 relations) - ONLY evaluated when tab is 'pending-returns'
+        $recentAuditTransactions = fn () => ($canApproveReturn && $tab === 'pending-returns') ? RoomBorrowingTransaction::with([
+            'room',
+            'borrower.user:id,name',
+            'borrower.department:id,name',
+            'securityUser:id,name',
+        ])
+            ->where('status', RoomBorrowingTransaction::STATUS_RETURNED)
+            ->orderBy('returned_at', 'desc')
+            ->limit(15)
+            ->get() : [];
+
+        // 6. All Rooms list for management tab (HEAVY: all rooms with count) - ONLY evaluated when tab is 'manage-rooms'
+        $allRoomsForAdmin = fn () => ($canManageRooms && $tab === 'manage-rooms') ? Room::withCount('transactions')
+            ->orderBy('room_number', 'asc')
+            ->get() : [];
+
+        // Stable entry point URL for QR Code leading directly to borrowing form
+        $qrUrl = route('room-borrowing.index', ['tab' => 'borrow']);
 
         return Inertia::render('RoomBorrowing/Index', [
             'rooms' => $rooms,
@@ -147,6 +150,7 @@ class RoomBorrowingController extends Controller
                 'can_approve_return' => $canApproveReturn,
                 'can_manage_rooms' => $canManageRooms,
                 'is_security' => $isSecurity,
+                'is_it_staff' => $isItStaff,
             ],
             'qrUrl' => $qrUrl,
         ]);

@@ -45,6 +45,7 @@ export default function TaskDetailModal({
         description: task?.description || '',
         priority: typeof task?.priority === 'object' ? task.priority?.value || 'Normal' : task?.priority || 'Normal',
         status: typeof task?.status === 'object' ? task.status?.value || 'To Do' : task?.status || 'To Do',
+        start_date: formatDate(task?.start_date),
         deadline: formatDate(task?.deadline),
         assignees: task?.assignees ? task.assignees.map((a: any) => a.id) : [],
     });
@@ -56,6 +57,7 @@ export default function TaskDetailModal({
                 description: task.description || '',
                 priority: typeof task.priority === 'object' ? task.priority?.value || 'Normal' : task.priority || 'Normal',
                 status: typeof task.status === 'object' ? task.status?.value || 'To Do' : task.status || 'To Do',
+                start_date: formatDate(task.start_date),
                 deadline: formatDate(task.deadline),
                 assignees: task.assignees ? task.assignees.map((a: any) => a.id) : [],
             });
@@ -385,6 +387,7 @@ export default function TaskDetailModal({
             description: editData.description,
             priority: editData.priority,
             status: editData.status,
+            start_date: editData.start_date || null,
             deadline: editData.deadline || null,
             assignees: editData.assignees,
         }, {
@@ -479,16 +482,35 @@ export default function TaskDetailModal({
                                             {task.status}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                                         {task.project?.name && (
                                             <span>Project: <span className="font-medium text-gray-700">{task.project.name}</span></span>
                                         )}
-                                        {task.deadline && (
-                                            <span className="flex items-center gap-1">
-                                                <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                Deadline: {new Date(task.deadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                            </span>
-                                        )}
+                                        {(() => {
+                                            const sStr = task.start_date ? String(task.start_date).split('T')[0] : null;
+                                            const eStr = task.deadline ? String(task.deadline).split('T')[0] : null;
+                                            if (sStr && eStr && sStr !== eStr) {
+                                                const dt1 = new Date(sStr);
+                                                const dt2 = new Date(eStr);
+                                                const days = Math.round((dt2.getTime() - dt1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+                                                return (
+                                                    <span className="flex items-center gap-1.5 font-medium text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
+                                                        <svg className="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                        Periode: {new Date(sStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} - {new Date(eStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })} ({days} hari)
+                                                    </span>
+                                                );
+                                            }
+                                            if (eStr || sStr) {
+                                                const d = eStr || sStr;
+                                                return (
+                                                    <span className="flex items-center gap-1">
+                                                        <svg className="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                        Deadline: {new Date(d!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    </span>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
                                     </div>
                                 </div>
                             ) : (
@@ -591,7 +613,7 @@ export default function TaskDetailModal({
                                 </div>
 
                                 {/* Priority, Status, Deadline */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-1">
                                             Priority <span className="text-red-500">*</span>
@@ -624,12 +646,39 @@ export default function TaskDetailModal({
 
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-1">
+                                            Start Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={editData.start_date}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setEditData({
+                                                    ...editData,
+                                                    start_date: val,
+                                                    deadline: editData.deadline && editData.deadline >= val ? editData.deadline : val,
+                                                });
+                                            }}
+                                            className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 mb-1">
                                             Due Date (Deadline)
                                         </label>
                                         <input
                                             type="date"
                                             value={editData.deadline}
-                                            onChange={(e) => setEditData({ ...editData, deadline: e.target.value })}
+                                            min={editData.start_date || undefined}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                setEditData({
+                                                    ...editData,
+                                                    deadline: val,
+                                                    start_date: editData.start_date || val,
+                                                });
+                                            }}
                                             className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                         />
                                     </div>

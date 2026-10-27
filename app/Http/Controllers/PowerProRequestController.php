@@ -130,7 +130,8 @@ class PowerProRequestController extends Controller
             }
         }
 
-        $stats = [
+        // Stats summary calculation (lazy closure)
+        $stats = fn () => [
             'total' => (clone $statsQuery)->count(),
             'on_request' => (clone $statsQuery)->where('status', 'On Request')->count(),
             'approved' => (clone $statsQuery)->where('status', 'Approved')->count(),
@@ -140,9 +141,9 @@ class PowerProRequestController extends Controller
 
         $requests = $query->latest()->paginate(15)->withQueryString();
 
-        // Data for request form modal
-        $departments = Department::orderBy('name')->get();
-        $employees = Employee::with(['user', 'department', 'position'])
+        // Data for request form modal (lazy closures)
+        $departments = fn () => Department::orderBy('name')->get();
+        $employees = fn () => Employee::with(['user', 'department', 'position'])
             ->whereNotNull('user_id')
             ->orderBy('id', 'desc')
             ->get();

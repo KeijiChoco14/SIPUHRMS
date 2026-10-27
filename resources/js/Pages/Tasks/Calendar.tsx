@@ -39,7 +39,72 @@ const avatarColor = (id: number) => AVATAR_COLORS[Math.abs(id || 0) % AVATAR_COL
 const toDateStr = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-const taskDateStr = (t: any): string => String(t.deadline || t.start_date || '').split('T')[0];
+const getTaskDateRange = (t: any): { start: string | null; end: string | null; isMultiDay: boolean; daysCount: number } => {
+    const rawStart = t.start_date ? String(t.start_date).split('T')[0] : null;
+    const rawEnd = t.deadline ? String(t.deadline).split('T')[0] : null;
+
+    if (!rawStart && !rawEnd) {
+        return { start: null, end: null, isMultiDay: false, daysCount: 0 };
+    }
+
+    const start = rawStart || rawEnd;
+    const end = rawEnd || rawStart;
+
+    if (start && end && start !== end) {
+        const [earlier, later] = start <= end ? [start, end] : [end, start];
+        const [y1, m1, d1] = earlier.split('-').map(Number);
+        const [y2, m2, d2] = later.split('-').map(Number);
+        const dt1 = new Date(y1, m1 - 1, d1);
+        const dt2 = new Date(y2, m2 - 1, d2);
+        const days = Math.round((dt2.getTime() - dt1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        return {
+            start: earlier,
+            end: later,
+            isMultiDay: days > 1,
+            daysCount: Math.max(1, days),
+        };
+    }
+
+    return {
+        start,
+        end,
+        isMultiDay: false,
+        daysCount: 1,
+    };
+};
+
+const formatDateShort = (dStr: string) => {
+    if (!dStr) return '';
+    const parts = dStr.split('-');
+    if (parts.length < 3) return dStr;
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+};
+
+const formatRange = (startStr: string | null, endStr: string | null) => {
+    if (!startStr && !endStr) return '';
+    if (!startStr) return formatDateShort(endStr!);
+    if (!endStr || startStr === endStr) return formatDateShort(startStr);
+
+    const [y1, m1, d1] = startStr.split('-').map(Number);
+    const [y2, m2, d2] = endStr.split('-').map(Number);
+
+    const date1 = new Date(y1, m1 - 1, d1);
+    const date2 = new Date(y2, m2 - 1, d2);
+
+    const m1Name = date1.toLocaleDateString('id-ID', { month: 'short' });
+    const m2Name = date2.toLocaleDateString('id-ID', { month: 'short' });
+
+    if (y1 === y2 && m1 === m2) {
+        return `${d1} - ${d2} ${m1Name}`;
+    }
+    return `${d1} ${m1Name} - ${d2} ${m2Name}`;
+};
+
+const taskDateStr = (t: any): string => {
+    const range = getTaskDateRange(t);
+    return range.start || '';
+};
 
 const addDays = (d: Date, n: number) => {
     const r = new Date(d);
@@ -180,17 +245,35 @@ export default function Calendar({
         });
     }, [tasks, search, projectFilter, employeeFilter]);
 
-    const scheduledTasks = useMemo(() => filteredTasks.filter(t => taskDateStr(t)), [filteredTasks]);
-    const waitingTasks = useMemo(() => filteredTasks.filter(t => !taskDateStr(t)), [filteredTasks]);
+    const scheduledTasks = useMemo(() => filteredTasks.filter(t => getTaskDateRange(t).start !== null), [filteredTasks]);
+    const waitingTasks = useMemo(() => filteredTasks.filter(t => getTaskDateRange(t).start === null), [filteredTasks]);
 
-    // Group by date once instead of filtering per cell
+    // Group by date once instead of filtering per cell - for multi-day tasks, populate every date in range
     const tasksByDate = useMemo(() => {
         const map: Record<string, any[]> = {};
         const weight: Record<string, number> = { Urgent: 1, High: 2, Normal: 3, Low: 4 };
+
         scheduledTasks.forEach(t => {
-            const k = taskDateStr(t);
-            (map[k] ||= []).push(t);
+            const range = getTaskDateRange(t);
+            if (!range.start || !range.end) return;
+
+            if (!range.isMultiDay) {
+                (map[range.start] ||= []).push(t);
+            } else {
+                const [y1, m1, d1] = range.start.split('-').map(Number);
+                const [y2, m2, d2] = range.end.split('-').map(Number);
+                let curr = new Date(y1, m1 - 1, d1);
+                const endDate = new Date(y2, m2 - 1, d2);
+                let safety = 0;
+                while (curr <= endDate && safety < 365) {
+                    const ds = toDateStr(curr);
+                    (map[ds] ||= []).push(t);
+                    curr = addDays(curr, 1);
+                    safety++;
+                }
+            }
         });
+
         Object.values(map).forEach(list =>
             list.sort((a, b) => {
                 const doneDiff = Number(a.status === 'Done') - Number(b.status === 'Done');
@@ -204,14 +287,15 @@ export default function Calendar({
 
     const monthStats = useMemo(() => {
         const inMonth = scheduledTasks.filter(t => {
-            const ds = taskDateStr(t);
-            return ds.slice(0, 7) === toDateStr(month).slice(0, 7);
+            const range = getTaskDateRange(t);
+            const mStr = toDateStr(month).slice(0, 7);
+            return (range.start && range.start.slice(0, 7) === mStr) || (range.end && range.end.slice(0, 7) === mStr);
         });
         const todayStr = toDateStr(today);
         return {
             total: inMonth.length,
             done: inMonth.filter(t => t.status === 'Done').length,
-            overdue: inMonth.filter(t => t.status !== 'Done' && taskDateStr(t) < todayStr).length,
+            overdue: inMonth.filter(t => t.status !== 'Done' && (getTaskDateRange(t).end || '') < todayStr).length,
             hours: formatTotal(inMonth),
         };
     }, [scheduledTasks, month]);
@@ -255,10 +339,32 @@ export default function Calendar({
     }, []);
 
     const reschedule = (task: any, dateStr: string | null) => {
-        setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, deadline: dateStr, start_date: dateStr } : t)));
+        if (!dateStr) {
+            setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, deadline: null, start_date: null } : t)));
+            router.put(
+                route('tasks.update', task.id),
+                { deadline: null, start_date: null },
+                { preserveScroll: true, preserveState: true, onError: () => setTasks(initialTasks || []) }
+            );
+            return;
+        }
+
+        const range = getTaskDateRange(task);
+        let newStart = dateStr;
+        let newEnd = dateStr;
+
+        if (range.isMultiDay && range.daysCount > 1) {
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const targetStart = new Date(y, m - 1, d);
+            const targetEnd = addDays(targetStart, range.daysCount - 1);
+            newStart = toDateStr(targetStart);
+            newEnd = toDateStr(targetEnd);
+        }
+
+        setTasks(prev => prev.map(t => (t.id === task.id ? { ...t, deadline: newEnd, start_date: newStart } : t)));
         router.put(
             route('tasks.update', task.id),
-            { deadline: dateStr, start_date: dateStr },
+            { deadline: newEnd, start_date: newStart },
             { preserveScroll: true, preserveState: true, onError: () => setTasks(initialTasks || []) }
         );
     };
@@ -266,14 +372,16 @@ export default function Calendar({
     const dropOnDate = (dateStr: string) => {
         const task = tasks.find(t => t.id === draggedTaskId);
         endDrag();
-        if (!task || taskDateStr(task) === dateStr) return;
+        if (!task) return;
+        const range = getTaskDateRange(task);
+        if (range.start === dateStr) return;
         reschedule(task, dateStr);
     };
 
     const dropOnWaitingList = () => {
         const task = tasks.find(t => t.id === draggedTaskId);
         endDrag();
-        if (!task || !taskDateStr(task)) return;
+        if (!task || !getTaskDateRange(task).start) return;
         reschedule(task, null);
     };
 
@@ -467,6 +575,7 @@ export default function Calendar({
                                             <TaskChip
                                                 key={task.id}
                                                 task={task}
+                                                currentDate={date}
                                                 dragging={draggedTaskId === task.id}
                                                 onSelect={() => setSelectedTask(task)}
                                                 onDragStart={e => onDragStart(e, task)}
@@ -612,12 +721,14 @@ function Avatar({ name, photo, id }: { name?: string; photo?: string; id: number
 function TaskChip({
     task,
     dragging,
+    currentDate,
     onSelect,
     onDragStart,
     onDragEnd,
 }: {
     task: any;
     dragging: boolean;
+    currentDate?: Date;
     onSelect: () => void;
     onDragStart: (e: React.DragEvent) => void;
     onDragEnd: () => void;
@@ -625,6 +736,10 @@ function TaskChip({
     const theme = themeFor(task);
     const isDone = task.status === 'Done';
     const assignee = task.assignees?.[0];
+    const range = getTaskDateRange(task);
+    const currStr = currentDate ? toDateStr(currentDate) : null;
+    const isStartDay = currStr && currStr === range.start;
+    const isEndDay = currStr && currStr === range.end;
 
     return (
         <div
@@ -632,14 +747,29 @@ function TaskChip({
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
             onClick={onSelect}
-            title={`${task.title}${task.project ? ` · ${task.project.name}` : ''}`}
-            className={`flex items-center gap-1.5 pl-1.5 pr-1 py-1 rounded-md border text-[11px] font-medium cursor-grab active:cursor-grabbing select-none hover:shadow-sm transition-all ${theme.chip} ${
+            title={`${task.title}${task.project ? ` · ${task.project.name}` : ''}${range.isMultiDay ? ` (${formatRange(range.start, range.end)})` : ''}`}
+            className={`group/chip flex flex-col gap-0.5 pl-1.5 pr-1.5 py-1 rounded-lg border text-[11px] font-medium cursor-grab active:cursor-grabbing select-none hover:shadow-md transition-all ${theme.chip} ${
                 dragging ? 'opacity-40' : ''
-            } ${isDone ? 'opacity-60' : ''}`}
+            } ${isDone ? 'opacity-60' : ''} ${range.isMultiDay ? 'border-l-4 border-l-indigo-500 bg-indigo-50/50 shadow-2xs' : ''}`}
         >
-            <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${task.priority === 'Urgent' && !isDone ? 'bg-red-500' : theme.accent}`} />
-            <span className={`truncate flex-1 ${isDone ? 'line-through' : ''}`}>{task.title}</span>
-            {assignee && <Avatar id={assignee.id} name={assignee.user?.name} photo={assignee.user?.profile_photo_url} />}
+            <div className="flex items-center gap-1.5 w-full">
+                <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${task.priority === 'Urgent' && !isDone ? 'bg-red-500' : theme.accent}`} />
+                <span className={`truncate flex-1 font-semibold ${isDone ? 'line-through text-slate-400' : ''}`}>{task.title}</span>
+                {assignee && <Avatar id={assignee.id} name={assignee.user?.name} photo={assignee.user?.profile_photo_url} />}
+            </div>
+            {range.isMultiDay && (
+                <div className="flex items-center justify-between gap-1 text-[9px] font-semibold text-indigo-700 bg-white/90 px-1.5 py-0.5 rounded border border-indigo-200/70">
+                    <span className="flex items-center gap-1 truncate">
+                        <svg className="w-2.5 h-2.5 shrink-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span className="truncate">{formatRange(range.start, range.end)}</span>
+                    </span>
+                    <span className="shrink-0 text-[8px] bg-indigo-100 text-indigo-800 px-1 rounded font-bold">
+                        {isStartDay ? 'Start' : isEndDay ? 'Deadline' : `${range.daysCount} hr`}
+                    </span>
+                </div>
+            )}
         </div>
     );
 }
@@ -694,6 +824,31 @@ function TaskCard({
             </h5>
 
             {task.project && <p className="text-[11px] text-gray-500 mt-0.5 truncate">{task.project.name}</p>}
+
+            {(() => {
+                const range = getTaskDateRange(task);
+                if (range.isMultiDay) {
+                    return (
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200/80 px-2 py-1 rounded-lg my-1.5">
+                            <svg className="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>Periode: {formatRange(range.start, range.end)} ({range.daysCount} hari)</span>
+                        </div>
+                    );
+                }
+                if (range.end) {
+                    return (
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-medium my-1">
+                            <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>Deadline: {formatDateShort(range.end)}</span>
+                        </div>
+                    );
+                }
+                return null;
+            })()}
 
             {showFooter && (
                 <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-black/5">

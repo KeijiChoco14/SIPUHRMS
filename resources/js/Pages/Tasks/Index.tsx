@@ -60,7 +60,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
             header={
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h2 className="font-bold text-xl text-gray-900 leading-tight">My Tasks</h2>
+                        <h2 className="font-bold text-xl text-gray-900 leading-tight">List Task</h2>
                         <p className="text-sm text-gray-500 mt-0.5">List of all assigned tasks and responsibilities</p>
                     </div>
                     <div className="flex items-center gap-3">
@@ -75,7 +75,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                 </div>
             }
         >
-            <Head title="My Tasks" />
+            <Head title="List Task" />
 
             <div className="py-8">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -234,7 +234,7 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                             {task.project_id ? (
                                                                 <Link href={route('projects.show', task.project_id)} className="text-xs text-slate-400 hover:text-slate-600">Board</Link>
                                                             ) : (
-                                                                <Link href={route('tasks.kanban')} className="text-xs text-slate-400 hover:text-slate-600">Kanban</Link>
+                                                                <Link href={route('tasks.kanban')} className="text-xs text-slate-400 hover:text-slate-600">My List</Link>
                                                             )}
                                                         </div>
                                                     </td>

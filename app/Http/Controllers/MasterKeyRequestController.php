@@ -188,20 +188,23 @@ class MasterKeyRequestController extends Controller
             $statsBaseQuery->where('employee_id', $userEmployee?->id);
         }
 
-        $totalKeys = (clone $statsBaseQuery)->count();
-        $onRequestCount = (clone $statsBaseQuery)->where('status', 'On Request')->count();
-        $doneCount = (clone $statsBaseQuery)->where('status', 'Done')->count();
-        $expiringSoon = (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater)->count();
-        $expiredCount = (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '<', $today)->count();
+        // Statistics (lazy closure)
+        $stats = fn () => [
+            'total' => (clone $statsBaseQuery)->count(),
+            'on_request' => (clone $statsBaseQuery)->where('status', 'On Request')->count(),
+            'done' => (clone $statsBaseQuery)->where('status', 'Done')->count(),
+            'expiring_soon' => (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater)->count(),
+            'expired' => (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '<', $today)->count(),
+        ];
 
-        // Housekeeping employees list for selection
+        // Housekeeping employees list for selection (lazy closure)
         $hkDepartment = Department::where('name', 'Housekeeping')->first();
-        $hkEmployees = Employee::with(['user', 'position'])
+        $hkEmployees = fn () => Employee::with(['user', 'position'])
             ->where('department_id', $hkDepartment?->id)
             ->get();
 
-        // Recent / Active keys list for Quick Select when creating Extension / Replacement
-        $existingKeys = MasterKeyRequest::with(['employee.user'])
+        // Recent / Active keys list for Quick Select when creating Extension / Replacement (lazy closure)
+        $existingKeys = fn () => MasterKeyRequest::with(['employee.user'])
             ->select('id', 'request_number', 'key_number', 'key_type', 'room_range_access', 'valid_until', 'employee_id', 'request_by')
             ->latest()
             ->take(30)
@@ -215,13 +218,7 @@ class MasterKeyRequestController extends Controller
                 'key_type' => $keyType ?? '',
                 'request_type' => $requestType ?? '',
             ],
-            'stats' => [
-                'total' => $totalKeys,
-                'on_request' => $onRequestCount,
-                'done' => $doneCount,
-                'expiring_soon' => $expiringSoon,
-                'expired' => $expiredCount,
-            ],
+            'stats' => $stats,
             'canApprove' => $canApprove,
             'canManageAll' => $canManageAll,
             'currentEmployee' => $userEmployee?->load(['department', 'position']),

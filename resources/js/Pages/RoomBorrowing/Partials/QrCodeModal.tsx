@@ -59,12 +59,13 @@ export default function QrCodeModal({ show, onClose, qrUrl }: QrCodeModalProps) 
                         </div>
                         <p style="font-size: 12px; font-family: monospace; color: #E31B23; font-weight: bold; margin: 0;">${qrUrl}</p>
                         <div class="steps">
-                            <strong style="display: block; margin-bottom: 8px; color: #0F172A;">Key Borrowing & Return Workflow:</strong>
+                            <strong style="display: block; margin-bottom: 8px; color: #0F172A;">Alur Peminjaman & Pengembalian Kunci:</strong>
                             <ol>
-                                <li><strong>Scan QR Code</strong> with your mobile device and log in to SIPU.</li>
-                                <li>Select an <strong>Available</strong> room and tap <strong>Borrow Key</strong>.</li>
-                                <li>Show the confirmation screen to the Security officer to collect the physical key.</li>
-                                <li>Once your agenda concludes, click <strong>Request Return</strong> and hand the physical key back to the Security post.</li>
+                                <li><strong>Pindai QR Code</strong> dengan kamera ponsel dan login ke sistem SIPU.</li>
+                                <li>Pilih ruangan pada <strong>Formulir Peminjaman</strong> (pastikan status <strong>Tersedia</strong>).</li>
+                                <li>Tentukan durasi dan keperluan peminjaman, lalu klik <strong>Ajukan Peminjaman Kunci</strong>.</li>
+                                <li>Tunjukkan layar konfirmasi ke petugas Security untuk serah terima fisik kunci.</li>
+                                <li>Setelah kegiatan selesai, klik <strong>Request Return</strong> dan serahkan kembali kunci ke Pos Security.</li>
                             </ol>
                         </div>
                         <div class="footer">
@@ -87,7 +88,7 @@ export default function QrCodeModal({ show, onClose, qrUrl }: QrCodeModalProps) 
                     <div>
                         <h2 className="text-lg font-bold text-slate-900">Security Post Shared QR Code</h2>
                         <p className="mt-1 text-xs text-slate-500">
-                            Shared entry point placed on the hotel Security post desk.
+                            Shared entry point placed on the hotel Security post desk directly linking to the Borrowing Form.
                         </p>
                     </div>
                     <button
@@ -113,7 +114,7 @@ export default function QrCodeModal({ show, onClose, qrUrl }: QrCodeModalProps) 
                     </div>
 
                     <div className="mt-3">
-                        <span className="text-xs font-semibold text-slate-500 block">Direct Module Link:</span>
+                        <span className="text-xs font-semibold text-slate-500 block">Direct Borrowing Form Link:</span>
                         <div className="mt-1 inline-flex items-center gap-2 max-w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700">
                             <span className="truncate">{qrUrl}</span>
                             <button
@@ -138,10 +139,10 @@ export default function QrCodeModal({ show, onClose, qrUrl }: QrCodeModalProps) 
                             <svg className="w-4 h-4 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            QR Code Usage Guidelines:
+                            Panduan QR Code Pos Security:
                         </div>
                         <p>
-                            This QR Code can be printed and mounted on the hotel Security desk. Employees wishing to borrow a room simply scan this QR code to access the room catalog on their mobile phones.
+                            QR Code ini dicetak dan ditempatkan pada meja Pos Security. Karyawan cukup memindai QR code ini dengan ponsel untuk langsung membuka <strong>Formulir Peminjaman Ruangan & Kunci</strong> secara instan tanpa perlu menavigasi menu.
                         </p>
                     </div>
                 </div>

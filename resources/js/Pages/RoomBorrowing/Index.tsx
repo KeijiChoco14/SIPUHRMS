@@ -1,9 +1,11 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, router, usePage, useForm } from '@inertiajs/react';
 import React, { useState, useMemo, useEffect } from 'react';
 import Badge from '@/Components/Badge';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
 import BorrowRoomModal from './Partials/BorrowRoomModal';
 import ReturnRequestModal from './Partials/ReturnRequestModal';
 import SecurityConfirmReturnModal from './Partials/SecurityConfirmReturnModal';
@@ -112,9 +114,17 @@ interface RoomBorrowingProps {
         can_approve_return: boolean;
         can_manage_rooms: boolean;
         is_security: boolean;
+        is_it_staff?: boolean;
     };
     qrUrl: string;
 }
+
+const PRESET_DURATIONS = [
+    { label: '1 Jam', hours: 1, sub: 'Sesi Cepat' },
+    { label: '2 Jam', hours: 2, sub: 'Standar' },
+    { label: '4 Jam', hours: 4, sub: 'Setengah Hari' },
+    { label: '8 Jam', hours: 8, sub: 'Satu Shift' },
+];
 
 export default function Index({
     rooms = [],
@@ -124,21 +134,134 @@ export default function Index({
     pendingReturns = [],
     recentAuditTransactions = [],
     allRoomsForAdmin = [],
-    filters = { search: '', status: 'ALL', tab: 'catalog' },
+    filters = { search: '', status: 'ALL', tab: 'borrow' },
     permissions,
     qrUrl,
 }: RoomBorrowingProps) {
-    const { flash } = usePage().props as any;
+    const { flash, auth } = usePage().props as any;
+    const currentUser = auth?.user;
 
-    const [activeTab, setActiveTab] = useState<'catalog' | 'my-borrowings' | 'pending-returns' | 'manage-rooms'>(
-        (filters.tab as any) || 'catalog'
-    );
+    const isItStaff = Boolean(permissions?.is_it_staff);
+
+    const [activeTab, setActiveTab] = useState<'borrow' | 'catalog' | 'my-borrowings' | 'pending-returns' | 'manage-rooms'>(() => {
+        const tab = (filters.tab as any) || 'borrow';
+        if (tab === 'catalog' && !isItStaff) return 'borrow';
+        return tab;
+    });
 
     useEffect(() => {
         if (filters.tab) {
-            setActiveTab(filters.tab as any);
+            const tab = filters.tab as any;
+            if (tab === 'catalog' && !isItStaff) {
+                setActiveTab('borrow');
+            } else {
+                setActiveTab(tab);
+            }
         }
-    }, [filters.tab]);
+    }, [filters.tab, isItStaff]);
+
+    const TAB_PROPS_MAP: Record<string, string[]> = {
+        'borrow': ['rooms', 'stats', 'filters'],
+        'catalog': ['rooms', 'stats', 'filters'],
+        'my-borrowings': ['myActiveBorrowings', 'myHistory', 'filters'],
+        'pending-returns': ['pendingReturns', 'recentAuditTransactions', 'filters'],
+        'manage-rooms': ['allRoomsForAdmin', 'filters'],
+    };
+
+    const switchTab = (tab: 'borrow' | 'catalog' | 'my-borrowings' | 'pending-returns' | 'manage-rooms') => {
+        setActiveTab(tab);
+        router.get(
+            route('room-borrowing.index'),
+            { tab },
+            {
+                only: TAB_PROPS_MAP[tab] || undefined,
+                preserveState: true,
+                preserveScroll: true,
+                replace: true,
+            }
+        );
+    };
+
+    // Unified Borrow Form State
+    const firstAvailableRoom = useMemo(() => rooms.find((r) => r.status === 'AVAILABLE'), [rooms]);
+
+    const {
+        data: borrowData,
+        setData: setBorrowData,
+        post: postBorrow,
+        processing: borrowProcessing,
+        errors: borrowErrors,
+        reset: resetBorrow,
+        clearErrors: clearBorrowErrors,
+    } = useForm({
+        room_id: (firstAvailableRoom?.id) || (rooms[0]?.id || 0),
+        expected_duration_hours: 2,
+        purpose: '',
+    });
+
+    const [selectedDurationPreset, setSelectedDurationPreset] = useState<number | 'custom'>(2);
+    const [roomPickerFilterAvailableOnly, setRoomPickerFilterAvailableOnly] = useState(false);
+    const [roomPickerSearch, setRoomPickerSearch] = useState('');
+
+    const handleSelectPresetDuration = (hours: number) => {
+        setSelectedDurationPreset(hours);
+        setBorrowData('expected_duration_hours', hours);
+    };
+
+    const handleSelectCustomDuration = () => {
+        setSelectedDurationPreset('custom');
+    };
+
+    const projectedReturnTime = useMemo(() => {
+        const hours = Number(borrowData.expected_duration_hours);
+        if (!hours || isNaN(hours) || hours <= 0) return null;
+
+        const date = new Date(Date.now() + hours * 60 * 60 * 1000);
+        return date.toLocaleString('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    }, [borrowData.expected_duration_hours]);
+
+    const selectedRoom = useMemo(() => {
+        return rooms.find((r) => r.id === Number(borrowData.room_id)) || null;
+    }, [rooms, borrowData.room_id]);
+
+    const selectableRooms = useMemo(() => {
+        return rooms.filter((r) => {
+            const matchesSearch =
+                !roomPickerSearch ||
+                r.name.toLowerCase().includes(roomPickerSearch.toLowerCase()) ||
+                r.room_number.toLowerCase().includes(roomPickerSearch.toLowerCase()) ||
+                (r.location && r.location.toLowerCase().includes(roomPickerSearch.toLowerCase())) ||
+                (r.key_code && r.key_code.toLowerCase().includes(roomPickerSearch.toLowerCase()));
+
+            if (!matchesSearch) return false;
+            if (roomPickerFilterAvailableOnly && r.status !== 'AVAILABLE') return false;
+            return true;
+        });
+    }, [rooms, roomPickerSearch, roomPickerFilterAvailableOnly]);
+
+    const handleBorrowSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedRoom || selectedRoom.status !== 'AVAILABLE') return;
+        postBorrow(route('room-borrowing.borrow'), {
+            onSuccess: () => {
+                resetBorrow();
+                setSelectedDurationPreset(2);
+            },
+        });
+    };
+
+    const handleBorrowFromCatalog = (room: Room) => {
+        setBorrowData('room_id', room.id);
+        switchTab('borrow');
+    };
+
     const [searchQuery, setSearchQuery] = useState(filters.search || '');
     const [statusFilter, setStatusFilter] = useState(filters.status || 'ALL');
 
@@ -368,13 +491,714 @@ export default function Index({
                     </div>
                 </div>
 
+                {/* ═══════════════════════════════════════════════════════════════════════════
+                    MODULE TAB SWITCHER BAR
+                ═══════════════════════════════════════════════════════════════════════════ */}
+                <div className="flex items-center gap-1.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/80 overflow-x-auto shadow-2xs">
+                    <button
+                        type="button"
+                        onClick={() => switchTab('borrow')}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                            activeTab === 'borrow'
+                                ? 'bg-white text-[#E31B23] shadow-xs ring-1 ring-slate-200/60 font-bold'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                        }`}
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Form Peminjaman</span>
+                    </button>
 
+                    {isItStaff && (
+                        <button
+                            type="button"
+                            onClick={() => switchTab('catalog')}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                                activeTab === 'catalog'
+                                    ? 'bg-white text-purple-700 shadow-xs ring-1 ring-slate-200/60 font-bold'
+                                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <span>Room Catalog</span>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700">Khusus IT</span>
+                        </button>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={() => switchTab('my-borrowings')}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                            activeTab === 'my-borrowings'
+                                ? 'bg-white text-[#E31B23] shadow-xs ring-1 ring-slate-200/60 font-bold'
+                                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                        }`}
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        <span>My Borrowings</span>
+                        {myActiveBorrowings.length > 0 && (
+                            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E31B23] text-white tabular-nums">
+                                {myActiveBorrowings.length}
+                            </span>
+                        )}
+                    </button>
+
+                    {permissions.can_approve_return && (
+                        <button
+                            type="button"
+                            onClick={() => switchTab('pending-returns')}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                                activeTab === 'pending-returns'
+                                    ? 'bg-white text-amber-700 shadow-xs ring-1 ring-slate-200/60 font-bold'
+                                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            <span>Security Queue</span>
+                            {pendingReturns.length > 0 && (
+                                <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500 text-white tabular-nums">
+                                    {pendingReturns.length}
+                                </span>
+                            )}
+                        </button>
+                    )}
+
+                    {permissions.can_manage_rooms && (
+                        <button
+                            type="button"
+                            onClick={() => switchTab('manage-rooms')}
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 ${
+                                activeTab === 'manage-rooms'
+                                    ? 'bg-white text-slate-900 shadow-xs ring-1 ring-slate-200/60 font-bold'
+                                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span>Manage Rooms</span>
+                        </button>
+                    )}
+                </div>
 
                 {/* ═══════════════════════════════════════════════════════════════════════════
-                    TAB 1: ROOM CATALOG
+                    TAB 0: UNIFIED BORROWING FORM (1 Form Terintegrasi Langsung)
                 ═══════════════════════════════════════════════════════════════════════════ */}
-                {activeTab === 'catalog' && (
+                {activeTab === 'borrow' && (
+                    <div className="space-y-6">
+                        {/* Unified Form Header Banner */}
+                        <div className="bg-gradient-to-r from-red-900 via-[#E31B23] to-red-800 rounded-3xl p-6 sm:p-7 text-white shadow-md relative overflow-hidden">
+                            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-white/5 transform skew-x-12 pointer-events-none" />
+                            <div className="relative z-10 max-w-2xl">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white mb-2.5">
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
+                                    Single-Step Key Custody Loan
+                                </span>
+                                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Formulir Peminjaman Ruangan & Kunci</h2>
+                                <p className="mt-1.5 text-xs sm:text-sm text-red-100 leading-relaxed">
+                                    Pilih ruangan hotel, periksa status ketersediaan fisik kunci secara real-time, dan tentukan durasi peminjaman dalam satu formulir cepat.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* 2-Column Responsive Layout */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                            {/* Main Form (8 Cols) */}
+                            <div className="lg:col-span-8 space-y-6">
+                                <form onSubmit={handleBorrowSubmit} className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-7 space-y-6">
+                                    {/* STEP 1: Pemilihan Ruangan & Detail Ketersediaan */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2.5">
+                                                <span className="w-6 h-6 rounded-full bg-[#E31B23] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                                                    1
+                                                </span>
+                                                <div>
+                                                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                                                        Pilih Ruangan & Status Kunci
+                                                    </h3>
+                                                    <p className="text-xs text-slate-500">
+                                                        Pastikan ruangan yang dipilih berstatus Tersedia (kunci siap dipinjam di Pos Security).
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Quick Filter Pill */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setRoomPickerFilterAvailableOnly(!roomPickerFilterAvailableOnly)}
+                                                className={`px-2.5 py-1 rounded-xl text-xs font-semibold border transition-all ${
+                                                    roomPickerFilterAvailableOnly
+                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-300 ring-1 ring-emerald-200'
+                                                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                                                }`}
+                                            >
+                                                {roomPickerFilterAvailableOnly ? '✓ Hanya Tersedia' : 'Semua Ruangan'}
+                                            </button>
+                                        </div>
+
+                                        {/* Search & Select Input */}
+                                        <div className="space-y-2">
+                                            <div className="relative">
+                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                    </svg>
+                                                </span>
+                                                <input
+                                                    type="text"
+                                                    value={roomPickerSearch}
+                                                    onChange={(e) => setRoomPickerSearch(e.target.value)}
+                                                    placeholder="Ketik untuk memfilter nama ruangan, nomor, lokasi..."
+                                                    className="block w-full pl-9 pr-8 py-2 rounded-xl border-slate-200 text-xs sm:text-sm focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] placeholder:text-slate-400"
+                                                />
+                                                {roomPickerSearch && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setRoomPickerSearch('')}
+                                                        className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                        </svg>
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {/* Dropdown Select */}
+                                            <div>
+                                                <select
+                                                    id="room_id"
+                                                    value={borrowData.room_id}
+                                                    onChange={(e) => setBorrowData('room_id', Number(e.target.value))}
+                                                    className="block w-full rounded-xl border-slate-200 py-2.5 text-xs sm:text-sm font-semibold focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] bg-white text-slate-800"
+                                                >
+                                                    {selectableRooms.map((r) => {
+                                                        const statusLabel =
+                                                            r.status === 'AVAILABLE'
+                                                                ? '✅ Tersedia'
+                                                                : r.status === 'BORROWED'
+                                                                ? '🔴 Sedang Dipinjam'
+                                                                : '⏳ Verifikasi Return';
+                                                        return (
+                                                            <option key={r.id} value={r.id}>
+                                                                #{r.room_number} - {r.name} [{statusLabel}] - {r.location || 'Area Hotel'}
+                                                            </option>
+                                                        );
+                                                    })}
+                                                </select>
+                                                <InputError message={borrowErrors.room_id} className="mt-1" />
+                                            </div>
+
+                                            {/* Quick Select Buttons Grid (Compact pills) */}
+                                            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5">
+                                                {selectableRooms.slice(0, 10).map((r) => {
+                                                    const isSelected = Number(borrowData.room_id) === r.id;
+                                                    const isAvail = r.status === 'AVAILABLE';
+                                                    return (
+                                                        <button
+                                                            key={r.id}
+                                                            type="button"
+                                                            onClick={() => setBorrowData('room_id', r.id)}
+                                                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 border ${
+                                                                isSelected
+                                                                    ? 'bg-[#E31B23] text-white border-[#E31B23] shadow-xs'
+                                                                    : isAvail
+                                                                    ? 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                                                                    : 'bg-rose-50/60 text-rose-700 border-rose-200 hover:bg-rose-100/60'
+                                                            }`}
+                                                        >
+                                                            <span
+                                                                className={`w-2 h-2 rounded-full shrink-0 ${
+                                                                    isSelected
+                                                                        ? 'bg-white'
+                                                                        : isAvail
+                                                                        ? 'bg-emerald-500'
+                                                                        : 'bg-rose-500'
+                                                                }`}
+                                                            />
+                                                            <span>#{r.room_number}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        {/* DETAIL RUANGAN & STATUS KUNCI CARD */}
+                                        {selectedRoom && (
+                                            <div
+                                                className={`rounded-2xl border p-4 sm:p-5 transition-all ${
+                                                    selectedRoom.status === 'AVAILABLE'
+                                                        ? 'bg-emerald-50/40 border-emerald-200/90'
+                                                        : selectedRoom.status === 'BORROWED'
+                                                        ? 'bg-rose-50/40 border-rose-200/90'
+                                                        : 'bg-amber-50/40 border-amber-200/90'
+                                                }`}
+                                            >
+                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200/60 pb-3">
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-mono text-sm font-bold text-[#E31B23]">
+                                                                #{selectedRoom.room_number}
+                                                            </span>
+                                                            <h4 className="text-base sm:text-lg font-bold text-slate-900">
+                                                                {selectedRoom.name}
+                                                            </h4>
+                                                        </div>
+                                                        <p className="text-xs text-slate-500 mt-0.5">
+                                                            {selectedRoom.location || 'Area Hotel Swiss-Belinn SKA'}
+                                                        </p>
+                                                    </div>
+
+                                                    <div>
+                                                        {selectedRoom.status === 'AVAILABLE' && (
+                                                            <Badge variant="success" dot size="md">
+                                                                Tersedia (Siap Dipinjam)
+                                                            </Badge>
+                                                        )}
+                                                        {selectedRoom.status === 'BORROWED' && (
+                                                            <Badge variant="danger" dot size="md">
+                                                                Sedang Dipinjam
+                                                            </Badge>
+                                                        )}
+                                                        {selectedRoom.status === 'PENDING_RETURN' && (
+                                                            <Badge variant="warning" dot size="md">
+                                                                Menunggu Verifikasi Security
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Room Specifications */}
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-700 py-3 border-b border-slate-200/60">
+                                                    <div>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Lokasi / Area:</span>
+                                                        <span className="font-semibold text-slate-800">{selectedRoom.location || '-'}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Kapasitas:</span>
+                                                        <span className="font-semibold text-slate-800 tabular-nums">
+                                                            {selectedRoom.capacity ? `${selectedRoom.capacity} Pax` : 'Fleksibel'}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Kode Kunci Fisik:</span>
+                                                        <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 inline-block mt-0.5">
+                                                            {selectedRoom.key_code || '-'}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Total Peminjaman:</span>
+                                                        <span className="font-semibold text-slate-800 tabular-nums">
+                                                            {selectedRoom.transactions_count || 0} Kali
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {selectedRoom.description && (
+                                                    <div className="pt-2 text-xs text-slate-600">
+                                                        <span className="text-slate-400 font-medium">Fasilitas / Deskripsi: </span>
+                                                        <span>{selectedRoom.description}</span>
+                                                    </div>
+                                                )}
+
+                                                {/* Occupancy & Availability Alert */}
+                                                {selectedRoom.status === 'BORROWED' && (
+                                                    <div className="mt-3.5 rounded-xl border border-rose-300 bg-white p-3.5 shadow-2xs space-y-2">
+                                                        <div className="flex items-center gap-2 text-rose-800 font-bold text-xs uppercase tracking-wider">
+                                                            <svg className="w-4 h-4 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                            </svg>
+                                                            Kunci Fisik Sedang Dipakai
+                                                        </div>
+
+                                                        {selectedRoom.active_transaction ? (
+                                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-700 bg-rose-50/60 p-2.5 rounded-lg border border-rose-100">
+                                                                <div>
+                                                                    <span className="text-slate-400 block text-[11px]">Peminjam:</span>
+                                                                    <span className="font-bold text-slate-900">
+                                                                        {selectedRoom.active_transaction.borrower?.user?.name || 'Staff Hotel'}
+                                                                    </span>
+                                                                    <span className="block text-[11px] text-slate-500">
+                                                                        {selectedRoom.active_transaction.borrower?.department?.name || 'Dept'} • {selectedRoom.active_transaction.borrower?.employee_number}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-slate-400 block text-[11px]">Waktu Pinjam:</span>
+                                                                    <span className="font-semibold text-slate-800 tabular-nums">
+                                                                        {formatDateTime(selectedRoom.active_transaction.borrowed_at)}
+                                                                    </span>
+                                                                    <span className="block text-[11px] text-rose-600 font-medium">
+                                                                        ({calculateElapsedTime(selectedRoom.active_transaction.borrowed_at)})
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-slate-400 block text-[11px]">Batas Pengembalian:</span>
+                                                                    <span className="font-semibold text-slate-800 tabular-nums">
+                                                                        {selectedRoom.active_transaction.expected_return_at ? formatDateTime(selectedRoom.active_transaction.expected_return_at) : '-'}
+                                                                    </span>
+                                                                    <span className="block text-[11px] text-slate-500">
+                                                                        Durasi: {selectedRoom.active_transaction.expected_duration_hours || 2} Jam
+                                                                    </span>
+                                                                </div>
+                                                                {selectedRoom.active_transaction.purpose && (
+                                                                    <div className="sm:col-span-3 text-[11px] pt-1 border-t border-rose-200/50 text-slate-600">
+                                                                        <span className="text-slate-400">Keperluan: </span>
+                                                                        <span className="italic">"{selectedRoom.active_transaction.purpose}"</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-xs text-rose-700">
+                                                                Kunci ruangan ini sedang tercatat dipinjam oleh staf hotel dan belum dikembalikan ke Pos Security.
+                                                            </p>
+                                                        )}
+
+                                                        <div className="flex items-center justify-between pt-1">
+                                                            <p className="text-xs text-rose-700">
+                                                                Anda tidak dapat meminjam ruangan ini sekarang. Silakan pilih ruangan lain.
+                                                            </p>
+                                                            {firstAvailableRoom && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setBorrowData('room_id', firstAvailableRoom.id)}
+                                                                    className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 transition-colors shrink-0"
+                                                                >
+                                                                    Pilih Ruangan Tersedia (#{firstAvailableRoom.room_number})
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {selectedRoom.status === 'PENDING_RETURN' && (
+                                                    <div className="mt-3.5 rounded-xl border border-amber-300 bg-white p-3.5 shadow-2xs space-y-1.5">
+                                                        <div className="flex items-center gap-2 text-amber-800 font-bold text-xs uppercase tracking-wider">
+                                                            <svg className="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            Dalam Proses Verifikasi Pengembalian di Security
+                                                        </div>
+                                                        <p className="text-xs text-amber-700 leading-relaxed">
+                                                            Peminjam telah mengajukan serah terima kunci. Kunci sedang dalam proses pemeriksaan fisik oleh petugas Pos Security. Ruangan akan kembali <strong>Tersedia</strong> begitu verifikasi selesai.
+                                                        </p>
+                                                    </div>
+                                                )}
+
+                                                {selectedRoom.status === 'AVAILABLE' && (
+                                                    <div className="mt-3.5 rounded-xl border border-emerald-300 bg-white p-3 shadow-2xs flex items-center gap-2.5 text-xs text-emerald-800">
+                                                        <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-bold">Kunci Fisik Siap Dipinjam!</span> Kunci berada di Key Cabinet Pos Security dan siap diserahkan setelah pengajuan form ini.
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* STEP 2: Estimasi Durasi Peminjaman */}
+                                    <div className="space-y-3 pt-4 border-t border-slate-100">
+                                        <div className="flex items-center gap-2.5">
+                                            <span className="w-6 h-6 rounded-full bg-[#E31B23] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                                                2
+                                            </span>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                                                    Estimasi Durasi Peminjaman
+                                                </h3>
+                                                <p className="text-xs text-slate-500">
+                                                    Pilih perkiraan lama pemakaian untuk menentukan jadwal pengembalian kunci ke Pos Security.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Presets Grid */}
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                            {PRESET_DURATIONS.map((preset) => {
+                                                const isSelected = selectedDurationPreset === preset.hours;
+                                                return (
+                                                    <button
+                                                        key={preset.hours}
+                                                        type="button"
+                                                        onClick={() => handleSelectPresetDuration(preset.hours)}
+                                                        className={`p-3 rounded-2xl border text-left transition-all ${
+                                                            isSelected
+                                                                ? 'border-[#E31B23] bg-red-50/70 text-[#E31B23] ring-1 ring-[#E31B23] shadow-xs'
+                                                                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-700'
+                                                        }`}
+                                                    >
+                                                        <div className="font-bold text-sm">{preset.label}</div>
+                                                        <div className="text-[11px] text-slate-400 mt-0.5">{preset.sub}</div>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Custom Duration Toggle & Input */}
+                                        <div className="pt-1 flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={handleSelectCustomDuration}
+                                                className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                                                    selectedDurationPreset === 'custom'
+                                                        ? 'border-[#E31B23] bg-red-50 text-[#E31B23] ring-1 ring-[#E31B23]'
+                                                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                                                }`}
+                                            >
+                                                Atur Jam Kustom (Manual)
+                                            </button>
+
+                                            {selectedDurationPreset === 'custom' && (
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        max="72"
+                                                        value={borrowData.expected_duration_hours}
+                                                        onChange={(e) => setBorrowData('expected_duration_hours', parseInt(e.target.value) || 1)}
+                                                        className="w-20 rounded-xl border-slate-200 text-xs sm:text-sm font-semibold text-center focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23]"
+                                                    />
+                                                    <span className="text-xs text-slate-600 font-medium">Jam</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <InputError message={borrowErrors.expected_duration_hours} className="mt-1" />
+
+                                        {/* Projected Return Time Display */}
+                                        {projectedReturnTime && (
+                                            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3 flex items-center gap-3 text-xs text-slate-700">
+                                                <div className="w-7 h-7 rounded-lg bg-red-100 text-[#E31B23] flex items-center justify-center shrink-0">
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <span className="text-slate-400 block text-[11px]">Batas Pengembalian Kunci:</span>
+                                                    <span className="font-bold text-slate-900">{projectedReturnTime} WIB</span>
+                                                    <span className="text-slate-500 text-[11px] ml-1">
+                                                        ({borrowData.expected_duration_hours} jam dari sekarang)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* STEP 3: Keperluan / Agenda Penggunaan */}
+                                    <div className="space-y-3 pt-4 border-t border-slate-100">
+                                        <div className="flex items-center gap-2.5">
+                                            <span className="w-6 h-6 rounded-full bg-[#E31B23] text-white text-xs font-bold flex items-center justify-center shrink-0">
+                                                3
+                                            </span>
+                                            <div>
+                                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                                                    Keperluan / Agenda Penggunaan
+                                                </h3>
+                                                <p className="text-xs text-slate-500">
+                                                    Tuliskan peruntukan ruangan untuk kelengkapan administrasi dan verifikasi Security.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <textarea
+                                            id="purpose"
+                                            rows={3}
+                                            value={borrowData.purpose}
+                                            onChange={(e) => setBorrowData('purpose', e.target.value)}
+                                            placeholder="Contoh: Rapat koordinasi mingguan tim Front Office, presentasi proposal ke klien VIP, atau pelatihan staf..."
+                                            className="block w-full rounded-2xl border-slate-200 text-xs sm:text-sm focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] placeholder:text-slate-400"
+                                        />
+                                        <InputError message={borrowErrors.purpose} className="mt-1" />
+                                    </div>
+
+                                    {/* Submit Section */}
+                                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                                        {selectedRoom?.status !== 'AVAILABLE' ? (
+                                            <div>
+                                                <PrimaryButton
+                                                    type="button"
+                                                    disabled={true}
+                                                    className="w-full justify-center bg-slate-300 text-slate-500 cursor-not-allowed py-3 text-sm font-bold"
+                                                >
+                                                    Ruangan Tidak Tersedia (Sedang Dipinjam)
+                                                </PrimaryButton>
+                                                <p className="text-center text-xs text-rose-600 mt-2 font-medium">
+                                                    Pilih ruangan yang berstatus Tersedia di atas untuk melanjutkan pengajuan.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <PrimaryButton
+                                                type="submit"
+                                                disabled={borrowProcessing || !permissions.can_borrow}
+                                                className="w-full justify-center bg-[#E31B23] hover:bg-[#C4141B] py-3 text-sm font-bold shadow-md active:scale-[0.99] transition-all"
+                                            >
+                                                {borrowProcessing ? (
+                                                    <span className="flex items-center gap-2">
+                                                        <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                        Memproses Pengajuan...
+                                                    </span>
+                                                ) : (
+                                                    <span className="flex items-center gap-2">
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                                        </svg>
+                                                        Konfirmasi & Ajukan Peminjaman Kunci
+                                                    </span>
+                                                )}
+                                            </PrimaryButton>
+                                        )}
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Sidebar Information (4 Cols) */}
+                            <div className="lg:col-span-4 space-y-6">
+                                {/* Borrower Identity Card */}
+                                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
+                                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                            Identitas Peminjam
+                                        </span>
+                                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                            Akun Aktif
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-12 w-12 rounded-2xl overflow-hidden border border-slate-200 shadow-xs shrink-0">
+                                            {currentUser?.profile_photo_url ? (
+                                                <img
+                                                    src={currentUser.profile_photo_url}
+                                                    alt={currentUser?.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="h-full w-full bg-red-100 text-[#E31B23] font-bold flex items-center justify-center text-base">
+                                                    {currentUser?.name?.charAt(0) || 'U'}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className="text-sm font-bold text-slate-900 truncate">
+                                                {currentUser?.name || 'Staff Member'}
+                                            </h4>
+                                            <p className="text-xs text-slate-500 truncate">{currentUser?.email}</p>
+                                            <span className="inline-block mt-0.5 text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                                                {currentUser?.employee?.department?.name || 'Hotel Staff'} • NIP: {currentUser?.employee?.employee_number || '-'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="rounded-xl border border-slate-200/60 bg-slate-50/70 p-3 text-xs text-slate-600 space-y-1">
+                                        <div className="text-[11px] text-slate-400 font-medium">Catatan Otomatis:</div>
+                                        <p className="text-[11px] leading-relaxed">
+                                            Peminjaman akan secara sah tercatat atas nama Anda. Anda bertanggung jawab penuh atas keamanan fisik kunci dan ketertiban ruangan hingga diserahterimakan kembali ke Pos Security.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* SOP Steps Card */}
+                                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-3.5">
+                                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                                        <svg className="w-4 h-4 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Prosedur Peminjaman Kunci
+                                    </h4>
+                                    <ol className="space-y-2.5 text-xs text-slate-600">
+                                        <li className="flex items-start gap-2">
+                                            <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                                            <span>Pilih ruangan yang berstatus <strong>Tersedia</strong> di formulir.</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                                            <span>Tentukan durasi & peruntukan, lalu klik <strong>Ajukan Peminjaman</strong>.</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                                            <span>Datangi <strong>Pos Security</strong> untuk pengambilan fisik kunci.</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                                            <span>Selesai acara, ajukan <strong>Request Return</strong> di menu My Borrowings dan kembalikan kunci ke Security.</span>
+                                        </li>
+                                    </ol>
+                                </div>
+
+                                {/* Hotel Key Stats Summary */}
+                                <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-3">
+                                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                                        Ringkasan Kunci Hotel
+                                    </h4>
+                                    <div className="space-y-2 text-xs">
+                                        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50">
+                                            <span className="text-slate-600">Total Ruangan Terdaftar</span>
+                                            <span className="font-bold text-slate-900 tabular-nums">{stats.total}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded-xl bg-emerald-50 text-emerald-800">
+                                            <span>Kunci Tersedia di Pos</span>
+                                            <span className="font-bold tabular-nums">{stats.available}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded-xl bg-rose-50 text-rose-800">
+                                            <span>Kunci Sedang Dipinjam</span>
+                                            <span className="font-bold tabular-nums">{stats.borrowed}</span>
+                                        </div>
+                                        <div className="flex items-center justify-between p-2 rounded-xl bg-amber-50 text-amber-800">
+                                            <span>Menunggu Verifikasi</span>
+                                            <span className="font-bold tabular-nums">{stats.pending_return}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ═══════════════════════════════════════════════════════════════════════════
+                    TAB 1: ROOM CATALOG (Khusus IT)
+                ═══════════════════════════════════════════════════════════════════════════ */}
+                {activeTab === 'catalog' && isItStaff && (
                     <div className="space-y-4">
+                        {/* IT Only Alert Banner */}
+                        <div className="rounded-2xl border border-purple-200 bg-purple-50/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-purple-900">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <span className="text-xs font-bold uppercase tracking-wider block">Mode Khusus Tim IT</span>
+                                    <span className="text-xs text-purple-800">
+                                        Katalog direktori ini ditampilkan khusus untuk tim IT. Pengguna staf umum langsung diarahkan ke <strong>Form Peminjaman</strong>.
+                                    </span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => switchTab('borrow')}
+                                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors shrink-0"
+                            >
+                                Buka Form Peminjaman →
+                            </button>
+                        </div>
+
                         {/* Search & Status Filters */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
                             <div className="relative flex-1 max-w-md">
@@ -588,14 +1412,14 @@ export default function Index({
                                                 {isAvailable ? (
                                                     <PrimaryButton
                                                         type="button"
-                                                        onClick={() => handleOpenBorrow(room)}
+                                                        onClick={() => handleBorrowFromCatalog(room)}
                                                         disabled={!permissions.can_borrow}
                                                         className="bg-[#E31B23] hover:bg-[#C4141B] px-3.5 py-1.5 text-xs shadow-xs"
                                                     >
                                                         <svg className="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                                         </svg>
-                                                        Borrow Key
+                                                        Pinjam di Form
                                                     </PrimaryButton>
                                                 ) : isBorrowed ? (
                                                     <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/60">
