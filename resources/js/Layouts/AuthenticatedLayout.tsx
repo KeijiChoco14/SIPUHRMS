@@ -45,6 +45,8 @@ const icons: Record<string, JSX.Element> = {
     'My Support Tickets': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
     'Helpdesk Tickets': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
     'Asset Inventory': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>,
+    'Registration Approvals': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+    'IT Registration Approvals': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
     'Power Pro ID Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>,
     'PowerPro ID Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>,
     'Profile Settings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
@@ -375,19 +377,19 @@ export default function Authenticated({
                     isItStaff ? {
                         title: 'IT Workspace',
                         items: [
-                            { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.*' },
+                            { name: 'Overview & Stats', route: 'it.index', params: { tab: 'overview' }, pattern: 'it.index' },
                         ],
                     } : null,
                     {
                         title: 'IT Helpdesk',
                         items: [
-                            { name: 'IT Helpdesk Tickets', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.*' },
+                            { name: 'IT Helpdesk Tickets', route: 'it.index', params: { tab: 'tickets' }, pattern: 'it.index' },
                         ],
                     },
                     isItStaff ? {
                         title: 'Asset Management',
                         items: [
-                            { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.*' },
+                            { name: 'Asset Inventory', route: 'it.index', params: { tab: 'assets' }, pattern: 'it.index' },
                         ],
                     } : null,
                     {
@@ -485,12 +487,16 @@ export default function Authenticated({
             return route().current(item.pattern) && currentUrl.includes(`view=${item.params.view}`);
         }
         if (item.params?.tab) {
+            if (item.params.tab === 'tickets' && route().current('it.tickets.*')) {
+                return true;
+            }
+
             return (
                 route().current(item.pattern) &&
                 (currentUrl.includes(`tab=${item.params.tab}`) ||
                     (!currentUrl.includes('tab=') && (
-                        (item.params.tab === 'overview' && isItStaff) ||
-                        (item.params.tab === 'tickets' && !isItStaff) ||
+                        (item.params.tab === 'overview' && isItStaff && route().current('it.index')) ||
+                        (item.params.tab === 'tickets' && !isItStaff && route().current('it.index')) ||
                         (item.params.tab === 'catalog' && currentUrl.includes('room-borrowing'))
                     ))
                 )

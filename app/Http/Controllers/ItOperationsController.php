@@ -11,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -55,7 +56,8 @@ class ItOperationsController extends Controller
                         ->orWhere('asset_code', 'like', "%{$search}%")
                         ->orWhere('serial_number', 'like', "%{$search}%")
                         ->orWhere('brand', 'like', "%{$search}%")
-                        ->orWhere('location', 'like', "%{$search}%");
+                        ->orWhere('location', 'like', "%{$search}%")
+                        ->orWhere('ups', 'like', "%{$search}%");
                 });
             }
 
@@ -225,11 +227,18 @@ class ItOperationsController extends Controller
             'assigned_to_employee_id' => 'nullable|exists:employees,id',
             'location' => 'nullable|string|max:100',
             'ip_address' => 'nullable|string|max:50',
+            'ups' => 'nullable|string|max:150',
+            'photo' => 'nullable|image|max:5120',
             'purchase_date' => 'nullable|date',
             'warranty_expiry' => 'nullable|date',
             'purchase_cost' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('it-assets', 'public');
+            $validated['photo'] = $path;
+        }
 
         ItAsset::create($validated);
 
@@ -255,11 +264,31 @@ class ItOperationsController extends Controller
             'assigned_to_employee_id' => 'nullable|exists:employees,id',
             'location' => 'nullable|string|max:100',
             'ip_address' => 'nullable|string|max:50',
+            'ups' => 'nullable|string|max:150',
+            'photo' => 'nullable|image|max:5120',
+            'remove_photo' => 'nullable|boolean',
             'purchase_date' => 'nullable|date',
             'warranty_expiry' => 'nullable|date',
             'purchase_cost' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+
+        if ($request->boolean('remove_photo')) {
+            if ($asset->photo && Storage::disk('public')->exists($asset->photo)) {
+                Storage::disk('public')->delete($asset->photo);
+            }
+            $validated['photo'] = null;
+        } elseif ($request->hasFile('photo')) {
+            if ($asset->photo && Storage::disk('public')->exists($asset->photo)) {
+                Storage::disk('public')->delete($asset->photo);
+            }
+            $path = $request->file('photo')->store('it-assets', 'public');
+            $validated['photo'] = $path;
+        } else {
+            unset($validated['photo']);
+        }
+
+        unset($validated['remove_photo']);
 
         $asset->update($validated);
 
@@ -271,6 +300,10 @@ class ItOperationsController extends Controller
         $user = Auth::user();
         if (!$this->isItManager($user)) {
             abort(403, 'Akses terbatas untuk Staff IT atau Administrator.');
+        }
+
+        if ($asset->photo && Storage::disk('public')->exists($asset->photo)) {
+            Storage::disk('public')->delete($asset->photo);
         }
 
         $code = $asset->asset_code;

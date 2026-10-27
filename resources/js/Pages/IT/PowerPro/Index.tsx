@@ -324,52 +324,103 @@ export default function PowerProIndex({
     };
 
     return (
-        <AuthenticatedLayout>
-            <Head title="Power Pro User ID Request - IT Operations" />
-
-            <div className="py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
-                {/* Header Banner */}
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-700 via-rose-700 to-red-800 p-6 sm:p-8 text-white shadow-xl">
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <AuthenticatedLayout
+            header={
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 text-white flex items-center justify-center shadow-md shadow-red-600/20 shrink-0">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                            </svg>
+                        </div>
                         <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-md">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                    Swiss-Belinn IT & Systems
+                                </span>
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                                     SOP-IT-ACC-004
                                 </span>
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/60 text-red-100">
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                                     Hotel System Access
                                 </span>
                             </div>
-                            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                                Power Pro User ID Request
-                            </h1>
-                            <p className="mt-1 text-sm sm:text-base text-red-100 max-w-2xl">
-                                Official authorization form for creating, modifying access rights, and deactivating Swiss-Belinn SKA Hotel Property Management System (PMS) & POS accounts.
+                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                                Power Pro User ID Requests
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                            onClick={() => setIsCreateOpen(true)}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-700 hover:to-rose-800 shadow-sm shadow-red-600/25 transition-all hover:scale-102 cursor-pointer"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span>Request Power Pro ID</span>
+                        </button>
+
+                        {permissions.isItStaff && (
+                            <a
+                                href={route('power-pro.export')}
+                                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                            >
+                                <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span>Export CSV</span>
+                            </a>
+                        )}
+
+                        <Link
+                            href={route('it.index')}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                        >
+                            <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            <span>IT Workspace</span>
+                        </Link>
+                    </div>
+                </div>
+            }
+        >
+            <Head title="Power Pro User ID Request - IT Operations" />
+
+            <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+                {/* Description Info Banner */}
+                <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-[#E31B23] flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-gray-900 text-sm sm:text-base">
+                                Power Pro PMS & POS Account Authorization
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                                Official form for creating, modifying access privileges, and deactivating Swiss-Belinn SKA Hotel PMS & POS user IDs.
                             </p>
                         </div>
-
-                        <div className="flex items-center gap-3 shrink-0">
-                            {permissions.isItStaff && (
-                                <a
-                                    href={route('power-pro.export')}
-                                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur-sm transition-all border border-white/20"
-                                >
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Export CSV
-                                </a>
-                            )}
-                            <button
-                                onClick={() => setIsCreateOpen(true)}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-red-700 hover:bg-red-50 text-xs sm:text-sm font-bold shadow-lg shadow-black/10 transition-all cursor-pointer hover:scale-105 active:scale-95"
-                            >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-                                </svg>
-                                Request Power Pro ID
-                            </button>
-                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-50 text-slate-700 border border-slate-200">
+                            Total: {stats.total} Requests
+                        </span>
+                        {stats.on_request > 0 && (
+                            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+                                {stats.on_request} Awaiting HOD
+                            </span>
+                        )}
+                        {stats.approved > 0 && (
+                            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200">
+                                {stats.approved} Awaiting IT
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -377,10 +428,10 @@ export default function PowerProIndex({
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
                     <div
                         onClick={() => { setStatusFilter('all'); applyFilters({ status: 'all' }); }}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                             statusFilter === 'all'
-                                ? 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-500/20 shadow-sm'
-                                : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-xs'
+                                ? 'bg-indigo-50 border-indigo-300 ring-2 ring-indigo-500/20 shadow-xs'
+                                : 'bg-white border-gray-200 hover:border-gray-300 shadow-2xs hover:shadow-xs'
                         }`}
                     >
                         <span className="text-xs font-semibold text-gray-500 block">Total Requests</span>
@@ -390,10 +441,10 @@ export default function PowerProIndex({
 
                     <div
                         onClick={() => { setStatusFilter('On Request'); applyFilters({ status: 'On Request' }); }}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                             statusFilter === 'On Request'
-                                ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-500/20 shadow-sm'
-                                : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-xs'
+                                ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-500/20 shadow-xs'
+                                : 'bg-white border-gray-200 hover:border-gray-300 shadow-2xs hover:shadow-xs'
                         }`}
                     >
                         <div className="flex items-center justify-between">
@@ -406,10 +457,10 @@ export default function PowerProIndex({
 
                     <div
                         onClick={() => { setStatusFilter('Approved'); applyFilters({ status: 'Approved' }); }}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                             statusFilter === 'Approved'
-                                ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-500/20 shadow-sm'
-                                : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-xs'
+                                ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-500/20 shadow-xs'
+                                : 'bg-white border-gray-200 hover:border-gray-300 shadow-2xs hover:shadow-xs'
                         }`}
                     >
                         <div className="flex items-center justify-between">
@@ -422,10 +473,10 @@ export default function PowerProIndex({
 
                     <div
                         onClick={() => { setStatusFilter('Done'); applyFilters({ status: 'Done' }); }}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                             statusFilter === 'Done'
-                                ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-500/20 shadow-sm'
-                                : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-xs'
+                                ? 'bg-emerald-50 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs'
+                                : 'bg-white border-gray-200 hover:border-gray-300 shadow-2xs hover:shadow-xs'
                         }`}
                     >
                         <div className="flex items-center justify-between">
@@ -438,10 +489,10 @@ export default function PowerProIndex({
 
                     <div
                         onClick={() => { setStatusFilter('Rejected'); applyFilters({ status: 'Rejected' }); }}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
                             statusFilter === 'Rejected'
-                                ? 'bg-rose-50 border-rose-300 ring-2 ring-rose-500/20 shadow-sm'
-                                : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-xs'
+                                ? 'bg-rose-50 border-rose-300 ring-2 ring-rose-500/20 shadow-xs'
+                                : 'bg-white border-gray-200 hover:border-gray-300 shadow-2xs hover:shadow-xs'
                         }`}
                     >
                         <span className="text-xs font-semibold text-rose-700 block">Rejected</span>

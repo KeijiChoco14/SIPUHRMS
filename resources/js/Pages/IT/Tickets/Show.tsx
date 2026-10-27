@@ -47,6 +47,8 @@ interface Ticket {
         specifications?: string;
         ip_address?: string;
         location?: string;
+        ups?: string;
+        photo_url?: string;
     };
     location?: string;
     resolved_at?: string;
@@ -164,8 +166,8 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                     <div className="flex items-center gap-3">
                         <Link
                             href={route('it.index', { tab: 'tickets' })}
-                            className="w-9 h-9 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 flex items-center justify-center shadow-2xs transition-colors shrink-0"
-                            title="Back to Ticket List"
+                            className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 text-white flex items-center justify-center shadow-md shadow-red-600/20 shrink-0 hover:scale-105 active:scale-95 transition-all"
+                            title="Back to IT Helpdesk Tickets"
                         >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -173,6 +175,9 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                         </Link>
                         <div>
                             <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                    Swiss-Belinn IT & Systems
+                                </span>
                                 <span className="font-mono text-xs font-bold text-red-700 px-2 py-0.5 rounded-md bg-red-50 border border-red-200">
                                     {ticket.ticket_number}
                                 </span>
@@ -218,6 +223,16 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                 <span>Close Ticket (Issue Resolved)</span>
                             </button>
                         )}
+
+                        <Link
+                            href={route('it.index', { tab: 'tickets' })}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                        >
+                            <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            <span>Back to Helpdesk</span>
+                        </Link>
 
                         {isItManager && (
                             <button
@@ -460,6 +475,17 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                     </span>
                                 </div>
 
+                                {/* Asset Photo Preview (if available) */}
+                                {ticket.asset.photo_url && (
+                                    <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-900 aspect-video max-h-48 flex items-center justify-center">
+                                        <img
+                                            src={ticket.asset.photo_url}
+                                            alt={ticket.asset.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                )}
+
                                 <div>
                                     <div className="font-bold text-gray-900 text-sm">
                                         {ticket.asset.name}
@@ -475,14 +501,35 @@ export default function TicketShow({ ticket, isItManager, itStaffUsers, flash }:
                                     </div>
                                 )}
 
-                                {ticket.asset.ip_address && (
-                                    <div className="flex items-center justify-between text-xs">
-                                        <span className="text-gray-500">IP Address:</span>
-                                        <span className="font-mono text-red-700 font-semibold bg-red-50 px-2 py-0.5 rounded border border-red-100">
-                                            {ticket.asset.ip_address}
-                                        </span>
-                                    </div>
-                                )}
+                                <div className="space-y-1.5 pt-1 text-xs">
+                                    {ticket.asset.location && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">Placement:</span>
+                                            <span className="font-medium text-gray-800">
+                                                📍 {ticket.asset.location}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {ticket.asset.ip_address && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">IP Address:</span>
+                                            <span className="font-mono text-red-700 font-semibold bg-red-50 px-2 py-0.5 rounded border border-red-100">
+                                                {ticket.asset.ip_address}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {ticket.asset.ups && ticket.asset.ups.toLowerCase() !== 'none' && ticket.asset.ups.toLowerCase() !== 'tidak ada' && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">UPS Protection:</span>
+                                            <span className="inline-flex items-center gap-1 font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                                <span className="text-amber-600 font-bold">⚡</span>
+                                                <span>{ticket.asset.ups}</span>
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ) : (
                             <div className="bg-white rounded-2xl border border-gray-200/80 shadow-2xs p-5 text-center text-xs text-gray-400">

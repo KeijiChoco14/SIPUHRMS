@@ -28,6 +28,9 @@ interface Asset {
     };
     location?: string;
     ip_address?: string;
+    ups?: string;
+    photo?: string;
+    photo_url?: string;
     purchase_date?: string;
     warranty_expiry?: string;
     purchase_cost?: number;
@@ -154,6 +157,8 @@ export default function ItIndex({
     const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
     const [deletingAsset, setDeletingAsset] = useState<Asset | null>(null);
     const [quickStatusTicket, setQuickStatusTicket] = useState<Ticket | null>(null);
+    const [previewingAssetPhoto, setPreviewingAssetPhoto] = useState<Asset | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
     // Filter states
     const [assetSearch, setAssetSearch] = useState(filters.search || '');
@@ -223,7 +228,27 @@ export default function ItIndex({
     };
 
     // Asset Form
-    const assetForm = useForm({
+    const assetForm = useForm<{
+        asset_code: string;
+        name: string;
+        category: string;
+        brand: string;
+        model: string;
+        serial_number: string;
+        specifications: string;
+        status: string;
+        assigned_to_employee_id: string;
+        location: string;
+        ip_address: string;
+        ups: string;
+        photo: File | null;
+        remove_photo: boolean;
+        purchase_date: string;
+        warranty_expiry: string;
+        purchase_cost: string;
+        notes: string;
+        _method?: string;
+    }>({
         asset_code: '',
         name: '',
         category: 'Desktop / PC',
@@ -235,6 +260,9 @@ export default function ItIndex({
         assigned_to_employee_id: '',
         location: '',
         ip_address: '',
+        ups: '',
+        photo: null,
+        remove_photo: false,
         purchase_date: '',
         warranty_expiry: '',
         purchase_cost: '',
@@ -244,11 +272,13 @@ export default function ItIndex({
     const openCreateAsset = () => {
         assetForm.reset();
         setEditingAsset(null);
+        setPhotoPreview(null);
         setIsCreateAssetOpen(true);
     };
 
     const openEditAsset = (asset: Asset) => {
         setEditingAsset(asset);
+        setPhotoPreview(asset.photo_url || null);
         assetForm.setData({
             asset_code: asset.asset_code,
             name: asset.name,
@@ -261,6 +291,9 @@ export default function ItIndex({
             assigned_to_employee_id: asset.assigned_to_employee_id ? String(asset.assigned_to_employee_id) : '',
             location: asset.location || '',
             ip_address: asset.ip_address || '',
+            ups: asset.ups || '',
+            photo: null,
+            remove_photo: false,
             purchase_date: asset.purchase_date || '',
             warranty_expiry: asset.warranty_expiry || '',
             purchase_cost: asset.purchase_cost ? String(asset.purchase_cost) : '',
@@ -272,17 +305,29 @@ export default function ItIndex({
     const submitAsset = (e: React.FormEvent) => {
         e.preventDefault();
         if (editingAsset) {
-            assetForm.put(route('it.assets.update', editingAsset.id), {
+            assetForm.transform((data) => ({
+                ...data,
+                _method: 'PUT',
+            }));
+            assetForm.post(route('it.assets.update', editingAsset.id), {
+                forceFormData: true,
                 onSuccess: () => {
                     setIsCreateAssetOpen(false);
                     setEditingAsset(null);
+                    setPhotoPreview(null);
                 },
             });
         } else {
+            assetForm.transform((data) => ({
+                ...data,
+                _method: undefined,
+            }));
             assetForm.post(route('it.assets.store'), {
+                forceFormData: true,
                 onSuccess: () => {
                     setIsCreateAssetOpen(false);
                     assetForm.reset();
+                    setPhotoPreview(null);
                 },
             });
         }
@@ -458,6 +503,16 @@ export default function ItIndex({
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <span>Registration Approvals</span>
+                                </Link>
+
+                                <Link
+                                    href={route('power-pro.index')}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                                >
+                                    <svg className="w-4 h-4 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                    </svg>
+                                    <span>PowerPro ID Requests</span>
                                 </Link>
 
                                 <button
@@ -1107,10 +1162,11 @@ export default function ItIndex({
                                 <table className="w-full text-left text-xs sm:text-sm">
                                     <thead className="bg-gray-50/80 text-gray-600 font-bold border-b border-gray-200 uppercase tracking-wider text-[11px]">
                                         <tr>
+                                            <th className="py-3 px-3 w-16 text-center">Foto</th>
                                             <th className="py-3 px-4">Asset Code</th>
                                             <th className="py-3 px-4">Device Name & Specs</th>
                                             <th className="py-3 px-4">Category & Brand</th>
-                                            <th className="py-3 px-4">Location & IP Address</th>
+                                            <th className="py-3 px-4">Location & IP / UPS</th>
                                             <th className="py-3 px-4">Assigned User</th>
                                             <th className="py-3 px-4">Status</th>
                                             {isItManager && <th className="py-3 px-4 text-right">Actions</th>}
@@ -1119,6 +1175,38 @@ export default function ItIndex({
                                     <tbody className="divide-y divide-gray-100 text-gray-800">
                                         {assets.data.map((a) => (
                                             <tr key={a.id} className="hover:bg-red-50/20 transition-colors">
+                                                {/* Photo Thumbnail */}
+                                                <td className="py-3 px-3 text-center">
+                                                    {a.photo_url ? (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setPreviewingAssetPhoto(a)}
+                                                            className="group relative inline-block w-12 h-12 rounded-xl overflow-hidden border border-gray-200 shadow-2xs hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all bg-gray-50"
+                                                            title="Klik untuk melihat foto & lokasi penempatan barang"
+                                                        >
+                                                            <img
+                                                                src={a.photo_url}
+                                                                alt={a.name}
+                                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200"
+                                                            />
+                                                            <span className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white text-xs">
+                                                                🔍
+                                                            </span>
+                                                        </button>
+                                                    ) : (
+                                                        <div
+                                                            className="w-12 h-12 rounded-xl bg-gray-100/80 border border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 mx-auto"
+                                                            title="Belum ada foto lokasi / fisik barang"
+                                                        >
+                                                            <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            </svg>
+                                                            <span className="text-[8px] text-gray-400 font-medium leading-none mt-0.5">No Foto</span>
+                                                        </div>
+                                                    )}
+                                                </td>
+
                                                 <td className="py-3.5 px-4 font-mono font-bold text-red-700">
                                                     {a.asset_code}
                                                     {a.serial_number && (
@@ -1149,16 +1237,26 @@ export default function ItIndex({
                                                 </td>
 
                                                 <td className="py-3.5 px-4">
-                                                    <div className="font-medium text-gray-900">
-                                                        {a.location || '-'}
+                                                    <div className="font-medium text-gray-900 flex items-center gap-1.5">
+                                                        <span>📍</span>
+                                                        <span>{a.location || '-'}</span>
                                                     </div>
-                                                    {a.ip_address ? (
-                                                        <span className="text-xs font-mono text-red-700 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
-                                                            {a.ip_address}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-xs text-gray-400">-</span>
-                                                    )}
+                                                    <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                        {a.ip_address ? (
+                                                            <span className="text-[11px] font-mono text-red-700 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
+                                                                {a.ip_address}
+                                                            </span>
+                                                        ) : null}
+
+                                                        {a.ups && a.ups.toLowerCase() !== 'none' && a.ups.toLowerCase() !== 'tidak ada' ? (
+                                                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200" title={`Unit UPS: ${a.ups}`}>
+                                                                <span className="text-amber-600 font-bold">⚡</span>
+                                                                <span className="font-semibold">UPS:</span> {a.ups}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-[10px] text-gray-400 italic">No UPS</span>
+                                                        )}
+                                                    </div>
                                                 </td>
 
                                                 <td className="py-3.5 px-4">
@@ -1207,7 +1305,7 @@ export default function ItIndex({
 
                                         {assets.data.length === 0 && (
                                             <tr>
-                                                <td colSpan={isItManager ? 7 : 6} className="py-12 text-center text-gray-400">
+                                                <td colSpan={isItManager ? 8 : 7} className="py-12 text-center text-gray-400">
                                                     <span className="text-3xl block mb-2">🔍</span>
                                                     <p className="text-sm font-medium">No IT assets match the search criteria.</p>
                                                 </td>
@@ -1549,15 +1647,17 @@ export default function ItIndex({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <InputLabel htmlFor="asset_location" value="Physical Location" />
+                                <InputLabel htmlFor="asset_location" value="Physical Location (Room / Outlet / Area) *" />
                                 <TextInput
                                     id="asset_location"
                                     type="text"
                                     className="mt-1 block w-full text-xs sm:text-sm rounded-xl border-gray-300 focus:border-red-500 focus:ring-red-500"
-                                    placeholder="Front Office, Server Room 2nd Fl, Grand Ballroom"
+                                    placeholder="e.g., Front Office Reception Desk 2, Server Room 2nd Fl"
                                     value={assetForm.data.location}
                                     onChange={(e) => assetForm.setData('location', e.target.value)}
+                                    required
                                 />
+                                <InputError message={assetForm.errors.location} className="mt-1" />
                             </div>
 
                             <div>
@@ -1576,6 +1676,138 @@ export default function ItIndex({
                                     ))}
                                 </select>
                             </div>
+                        </div>
+
+                        {/* UPS / Power Backup */}
+                        <div className="p-3.5 bg-amber-50/50 rounded-xl border border-amber-200/70">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-sm">⚡</span>
+                                    <InputLabel htmlFor="asset_ups" value="UPS / Power Backup Protection" className="font-semibold text-amber-950" />
+                                </div>
+                                <span className="text-[11px] text-amber-700/80">Proteksi listrik cadangan perangkat</span>
+                            </div>
+                            <div className="mt-1.5">
+                                <TextInput
+                                    id="asset_ups"
+                                    type="text"
+                                    className="block w-full text-xs sm:text-sm rounded-xl border-amber-300 bg-white focus:border-amber-500 focus:ring-amber-500"
+                                    placeholder="e.g., APC Back-UPS 650VA, Prolink 1200VA, ICA 600VA, atau None"
+                                    value={assetForm.data.ups}
+                                    onChange={(e) => assetForm.setData('ups', e.target.value)}
+                                />
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                                <span className="text-[10px] text-amber-800/80 font-bold">Pilih Cepat:</span>
+                                {['APC 650VA', 'APC 1000VA', 'Prolink 1200VA', 'ICA 600VA', 'None'].map((chip) => (
+                                    <button
+                                        key={chip}
+                                        type="button"
+                                        onClick={() => assetForm.setData('ups', chip)}
+                                        className="text-[10px] px-2.5 py-0.5 rounded-lg bg-white hover:bg-amber-100 hover:text-amber-900 text-amber-900 border border-amber-200/80 transition-colors shadow-2xs font-semibold"
+                                    >
+                                        + {chip}
+                                    </button>
+                                ))}
+                            </div>
+                            <InputError message={assetForm.errors.ups} className="mt-1" />
+                        </div>
+
+                        {/* Photo / Visual Placement Upload */}
+                        <div className="p-4 rounded-xl bg-gray-50/90 border border-gray-200 space-y-3">
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-sm">📸</span>
+                                        <InputLabel value="Foto Penempatan / Lokasi Fisik Barang" className="font-semibold text-gray-900" />
+                                    </div>
+                                    <p className="text-[11px] text-gray-500 mt-0.5">
+                                        Unggah foto fisik perangkat di tempatnya agar mudah dicari oleh teknisi atau staff di area hotel (Maks. 5MB, format JPG, PNG, WebP).
+                                    </p>
+                                </div>
+                            </div>
+
+                            {photoPreview ? (
+                                <div className="flex items-center gap-4 p-3 bg-white rounded-xl border border-gray-200 shadow-2xs">
+                                    <div className="w-20 h-20 rounded-lg overflow-hidden border border-gray-200 shrink-0 bg-gray-100 relative">
+                                        <img
+                                            src={photoPreview}
+                                            alt="Preview Foto Asset"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 inline-block mb-1.5">
+                                            ✓ Foto Dipilih
+                                        </span>
+                                        <p className="text-xs text-gray-500 truncate mb-2">
+                                            {assetForm.data.photo ? assetForm.data.photo.name : 'Foto tersimpan'}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <label
+                                                htmlFor="asset_photo_file"
+                                                className="px-2.5 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer border border-gray-200 transition-colors"
+                                            >
+                                                Ganti Foto
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setPhotoPreview(null);
+                                                    assetForm.setData({
+                                                        ...assetForm.data,
+                                                        photo: null,
+                                                        remove_photo: true,
+                                                    });
+                                                }}
+                                                className="px-2.5 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
+                                            >
+                                                Hapus Foto
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <label
+                                        htmlFor="asset_photo_file"
+                                        className="flex flex-col items-center justify-center p-5 border-2 border-dashed border-gray-300 hover:border-red-400 bg-white rounded-xl cursor-pointer hover:bg-red-50/20 transition-all group"
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center text-lg mb-2 group-hover:scale-110 transition-transform shadow-2xs">
+                                            📷
+                                        </div>
+                                        <span className="text-xs font-bold text-gray-700 group-hover:text-red-700">
+                                            Pilih / Unggah Foto Lokasi Asset
+                                        </span>
+                                        <span className="text-[11px] text-gray-400 mt-0.5">
+                                            Klik untuk mengambil atau memilih foto posisi perangkat di lokasi
+                                        </span>
+                                    </label>
+                                </div>
+                            )}
+
+                            <input
+                                id="asset_photo_file"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/jpg"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        if (file.size > 5 * 1024 * 1024) {
+                                            alert('Ukuran foto terlalu besar! Maksimal 5MB.');
+                                            return;
+                                        }
+                                        assetForm.setData({
+                                            ...assetForm.data,
+                                            photo: file,
+                                            remove_photo: false,
+                                        });
+                                        setPhotoPreview(URL.createObjectURL(file));
+                                    }
+                                }}
+                            />
+                            <InputError message={assetForm.errors.photo} className="mt-1" />
                         </div>
 
                         {/* Specs */}
@@ -1856,6 +2088,135 @@ export default function ItIndex({
                         </PrimaryButton>
                     </div>
                 </form>
+            </Modal>
+
+            {/* MODAL 5: PREVIEW ASSET PHOTO & PHYSICAL LOCATION */}
+            <Modal show={!!previewingAssetPhoto} onClose={() => setPreviewingAssetPhoto(null)} maxWidth="2xl">
+                {previewingAssetPhoto && (
+                    <div className="p-6 space-y-4">
+                        <div className="flex items-center justify-between pb-3 border-b border-red-100">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold text-lg border border-red-200 shrink-0">
+                                    📍
+                                </div>
+                                <div>
+                                    <span className="text-[11px] font-bold text-red-600 uppercase tracking-wider font-mono">
+                                        {previewingAssetPhoto.asset_code}
+                                    </span>
+                                    <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
+                                        {previewingAssetPhoto.name}
+                                    </h3>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setPreviewingAssetPhoto(null)}
+                                className="text-gray-400 hover:text-gray-600 text-xl font-bold p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Photo Container */}
+                        <div className="relative rounded-2xl overflow-hidden bg-gray-950 border border-gray-200 min-h-[220px] max-h-[380px] flex items-center justify-center">
+                            {previewingAssetPhoto.photo_url ? (
+                                <img
+                                    src={previewingAssetPhoto.photo_url}
+                                    alt={`Foto penempatan ${previewingAssetPhoto.name}`}
+                                    className="w-full max-h-[380px] object-contain"
+                                />
+                            ) : (
+                                <div className="text-center text-gray-400 p-8">
+                                    <span className="text-4xl block mb-2">📷</span>
+                                    <p className="text-sm font-medium">Belum ada foto penempatan untuk asset ini.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Details Card */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-gray-50/90 p-4 rounded-xl border border-gray-200">
+                            <div>
+                                <span className="text-gray-500 block font-medium">Lokasi Penempatan:</span>
+                                <strong className="text-gray-900 text-sm flex items-center gap-1.5 mt-0.5">
+                                    <span>📍</span>
+                                    <span>{previewingAssetPhoto.location || 'Belum dispesifikasi'}</span>
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500 block font-medium">Proteksi Listrik (UPS):</span>
+                                <strong className="text-amber-900 text-sm flex items-center gap-1.5 mt-0.5">
+                                    <span>⚡</span>
+                                    <span>{previewingAssetPhoto.ups || 'Tidak Ada UPS / None'}</span>
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500 block font-medium">Kategori & Brand:</span>
+                                <span className="text-gray-800 font-semibold mt-0.5 block">
+                                    {previewingAssetPhoto.category} • {previewingAssetPhoto.brand || '-'} {previewingAssetPhoto.model ? `(${previewingAssetPhoto.model})` : ''}
+                                </span>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500 block font-medium">IP Address:</span>
+                                <span className="text-gray-800 font-mono font-semibold mt-0.5 block">
+                                    {previewingAssetPhoto.ip_address || '-'}
+                                </span>
+                            </div>
+
+                            {previewingAssetPhoto.assigned_employee && (
+                                <div className="sm:col-span-2 pt-2 border-t border-gray-200">
+                                    <span className="text-gray-500 block font-medium">User Penanggung Jawab:</span>
+                                    <span className="text-gray-900 font-semibold mt-0.5 block">
+                                        👤 {previewingAssetPhoto.assigned_employee.user?.name || `Emp #${previewingAssetPhoto.assigned_employee.employee_number}`} ({previewingAssetPhoto.assigned_employee.department?.name || '-'})
+                                    </span>
+                                </div>
+                            )}
+
+                            {previewingAssetPhoto.notes && (
+                                <div className="sm:col-span-2 pt-2 border-t border-gray-200">
+                                    <span className="text-gray-500 block font-medium">Catatan Lokasi & Penempatan:</span>
+                                    <p className="text-gray-700 mt-0.5 italic">
+                                        "{previewingAssetPhoto.notes}"
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                            {previewingAssetPhoto.photo_url ? (
+                                <a
+                                    href={previewingAssetPhoto.photo_url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline inline-flex items-center gap-1"
+                                >
+                                    <span>↗️ Buka Gambar Asli</span>
+                                </a>
+                            ) : <span />}
+
+                            <div className="flex items-center gap-2">
+                                {isItManager && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const target = previewingAssetPhoto;
+                                            setPreviewingAssetPhoto(null);
+                                            openEditAsset(target);
+                                        }}
+                                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+                                    >
+                                        ✏️ Edit Asset & Foto
+                                    </button>
+                                )}
+                                <SecondaryButton type="button" onClick={() => setPreviewingAssetPhoto(null)}>
+                                    Tutup
+                                </SecondaryButton>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </AuthenticatedLayout>
     );

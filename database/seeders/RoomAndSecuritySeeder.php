@@ -30,8 +30,19 @@ class RoomAndSecuritySeeder extends Seeder
             ['name' => 'Duty Security Officer', 'department_id' => $securityDept->id]
         );
 
-        // 3. Ensure Security Role exists
+        // 3. Ensure Security Role exists and has room + employee permissions
         $securityRole = Role::firstOrCreate(['name' => 'Security']);
+        $securityRole->syncPermissions([
+            'room.view',
+            'room.borrow',
+            'room.return.request',
+            'room.return.approve',
+            'room.manage',
+            'task.view',
+            'task.update',
+            'task.comment',
+            'performance.view',
+        ]);
 
         // 4. Create or update Security User
         $secUser = User::firstOrCreate(

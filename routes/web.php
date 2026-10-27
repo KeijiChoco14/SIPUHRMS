@@ -168,7 +168,7 @@ Route::middleware(['auth', 'approved'])->group(function () {
     // IT Operations & Helpdesk Routes
     Route::get('/it', [ItOperationsController::class, 'index'])->name('it.index');
     Route::post('/it/assets', [ItOperationsController::class, 'storeAsset'])->name('it.assets.store');
-    Route::put('/it/assets/{asset}', [ItOperationsController::class, 'updateAsset'])->name('it.assets.update');
+    Route::match(['put', 'post'], '/it/assets/{asset}', [ItOperationsController::class, 'updateAsset'])->name('it.assets.update');
     Route::delete('/it/assets/{asset}', [ItOperationsController::class, 'destroyAsset'])->name('it.assets.destroy');
     Route::post('/it/tickets', [ItOperationsController::class, 'storeTicket'])->name('it.tickets.store');
     Route::get('/it/tickets/{ticket}', [ItOperationsController::class, 'showTicket'])->name('it.tickets.show');

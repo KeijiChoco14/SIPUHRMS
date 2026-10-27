@@ -158,42 +158,79 @@ export default function Registrations({ registrations, filters, stats }: PagePro
     };
 
     return (
-        <AuthenticatedLayout>
+        <AuthenticatedLayout
+            header={
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 text-white flex items-center justify-center shadow-md shadow-red-600/20 shrink-0">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                    Swiss-Belinn IT & Systems
+                                </span>
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                    Account Verification
+                                </span>
+                                {stats.pending > 0 && (
+                                    <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#E31B23] text-white">
+                                        {stats.pending} pending
+                                    </span>
+                                )}
+                            </div>
+                            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                                IT Registration Approvals
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <Link
+                            href={route('it.index')}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                        >
+                            <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg>
+                            <span>IT Workspace</span>
+                        </Link>
+                    </div>
+                </div>
+            }
+        >
             <Head title="Registration Approvals - IT Operations - SIPU Management" />
 
             <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                            <Link href={route('it.index')} className="hover:text-[#E31B23] transition-colors">
-                                IT Operations
-                            </Link>
-                            <span>/</span>
-                            <span className="text-slate-700 font-medium">Registration Approvals</span>
+                {/* Description Info Banner */}
+                <div className="bg-white rounded-2xl p-4 border border-red-100 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-50 text-[#E31B23] flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
                         </div>
-                        <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-                            <span>IT Registration Approvals</span>
-                            {stats.pending > 0 && (
-                                <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E31B23] text-white">
-                                    {stats.pending} pending
-                                </span>
-                            )}
-                        </h1>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                            Review, verify contact details, and approve or reject staff account registration requests.
-                        </p>
+                        <div>
+                            <h3 className="font-bold text-gray-900 text-sm sm:text-base">
+                                Staff Account Verification & Onboarding
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                                Review, verify contact details, and approve or reject staff account registration requests.
+                            </p>
+                        </div>
                     </div>
-
-                    <Link
-                        href={route('it.index')}
-                        className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-2xs transition-colors self-start sm:self-auto"
-                    >
-                        <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        Back to IT Workspace
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-50 text-slate-700 border border-slate-200">
+                            Total: {stats.total} Requests
+                        </span>
+                        {stats.pending > 0 && (
+                            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+                                {stats.pending} Need Verification
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {/* Flash Success/Error Message */}
@@ -213,11 +250,10 @@ export default function Registrations({ registrations, filters, stats }: PagePro
                     <button
                         type="button"
                         onClick={() => handleTabChange('pending')}
-                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${
-                            filters.status === 'pending'
+                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${filters.status === 'pending'
                                 ? 'bg-amber-50/60 border-amber-300 ring-2 ring-amber-400/40 shadow-xs'
                                 : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
-                        }`}
+                            }`}
                     >
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-amber-900">Pending Review</span>
@@ -230,11 +266,10 @@ export default function Registrations({ registrations, filters, stats }: PagePro
                     <button
                         type="button"
                         onClick={() => handleTabChange('approved')}
-                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${
-                            filters.status === 'approved'
+                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${filters.status === 'approved'
                                 ? 'bg-emerald-50/60 border-emerald-300 ring-2 ring-emerald-400/40 shadow-xs'
                                 : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
-                        }`}
+                            }`}
                     >
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-emerald-900">Approved Accounts</span>
@@ -247,11 +282,10 @@ export default function Registrations({ registrations, filters, stats }: PagePro
                     <button
                         type="button"
                         onClick={() => handleTabChange('rejected')}
-                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${
-                            filters.status === 'rejected'
+                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${filters.status === 'rejected'
                                 ? 'bg-rose-50/60 border-rose-300 ring-2 ring-rose-400/40 shadow-xs'
                                 : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
-                        }`}
+                            }`}
                     >
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-rose-900">Rejected Requests</span>
@@ -264,11 +298,10 @@ export default function Registrations({ registrations, filters, stats }: PagePro
                     <button
                         type="button"
                         onClick={() => handleTabChange('all')}
-                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${
-                            filters.status === 'all'
+                        className={`text-left p-4 rounded-2xl border transition-all duration-150 ${filters.status === 'all'
                                 ? 'bg-slate-100 border-slate-300 ring-2 ring-slate-400/30 shadow-xs'
                                 : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
-                        }`}
+                            }`}
                     >
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-slate-700">All Registrations</span>
@@ -287,44 +320,40 @@ export default function Registrations({ registrations, filters, stats }: PagePro
                             <button
                                 type="button"
                                 onClick={() => handleTabChange('pending')}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
-                                    filters.status === 'pending'
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${filters.status === 'pending'
                                         ? 'bg-white text-slate-900 shadow-xs'
                                         : 'text-slate-600 hover:text-slate-900'
-                                }`}
+                                    }`}
                             >
                                 Pending Review ({stats.pending})
                             </button>
                             <button
                                 type="button"
                                 onClick={() => handleTabChange('approved')}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
-                                    filters.status === 'approved'
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${filters.status === 'approved'
                                         ? 'bg-white text-slate-900 shadow-xs'
                                         : 'text-slate-600 hover:text-slate-900'
-                                }`}
+                                    }`}
                             >
                                 Approved ({stats.approved})
                             </button>
                             <button
                                 type="button"
                                 onClick={() => handleTabChange('rejected')}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
-                                    filters.status === 'rejected'
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${filters.status === 'rejected'
                                         ? 'bg-white text-slate-900 shadow-xs'
                                         : 'text-slate-600 hover:text-slate-900'
-                                }`}
+                                    }`}
                             >
                                 Rejected ({stats.rejected})
                             </button>
                             <button
                                 type="button"
                                 onClick={() => handleTabChange('all')}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
-                                    filters.status === 'all'
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${filters.status === 'all'
                                         ? 'bg-white text-slate-900 shadow-xs'
                                         : 'text-slate-600 hover:text-slate-900'
-                                }`}
+                                    }`}
                             >
                                 All Records ({stats.total})
                             </button>
@@ -521,13 +550,12 @@ export default function Registrations({ registrations, filters, stats }: PagePro
                                         disabled={!link.url || link.active}
                                         onClick={() => link.url && router.get(link.url, {}, { preserveState: true })}
                                         dangerouslySetInnerHTML={{ __html: link.label }}
-                                        className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
-                                            link.active
+                                        className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${link.active
                                                 ? 'bg-[#E31B23] text-white font-semibold'
                                                 : link.url
-                                                ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-                                                : 'text-slate-300 cursor-not-allowed'
-                                        }`}
+                                                    ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                                                    : 'text-slate-300 cursor-not-allowed'
+                                            }`}
                                     />
                                 ))}
                             </div>

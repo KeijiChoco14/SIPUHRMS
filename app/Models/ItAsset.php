@@ -23,10 +23,16 @@ class ItAsset extends Model
         'assigned_to_employee_id',
         'location',
         'ip_address',
+        'ups',
+        'photo',
         'purchase_date',
         'warranty_expiry',
         'purchase_cost',
         'notes',
+    ];
+
+    protected $appends = [
+        'photo_url',
     ];
 
     protected $casts = [
@@ -34,6 +40,11 @@ class ItAsset extends Model
         'warranty_expiry' => 'date',
         'purchase_cost' => 'decimal:2',
     ];
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        return $this->photo ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->photo) : null;
+    }
 
     public function assignedEmployee(): BelongsTo
     {
