@@ -77,21 +77,37 @@ jobs:
             exit 1
           fi
 
+      
       - name: Configure SSH
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_SSH_KEY_B64: ${{ secrets.VPS_SSH_KEY_B64 }}
           VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
         run: |
           set -eu
-          install -d -m 700 ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/sipu_deploy
-          chmod 600 ~/.ssh/sipu_deploy
-          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
+
           test -n "$VPS_HOST"
           test -n "$VPS_PORT"
+          test -n "$VPS_SSH_KEY_B64"
+          test -n "$VPS_KNOWN_HOSTS"
+
+          install -d -m 700 ~/.ssh
+
+          printf '%s' "$VPS_SSH_KEY_B64" \
+            | base64 --decode > ~/.ssh/sipu_deploy
+
+          chmod 600 ~/.ssh/sipu_deploy
+
+          printf '%s\n' "$VPS_KNOWN_HOSTS" \
+            > ~/.ssh/known_hosts
+
+          chmod 600 ~/.ssh/known_hosts
+
+          ssh-keygen -y -f ~/.ssh/sipu_deploy \
+            > /dev/null
+
+          echo "SSH key format validated."
 
       - name: Upload build to staging
         env:
