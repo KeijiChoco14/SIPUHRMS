@@ -1,0 +1,102 @@
+
+name: Deploy SIPU Management
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sipu-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Verify build manifest
+        run: test -s public/build/manifest.json
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sipu-frontend-build
+          path: public/build/
+          if-no-files-found: error
+          retention-days: 3
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: sipu-frontend-build
+          path: public-build
+
+      - name: Configure SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -eu
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/sipu_deploy
+          chmod 600 ~/.ssh/sipu_deploy
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          test -n "$VPS_HOST"
+          test -n "$VPS_PORT"
+
+      - name: Upload build to staging
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -eu
+          ssh -i ~/.ssh/sipu_deploy \
+            -p "$VPS_PORT" \
+            "$VPS_USER@$VPS_HOST" \
+            'mkdir -p /var/www/sipu-deploy-staging'
+          scp -i ~/.ssh/sipu_deploy \
+            -P "$VPS_PORT" \
+            -r public-build/. \
+            "$VPS_USER@$VPS_HOST:/var/www/sipu-deploy-staging/"
+
+      - name: Verify staged build
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -eu
+          ssh -i ~/.ssh/sipu_deploy \
+            -p "$VPS_PORT" \
+            "$VPS_USER@$VPS_HOST" \
+            'test -s /var/www/sipu-deploy-staging/manifest.json'
