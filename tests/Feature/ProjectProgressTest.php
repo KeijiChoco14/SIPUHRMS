@@ -57,7 +57,7 @@ class ProjectProgressTest extends TestCase
             'project_id' => $project->id,
             'created_by' => $user->id,
             'priority' => TaskPriority::Normal->value,
-            'status' => TaskStatus::Done->value,
+            'status' => TaskStatus::Approved->value,
         ]);
 
         $task4 = Task::create([
@@ -65,28 +65,32 @@ class ProjectProgressTest extends TestCase
             'project_id' => $project->id,
             'created_by' => $user->id,
             'priority' => TaskPriority::Normal->value,
-            'status' => TaskStatus::Done->value,
+            'status' => TaskStatus::Approved->value,
         ]);
 
-        // 2 of 4 tasks are Done -> 50%
+        // 2 of 4 tasks are Approved -> 50% (Done tasks wait for approval and do not count yet)
         $this->assertEquals(50, $project->fresh()->progress);
 
-        // Update task1 to Done -> 3 of 4 -> 75%
+        // Update task1 to Done (waiting approval) -> progress still 50%
         $task1->update(['status' => TaskStatus::Done->value]);
+        $this->assertEquals(50, $project->fresh()->progress);
+
+        // Creator approves task1 -> 3 of 4 Approved -> 75%
+        $task1->update(['status' => TaskStatus::Approved->value]);
         $this->assertEquals(75, $project->fresh()->progress);
 
-        // Update task2 to Done -> 4 of 4 -> 100%
-        $task2->update(['status' => TaskStatus::Done->value]);
+        // Creator approves task2 -> 4 of 4 Approved -> 100%
+        $task2->update(['status' => TaskStatus::Approved->value]);
         $this->assertEquals(100, $project->fresh()->progress);
         $this->assertEquals(ProjectStatus::Completed, $project->fresh()->status);
 
-        // Reopen task2 -> 3 of 4 -> 75% -> status reverts to Active
+        // Reopen task2 back to In Progress -> 3 of 4 Approved -> 75% -> status reverts to Active
         $task2->update(['status' => TaskStatus::InProgress->value]);
         $this->assertEquals(75, $project->fresh()->progress);
         $this->assertEquals(ProjectStatus::Active, $project->fresh()->status);
 
-        // Done again
-        $task2->update(['status' => TaskStatus::Done->value]);
+        // Approved again
+        $task2->update(['status' => TaskStatus::Approved->value]);
         $this->assertEquals(100, $project->fresh()->progress);
         $this->assertEquals(ProjectStatus::Completed, $project->fresh()->status);
 
@@ -115,11 +119,11 @@ class ProjectProgressTest extends TestCase
         ]);
 
         Task::create([
-            'title' => 'Done Task',
+            'title' => 'Approved Task',
             'project_id' => $project->id,
             'created_by' => $user->id,
             'priority' => TaskPriority::Normal->value,
-            'status' => TaskStatus::Done->value,
+            'status' => TaskStatus::Approved->value,
         ]);
 
         Task::create([

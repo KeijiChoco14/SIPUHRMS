@@ -184,10 +184,10 @@ class RolePermissionAuditTest extends TestCase
         $this->assertDatabaseMissing('power_pro_requests', ['id' => $requestA->id]);
     }
 
-    public function test_non_housekeeping_staff_cannot_access_master_key_requests(): void
+    public function test_it_and_housekeeping_staff_can_access_master_keys_while_other_departments_cannot(): void
     {
         [$itUser] = $this->createEmployeeUser('Staff / Employee', 'IT');
-        $this->actingAs($itUser)->get('/master-keys')->assertStatus(403);
+        $this->actingAs($itUser)->get('/master-keys')->assertStatus(200);
 
         [$foUser] = $this->createEmployeeUser('Staff / Employee', 'Front Office');
         $this->actingAs($foUser)->get('/master-keys')->assertStatus(403);

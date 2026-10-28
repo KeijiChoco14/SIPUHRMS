@@ -29,7 +29,7 @@ class MasterKeyRequestController extends Controller
 
     /**
      * Check if the authenticated user is authorized to access Housekeeping Master Key module.
-     * Allowed: Super Admin, HRD / Admin, General Manager, Head of Department (HOD), or any Housekeeping staff.
+     * Allowed: Super Admin, HRD / Admin, General Manager, Head of Department (HOD), Housekeeping staff, or Department IT.
      */
     private function canAccessMasterKey(): bool
     {
@@ -43,8 +43,9 @@ class MasterKeyRequestController extends Controller
         $isGM = $user->hasRole('General Manager');
         $isHOD = $user->hasRole('Head of Department');
         $isHK = $user->employee?->department?->name === 'Housekeeping';
+        $isIT = $user->employee?->department?->name === 'IT';
 
-        return $isSuperAdmin || $isHRD || $isGM || $isHOD || $isHK;
+        return $isSuperAdmin || $isHRD || $isGM || $isHOD || $isHK || $isIT;
     }
 
     /**
@@ -53,7 +54,7 @@ class MasterKeyRequestController extends Controller
     public function index(Request $request)
     {
         if (!$this->canAccessMasterKey()) {
-            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, Head of Department (HOD), dan manajemen yang berwenang.');
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, HOD Housekeeping, Departemen IT, dan manajemen yang berwenang.');
         }
 
         $user = Auth::user();
@@ -65,9 +66,14 @@ class MasterKeyRequestController extends Controller
 
         $userEmployee = $user->employee;
         $isHK = $userEmployee?->department?->name === 'Housekeeping';
+        $isIT = $userEmployee?->department?->name === 'IT';
 
-        $canApprove = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK);
-        $canManageAll = $canApprove || ($isSupervisor && $isHK);
+        // Approvals strictly received/handled by HOD Housekeeping (or Super Admin)
+        $canApprove = $isSuperAdmin || ($isHOD && $isHK);
+        // Master key creation, RFID programming & issuance performed by Department IT (or Super Admin)
+        $canCreateKey = $isSuperAdmin || $isIT;
+        // View/manage all requests
+        $canManageAll = $canApprove || $canCreateKey || $isHRD || $isGM || ($isSupervisor && $isHK);
 
         if (!$this->ensureTableExists()) {
             $hkDepartment = Department::where('name', 'Housekeeping')->first();
@@ -91,6 +97,7 @@ class MasterKeyRequestController extends Controller
                     'expired' => 0,
                 ],
                 'canApprove' => $canApprove,
+                'canCreateKey' => $canCreateKey,
                 'canManageAll' => $canManageAll,
                 'currentEmployee' => $userEmployee?->load(['department', 'position']),
                 'currentUser' => $user,
@@ -220,6 +227,7 @@ class MasterKeyRequestController extends Controller
             ],
             'stats' => $stats,
             'canApprove' => $canApprove,
+            'canCreateKey' => $canCreateKey,
             'canManageAll' => $canManageAll,
             'currentEmployee' => $userEmployee?->load(['department', 'position']),
             'currentUser' => $user,
@@ -368,16 +376,17 @@ class MasterKeyRequestController extends Controller
 
         $user = Auth::user();
         $isSuperAdmin = $user->hasRole('Super Admin');
-        $isHRD = $user->hasRole('HRD / Admin');
-        $isGM = $user->hasRole('General Manager');
         $isHOD = $user->hasRole('Head of Department');
-        $isSupervisor = $user->hasRole('Supervisor');
         $isHK = $user->employee?->department?->name === 'Housekeeping';
+        $isIT = $user->employee?->department?->name === 'IT';
 
-        $canApprove = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK) || ($isSupervisor && $isHK);
+        // Approvals strictly handled by HOD Housekeeping (or Super Admin)
+        $canApprove = $isSuperAdmin || ($isHOD && $isHK);
+        // Master key creation, RFID programming & issuance strictly performed by Department IT (or Super Admin)
+        $canCreateKey = $isSuperAdmin || $isIT;
 
-        if (!$canApprove) {
-            return back()->with('error', 'You do not have permission to process this request.');
+        if (!$canApprove && !$canCreateKey) {
+            return back()->with('error', 'You do not have permission to approve or create this master key request.');
         }
 
         $validated = $request->validate([
@@ -398,7 +407,8 @@ class MasterKeyRequestController extends Controller
             $updateData['done_by_user_id'] = $user->id;
             $updateData['done_by_username'] = $user->name;
             $updateData['done_at'] = $now;
-            $updateData['done_notes'] = $validated['done_notes'] ?? 'Master key request has been processed and handed over (Done).';
+            $deptName = $user->employee?->department?->name ?? ($isSuperAdmin ? 'IT / Admin' : 'Staff');
+            $updateData['done_notes'] = $validated['done_notes'] ?? "Master key created, programmed & issued by Department {$deptName}.";
             if (!empty($validated['approver_signature'])) {
                 $updateData['approver_signature'] = $validated['approver_signature'];
             }
@@ -418,7 +428,7 @@ class MasterKeyRequestController extends Controller
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
             'description' => $newStatus === 'Done'
-                ? "Master key request {$masterKeyRequest->request_number} marked [DONE] by user '{$user->name}' on " . $now->format('Y-m-d H:i:s') . ". Notes: " . ($validated['done_notes'] ?? '-')
+                ? "Master key request {$masterKeyRequest->request_number} created & issued [DONE] by user '{$user->name}' (" . ($user->employee?->department?->name ?? 'IT') . ") on " . $now->format('Y-m-d H:i:s') . ". Notes: " . ($validated['done_notes'] ?? '-')
                 : "Request status for {$masterKeyRequest->request_number} reverted to [On Request] by user '{$user->name}' on " . $now->format('Y-m-d H:i:s') . ".",
             'old_values' => ['status' => $oldStatus],
             'new_values' => [
@@ -633,7 +643,7 @@ class MasterKeyRequestController extends Controller
             'auditLogs.user',
         ]);
 
-        // Find Executive Housekeeper / HK HOD for signature section
+        // 1. Find Executive Housekeeper / HK HOD for "Approve by" signature section
         $hkDept = Department::where('name', 'Housekeeping')
             ->orWhere('name', 'like', '%Housekeeping%')
             ->first();
@@ -658,42 +668,42 @@ class MasterKeyRequestController extends Controller
                 ->first();
         }
 
-        // Find Housekeeping Supervisor (HK SPV) for signature section
-        $spvHK = null;
-        if ($hkDept) {
-            $spvHK = Employee::with(['user', 'position'])
-                ->where('department_id', $hkDept->id)
-                ->where(function ($q) {
-                    $q->whereHas('user.roles', function ($r) {
-                        $r->where('name', 'Supervisor');
-                    })->orWhereHas('position', function ($p) {
-                        $p->where('name', 'like', '%Supervisor%')
-                          ->orWhere('name', 'like', '%SPV%');
-                    });
-                })
+        // 2. Find IT Department Staff for "Create by" signature section
+        $itDept = Department::where('name', 'IT')
+            ->orWhere('name', 'like', '%Information Technology%')
+            ->first();
+
+        $itStaff = null;
+        // If request has been marked Done by a specific user, check if that user is from IT
+        if ($masterKeyRequest->done_by_user_id) {
+            $doneUserEmployee = Employee::with(['user', 'position', 'department'])
+                ->where('user_id', $masterKeyRequest->done_by_user_id)
+                ->first();
+            if ($doneUserEmployee && ($doneUserEmployee->department?->name === 'IT' || $doneUserEmployee->user?->hasRole('Super Admin'))) {
+                $itStaff = $doneUserEmployee;
+            }
+        }
+
+        // Fallback: pick IT Support Staff / IT Officer
+        if (!$itStaff && $itDept) {
+            $itStaff = Employee::with(['user', 'position'])
+                ->where('department_id', $itDept->id)
                 ->whereDoesntHave('user.roles', function ($r) {
                     $r->where('name', 'Super Admin');
                 })
                 ->first();
-        }
 
-        // If requester has a direct supervisor who is an actual Supervisor (and not Super Admin)
-        if (!$spvHK && $masterKeyRequest->employee?->supervisor) {
-            $directSupervisor = $masterKeyRequest->employee->supervisor;
-            $isNotSuperAdmin = !$directSupervisor->user?->hasRole('Super Admin');
-            $hasSpvRole = $directSupervisor->user?->hasRole('Supervisor');
-            $hasSpvPos = str_contains(strtolower($directSupervisor->position?->name ?? ''), 'supervisor')
-                      || str_contains(strtolower($directSupervisor->position?->name ?? ''), 'spv');
-
-            if ($isNotSuperAdmin && ($hasSpvRole || $hasSpvPos)) {
-                $spvHK = $directSupervisor->load(['user', 'position']);
+            if (!$itStaff) {
+                $itStaff = Employee::with(['user', 'position'])
+                    ->where('department_id', $itDept->id)
+                    ->first();
             }
         }
 
         return Inertia::render('MasterKey/Print', [
             'requestData' => $masterKeyRequest,
             'hodHK' => $hodHK,
-            'spvHK' => $spvHK,
+            'itStaff' => $itStaff,
         ]);
     }
 
@@ -703,7 +713,7 @@ class MasterKeyRequestController extends Controller
     public function destroy(MasterKeyRequest $masterKeyRequest)
     {
         if (!$this->canAccessMasterKey()) {
-            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, Head of Department (HOD), dan manajemen yang berwenang.');
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, HOD Housekeeping, Departemen IT, dan manajemen yang berwenang.');
         }
 
         $user = Auth::user();
@@ -729,20 +739,18 @@ class MasterKeyRequestController extends Controller
 
     /**
      * Helper to notify approvers when a new request is submitted.
+     * Approvals are strictly received/handled by HOD Housekeeping (Executive Housekeeper) and Super Admin.
      */
     protected function notifyApprovers(MasterKeyRequest $request): void
     {
         try {
             $hkDept = Department::where('name', 'Housekeeping')->first();
 
-            $approvers = User::whereHas('roles', function ($q) {
-                $q->whereIn('name', ['Head of Department', 'HRD / Admin', 'Super Admin', 'Supervisor']);
-            })->where(function ($q) use ($hkDept) {
-                $q->whereHas('employee', function ($sub) use ($hkDept) {
-                    $sub->where('department_id', $hkDept?->id);
-                })->orWhereHas('roles', function ($sub) {
-                    $sub->whereIn('name', ['HRD / Admin', 'Super Admin']);
-                });
+            $approvers = User::where(function ($q) use ($hkDept) {
+                $q->where(function ($sub) use ($hkDept) {
+                    $sub->whereHas('roles', fn ($r) => $r->where('name', 'Head of Department'))
+                        ->whereHas('employee', fn ($e) => $e->where('department_id', $hkDept?->id));
+                })->orWhereHas('roles', fn ($r) => $r->where('name', 'Super Admin'));
             })->get();
 
             foreach ($approvers as $approver) {

@@ -44,11 +44,11 @@ class TaskController extends Controller
 
         if ($request->filled('filter')) {
             if ($request->filter === 'active') {
-                $query->whereNotIn('status', [TaskStatus::Done->value, TaskStatus::Cancelled->value]);
+                $query->whereNotIn('status', [TaskStatus::Approved->value, TaskStatus::Cancelled->value]);
             } elseif ($request->filter === 'completed') {
-                $query->where('status', TaskStatus::Done->value);
+                $query->where('status', TaskStatus::Approved->value);
             } elseif ($request->filter === 'overdue') {
-                $query->where('deadline', '<', now())->whereNotIn('status', [TaskStatus::Done->value, TaskStatus::Cancelled->value]);
+                $query->where('deadline', '<', now())->whereNotIn('status', [TaskStatus::Approved->value, TaskStatus::Cancelled->value]);
             }
         } elseif ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -247,9 +247,29 @@ class TaskController extends Controller
         
         $isAssignee = $user->employee && $task->assignees()->where('employee_id', $user->employee->id)->exists();
 
-        // Check if this is exclusively a status or schedule change (e.g. from Kanban/Calendar drag/drop)
+        // Normalize status alias if passed (e.g. 'Approve' -> 'Approved')
+        if ($request->has('status') && in_array(strtolower($request->status), ['approve', 'approved'], true)) {
+            $request->merge(['status' => TaskStatus::Approved->value]);
+        }
+
+        // Rule: Only the task creator (or admin) can approve a task
+        if ($request->has('status') && $request->status === TaskStatus::Approved->value) {
+            if (!$isCreator) {
+                abort(403, 'Hanya pembuat/pemberi tugas atau administrator yang dapat menyetujui (approve) task ini.');
+            }
+        }
+
+        // Rule: Once approved, only creator or admin can change status back
+        $currentStatusVal = $task->status instanceof TaskStatus ? $task->status->value : (string) $task->status;
+        if ($currentStatusVal === TaskStatus::Approved->value && $request->has('status') && $request->status !== TaskStatus::Approved->value) {
+            if (!$isCreator) {
+                abort(403, 'Task yang sudah diapprove tidak dapat diubah kembali oleh assignee.');
+            }
+        }
+
+        // Check if this is exclusively a status or schedule change (e.g. from Kanban/Calendar drag/drop or revision)
         $isStatusOrScheduleUpdate = !$request->hasAny(['title', 'description', 'priority', 'assignees'])
-            && $request->hasAny(['status', 'deadline', 'start_date', 'estimated_duration']);
+            && $request->hasAny(['status', 'deadline', 'start_date', 'estimated_duration', 'revision_note']);
 
         if ($isStatusOrScheduleUpdate) {
             if (!$isCreator && !$isAssignee) {
@@ -270,13 +290,22 @@ class TaskController extends Controller
             'start_date' => 'nullable|date',
             'estimated_duration' => 'nullable|integer',
             'status' => 'sometimes|required|string',
+            'revision_note' => 'nullable|string|max:1000',
             'assignees' => 'nullable|array',
             'assignees.*' => 'exists:employees,id',
         ]);
 
-        $taskData = collect($validated)->except('assignees')->toArray();
+        $taskData = collect($validated)->except(['assignees', 'revision_note'])->toArray();
         if (!empty($taskData)) {
             $task->update($taskData);
+        }
+
+        if ($request->filled('revision_note') && $isCreator) {
+            $employeeId = $user->employee?->id;
+            $task->comments()->create([
+                'employee_id' => $employeeId,
+                'content' => "📌 **Catatan Revisi dari Pemberi Tugas:**\n" . $request->revision_note,
+            ]);
         }
 
         if ($task->wasChanged('deadline')) {

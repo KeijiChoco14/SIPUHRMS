@@ -37,7 +37,7 @@ class ProjectController extends Controller
             ->withCount([
                 'tasks as total_tasks',
                 'tasks as completed_tasks' => function ($query) {
-                    $query->where('status', 'Done');
+                    $query->where('status', TaskStatus::Approved->value);
                 },
             ])
             ->latest();

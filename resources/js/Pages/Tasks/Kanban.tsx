@@ -6,21 +6,23 @@ import CreateTaskModal from '@/Components/CreateTaskModal';
 import TaskViewSwitcher from '@/Components/TaskViewSwitcher';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-const columnConfig: Record<string, { color: string; bg: string; border: string; icon: JSX.Element }> = {
+import TaskRevisionModal from '@/Components/TaskRevisionModal';
+
+const columnConfig: Record<string, { color: string; bg: string; border: string; sublabel: string; icon: JSX.Element }> = {
     'To Do': {
-        color: 'text-slate-700', bg: 'bg-slate-100', border: 'border-slate-200',
+        color: 'text-slate-700', bg: 'bg-slate-100', border: 'border-slate-200', sublabel: 'Akan Dikerjakan',
         icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
     },
     'In Progress': {
-        color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200',
+        color: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-200', sublabel: 'Sedang Dikerjakan',
         icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
     },
-    'Review': {
-        color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200',
-        icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-    },
     'Done': {
-        color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200',
+        color: 'text-amber-800', bg: 'bg-amber-50', border: 'border-amber-200', sublabel: 'Menunggu Approval',
+        icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    },
+    'Approved': {
+        color: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200', sublabel: 'Disetujui',
         icon: <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     },
 };
@@ -38,6 +40,8 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [draggedTaskId, setDraggedTaskId] = useState<number | null>(null);
     const [draggedOverColumn, setDraggedOverColumn] = useState<string | null>(null);
+    const [warningMessage, setWarningMessage] = useState<string | null>(null);
+    const [revisionModalTask, setRevisionModalTask] = useState<any>(null);
     const isDraggingRef = useRef(false);
 
     // Keep localTasks in sync with Inertia tasks prop updates
@@ -83,12 +87,33 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
         };
     }, []);
 
+    const canApproveTask = (task: any) => {
+        if (!task) return false;
+        const currentUserId = auth.user?.id;
+        const currentEmployeeId = auth.user?.employee?.id;
+        const userRoles = auth.user?.roles?.map((r: any) => r.name) || [];
+
+        if (userRoles.some((role: string) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(role))) {
+            return true;
+        }
+        if (task.created_by && task.created_by === currentUserId) {
+            return true;
+        }
+        if (task.project?.created_by && task.project.created_by === currentUserId) {
+            return true;
+        }
+        if (task.project?.owner_id && currentEmployeeId && task.project.owner_id === currentEmployeeId) {
+            return true;
+        }
+        return false;
+    };
+
     const getStatusColor = (status: string) => {
         switch(status) {
             case 'To Do': return 'bg-slate-100 text-slate-700 border-slate-200';
             case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200';
-            case 'Review': return 'bg-amber-100 text-amber-700 border-amber-200';
-            case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            case 'Done': return 'bg-amber-100 text-amber-800 border-amber-200';
+            case 'Approved': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
             default: return 'bg-gray-100 text-gray-700 border-gray-200';
         }
     };
@@ -104,6 +129,20 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
         const currentTask = localTasks.find((t: any) => t.id === taskId);
         if (!currentTask || currentTask.status === newStatus) return;
 
+        // Restriction: Only task creator can approve
+        if (newStatus === 'Approved' && !canApproveTask(currentTask)) {
+            setWarningMessage('Hanya pembuat/pemberi tugas yang dapat menyetujui (approve) task ini.');
+            setTimeout(() => setWarningMessage(null), 4500);
+            return;
+        }
+
+        // Restriction: Once approved, assignee cannot revert status
+        if (currentTask.status === 'Approved' && newStatus !== 'Approved' && !canApproveTask(currentTask)) {
+            setWarningMessage('Task yang sudah disetujui (Approved) tidak dapat diubah kembali oleh assignee.');
+            setTimeout(() => setWarningMessage(null), 4500);
+            return;
+        }
+
         const previousTasks = [...localTasks];
 
         // Optimistic UI update for instantaneous snappy feedback
@@ -117,7 +156,8 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
             onError: (errs) => {
                 // Revert if error occurs
                 setLocalTasks(previousTasks);
-                console.error('Failed to update task status:', errs);
+                setWarningMessage(Object.values(errs)[0] as string || 'Gagal memperbarui status task.');
+                setTimeout(() => setWarningMessage(null), 4500);
             }
         });
     };
@@ -144,7 +184,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
         });
     };
 
-    const kanbanColumns = ['To Do', 'In Progress', 'Review', 'Done'];
+    const kanbanColumns = ['To Do', 'In Progress', 'Done', 'Approved'];
     const draggedTask = localTasks.find((t: any) => t.id === draggedTaskId);
 
     return (
@@ -170,6 +210,19 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
             <Head title="My List" />
 
             <div className="mt-2">
+                {/* Warning Toast */}
+                {warningMessage && (
+                    <div className="mb-3 p-3 bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold rounded-xl flex items-center justify-between shadow-xs">
+                        <div className="flex items-center gap-2">
+                            <svg className="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <span>{warningMessage}</span>
+                        </div>
+                        <button onClick={() => setWarningMessage(null)} className="text-amber-500 hover:text-amber-700 font-bold ml-3">✕</button>
+                    </div>
+                )}
+
                 {/* Kanban Board */}
                 <div className="flex flex-nowrap overflow-x-auto gap-4 pb-4 -mx-2 px-2">
                     {kanbanColumns.map(status => {
@@ -212,12 +265,17 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                 }}
                             >
                                 {/* Column Header */}
-                                <div className={`flex items-center gap-2 px-3 py-2.5 rounded-t-xl ${config.bg} border ${config.border} border-b-0 transition-all ${
+                                <div className={`flex items-center gap-2.5 px-3 py-2.5 rounded-t-xl ${config.bg} border ${config.border} border-b-0 transition-all ${
                                     isColumnDraggedOver ? 'ring-2 ring-red-400 border-red-400' : ''
                                 }`}>
                                     <span className={config.color}>{config.icon}</span>
-                                    <h3 className={`font-bold text-sm ${config.color}`}>{status}</h3>
-                                    <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${config.bg} ${config.color} border ${config.border}`}>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className={`font-bold text-sm ${config.color} leading-none`}>{status}</h3>
+                                        {config.sublabel && (
+                                            <p className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">{config.sublabel}</p>
+                                        )}
+                                    </div>
+                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${config.bg} ${config.color} border ${config.border}`}>
                                         {columnTasks.length}
                                     </span>
                                 </div>
@@ -293,7 +351,7 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                     <p className="text-[11px] text-slate-400 mb-2.5 truncate">{task.project?.name}</p>
 
                                                     {/* Priority + Deadline Row */}
-                                                    <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center justify-between mb-2.5">
                                                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${priority.bg} ${priority.text}`}>
                                                             {task.priority}
                                                         </span>
@@ -304,6 +362,56 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                             </span>
                                                         )}
                                                     </div>
+
+                                                    {/* Done / Waiting Approval Action Box */}
+                                                    {task.status === 'Done' && (
+                                                        <div className="mb-2.5 p-2 bg-amber-50/90 rounded-lg border border-amber-200/80" onClick={e => e.stopPropagation()}>
+                                                            <div className="flex items-center justify-between gap-1 mb-1.5">
+                                                                <span className="text-[10px] font-bold text-amber-800 flex items-center gap-1.5">
+                                                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                                                    Menunggu Approval
+                                                                </span>
+                                                                {canApproveTask(task) && (
+                                                                    <span className="text-[9px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">Pemberi Task</span>
+                                                                )}
+                                                            </div>
+                                                            {canApproveTask(task) ? (
+                                                                <div className="flex items-center gap-1.5 pt-1 border-t border-amber-200/60">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setRevisionModalTask(task)}
+                                                                        className="flex-1 py-1 px-2 text-[10px] font-bold text-amber-800 bg-white hover:bg-amber-100 rounded-md border border-amber-300 transition-colors text-center"
+                                                                        title="Kembalikan ke In Progress dan sesuaikan due date jika belum sesuai ekspektasi"
+                                                                    >
+                                                                        ↺ Revisi
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDropTask(task.id, 'Approved')}
+                                                                        className="flex-1 py-1 px-2 text-[10px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-md shadow-xs transition-colors text-center flex items-center justify-center gap-1"
+                                                                        title="Setujui (Approve) hasil kerja ini"
+                                                                    >
+                                                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                                                                        Approve
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <p className="text-[10px] text-amber-700/90 italic leading-tight">
+                                                                    Menunggu verifikasi kesesuaian dari pemberi task.
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Approved Status Box */}
+                                                    {task.status === 'Approved' && (
+                                                        <div className="mb-2.5 p-1.5 bg-emerald-50 rounded-lg border border-emerald-200 flex items-center gap-1.5 text-[10px] font-bold text-emerald-700">
+                                                            <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            <span>Disetujui & Sesuai Ekspektasi</span>
+                                                        </div>
+                                                    )}
 
                                                     {/* Footer */}
                                                     <div 
@@ -342,13 +450,20 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                                                             <select 
                                                                 className={`text-[10px] border rounded font-semibold py-1 pl-2 pr-6 ${getStatusColor(task.status)} focus:ring-1 focus:ring-[#E31B23] focus:border-[#E31B23]`}
                                                                 value={task.status}
+                                                                disabled={task.status === 'Approved' && !canApproveTask(task)}
                                                                 onChange={(e) => updateTaskStatus(task.id, e.target.value)}
                                                                 onClick={e => e.stopPropagation()}
                                                                 onMouseDown={e => e.stopPropagation()}
                                                             >
-                                                                {kanbanColumns.map(col => (
-                                                                    <option key={col} value={col}>{col}</option>
-                                                                ))}
+                                                                {kanbanColumns.map(col => {
+                                                                    const isApprovedOption = col === 'Approved';
+                                                                    const isDisabled = isApprovedOption && !canApproveTask(task);
+                                                                    return (
+                                                                        <option key={col} value={col} disabled={isDisabled}>
+                                                                            {col} {isDisabled ? '(Pemberi Task)' : ''}
+                                                                        </option>
+                                                                    );
+                                                                })}
                                                             </select>
                                                         </div>
                                                     </div>
@@ -373,7 +488,6 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                 </div>
             </div>
 
-
             {/* Task Detail Modal */}
             {selectedTask && (
                 <TaskDetailModal 
@@ -395,6 +509,15 @@ export default function Kanban({ auth, tasks, statuses, priorities, employees, p
                 projects={projects}
                 defaultProjectId={null}
             />
+
+            {/* Task Revision Modal */}
+            {revisionModalTask && (
+                <TaskRevisionModal
+                    task={revisionModalTask}
+                    show={Boolean(revisionModalTask)}
+                    onClose={() => setRevisionModalTask(null)}
+                />
+            )}
         </AuthenticatedLayout>
     );
 }

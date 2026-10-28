@@ -105,14 +105,24 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                         Active
                                     </Link>
                                     <Link
+                                        href={route('tasks.index', { status: 'Done' })}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                            filters?.status === 'Done'
+                                                ? 'bg-white text-amber-700 shadow-sm'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                        }`}
+                                    >
+                                        Menunggu Approval
+                                    </Link>
+                                    <Link
                                         href={route('tasks.index', { filter: 'completed' })}
                                         className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                                            filters?.filter === 'completed'
+                                            filters?.filter === 'completed' || filters?.status === 'Approved'
                                                 ? 'bg-white text-emerald-700 shadow-sm'
                                                 : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                                         }`}
                                     >
-                                        Completed
+                                        Approved (Selesai)
                                     </Link>
                                     <Link
                                         href={route('tasks.index', { filter: 'overdue' })}
@@ -199,10 +209,11 @@ export default function Index({ auth, tasks, employees, statuses, priorities, fi
                                                             task.status === 'To Do' ? 'bg-slate-100 text-slate-700 border-slate-200' :
                                                             task.status === 'In Progress' ? 'bg-blue-100 text-blue-700 border-blue-200' :
                                                             task.status === 'Review' ? 'bg-amber-100 text-amber-700 border-amber-200' :
-                                                            task.status === 'Done' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
+                                                            task.status === 'Done' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                                                            task.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
                                                             'bg-slate-100 text-slate-800 border-slate-200'
                                                         }`}>
-                                                            {task.status}
+                                                            {task.status === 'Done' ? 'Done (Menunggu Approval)' : task.status}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-xs text-slate-500">

@@ -26,21 +26,21 @@ class PerformanceCalculationService
         $assignedTasks = $tasks->count();
 
         // A task is only considered completed for THIS employee if:
-        // 1) The task status is 'Done'
+        // 1) The task status is 'Approved' (approved by the task creator)
         // 2) The employee acknowledged the task (acknowledged_at is not null)
         $completedTasks = $tasks->filter(function ($task) {
             $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
             $isAcknowledged = ! empty($task->pivot?->acknowledged_at);
 
-            return $status === 'Done' && $isAcknowledged;
+            return $status === 'Approved' && $isAcknowledged;
         })->count();
 
-        // Completed on-time requires: Done + Acknowledged + completed on or before deadline
+        // Completed on-time requires: Approved + Acknowledged + completed on or before deadline
         $completedOnTimeTasks = $tasks->filter(function ($task) {
             $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
             $isAcknowledged = ! empty($task->pivot?->acknowledged_at);
 
-            if ($status !== 'Done' || ! $isAcknowledged) {
+            if ($status !== 'Approved' || ! $isAcknowledged) {
                 return false;
             }
 
@@ -52,12 +52,12 @@ class PerformanceCalculationService
         })->count();
 
         // Overdue tasks:
-        // If deadline has passed and task is either not done or not acknowledged by this employee
+        // If deadline has passed and task is either not approved or not acknowledged by this employee
         $overdueTasks = $tasks->filter(function ($task) {
             $status = $task->status instanceof \App\Enums\TaskStatus ? $task->status->value : (string) $task->status;
             $isAcknowledged = ! empty($task->pivot?->acknowledged_at);
 
-            if ($status === 'Done' && $isAcknowledged) {
+            if ($status === 'Approved' && $isAcknowledged) {
                 return false;
             }
 

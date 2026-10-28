@@ -56,10 +56,10 @@ class DashboardController extends Controller
         $activeTasksCount = 0;
         if ($employeeId && !$isAdmin) {
             $activeTasksCount = Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))
-                ->where('status', '!=', 'Done')
+                ->whereNotIn('status', ['Approved', 'Cancelled'])
                 ->count();
         } else {
-            $activeTasksCount = Task::where('status', '!=', 'Done')->count();
+            $activeTasksCount = Task::whereNotIn('status', ['Approved', 'Cancelled'])->count();
         }
 
         $masterKeyOnRequestCount = 0;
@@ -166,12 +166,13 @@ class DashboardController extends Controller
             'tasksSummary' => [
                 'todo' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'To Do')->count(),
                 'in_progress' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'In Progress')->count(),
-                'review' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'Review')->count(),
+                'review' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'Done')->count(),
                 'done' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'Done')->count(),
-                'overdue' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('deadline', '<', now())->where('status', '!=', 'Done')->count(),
+                'approved' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'Approved')->count(),
+                'overdue' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('deadline', '<', now())->whereNotIn('status', ['Approved', 'Cancelled'])->count(),
             ],
             'upcomingTasks' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))
-                ->where('status', '!=', 'Done')
+                ->whereNotIn('status', ['Approved', 'Cancelled'])
                 ->whereNotNull('deadline')
                 ->orderBy('deadline', 'asc')
                 ->limit(5)
@@ -206,7 +207,7 @@ class DashboardController extends Controller
 
         $projectProgress = Project::where('status', 'Active')
             ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
-                $query->where('status', 'Done');
+                $query->where('status', 'Approved');
             }])->get()->map(function ($project) {
                 $project->progress = $project->total_tasks > 0 ? round(($project->completed_tasks / $project->total_tasks) * 100) : 0;
                 return $project;
@@ -215,11 +216,12 @@ class DashboardController extends Controller
         return [
             'activeProjects' => Project::where('status', 'Active')->count(),
             'totalTasks' => Task::count(),
-            'completedTasks' => Task::where('status', 'Done')->count(),
-            'overdueTasks' => Task::where('deadline', '<', now())->where('status', '!=', 'Done')->count(),
-            'pendingReview' => Task::where('status', 'Review')->count(),
+            'completedTasks' => Task::where('status', 'Approved')->count(),
+            'overdueTasks' => Task::where('deadline', '<', now())->whereNotIn('status', ['Approved', 'Cancelled'])->count(),
+            'pendingReview' => Task::where('status', 'Done')->count(),
+            'pendingApproval' => Task::where('status', 'Done')->count(),
             'teamWorkload' => Employee::with('user')->withCount(['tasks as active_tasks_count' => function ($query) {
-                $query->where('status', '!=', 'Done');
+                $query->whereNotIn('status', ['Approved', 'Cancelled']);
             }])->get(),
             'teamAttendanceSummary' => $teamAttendanceSummary,
             'pendingLeaves' => $pendingLeaves,

@@ -89,8 +89,8 @@ export default function Dashboard({
     const canViewProjects = isAdmin || isSupervisor;
     const isHOD = user.roles?.some((r: any) => r.name === 'Head of Department');
     const isHousekeeping = user.employee?.department?.name === 'Housekeeping';
-    const canAccessHousekeeping = isAdmin || isHOD || isHousekeeping;
     const isItStaff = isSuperAdmin || isManager || (user.employee?.department?.name?.toLowerCase() === 'it');
+    const canAccessHousekeeping = isAdmin || isHOD || isHousekeeping || isItStaff;
     const isSecurityUser = user.roles?.some((r: any) => r.name === 'Security') || isAdmin;
 
     // Listen for Ctrl+K / Cmd+K shortcut

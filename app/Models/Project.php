@@ -49,7 +49,7 @@ class Project extends Model
                     if ($total > 0) {
                         $completed = $this->tasks->filter(function ($t) {
                             $status = $t->status instanceof TaskStatus ? $t->status->value : $t->status;
-                            return $status === TaskStatus::Done->value;
+                            return $status === TaskStatus::Approved->value;
                         })->count();
                         return (int) round(($completed / $total) * 100);
                     }
@@ -70,7 +70,7 @@ class Project extends Model
     public function recalculateProgress(): int
     {
         $total = $this->tasks()->count();
-        $completed = $this->tasks()->where('status', TaskStatus::Done->value)->count();
+        $completed = $this->tasks()->where('status', TaskStatus::Approved->value)->count();
         $progress = $total > 0 ? (int) round(($completed / $total) * 100) : 0;
 
         $updates = ['progress' => $progress];

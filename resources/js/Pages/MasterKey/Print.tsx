@@ -67,7 +67,7 @@ interface Props {
             name: string;
         };
     } | null;
-    spvHK?: {
+    itStaff?: {
         user?: {
             name: string;
         };
@@ -77,7 +77,7 @@ interface Props {
     } | null;
 }
 
-export default function MasterKeyPrint({ requestData, hodHK, spvHK }: Props) {
+export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
     const handlePrint = () => {
         window.print();
     };
@@ -345,21 +345,21 @@ export default function MasterKeyPrint({ requestData, hodHK, spvHK }: Props) {
                     <ol className="list-decimal list-inside text-[11px] text-gray-600 space-y-1 px-2 leading-relaxed">
                         <li>Master keys are high-priority security assets of Swiss-Belinn SKA Pekanbaru and may only be used during active operational duty.</li>
                         <li>Transferring, lending, or duplicating master keys to any unauthorized party without written approval is strictly prohibited.</li>
-                        <li>In the event of key loss, damage, or malfunction, the key holder must notify the HK Supervisor and Security Department within 24 hours.</li>
+                        <li>In the event of key loss, damage, or malfunction, the key holder must notify the HOD Housekeeping and IT Department within 24 hours.</li>
                         <li>Key authorization is valid for a maximum of 3 (three) months. The holder is required to submit a renewal request before the expiration date.</li>
                         <li>Violations of this SOP will be subject to disciplinary action according to hotel labor policies.</li>
                     </ol>
                 </div>
 
-                {/* Section 7: Lembar Pengesahan (4 Kolom Tanda Tangan) */}
+                {/* Section 7: Lembar Pengesahan (3 Kolom Tanda Tangan: Request by, Approve by, Create by) */}
                 <div className="border-t border-gray-300 pt-5">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 text-center mb-4">
                         VII. Authorization & Handover Sign-off
                     </h3>
-                    <div className="grid grid-cols-4 gap-3 text-center text-xs">
+                    <div className="grid grid-cols-3 gap-4 text-center text-xs">
                         {/* 1. Diajukan oleh (Request by) */}
-                        <div className="flex flex-col justify-between h-36 p-2 rounded-lg border border-gray-200">
-                            <span className="text-[10px] text-gray-500 uppercase font-semibold">Requested by</span>
+                        <div className="flex flex-col justify-between h-36 p-3 rounded-lg border border-gray-200">
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold">1. Request by</span>
                             <div className="my-auto">
                                 {requestData.requester_signature ? (
                                     <div className="h-16 flex items-center justify-center p-1">
@@ -373,31 +373,15 @@ export default function MasterKeyPrint({ requestData, hodHK, spvHK }: Props) {
                                     <div className="text-[9px] text-gray-400 italic mb-1">[Physical Signature]</div>
                                 )}
                             </div>
-                            <div className="border-t border-gray-300 pt-1">
+                            <div className="border-t border-gray-300 pt-1.5">
                                 <p className="font-bold text-gray-900 leading-tight truncate">{requestData.request_by || requestData.employee?.user?.name || 'Requester'}</p>
                                 <span className="text-[10px] text-gray-500">{requestData.employee?.position?.name || 'Staff Housekeeping'}</span>
                             </div>
                         </div>
 
-                        {/* 2. Mengetahui (Supervisor HK) */}
-                        <div className="flex flex-col justify-between h-36 p-2 rounded-lg border border-gray-200">
-                            <span className="text-[10px] text-gray-500 uppercase font-semibold">Acknowledged by (HK SPV)</span>
-                            <div className="my-auto">
-                                <div className="text-[9px] text-gray-400 italic mb-1">[Physical Signature]</div>
-                            </div>
-                            <div className="border-t border-gray-300 pt-1">
-                                <p className="font-bold text-gray-900 leading-tight truncate">
-                                    {spvHK?.user?.name || '(...................................)'}
-                                </p>
-                                <span className="text-[10px] text-gray-500">
-                                    {spvHK?.position?.name || 'Housekeeping Supervisor'}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* 3. Menyetujui (Executive Housekeeper) */}
-                        <div className="flex flex-col justify-between h-36 p-2 rounded-lg border border-gray-200">
-                            <span className="text-[10px] text-gray-500 uppercase font-semibold">Approved by (HK HOD)</span>
+                        {/* 2. Menyetujui (Approve by: HOD Housekeeping) */}
+                        <div className="flex flex-col justify-between h-36 p-3 rounded-lg border border-gray-200">
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold">2. Approve by (HOD Housekeeping)</span>
                             <div className="my-auto">
                                 {requestData.approver_signature ? (
                                     <div className="h-16 flex flex-col items-center justify-center p-1">
@@ -411,17 +395,17 @@ export default function MasterKeyPrint({ requestData, hodHK, spvHK }: Props) {
                                         </div>
                                     </div>
                                 ) : requestData.status === 'Done' ? (
-                                    <div className="inline-block px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded border border-emerald-200">
-                                        STATUS: DONE
+                                    <div className="inline-block px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded border border-emerald-200">
+                                        APPROVED
                                         <div className="text-[8px] font-mono text-gray-400">{formatDate(requestData.done_at)}</div>
                                     </div>
                                 ) : (
                                     <div className="text-[9px] text-gray-400 italic mb-1">[Physical Signature]</div>
                                 )}
                             </div>
-                            <div className="border-t border-gray-300 pt-1">
+                            <div className="border-t border-gray-300 pt-1.5">
                                 <p className="font-bold text-gray-900 leading-tight truncate">
-                                    {hodHK?.user?.name || (requestData.status === 'Done' && requestData.done_by_username && !requestData.done_by_username.toLowerCase().includes('admin') && requestData.done_by_username !== 'Dewi Kartika' ? requestData.done_by_username : '(...................................)')}
+                                    {hodHK?.user?.name || 'Dewi Kartika'}
                                 </p>
                                 <span className="text-[10px] text-gray-500">
                                     {hodHK?.position?.name || 'Executive Housekeeper'}
@@ -429,15 +413,30 @@ export default function MasterKeyPrint({ requestData, hodHK, spvHK }: Props) {
                             </div>
                         </div>
 
-                        {/* 4. Security / Serah Terima */}
-                        <div className="flex flex-col justify-between h-36 p-2 rounded-lg border border-gray-200">
-                            <span className="text-[10px] text-gray-500 uppercase font-semibold">Physical Verification (Security)</span>
+                        {/* 3. Dibuat oleh (Create by: Department IT) */}
+                        <div className="flex flex-col justify-between h-36 p-3 rounded-lg border border-gray-200">
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold">3. Create by (Department IT)</span>
                             <div className="my-auto">
-                                <div className="text-[9px] text-gray-400 italic mb-1">[Initial & Date Received]</div>
+                                {requestData.status === 'Done' ? (
+                                    <div className="flex flex-col items-center justify-center p-1">
+                                        <div className="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded border border-blue-200">
+                                            KEY CREATED & ENCODED
+                                            <div className="text-[8px] font-mono text-gray-500">{formatDate(requestData.done_at)}</div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-[9px] text-gray-400 italic mb-1">[Key Programming & Issuance]</div>
+                                )}
                             </div>
-                            <div className="border-t border-gray-300 pt-1">
-                                <p className="font-bold text-gray-900 leading-tight truncate">(...................................)</p>
-                                <span className="text-[10px] text-gray-500">Duty Security / Loss Prev.</span>
+                            <div className="border-t border-gray-300 pt-1.5">
+                                <p className="font-bold text-gray-900 leading-tight truncate">
+                                    {requestData.status === 'Done' && requestData.done_by_username
+                                        ? requestData.done_by_username
+                                        : (itStaff?.user?.name || '(...................................)')}
+                                </p>
+                                <span className="text-[10px] text-gray-500">
+                                    {itStaff?.position?.name || 'IT Support Staff / Department IT'}
+                                </span>
                             </div>
                         </div>
                     </div>

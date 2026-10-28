@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import AssigneeSelect from '@/Components/AssigneeSelect';
+import TaskRevisionModal from '@/Components/TaskRevisionModal';
 
 interface TaskDetailModalProps {
     task: any;
@@ -39,6 +40,7 @@ export default function TaskDetailModal({
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [editError, setEditError] = useState('');
+    const [showRevisionModal, setShowRevisionModal] = useState(false);
 
     const [editData, setEditData] = useState({
         title: task?.title || '',
@@ -431,9 +433,29 @@ export default function TaskDetailModal({
         currentUser?.roles?.some((r: any) => ['Super Admin'].includes(r.name))
     );
 
+    const canApproveTask = Boolean(
+        (task?.created_by && task.created_by === currentUser?.id) ||
+        (task?.project && task.project.created_by === currentUser?.id) ||
+        (project && project.created_by === currentUser?.id) ||
+        (project?.owner_id && currentUser?.employee?.id === project.owner_id) ||
+        (task?.project?.owner_id && currentUser?.employee?.id === task.project.owner_id) ||
+        currentUser?.roles?.some((r: any) => ['Super Admin', 'HRD / Admin', 'General Manager'].includes(r.name))
+    );
+
+    const handleQuickApprove = () => {
+        router.put(route('tasks.update', task.id), {
+            status: 'Approved',
+        }, {
+            preserveScroll: true,
+            onError: (errs) => {
+                alert(Object.values(errs)[0] as string || 'Gagal menyetujui task.');
+            }
+        });
+    };
+
     const availableStatuses = statuses.length > 0
         ? statuses.map(s => typeof s === 'string' ? s : s.value || s.name)
-        : ['To Do', 'In Progress', 'Review', 'Done'];
+        : ['To Do', 'In Progress', 'Done', 'Approved'];
 
     const availablePriorities = priorities.length > 0
         ? priorities.map(p => typeof p === 'string' ? p : p.value || p.name)
@@ -454,7 +476,8 @@ export default function TaskDetailModal({
             case 'To Do': return 'bg-slate-100 text-slate-700 border-slate-200';
             case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200';
             case 'Review': return 'bg-amber-100 text-amber-700 border-amber-200';
-            case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            case 'Done': return 'bg-amber-100 text-amber-800 border-amber-200';
+            case 'Approved': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
             default: return 'bg-gray-100 text-gray-700 border-gray-200';
         }
     };
@@ -638,9 +661,15 @@ export default function TaskDetailModal({
                                             onChange={(e) => setEditData({ ...editData, status: e.target.value })}
                                             className="w-full rounded-xl border-slate-300 shadow-xs focus:border-[#E31B23] focus:ring-[#E31B23] text-sm"
                                         >
-                                            {availableStatuses.map((s) => (
-                                                <option key={s} value={s}>{s}</option>
-                                            ))}
+                                            {availableStatuses.map((s) => {
+                                                const isApproved = s === 'Approved';
+                                                const isDisabled = isApproved && !canApproveTask;
+                                                return (
+                                                    <option key={s} value={s} disabled={isDisabled}>
+                                                        {s} {isDisabled ? '(Pemberi Task)' : ''}
+                                                    </option>
+                                                );
+                                            })}
                                         </select>
                                     </div>
 
@@ -774,6 +803,86 @@ export default function TaskDetailModal({
                                 {/* Details Tab */}
                                 {activeTab === 'details' && (
                                     <div className="space-y-6">
+                                        {/* Done / Waiting Approval Card */}
+                                        {task.status === 'Done' && (
+                                            <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 shadow-xs">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 text-amber-600 mt-0.5">
+                                                            <span className="w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <h4 className="font-bold text-sm text-amber-900">
+                                                                    Hasil Kerja Menunggu Persetujuan (Approval)
+                                                                </h4>
+                                                                {canApproveTask && (
+                                                                    <span className="text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">
+                                                                        Anda Pemberi Task
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                                                                {canApproveTask
+                                                                    ? 'Task telah diselesaikan oleh tim. Silakan periksa apakah hasil kerja sudah sesuai dengan ekspektasi Anda. Jika sesuai, silakan Approve. Jika belum sesuai, Anda dapat mengembalikannya ke In Progress (Revisi) dan menyesuaikan deadline bila diperlukan.'
+                                                                    : 'Task telah ditandai selesai oleh assignee dan sedang menunggu peninjauan serta persetujuan dari pemberi task.'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    {canApproveTask && (
+                                                        <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-amber-200">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowRevisionModal(true)}
+                                                                className="px-3.5 py-2 bg-white hover:bg-amber-100 text-amber-800 text-xs font-bold rounded-xl border border-amber-300 shadow-xs transition-colors"
+                                                            >
+                                                                ↺ Revisi & Ubah Deadline
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={handleQuickApprove}
+                                                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+                                                            >
+                                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                                                                Approve Task
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Approved Card */}
+                                        {task.status === 'Approved' && (
+                                            <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 shadow-xs flex items-center justify-between gap-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-700">
+                                                        <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-bold text-sm text-emerald-900">
+                                                            Task Disetujui (Approved)
+                                                        </h4>
+                                                        <p className="text-xs text-emerald-800 mt-0.5">
+                                                            Hasil kerja telah diverifikasi dan sesuai dengan ekspektasi pemberi task. Task ini dihitung 100% selesai.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {canApproveTask && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowRevisionModal(true)}
+                                                        className="px-3 py-1.5 bg-white hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-xl border border-emerald-300 shadow-xs transition-colors shrink-0"
+                                                        title="Kembalikan ke In Progress jika membutuhkan penyesuaian lanjutan"
+                                                    >
+                                                        ↺ Buka Revisi
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+
                                         {/* Description Card */}
                                         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                                             <h4 className="font-semibold text-gray-900 text-sm mb-2">Description</h4>
@@ -1355,6 +1464,15 @@ export default function TaskDetailModal({
                     </div>
                 </div>
             </div>
+
+            {/* Task Revision Modal */}
+            {showRevisionModal && (
+                <TaskRevisionModal
+                    task={task}
+                    show={showRevisionModal}
+                    onClose={() => setShowRevisionModal(false)}
+                />
+            )}
         </div>
     );
 }

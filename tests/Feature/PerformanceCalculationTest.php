@@ -61,25 +61,25 @@ class PerformanceCalculationTest extends TestCase
 
         // Create 4 tasks assigned to this employee
 
-        // Task 1: Done, On time, Low Priority (Weight: 1)
+        // Task 1: Approved, On time, Low Priority (Weight: 1)
         $task1 = Task::create([
             'title' => 'Task 1',
             'project_id' => $project->id,
             'created_by' => $user->id,
             'priority' => 'Low',
-            'status' => 'Done',
+            'status' => 'Approved',
             'deadline' => Carbon::now()->endOfMonth(),
             'updated_at' => Carbon::now()->subDays(5),
         ]);
         $task1->assignees()->attach($employee->id, ['acknowledged_at' => Carbon::now()->subDays(6)]);
 
-        // Task 2: Done, Late, Normal Priority (Weight: 2)
+        // Task 2: Approved, Late, Normal Priority (Weight: 2)
         $task2 = Task::create([
             'title' => 'Task 2',
             'project_id' => $project->id,
             'created_by' => $user->id,
             'priority' => 'Normal',
-            'status' => 'Done',
+            'status' => 'Approved',
             'deadline' => Carbon::now()->subDays(10), // Passed deadline
             'updated_at' => Carbon::now()->subDays(2), // Finished after deadline
         ]);
@@ -193,13 +193,13 @@ class PerformanceCalculationTest extends TestCase
             'status' => 'Active',
         ]);
 
-        // A shared task marked Done
+        // A shared task marked Approved
         $task = Task::create([
             'title' => 'Shared Collaborative Task',
             'project_id' => $project->id,
             'created_by' => $user->id,
             'priority' => 'Normal',
-            'status' => 'Done',
+            'status' => 'Approved',
             'deadline' => Carbon::now()->endOfMonth(),
             'updated_at' => Carbon::now()->subDay(),
         ]);

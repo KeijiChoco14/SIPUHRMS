@@ -129,6 +129,7 @@ interface Props {
         expired: number;
     };
     canApprove: boolean;
+    canCreateKey: boolean;
     canManageAll: boolean;
     currentEmployee?: Employee;
     currentUser: {
@@ -148,6 +149,7 @@ export default function MasterKeyIndex({
     filters,
     stats,
     canApprove,
+    canCreateKey,
     canManageAll,
     currentEmployee,
     currentUser,
@@ -879,12 +881,12 @@ export default function MasterKeyIndex({
                                             {/* Aksi */}
                                             <td className="py-4 px-4 align-top">
                                                 <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                                                    {/* Mark as Done button (for approvers / supervisor if On Request) */}
-                                                    {item.status === 'On Request' && canApprove && (
+                                                    {/* Create & Issue Key button (for IT Department or Approver if On Request) */}
+                                                    {item.status === 'On Request' && (canCreateKey || canApprove) && (
                                                         <button
                                                             onClick={() => openDoneModal(item)}
                                                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
-                                                            title="Mark as Done"
+                                                            title="Create & Issue Key (Department IT)"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -1300,10 +1302,10 @@ export default function MasterKeyIndex({
                         <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
                             <div>
                                 <h2 className="text-base font-bold text-gray-900">
-                                    Mark Request as Done
+                                    Create & Issue Master Key (Department IT)
                                 </h2>
                                 <p className="text-xs text-gray-500 mt-0.5">
-                                    Verify handover & activation of housekeeping master key access
+                                    Master key programming, RFID encoding & key issuance by Department IT
                                 </p>
                             </div>
                             <button
@@ -1343,35 +1345,35 @@ export default function MasterKeyIndex({
                                 </div>
                             </div>
 
-                            {/* Catatan Selesai */}
+                            {/* Catatan Pembuatan & Selesai */}
                             <div>
-                                <InputLabel htmlFor="done_notes" value="Handover / Completion Notes (Done Notes)" />
+                                <InputLabel htmlFor="done_notes" value="Key Creation & Programming Notes (Done Notes)" />
                                 <textarea
                                     id="done_notes"
                                     rows={3}
                                     value={doneData.done_notes}
                                     onChange={(e) => setDoneData('done_notes', e.target.value)}
-                                    placeholder="E.g., Master key handed over in good condition and RFID verified active."
+                                    placeholder="E.g., Master RFID card encoded for designated floor range with 3-month validity. Key verified active and handed over."
                                     className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 leading-relaxed"
                                 />
                             </div>
 
-                            {/* Digital Signature Approver / Petugas Done */}
+                            {/* Digital Signature IT Officer / Petugas Pembuat */}
                             <div>
                                 <SignaturePad
-                                    title="Officer / Approver Signature (E-Sign)"
+                                    title="IT Officer Signature / Sign-off (Create by IT)"
                                     value={doneData.approver_signature}
                                     onChange={(sig) => setDoneData('approver_signature', sig || '')}
                                 />
                             </div>
 
                             {/* Info Logging Point D */}
-                            <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs space-y-1">
-                                <div className="flex justify-between items-center text-emerald-900">
-                                    <span className="font-semibold">Completing Officer:</span>
-                                    <span className="font-mono font-bold">{currentUser.name}</span>
+                            <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs space-y-1">
+                                <div className="flex justify-between items-center text-blue-900">
+                                    <span className="font-semibold">Created & Issued by:</span>
+                                    <span className="font-mono font-bold">{currentUser.name} (Department IT)</span>
                                 </div>
-                                <div className="flex justify-between items-center text-emerald-800 text-[11px]">
+                                <div className="flex justify-between items-center text-blue-800 text-[11px]">
                                     <span>Completion Time (Done At):</span>
                                     <span>{new Date().toLocaleString('en-US')} (Automatically recorded in log)</span>
                                 </div>
@@ -1387,7 +1389,7 @@ export default function MasterKeyIndex({
                                 disabled={doneProcessing}
                                 className="bg-emerald-600 hover:bg-emerald-700"
                             >
-                                {doneProcessing ? 'Saving...' : 'Confirm & Mark as Done'}
+                                {doneProcessing ? 'Saving...' : 'Confirm Key Creation & Issue (Done)'}
                             </PrimaryButton>
                         </div>
                     </form>
@@ -1457,56 +1459,78 @@ export default function MasterKeyIndex({
                                 </p>
                             </div>
 
-                            {/* Section 3: Visual Timeline (Point D: Username, Tanggal Request, Kapan Done) */}
+                            {/* Section 3: Visual Timeline (3 Stages: Request by, Approve by, Create by) */}
                             <div className="border border-gray-200 rounded-xl p-4 bg-white">
                                 <span className="text-xs font-bold uppercase tracking-wider text-gray-500 block mb-3">
-                                    Activity Log & System Trail
+                                    Activity Log & System Trail (3 Stages: Request, Approve, Create)
                                 </span>
 
                                 <div className="relative pl-6 space-y-5 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200">
-                                    {/* Step 1: Requested */}
+                                    {/* Step 1: Request by (Staff Housekeeping) */}
                                     <div className="relative">
                                         <div className="absolute -left-6 top-0.5 w-4 h-4 rounded-full bg-[#E31B23] text-white flex items-center justify-center text-[9px] font-bold">
                                             1
                                         </div>
                                         <div className="text-xs font-bold text-gray-900">
-                                            Request Submitted ({activeItem.request_type_label})
+                                            1. Request by (Staff Housekeeping)
                                         </div>
                                         <div className="text-[11px] text-gray-600 mt-0.5">
-                                            Requester Username: <span className="font-mono font-bold text-gray-900">{activeItem.requested_by_username || activeItem.requested_by?.name || '-'}</span>
+                                            Requester: <span className="font-semibold text-gray-900">{activeItem.request_by || activeItem.employee?.user?.name || '-'}</span> (Username: <span className="font-mono text-gray-700">{activeItem.requested_by_username || activeItem.requested_by?.name || '-'}</span>)
                                         </div>
                                         <div className="text-[10px] text-gray-400">
-                                            Time: {formatDateTime(activeItem.requested_at || activeItem.created_at)}
+                                            Submitted At: {formatDateTime(activeItem.requested_at || activeItem.created_at)}
                                         </div>
                                     </div>
 
-                                    {/* Step 2: Done */}
+                                    {/* Step 2: Approve by (HOD Housekeeping) */}
                                     <div className="relative">
                                         <div className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                                            activeItem.status === 'Done' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
+                                            activeItem.status === 'Done' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700'
                                         }`}>
                                             2
                                         </div>
                                         <div className="text-xs font-bold text-gray-900">
-                                            {activeItem.status === 'Done' ? 'Request Completed (Done)' : 'Pending Completion (On Request)'}
+                                            2. Approve by (HOD Housekeeping)
+                                        </div>
+                                        <div className="text-[11px] text-gray-600 mt-0.5">
+                                            Approval Authority: <span className="font-semibold text-gray-900">Executive Housekeeper (Dewi Kartika)</span>
+                                        </div>
+                                        <div className="text-[10px] text-gray-500">
+                                            Status: {activeItem.status === 'Done' ? (
+                                                <span className="font-semibold text-emerald-700">Approved by HOD Housekeeping</span>
+                                            ) : (
+                                                <span className="font-semibold text-amber-600">Pending Review & Approval</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Step 3: Create by (Department IT) */}
+                                    <div className="relative">
+                                        <div className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                                            activeItem.status === 'Done' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
+                                        }`}>
+                                            3
+                                        </div>
+                                        <div className="text-xs font-bold text-gray-900">
+                                            3. Create by (Department IT)
                                         </div>
                                         {activeItem.status === 'Done' ? (
                                             <>
                                                 <div className="text-[11px] text-gray-600 mt-0.5">
-                                                    Officer Username: <span className="font-mono font-bold text-emerald-700">{activeItem.done_by_username || activeItem.done_by?.name || '-'}</span>
+                                                    Created & Issued by: <span className="font-mono font-bold text-blue-700">{activeItem.done_by_username || activeItem.done_by?.name || 'Department IT'}</span> (Department IT)
                                                 </div>
                                                 <div className="text-[10px] text-gray-400">
-                                                    Completion Time (Done At): {formatDateTime(activeItem.done_at)}
+                                                    Completed At (Done At): {formatDateTime(activeItem.done_at)}
                                                 </div>
                                                 {activeItem.done_notes && (
-                                                    <div className="text-[11px] text-gray-700 mt-1.5 p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                                                    <div className="text-[11px] text-gray-700 mt-1.5 p-2 bg-blue-50 rounded-lg border border-blue-100">
                                                         Notes: {activeItem.done_notes}
                                                     </div>
                                                 )}
                                             </>
                                         ) : (
-                                            <div className="text-[11px] text-amber-700 italic mt-0.5">
-                                                Current status is still On Request. Awaiting physical verification and key handover.
+                                            <div className="text-[11px] text-gray-500 italic mt-0.5">
+                                                Awaiting RFID programming and physical key creation by Department IT.
                                             </div>
                                         )}
                                     </div>
@@ -1537,11 +1561,11 @@ export default function MasterKeyIndex({
                                 </div>
                             )}
 
-                            {/* Signatures Preview */}
-                            <div className="grid grid-cols-2 gap-3 text-xs">
+                            {/* Signatures Preview: 3 Sign-offs (Request by, Approve by, Create by) */}
+                            <div className="grid grid-cols-3 gap-3 text-xs">
                                 <div className="p-3 border border-gray-200 rounded-xl text-center">
                                     <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
-                                        Requester Signature
+                                        1. Request by
                                     </span>
                                     {activeItem.requester_signature ? (
                                         <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
@@ -1554,27 +1578,51 @@ export default function MasterKeyIndex({
                                     ) : (
                                         <span className="text-gray-400 italic text-[11px] block py-4">[No E-Signature]</span>
                                     )}
+                                    <div className="mt-1 text-[10px] text-gray-600 truncate font-semibold">
+                                        {activeItem.request_by || activeItem.employee?.user?.name || 'Requester'}
+                                    </div>
                                 </div>
 
                                 <div className="p-3 border border-gray-200 rounded-xl text-center">
                                     <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
-                                        Approver Signature
+                                        2. Approve by (HOD HK)
+                                    </span>
+                                    {activeItem.status === 'Done' ? (
+                                        <div className="h-16 flex flex-col items-center justify-center p-1 bg-emerald-50 rounded border border-emerald-100">
+                                            <span className="text-emerald-700 font-bold text-[11px]">APPROVED</span>
+                                            <span className="text-[9px] text-emerald-600">Executive Housekeeper</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-gray-400 italic text-[11px] block py-4">[Pending Approval]</span>
+                                    )}
+                                    <div className="mt-1 text-[10px] text-gray-600 truncate font-semibold">
+                                        Dewi Kartika (HOD HK)
+                                    </div>
+                                </div>
+
+                                <div className="p-3 border border-gray-200 rounded-xl text-center">
+                                    <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
+                                        3. Create by (Dept IT)
                                     </span>
                                     {activeItem.approver_signature ? (
                                         <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
                                             <img
                                                 src={activeItem.approver_signature}
-                                                alt="Approver Signature"
+                                                alt="IT Sign-off"
                                                 className="max-h-full max-w-full object-contain"
                                             />
                                         </div>
                                     ) : activeItem.status === 'Done' ? (
-                                        <div className="py-4 text-emerald-700 font-bold text-[11px]">
-                                            [System Approved: Done]
+                                        <div className="h-16 flex flex-col items-center justify-center p-1 bg-blue-50 rounded border border-blue-100">
+                                            <span className="text-blue-700 font-bold text-[11px]">CREATED & ISSUED</span>
+                                            <span className="text-[9px] text-blue-600">Department IT</span>
                                         </div>
                                     ) : (
-                                        <span className="text-gray-400 italic text-[11px] block py-4">[Pending Completion]</span>
+                                        <span className="text-gray-400 italic text-[11px] block py-4">[Pending IT Creation]</span>
                                     )}
+                                    <div className="mt-1 text-[10px] text-gray-600 truncate font-semibold">
+                                        {activeItem.done_by_username || (activeItem.status === 'Done' ? 'Department IT' : '-')}
+                                    </div>
                                 </div>
                             </div>
                         </div>

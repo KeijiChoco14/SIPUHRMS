@@ -28,10 +28,60 @@ class TaskObserver
             $newStatusVal = $task->status instanceof TaskStatus ? $task->status->value : (string) $task->status;
 
             if ($oldStatusVal !== $newStatusVal) {
+                $userName = Auth::user()?->name ?? 'User';
+                $action = 'status_changed';
+                $description = "Status changed from '{$oldStatusVal}' to '{$newStatusVal}'";
+
+                if ($newStatusVal === TaskStatus::Approved->value) {
+                    $action = 'task_approved';
+                    $description = "Task disetujui (Approved) oleh {$userName}";
+
+                    // Notify all assignees
+                    $assigneeUsers = $task->assignees()->with('user')->get()->pluck('user')->filter();
+                    if ($assigneeUsers->isNotEmpty()) {
+                        \Illuminate\Support\Facades\Notification::send(
+                            $assigneeUsers,
+                            new \App\Notifications\TaskStatusNotification(
+                                $task,
+                                "Task '{$task->title}' telah disetujui (Approved) oleh {$userName}.",
+                                'approved'
+                            )
+                        );
+                    }
+                } elseif ($oldStatusVal === TaskStatus::Done->value && $newStatusVal === TaskStatus::InProgress->value) {
+                    $action = 'task_returned_for_revision';
+                    $description = "Task dikembalikan ke In Progress untuk revisi oleh {$userName}";
+
+                    // Notify all assignees
+                    $assigneeUsers = $task->assignees()->with('user')->get()->pluck('user')->filter();
+                    if ($assigneeUsers->isNotEmpty()) {
+                        \Illuminate\Support\Facades\Notification::send(
+                            $assigneeUsers,
+                            new \App\Notifications\TaskStatusNotification(
+                                $task,
+                                "Task '{$task->title}' belum disetujui dan dikembalikan ke In Progress untuk revisi.",
+                                'returned_for_revision'
+                            )
+                        );
+                    }
+                } elseif ($newStatusVal === TaskStatus::Done->value) {
+                    $action = 'task_marked_done';
+                    $description = "Task ditandai selesai oleh {$userName} dan menunggu persetujuan (approval)";
+
+                    // Notify task creator
+                    if ($task->creator && $task->created_by !== Auth::id()) {
+                        $task->creator->notify(new \App\Notifications\TaskStatusNotification(
+                            $task,
+                            "Task '{$task->title}' telah diselesaikan oleh tim dan menunggu persetujuan Anda.",
+                            'submitted_for_approval'
+                        ));
+                    }
+                }
+
                 $this->logActivity(
                     $task,
-                    'status_changed',
-                    "Status changed from '{$oldStatusVal}' to '{$newStatusVal}'",
+                    $action,
+                    $description,
                     ['status' => $oldStatusVal],
                     ['status' => $newStatusVal]
                 );
