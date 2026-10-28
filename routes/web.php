@@ -110,10 +110,13 @@ Route::middleware(['auth', 'approved'])->group(function () {
     });
 
     // Shift & Schedule Routes
-    Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
+    Route::middleware(['role:Super Admin|HRD / Admin|General Manager|Head of Department|Supervisor'])->group(function () {
         Route::resource('/shifts', ShiftController::class)->except(['create', 'show', 'edit']);
         Route::get('/schedules', [WorkScheduleController::class, 'index'])->name('schedules.index');
         Route::post('/schedules', [WorkScheduleController::class, 'store'])->name('schedules.store');
+        Route::post('/schedules/bulk', [WorkScheduleController::class, 'bulkStore'])->name('schedules.bulk');
+        Route::post('/schedules/copy-previous-week', [WorkScheduleController::class, 'copyPreviousWeek'])->name('schedules.copyPreviousWeek');
+        Route::post('/schedules/clear-week', [WorkScheduleController::class, 'clearWeek'])->name('schedules.clearWeek');
         Route::delete('/schedules/{schedule}', [WorkScheduleController::class, 'destroy'])->name('schedules.destroy');
     });
 

@@ -198,19 +198,82 @@ class AttendanceController extends Controller
 
         $attendances = $query->orderBy('date', 'desc')->orderBy('clock_in', 'desc')->get();
 
+        // Calculate worked duration for records with both clock-in and clock-out
+        $attendances->each(function ($att) {
+            if ($att->clock_in && $att->clock_out) {
+                try {
+                    $dateStr = $att->date instanceof Carbon ? $att->date->format('Y-m-d') : (string) $att->date;
+                    $inTime = Carbon::parse("{$dateStr} {$att->clock_in}");
+                    $outDateStr = ($att->shift?->is_overnight && $att->clock_out < $att->clock_in)
+                        ? Carbon::parse($dateStr)->addDay()->format('Y-m-d')
+                        : $dateStr;
+                    $outTime = Carbon::parse("{$outDateStr} {$att->clock_out}");
+                    $diffMinutes = max(0, $inTime->diffInMinutes($outTime));
+                    $hours = floor($diffMinutes / 60);
+                    $mins = $diffMinutes % 60;
+                    $att->worked_duration = "{$hours}h {$mins}m";
+                } catch (\Throwable) {
+                    $att->worked_duration = null;
+                }
+            } else {
+                $att->worked_duration = null;
+            }
+        });
+
         // Aggregation metrics for the selected date range
         $totalScheduled = WorkSchedule::whereDate('date', '>=', $startDate)->whereDate('date', '<=', $endDate)->count();
         $totalClockedIn = Attendance::whereDate('date', '>=', $startDate)->whereDate('date', '<=', $endDate)->whereNotNull('clock_in')->count();
+        $totalOnTime = Attendance::whereDate('date', '>=', $startDate)->whereDate('date', '<=', $endDate)->whereNotNull('clock_in')->where('is_late', false)->count();
         $totalLate = Attendance::whereDate('date', '>=', $startDate)->whereDate('date', '<=', $endDate)->where('is_late', true)->count();
         $totalUnclosed = Attendance::whereDate('date', '>=', $startDate)->whereDate('date', '<=', $endDate)->whereNotNull('clock_in')->whereNull('clock_out')->count();
 
+        // Scheduled employees without clock-in
+        $scheduledEmpIds = WorkSchedule::whereDate('date', '>=', $startDate)->whereDate('date', '<=', $endDate)->pluck('employee_id')->unique();
+        $clockedInEmpIds = Attendance::whereDate('date', '>=', $startDate)->whereDate('date', '<=', $endDate)->whereNotNull('clock_in')->pluck('employee_id')->unique();
+        $totalMissingIn = $scheduledEmpIds->diff($clockedInEmpIds)->count();
+
+        // Records requiring HR attention
+        $totalNeedsReview = Attendance::whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate)
+            ->where(function ($q) {
+                $q->where('status', 'Incomplete')
+                  ->orWhere('status', 'Needs Review')
+                  ->orWhereNotNull('corrected_at');
+            })->count();
+
+        // Recent audit events for live operational feed
+        $recentEvents = AttendanceEvent::with(['employee.user', 'shift'])
+            ->latest('created_at')
+            ->take(15)
+            ->get();
+
+        // Department-wise breakdown for the date range
+        $departmentStats = Department::withCount([
+            'employees as total_employees',
+            'employees as present_employees' => function ($q) use ($startDate, $endDate) {
+                $q->whereHas('attendances', function ($attQ) use ($startDate, $endDate) {
+                    $attQ->whereDate('date', '>=', $startDate)
+                         ->whereDate('date', '<=', $endDate)
+                         ->whereNotNull('clock_in');
+                });
+            },
+            'employees as late_employees' => function ($q) use ($startDate, $endDate) {
+                $q->whereHas('attendances', function ($attQ) use ($startDate, $endDate) {
+                    $attQ->whereDate('date', '>=', $startDate)
+                         ->whereDate('date', '<=', $endDate)
+                         ->where('is_late', true);
+                });
+            },
+        ])->get();
+
         $departments = Department::select('id', 'name')->orderBy('name')->get();
-        $shifts = Shift::select('id', 'name', 'code', 'start_time', 'end_time', 'color')->get();
-        $employees = Employee::with('user:id,name')->where('employment_status', 'Active')->get(['id', 'user_id', 'employee_number']);
+        $shifts = Shift::select('id', 'name', 'code', 'start_time', 'end_time', 'color', 'is_overnight')->get();
+        $employees = Employee::with(['user:id,name', 'department:id,name'])->where('employment_status', 'Active')->get(['id', 'user_id', 'department_id', 'employee_number', 'designation']);
         $location = AttendanceLocation::getDefaultLocation();
 
         return Inertia::render('Attendance/Index', [
             'attendances' => $attendances,
+            'activeTab' => $request->query('tab', 'data'),
             'selectedDate' => $startDate,
             'startDate' => $startDate,
             'endDate' => $endDate,
@@ -220,13 +283,19 @@ class AttendanceController extends Controller
                 'shift_id' => $request->query('shift_id'),
                 'status' => $request->query('status'),
                 'search' => $request->query('search'),
+                'tab' => $request->query('tab', 'data'),
             ],
             'summary' => [
                 'total_scheduled' => $totalScheduled,
                 'total_clocked_in' => $totalClockedIn,
+                'total_on_time' => $totalOnTime,
                 'total_late' => $totalLate,
                 'total_unclosed' => $totalUnclosed,
+                'total_missing_in' => $totalMissingIn,
+                'total_needs_review' => $totalNeedsReview,
             ],
+            'recentEvents' => $recentEvents,
+            'departmentStats' => $departmentStats,
             'departments' => $departments,
             'shifts' => $shifts,
             'employees' => $employees,

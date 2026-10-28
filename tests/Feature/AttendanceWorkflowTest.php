@@ -425,4 +425,24 @@ class AttendanceWorkflowTest extends TestCase
         // Ensure formula prefix '=' is sanitized with a leading single quote "'"
         $this->assertStringContainsString("'=SUM(A1:A10)", $content);
     }
+
+    public function test_hr_can_view_attendance_index_and_all_tabs(): void
+    {
+        $tabs = ['overview', 'data', 'reports', 'settings'];
+
+        foreach ($tabs as $tab) {
+            $response = $this->actingAs($this->hrUser)->get(route('attendance.index', ['tab' => $tab]));
+            $response->assertOk();
+            $response->assertInertia(fn ($page) => $page
+                ->component('Attendance/Index')
+                ->has('attendances')
+                ->has('summary')
+                ->has('departments')
+                ->has('shifts')
+                ->has('location')
+                ->has('departmentStats')
+                ->has('recentEvents')
+            );
+        }
+    }
 }

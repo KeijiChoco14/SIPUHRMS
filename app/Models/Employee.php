@@ -132,5 +132,15 @@ class Employee extends Model
     {
         return $this->hasMany(RoomBorrowingTransaction::class, 'borrower_employee_id');
     }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function workSchedules(): HasMany
+    {
+        return $this->hasMany(WorkSchedule::class);
+    }
 }
 
