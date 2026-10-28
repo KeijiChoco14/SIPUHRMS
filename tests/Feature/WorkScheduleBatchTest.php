@@ -47,6 +47,11 @@ class WorkScheduleBatchTest extends TestCase
         $this->hrUser->assignRole('HRD / Admin');
 
         // HOD User for Dept A
+        $posHOD = \App\Models\Position::create(['name' => 'Executive Housekeeper', 'department_id' => $this->departmentA->id]);
+        $posA1 = \App\Models\Position::create(['name' => 'Room Attendant', 'department_id' => $this->departmentA->id]);
+        $posA2 = \App\Models\Position::create(['name' => 'Public Area Attendant', 'department_id' => $this->departmentA->id]);
+        $posB1 = \App\Models\Position::create(['name' => 'Waiter', 'department_id' => $this->departmentB->id]);
+
         $this->hodUser = User::factory()->create([
             'status' => 'active',
             'approved_at' => now(),
@@ -55,8 +60,8 @@ class WorkScheduleBatchTest extends TestCase
         $hodEmp = Employee::create([
             'user_id' => $this->hodUser->id,
             'department_id' => $this->departmentA->id,
+            'position_id' => $posHOD->id,
             'employee_number' => 'EMP-HOD-HK',
-            'designation' => 'Executive Housekeeper',
             'employment_status' => 'Active',
             'join_date' => '2023-01-01',
         ]);
@@ -66,8 +71,8 @@ class WorkScheduleBatchTest extends TestCase
         $this->employeeA1 = Employee::create([
             'user_id' => $userA1->id,
             'department_id' => $this->departmentA->id,
+            'position_id' => $posA1->id,
             'employee_number' => 'EMP-A1',
-            'designation' => 'Room Attendant',
             'employment_status' => 'Active',
             'join_date' => '2023-01-01',
         ]);
@@ -76,8 +81,8 @@ class WorkScheduleBatchTest extends TestCase
         $this->employeeA2 = Employee::create([
             'user_id' => $userA2->id,
             'department_id' => $this->departmentA->id,
+            'position_id' => $posA2->id,
             'employee_number' => 'EMP-A2',
-            'designation' => 'Public Area Attendant',
             'employment_status' => 'Active',
             'join_date' => '2023-01-01',
         ]);
@@ -86,8 +91,8 @@ class WorkScheduleBatchTest extends TestCase
         $this->employeeB1 = Employee::create([
             'user_id' => $userB1->id,
             'department_id' => $this->departmentB->id,
+            'position_id' => $posB1->id,
             'employee_number' => 'EMP-B1',
-            'designation' => 'Waiter',
             'employment_status' => 'Active',
             'join_date' => '2023-01-01',
         ]);

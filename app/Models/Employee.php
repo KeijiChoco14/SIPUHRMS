@@ -25,6 +25,15 @@ class Employee extends Model
         'profile_photo',
     ];
 
+    protected $appends = [
+        'designation',
+    ];
+
+    public function getDesignationAttribute(): ?string
+    {
+        return $this->position?->name ?? 'Staff';
+    }
+
     /**
      * Generate the next unique employee number in SBH-xxx format.
      */

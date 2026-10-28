@@ -268,7 +268,9 @@ class AttendanceController extends Controller
 
         $departments = Department::select('id', 'name')->orderBy('name')->get();
         $shifts = Shift::select('id', 'name', 'code', 'start_time', 'end_time', 'color', 'is_overnight')->get();
-        $employees = Employee::with(['user:id,name', 'department:id,name'])->where('employment_status', 'Active')->get(['id', 'user_id', 'department_id', 'employee_number', 'designation']);
+        $employees = Employee::with(['user:id,name', 'department:id,name', 'position:id,name'])
+            ->where('employment_status', 'Active')
+            ->get(['id', 'user_id', 'department_id', 'position_id', 'employee_number']);
         $location = AttendanceLocation::getDefaultLocation();
 
         return Inertia::render('Attendance/Index', [

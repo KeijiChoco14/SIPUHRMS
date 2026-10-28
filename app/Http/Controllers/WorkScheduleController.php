@@ -32,7 +32,7 @@ class WorkScheduleController extends Controller
             $deptId = (string) $user->employee->department_id;
         }
 
-        $employeesQuery = Employee::with(['user', 'department'])
+        $employeesQuery = Employee::with(['user', 'department', 'position'])
             ->where('employment_status', 'Active');
 
         if ($deptId) {
