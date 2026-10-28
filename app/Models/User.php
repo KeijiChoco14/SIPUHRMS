@@ -114,6 +114,16 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class);
     }
 
+    public function department()
+    {
+        return $this->hasOneThrough(Department::class, Employee::class, 'user_id', 'id', 'id', 'department_id');
+    }
+
+    public function position()
+    {
+        return $this->hasOneThrough(Position::class, Employee::class, 'user_id', 'id', 'id', 'position_id');
+    }
+
     /**
      * Ensure the user has an associated Employee profile.
      * Automatically creates a default employee profile for any registered user if missing.

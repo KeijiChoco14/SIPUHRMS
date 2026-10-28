@@ -849,10 +849,10 @@ class MasterKeyRequestController extends Controller
             'employee.supervisor.user',
             'employee.supervisor.position',
             'requestedBy',
-            'approvedBy.department',
-            'approvedBy.position',
-            'doneBy.department',
-            'doneBy.position',
+            'approvedBy.employee.department',
+            'approvedBy.employee.position',
+            'doneBy.employee.department',
+            'doneBy.employee.position',
             'previousRequest',
             'auditLogs.user',
         ]);
@@ -941,23 +941,45 @@ class MasterKeyRequestController extends Controller
 
         $user = Auth::user();
         $isSuperAdmin = $user->hasRole('Super Admin');
-        $isOwner = $user->employee && $masterKeyRequest->employee_id === $user->employee->id;
+        $isHRD = $user->hasRole('HRD / Admin');
+        $isGM = $user->hasRole('General Manager');
+        $isHOD = $user->hasRole('Head of Department');
+        $isHK = $user->employee?->department?->name === 'Housekeeping';
+        $isIT = $user->employee?->department?->name === 'IT';
+        $isOwner = ($user->employee && $masterKeyRequest->employee_id === $user->employee->id)
+            || $masterKeyRequest->requested_by_user_id === $user->id;
 
-        if (!$isSuperAdmin && !($isOwner && $masterKeyRequest->status === 'On Request')) {
-            return back()->with('error', 'You do not have permission to delete this request.');
+        $canDelete = $isSuperAdmin || $isHRD || $isGM || ($isHOD && $isHK) || $isIT || ($isOwner && $masterKeyRequest->status === 'On Request');
+
+        if (!$canDelete) {
+            return back()->with('error', 'Akses Ditolak: Anda tidak memiliki wewenang untuk menghapus permohonan master key ini.');
         }
 
-        $reqNumber = $masterKeyRequest->request_number;
-        $masterKeyRequest->delete();
+        try {
+            $reqNumber = $masterKeyRequest->request_number;
 
-        AuditLog::log([
-            'action' => 'DELETE_MASTER_KEY_REQUEST',
-            'model_type' => MasterKeyRequest::class,
-            'model_id' => $masterKeyRequest->id,
-            'description' => "Master key request {$reqNumber} was deleted by user '{$user->name}'.",
-        ]);
+            // Unlink any extensions pointing to this request
+            MasterKeyRequest::where('previous_request_id', $masterKeyRequest->id)->update(['previous_request_id' => null]);
 
-        return back()->with('success', "Request {$reqNumber} successfully deleted.");
+            // Clean audit logs
+            AuditLog::where('model_type', MasterKeyRequest::class)
+                ->where('model_id', $masterKeyRequest->id)
+                ->delete();
+
+            $masterKeyRequest->delete();
+
+            AuditLog::log([
+                'action' => 'DELETE_MASTER_KEY_REQUEST',
+                'model_type' => MasterKeyRequest::class,
+                'model_id' => $masterKeyRequest->id,
+                'description' => "Permohonan master key {$reqNumber} telah dihapus oleh {$user->name}.",
+            ]);
+
+            return back()->with('success', "Permohonan master key {$reqNumber} berhasil dihapus.");
+        } catch (\Throwable $e) {
+            \Log::error('Failed to delete master key request: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus permohonan master key: ' . $e->getMessage());
+        }
     }
 
     /**

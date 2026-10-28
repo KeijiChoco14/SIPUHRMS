@@ -462,7 +462,9 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                         <div className="flex flex-col justify-between h-40 p-3 rounded-lg border border-gray-200 bg-white">
                             <span className="text-[10px] text-gray-500 uppercase font-semibold">3. Create by (Department IT)</span>
                             <div className="my-auto">
-                                {requestData.it_signature ? (
+                                {requestData.it_signature &&
+                                requestData.it_signature !== requestData.hod_signature &&
+                                requestData.it_signature !== requestData.approver_signature ? (
                                     <div className="h-16 flex flex-col items-center justify-center p-1">
                                         <img
                                             src={requestData.it_signature}
@@ -481,7 +483,7 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-[9px] text-gray-400 italic mb-1">[Pending IT Card Creation]</div>
+                                    <div className="text-[9px] text-gray-400 italic mb-1">[Pending IT Card Creation & Sign-off]</div>
                                 )}
                             </div>
                             <div className="border-t border-gray-300 pt-1.5">
