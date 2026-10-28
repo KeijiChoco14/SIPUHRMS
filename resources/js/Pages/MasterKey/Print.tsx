@@ -60,9 +60,25 @@ interface Props {
         };
         approved_by?: {
             name: string;
+            employee?: {
+                position?: {
+                    name: string;
+                };
+                department?: {
+                    name: string;
+                };
+            };
         };
         done_by?: {
             name: string;
+            employee?: {
+                position?: {
+                    name: string;
+                };
+                department?: {
+                    name: string;
+                };
+            };
         };
         previous_request?: {
             request_number: string;
@@ -362,7 +378,7 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                             {['Created', 'Updated', 'Done'].includes(requestData.status) ? (
                                 <>
                                     <div className="font-semibold text-gray-800 mt-0.5">
-                                        IT PIC: <span className="text-blue-700 font-mono">{itStaff?.user?.name || requestData.done_by_username || '-'}</span>
+                                        IT PIC: <span className="text-blue-700 font-mono">{requestData.done_by_username || requestData.done_by?.name || itStaff?.user?.name || '-'}</span>
                                     </div>
                                     <div className="text-[11px] text-gray-600">
                                         Issued: {formatDateTime(requestData.done_at)}
@@ -488,10 +504,10 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                             </div>
                             <div className="border-t border-gray-300 pt-1.5">
                                 <p className="font-bold text-gray-900 leading-tight truncate">
-                                    {itStaff?.user?.name || (['Created', 'Updated', 'Done'].includes(requestData.status) && itStaff ? itStaff.user?.name : null) || '(Pending IT Officer)'}
+                                    {requestData.done_by_username || requestData.done_by?.name || (['Created', 'Updated', 'Done'].includes(requestData.status) ? (itStaff?.user?.name || 'Department IT') : '(Pending IT Officer)')}
                                 </p>
                                 <span className="text-[10px] text-gray-500">
-                                    {itStaff?.position?.name || 'IT Support Staff / Department IT'}
+                                    {requestData.done_by?.employee?.position?.name || itStaff?.position?.name || 'Information Technology Staff'}
                                 </span>
                             </div>
                         </div>

@@ -87,10 +87,26 @@ interface MasterKeyRequestItem {
     approved_by?: {
         id: number;
         name: string;
+        employee?: {
+            position?: {
+                name: string;
+            };
+            department?: {
+                name: string;
+            };
+        };
     };
     done_by?: {
         id: number;
         name: string;
+        employee?: {
+            position?: {
+                name: string;
+            };
+            department?: {
+                name: string;
+            };
+        };
     };
     previous_request?: {
         id: number;
@@ -1840,7 +1856,7 @@ export default function MasterKeyIndex({
                                         {['Created', 'Updated', 'Done'].includes(activeItem.status) ? (
                                             <>
                                                 <div className="text-[11px] text-gray-600 mt-0.5">
-                                                    Created & Issued by: <span className="font-mono font-bold text-blue-700">{itStaff?.user?.name || activeItem.done_by_username || 'Department IT'}</span> (Department IT)
+                                                    Created & Issued by: <span className="font-mono font-bold text-blue-700">{activeItem.done_by_username || activeItem.done_by?.name || (itStaff ? itStaff.user?.name : 'Department IT')}</span> (Department IT)
                                                 </div>
                                                 <div className="text-[10px] text-gray-400">
                                                     Completed At: {formatDateTime(activeItem.done_at)}
@@ -1931,7 +1947,10 @@ export default function MasterKeyIndex({
                                         <span className="text-gray-400 italic text-[11px] block py-4">[Pending Approval]</span>
                                     )}
                                     <div className="mt-1 text-[10px] text-gray-600 truncate font-semibold">
-                                        {activeItem.approved_by_username || hodHK?.user?.name || 'Executive Housekeeper'}
+                                        {activeItem.approved_by_username || activeItem.approved_by?.name || (['Approved', 'Created', 'Updated', 'Done'].includes(activeItem.status) ? (hodHK?.user?.name || 'Executive Housekeeper') : '[Pending Approval]')}
+                                    </div>
+                                    <div className="text-[9px] text-gray-400 truncate">
+                                        {activeItem.approved_by?.employee?.position?.name || hodHK?.position?.name || 'Executive Housekeeper'}
                                     </div>
                                 </div>
 
@@ -1960,7 +1979,10 @@ export default function MasterKeyIndex({
                                         <span className="text-gray-400 italic text-[11px] block py-4">[Pending IT Creation & Sign-off]</span>
                                     )}
                                     <div className="mt-1 text-[10px] text-gray-600 truncate font-semibold">
-                                        {itStaff?.user?.name || (['Created', 'Updated', 'Done'].includes(activeItem.status) && itStaff ? itStaff.user?.name : null) || '(Pending IT Officer)'}
+                                        {activeItem.done_by_username || activeItem.done_by?.name || (['Created', 'Updated', 'Done'].includes(activeItem.status) ? (itStaff?.user?.name || 'Department IT') : '(Pending IT Officer)')}
+                                    </div>
+                                    <div className="text-[9px] text-gray-400 truncate">
+                                        {activeItem.done_by?.employee?.position?.name || (['Created', 'Updated', 'Done'].includes(activeItem.status) ? (itStaff?.position?.name || 'Department IT') : 'IT Support Staff')}
                                     </div>
                                 </div>
                             </div>
