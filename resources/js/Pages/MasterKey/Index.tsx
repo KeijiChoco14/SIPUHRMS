@@ -1695,7 +1695,9 @@ export default function MasterKeyIndex({
                             <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-1">
                                 <div className="flex justify-between items-center text-gray-900">
                                     <span className="font-semibold">IT Officer Account:</span>
-                                    <span className="font-mono font-bold text-blue-700">{currentUser.name} (Department IT)</span>
+                                    <span className="font-mono font-bold text-blue-700">
+                                        {currentUser.name} ({currentEmployee?.position?.name && currentEmployee?.position?.name !== 'IT Manager' ? currentEmployee.position.name : 'Information Technology Staff'})
+                                    </span>
                                 </div>
                                 <div className="flex justify-between items-center text-gray-600 text-[11px]">
                                     <span>Issuance Timestamp:</span>
@@ -1856,7 +1858,7 @@ export default function MasterKeyIndex({
                                         {['Created', 'Updated', 'Done'].includes(activeItem.status) ? (
                                             <>
                                                 <div className="text-[11px] text-gray-600 mt-0.5">
-                                                    Created & Issued by: <span className="font-mono font-bold text-blue-700">{activeItem.done_by_username || activeItem.done_by?.name || (itStaff ? itStaff.user?.name : 'Department IT')}</span> (Department IT)
+                                                    Created & Issued by: <span className="font-mono font-bold text-blue-700">{activeItem.done_by_username || activeItem.done_by?.name || (itStaff ? itStaff.user?.name : 'Department IT')}</span> (Information Technology Staff)
                                                 </div>
                                                 <div className="text-[10px] text-gray-400">
                                                     Completed At: {formatDateTime(activeItem.done_at)}
@@ -1982,7 +1984,9 @@ export default function MasterKeyIndex({
                                         {activeItem.done_by_username || activeItem.done_by?.name || (['Created', 'Updated', 'Done'].includes(activeItem.status) ? (itStaff?.user?.name || 'Department IT') : '(Pending IT Officer)')}
                                     </div>
                                     <div className="text-[9px] text-gray-400 truncate">
-                                        {activeItem.done_by?.employee?.position?.name || (['Created', 'Updated', 'Done'].includes(activeItem.status) ? (itStaff?.position?.name || 'Department IT') : 'IT Support Staff')}
+                                        {activeItem.done_by?.employee?.position?.name && activeItem.done_by?.employee?.position?.name !== 'IT Manager'
+                                            ? activeItem.done_by.employee.position.name
+                                            : 'Information Technology Staff'}
                                     </div>
                                 </div>
                             </div>

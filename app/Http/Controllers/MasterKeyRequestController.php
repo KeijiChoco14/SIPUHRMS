@@ -130,8 +130,8 @@ class MasterKeyRequestController extends Controller
             'employee.department',
             'employee.position',
             'requestedBy',
-            'approvedBy',
-            'doneBy',
+            'approvedBy.employee.position',
+            'doneBy.employee.position',
             'previousRequest',
             'auditLogs.user',
         ])->latest();
@@ -246,11 +246,15 @@ class MasterKeyRequestController extends Controller
         $itDepartment = Department::where('name', 'IT')->orWhere('name', 'like', '%Information Technology%')->first();
         $itStaff = fn () => Employee::with(['user', 'position', 'department'])
             ->where('department_id', $itDepartment?->id)
-            ->whereDoesntHave('user.roles', function ($r) {
-                $r->where('name', 'Super Admin');
+            ->whereHas('position', function ($p) {
+                $p->where('name', 'like', '%Staff%')
+                  ->orWhere('name', 'like', '%Support%');
             })
             ->first() ?? Employee::with(['user', 'position', 'department'])
             ->where('department_id', $itDepartment?->id)
+            ->whereDoesntHave('user.roles', function ($r) {
+                $r->whereIn('name', ['Super Admin', 'Head of Department']);
+            })
             ->first();
 
         return Inertia::render('MasterKey/Index', [
@@ -911,16 +915,16 @@ class MasterKeyRequestController extends Controller
         if (!$itStaff && $itDept) {
             $itStaff = Employee::with(['user', 'position', 'department'])
                 ->where('department_id', $itDept->id)
+                ->whereHas('position', function ($p) {
+                    $p->where('name', 'like', '%Staff%')
+                      ->orWhere('name', 'like', '%Support%');
+                })
+                ->first() ?? Employee::with(['user', 'position', 'department'])
+                ->where('department_id', $itDept->id)
                 ->whereDoesntHave('user.roles', function ($r) {
-                    $r->where('name', 'Super Admin');
+                    $r->whereIn('name', ['Super Admin', 'Head of Department']);
                 })
                 ->first();
-
-            if (!$itStaff) {
-                $itStaff = Employee::with(['user', 'position', 'department'])
-                    ->where('department_id', $itDept->id)
-                    ->first();
-            }
         }
 
         return Inertia::render('MasterKey/Print', [

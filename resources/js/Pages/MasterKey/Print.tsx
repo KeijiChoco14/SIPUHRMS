@@ -507,7 +507,9 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                                     {requestData.done_by_username || requestData.done_by?.name || (['Created', 'Updated', 'Done'].includes(requestData.status) ? (itStaff?.user?.name || 'Department IT') : '(Pending IT Officer)')}
                                 </p>
                                 <span className="text-[10px] text-gray-500">
-                                    {requestData.done_by?.employee?.position?.name || itStaff?.position?.name || 'Information Technology Staff'}
+                                    {requestData.done_by?.employee?.position?.name && requestData.done_by?.employee?.position?.name !== 'IT Manager'
+                                        ? requestData.done_by.employee.position.name
+                                        : 'Information Technology Staff'}
                                 </span>
                             </div>
                         </div>
