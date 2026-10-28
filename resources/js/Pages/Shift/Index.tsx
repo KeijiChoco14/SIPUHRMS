@@ -8,30 +8,77 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import InputError from '@/Components/InputError';
 
-export default function ShiftIndex({ shifts }: { shifts: any[] }) {
+interface ShiftItem {
+    id: number;
+    name: string;
+    code?: string | null;
+    start_time: string;
+    end_time: string;
+    clock_in_window_start?: string | null;
+    clock_in_window_end?: string | null;
+    clock_out_window_start?: string | null;
+    clock_out_window_end?: string | null;
+    is_overnight: boolean;
+    late_tolerance_minutes: number;
+    is_active: boolean;
+    color: string;
+    work_schedules_count?: number;
+    attendances_count?: number;
+}
+
+export default function ShiftIndex({ shifts }: { shifts: ShiftItem[] }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingShift, setEditingShift] = useState<any>(null);
+    const [editingShift, setEditingShift] = useState<ShiftItem | null>(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         name: '',
+        code: '',
         start_time: '',
         end_time: '',
+        clock_in_window_start: '',
+        clock_in_window_end: '',
+        clock_out_window_start: '',
+        clock_out_window_end: '',
+        is_overnight: false,
+        late_tolerance_minutes: 0,
+        is_active: true,
         color: '#E31B23',
     });
 
-    const openModal = (shift: any = null) => {
+    const openModal = (shift: ShiftItem | null = null) => {
         if (shift) {
             setEditingShift(shift);
             setData({
                 name: shift.name,
-                start_time: shift.start_time,
-                end_time: shift.end_time,
+                code: shift.code || '',
+                start_time: shift.start_time ? shift.start_time.substring(0, 5) : '',
+                end_time: shift.end_time ? shift.end_time.substring(0, 5) : '',
+                clock_in_window_start: shift.clock_in_window_start ? shift.clock_in_window_start.substring(0, 5) : '',
+                clock_in_window_end: shift.clock_in_window_end ? shift.clock_in_window_end.substring(0, 5) : '',
+                clock_out_window_start: shift.clock_out_window_start ? shift.clock_out_window_start.substring(0, 5) : '',
+                clock_out_window_end: shift.clock_out_window_end ? shift.clock_out_window_end.substring(0, 5) : '',
+                is_overnight: !!shift.is_overnight,
+                late_tolerance_minutes: shift.late_tolerance_minutes || 0,
+                is_active: shift.is_active !== false,
                 color: shift.color || '#E31B23',
             });
         } else {
             setEditingShift(null);
             reset();
-            setData('color', '#E31B23');
+            setData({
+                name: '',
+                code: '',
+                start_time: '08:00',
+                end_time: '17:00',
+                clock_in_window_start: '07:00',
+                clock_in_window_end: '09:00',
+                clock_out_window_start: '16:30',
+                clock_out_window_end: '19:00',
+                is_overnight: false,
+                late_tolerance_minutes: 15,
+                is_active: true,
+                color: '#E31B23',
+            });
         }
         setIsModalOpen(true);
     };
@@ -56,7 +103,7 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this shift?')) {
+        if (confirm('Are you sure you want to remove or deactivate this shift? If historical attendance exists, it will be safely deactivated.')) {
             destroy(route('shifts.destroy', id));
         }
     };
@@ -70,61 +117,100 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                     <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
                         <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50">
                             <div>
-                                <h3 className="text-base font-semibold text-slate-900">Employee Shift List</h3>
-                                <p className="text-xs text-slate-500 mt-0.5">Manage shift types, hotel operational working hours, and roster color codes.</p>
+                                <h3 className="text-base font-semibold text-slate-900">Hotel Shift Master Definitions</h3>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    Define operational shift hours, geofence clock-in/out windows, and grace periods for punctuality.
+                                </p>
                             </div>
-                            <PrimaryButton onClick={() => openModal()}>
-                                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <PrimaryButton onClick={() => openModal()} className="text-xs">
+                                <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                 </svg>
-                                Add Shift
+                                Add New Shift
                             </PrimaryButton>
                         </div>
 
                         <div className="overflow-x-auto">
-                            <table className="w-full text-sm text-left">
-                                <thead className="bg-slate-50/80 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200/80">
+                            <table className="w-full text-xs text-left">
+                                <thead className="bg-slate-50/80 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200/80">
                                     <tr>
-                                        <th className="px-6 py-3.5">Color</th>
-                                        <th className="px-6 py-3.5">Shift Name</th>
-                                        <th className="px-6 py-3.5">Operating Hours</th>
-                                        <th className="px-6 py-3.5 text-right">Actions</th>
+                                        <th className="px-5 py-3.5">Code & Color</th>
+                                        <th className="px-5 py-3.5">Shift Name</th>
+                                        <th className="px-5 py-3.5">Working Hours</th>
+                                        <th className="px-5 py-3.5">Clock-In Window</th>
+                                        <th className="px-5 py-3.5">Clock-Out Window</th>
+                                        <th className="px-5 py-3.5 text-center">Tolerance</th>
+                                        <th className="px-5 py-3.5 text-center">Status</th>
+                                        <th className="px-5 py-3.5 text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-slate-100 font-medium">
                                     {shifts.length === 0 ? (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-16 text-center text-slate-500">
+                                            <td colSpan={8} className="px-6 py-16 text-center text-slate-500">
                                                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-400 mb-3">
                                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                     </svg>
                                                 </div>
-                                                <p className="text-sm font-medium text-slate-700">No work shifts found</p>
-                                                <p className="text-xs text-slate-400 mt-1">Use the "Add Shift" button above to create a new shift.</p>
+                                                <p className="text-sm font-medium text-slate-700">No work shifts defined yet</p>
+                                                <p className="text-xs text-slate-400 mt-1">Use the "Add New Shift" button above to create one.</p>
                                             </td>
                                         </tr>
                                     ) : (
                                         shifts.map((shift) => (
                                             <tr key={shift.id} className="hover:bg-slate-50/75 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <div className="w-5 h-5 rounded-full border border-slate-200 shadow-2xs" style={{ backgroundColor: shift.color }}></div>
+                                                <td className="px-5 py-3.5 whitespace-nowrap">
+                                                    <div className="flex items-center gap-2">
+                                                        <span
+                                                            className="w-3.5 h-3.5 rounded-full border border-slate-200 shadow-2xs shrink-0"
+                                                            style={{ backgroundColor: shift.color }}
+                                                        ></span>
+                                                        <span className="font-mono font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">
+                                                            {shift.code || 'SH'}
+                                                        </span>
+                                                    </div>
                                                 </td>
-                                                <td className="px-6 py-4 font-semibold text-slate-900">{shift.name}</td>
-                                                <td className="px-6 py-4 text-slate-600 tabular-nums">
-                                                    {shift.start_time} - {shift.end_time}
+                                                <td className="px-5 py-3.5 font-bold text-slate-900 whitespace-nowrap">
+                                                    <div>
+                                                        <span>{shift.name}</span>
+                                                        {shift.is_overnight && (
+                                                            <span className="ml-2 px-1.5 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-semibold rounded border border-indigo-200">
+                                                                Overnight
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="inline-flex items-center gap-2">
-                                                        <button 
-                                                            onClick={() => openModal(shift)} 
-                                                            className="text-slate-700 hover:text-slate-900 font-medium text-xs bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors"
+                                                <td className="px-5 py-3.5 text-slate-700 font-mono whitespace-nowrap">
+                                                    {shift.start_time?.substring(0, 5)} - {shift.end_time?.substring(0, 5)} WIB
+                                                </td>
+                                                <td className="px-5 py-3.5 text-slate-600 font-mono text-[11px] whitespace-nowrap">
+                                                    {shift.clock_in_window_start ? `${shift.clock_in_window_start.substring(0, 5)} - ${shift.clock_in_window_end?.substring(0, 5)}` : 'Standard Window'}
+                                                </td>
+                                                <td className="px-5 py-3.5 text-slate-600 font-mono text-[11px] whitespace-nowrap">
+                                                    {shift.clock_out_window_start ? `${shift.clock_out_window_start.substring(0, 5)} - ${shift.clock_out_window_end?.substring(0, 5)}` : 'Standard Window'}
+                                                </td>
+                                                <td className="px-5 py-3.5 text-center whitespace-nowrap">
+                                                    <span className="text-slate-600">{shift.late_tolerance_minutes || 0}m</span>
+                                                </td>
+                                                <td className="px-5 py-3.5 text-center whitespace-nowrap">
+                                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                                        shift.is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'
+                                                    }`}>
+                                                        {shift.is_active ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                                                    <div className="inline-flex items-center gap-1.5">
+                                                        <button
+                                                            onClick={() => openModal(shift)}
+                                                            className="text-slate-700 hover:text-slate-900 font-semibold text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                                                         >
                                                             Edit
                                                         </button>
-                                                        <button 
-                                                            onClick={() => handleDelete(shift.id)} 
-                                                            className="text-rose-600 hover:text-rose-700 font-medium text-xs bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition-colors"
+                                                        <button
+                                                            onClick={() => handleDelete(shift.id)}
+                                                            className="text-rose-600 hover:text-rose-700 font-semibold text-xs bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
                                                         >
                                                             Delete
                                                         </button>
@@ -140,71 +226,187 @@ export default function ShiftIndex({ shifts }: { shifts: any[] }) {
                 </div>
             </div>
 
-            <Modal show={isModalOpen} onClose={closeModal} maxWidth="sm">
+            {/* CREATE / EDIT SHIFT MODAL */}
+            <Modal show={isModalOpen} onClose={closeModal} maxWidth="md">
                 <form onSubmit={submit} className="p-6">
-                    <h2 className="text-lg font-bold text-slate-900 mb-5">{editingShift ? 'Edit Work Shift' : 'Add New Shift'}</h2>
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                        <h2 className="text-base font-bold text-slate-900">
+                            {editingShift ? 'Edit Work Shift' : 'Add New Work Shift'}
+                        </h2>
+                        <button type="button" onClick={closeModal} className="text-slate-400 hover:text-slate-600">
+                            ✕
+                        </button>
+                    </div>
 
-                    <div className="space-y-4">
-                        <div>
-                            <InputLabel htmlFor="name" value="Shift Name (e.g., Morning Shift)" />
-                            <TextInput
-                                id="name"
-                                className="mt-1.5 block w-full"
-                                placeholder="Morning Shift..."
-                                value={data.name}
-                                onChange={e => setData('name', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.name} className="mt-1.5" />
+                    <div className="space-y-4 text-xs">
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="col-span-2">
+                                <InputLabel htmlFor="name" value="Shift Name *" />
+                                <TextInput
+                                    id="name"
+                                    className="mt-1 block w-full text-xs"
+                                    placeholder="e.g. Morning Shift"
+                                    value={data.name}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                    required
+                                />
+                                <InputError message={errors.name} className="mt-1" />
+                            </div>
+
+                            <div>
+                                <InputLabel htmlFor="code" value="Shift Code" />
+                                <TextInput
+                                    id="code"
+                                    className="mt-1 block w-full text-xs font-mono uppercase"
+                                    placeholder="e.g. MS"
+                                    value={data.code}
+                                    onChange={(e) => setData('code', e.target.value.toUpperCase())}
+                                />
+                                <InputError message={errors.code} className="mt-1" />
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Working Hours */}
+                        <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                             <div>
-                                <InputLabel htmlFor="start_time" value="Start Time" />
+                                <InputLabel htmlFor="start_time" value="Shift Start Time *" />
                                 <TextInput
                                     id="start_time"
                                     type="time"
-                                    className="mt-1.5 block w-full"
+                                    className="mt-1 block w-full text-xs"
                                     value={data.start_time}
-                                    onChange={e => setData('start_time', e.target.value)}
+                                    onChange={(e) => setData('start_time', e.target.value)}
                                     required
                                 />
-                                <InputError message={errors.start_time} className="mt-1.5" />
+                                <InputError message={errors.start_time} className="mt-1" />
                             </div>
+
                             <div>
-                                <InputLabel htmlFor="end_time" value="End Time" />
+                                <InputLabel htmlFor="end_time" value="Shift End Time *" />
                                 <TextInput
                                     id="end_time"
                                     type="time"
-                                    className="mt-1.5 block w-full"
+                                    className="mt-1 block w-full text-xs"
                                     value={data.end_time}
-                                    onChange={e => setData('end_time', e.target.value)}
+                                    onChange={(e) => setData('end_time', e.target.value)}
                                     required
                                 />
-                                <InputError message={errors.end_time} className="mt-1.5" />
+                                <InputError message={errors.end_time} className="mt-1" />
                             </div>
                         </div>
 
-                        <div>
-                            <InputLabel htmlFor="color" value="Shift Color Tag" />
-                            <div className="flex items-center gap-3 mt-1.5">
-                                <input
-                                    id="color"
-                                    type="color"
-                                    className="h-10 w-16 p-1 border border-slate-300 rounded-xl cursor-pointer shadow-xs"
-                                    value={data.color}
-                                    onChange={e => setData('color', e.target.value)}
-                                />
-                                <span className="text-xs text-slate-500 font-mono">{data.color}</span>
+                        {/* Permitted Windows */}
+                        <div className="space-y-3 p-3 bg-purple-50/50 rounded-xl border border-purple-100">
+                            <span className="text-[11px] font-bold text-purple-900 block">
+                                Clock-In & Clock-Out Permitted Windows
+                            </span>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <InputLabel value="Clock-In Opens" />
+                                    <TextInput
+                                        type="time"
+                                        className="mt-1 block w-full text-xs"
+                                        value={data.clock_in_window_start}
+                                        onChange={(e) => setData('clock_in_window_start', e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Clock-In Closes" />
+                                    <TextInput
+                                        type="time"
+                                        className="mt-1 block w-full text-xs"
+                                        value={data.clock_in_window_end}
+                                        onChange={(e) => setData('clock_in_window_end', e.target.value)}
+                                    />
+                                </div>
                             </div>
-                            <InputError message={errors.color} className="mt-1.5" />
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <InputLabel value="Clock-Out Opens" />
+                                    <TextInput
+                                        type="time"
+                                        className="mt-1 block w-full text-xs"
+                                        value={data.clock_out_window_start}
+                                        onChange={(e) => setData('clock_out_window_start', e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <InputLabel value="Clock-Out Closes" />
+                                    <TextInput
+                                        type="time"
+                                        className="mt-1 block w-full text-xs"
+                                        value={data.clock_out_window_end}
+                                        onChange={(e) => setData('clock_out_window_end', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Grace Period & Color */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <InputLabel value="Grace Period (Minutes)" />
+                                <TextInput
+                                    type="number"
+                                    min={0}
+                                    max={180}
+                                    className="mt-1 block w-full text-xs"
+                                    value={data.late_tolerance_minutes}
+                                    onChange={(e) => setData('late_tolerance_minutes', parseInt(e.target.value, 10) || 0)}
+                                />
+                                <span className="text-[10px] text-slate-400 block mt-0.5">Tolerance before marked Late</span>
+                            </div>
+
+                            <div>
+                                <InputLabel value="Roster Badge Color" />
+                                <div className="flex items-center gap-2 mt-1">
+                                    <input
+                                        type="color"
+                                        className="h-9 w-12 rounded-lg border border-slate-300 p-0.5 cursor-pointer"
+                                        value={data.color}
+                                        onChange={(e) => setData('color', e.target.value)}
+                                    />
+                                    <TextInput
+                                        className="w-full text-xs font-mono uppercase"
+                                        value={data.color}
+                                        onChange={(e) => setData('color', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Overnight & Active Flags */}
+                        <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_overnight}
+                                    onChange={(e) => setData('is_overnight', e.target.checked)}
+                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                />
+                                <span className="font-semibold text-slate-800 text-xs">Overnight Shift (Crosses Midnight)</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_active}
+                                    onChange={(e) => setData('is_active', e.target.checked)}
+                                    className="rounded border-slate-300 text-[#E31B23] focus:ring-[#E31B23]"
+                                />
+                                <span className="font-semibold text-slate-800 text-xs">Active</span>
+                            </label>
                         </div>
                     </div>
 
-                    <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
-                        <SecondaryButton onClick={closeModal}>Cancel</SecondaryButton>
-                        <PrimaryButton disabled={processing}>
-                            {processing ? 'Saving...' : 'Save Shift'}
+                    <div className="mt-6 flex justify-end gap-2 pt-3 border-t border-slate-100">
+                        <SecondaryButton type="button" onClick={closeModal}>
+                            Cancel
+                        </SecondaryButton>
+                        <PrimaryButton type="submit" disabled={processing} className="text-xs">
+                            {processing ? 'Saving...' : editingShift ? 'Update Shift' : 'Create Shift'}
                         </PrimaryButton>
                     </div>
                 </form>

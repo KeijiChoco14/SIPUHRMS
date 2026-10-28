@@ -119,8 +119,14 @@ Route::middleware(['auth', 'approved'])->group(function () {
 
     // Attendance Routes
     Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('attendance.my');
+    Route::post('/attendance/clock-in', [AttendanceController::class, 'clockIn'])->name('attendance.clockIn');
+    Route::post('/attendance/clock-out', [AttendanceController::class, 'clockOut'])->name('attendance.clockOut');
+
     Route::middleware(['role:Super Admin|HRD / Admin|General Manager'])->group(function () {
         Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('/attendance/export', [AttendanceController::class, 'export'])->name('attendance.export');
+        Route::patch('/attendance/location', [AttendanceController::class, 'updateLocation'])->name('attendance.location.update');
+        Route::patch('/attendance/{attendance}/correct', [AttendanceController::class, 'correct'])->name('attendance.correct');
     });
 
     // Payroll Routes
