@@ -16,13 +16,20 @@ interface Props {
         renewal_cycle_months: number;
         remark?: string;
         purpose?: string;
-        status: 'On Request' | 'Done';
+        status: 'On Request' | 'Approved' | 'Created' | 'Updated' | 'Done' | 'Rejected';
         request_by?: string;
         requested_by_username?: string;
         requested_at?: string;
+        approved_by_user_id?: number;
+        approved_by_username?: string;
+        approved_at?: string;
+        approval_notes?: string;
+        hod_signature?: string;
+        done_by_user_id?: number;
         done_by_username?: string;
         done_at?: string;
         done_notes?: string;
+        it_signature?: string;
         requester_signature?: string;
         approver_signature?: string;
         created_at: string;
@@ -51,6 +58,9 @@ interface Props {
         requested_by?: {
             name: string;
         };
+        approved_by?: {
+            name: string;
+        };
         done_by?: {
             name: string;
         };
@@ -66,12 +76,18 @@ interface Props {
         position?: {
             name: string;
         };
+        department?: {
+            name: string;
+        };
     } | null;
     itStaff?: {
         user?: {
             name: string;
         };
         position?: {
+            name: string;
+        };
+        department?: {
             name: string;
         };
     } | null;
@@ -301,26 +317,55 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                     <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700 bg-gray-100 px-3 py-1 rounded mb-2.5">
                         V. System Activity & Audit Trail
                     </h3>
-                    <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                    <div className="grid grid-cols-3 gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs">
+                        {/* 1. Request Stage */}
                         <div>
-                            <span className="text-[10px] text-gray-500 uppercase font-semibold block">Request Log (Requested):</span>
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold block">1. Request Log:</span>
                             <div className="font-semibold text-gray-800 mt-0.5">
-                                Username: <span className="text-indigo-600 font-mono">{requestData.requested_by_username || requestData.requested_by?.name || '-'}</span>
+                                Account: <span className="text-indigo-600 font-mono">{requestData.requested_by_username || requestData.requested_by?.name || '-'}</span>
                             </div>
                             <div className="text-[11px] text-gray-600">
-                                Request Time: {formatDateTime(requestData.requested_at || requestData.created_at)}
+                                Date: {formatDateTime(requestData.requested_at || requestData.created_at)}
+                            </div>
+                            <div className="text-[10px] text-gray-500 italic mt-0.5">
+                                Requester: {requestData.request_by || '-'}
                             </div>
                         </div>
 
+                        {/* 2. HOD HK Approval Stage */}
                         <div>
-                            <span className="text-[10px] text-gray-500 uppercase font-semibold block">Completion Log (Done):</span>
-                            {requestData.status === 'Done' ? (
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold block">2. HOD HK Approval:</span>
+                            {requestData.approved_at || requestData.approved_by_username || ['Approved', 'Created', 'Updated', 'Done'].includes(requestData.status) ? (
                                 <>
                                     <div className="font-semibold text-gray-800 mt-0.5">
-                                        PIC Username: <span className="text-emerald-700 font-mono">{requestData.done_by_username || requestData.done_by?.name || '-'}</span>
+                                        HOD: <span className="text-emerald-700 font-mono">{requestData.approved_by_username || hodHK?.user?.name || '-'}</span>
                                     </div>
                                     <div className="text-[11px] text-gray-600">
-                                        Completion Time (Done): {formatDateTime(requestData.done_at)}
+                                        Approved: {formatDateTime(requestData.approved_at || requestData.done_at)}
+                                    </div>
+                                    {requestData.approval_notes && (
+                                        <div className="text-[10px] text-gray-500 italic mt-0.5">
+                                            Notes: {requestData.approval_notes}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="text-amber-700 font-medium italic mt-1 text-[11px]">
+                                    [Pending HOD HK Approval]
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 3. IT Department Issuance Stage */}
+                        <div>
+                            <span className="text-[10px] text-gray-500 uppercase font-semibold block">3. IT Issuance Log:</span>
+                            {['Created', 'Updated', 'Done'].includes(requestData.status) ? (
+                                <>
+                                    <div className="font-semibold text-gray-800 mt-0.5">
+                                        IT PIC: <span className="text-blue-700 font-mono">{itStaff?.user?.name || requestData.done_by_username || '-'}</span>
+                                    </div>
+                                    <div className="text-[11px] text-gray-600">
+                                        Issued: {formatDateTime(requestData.done_at)}
                                     </div>
                                     {requestData.done_notes && (
                                         <div className="text-[10px] text-gray-500 italic mt-0.5">
@@ -329,8 +374,8 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                                     )}
                                 </>
                             ) : (
-                                <div className="text-amber-700 font-medium italic mt-1">
-                                    [Status: On Request — Pending physical verification and handover]
+                                <div className="text-gray-500 font-medium italic mt-1 text-[11px]">
+                                    [Pending IT Card Creation]
                                 </div>
                             )}
                         </div>
@@ -358,7 +403,7 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                     </h3>
                     <div className="grid grid-cols-3 gap-4 text-center text-xs">
                         {/* 1. Diajukan oleh (Request by) */}
-                        <div className="flex flex-col justify-between h-36 p-3 rounded-lg border border-gray-200">
+                        <div className="flex flex-col justify-between h-40 p-3 rounded-lg border border-gray-200 bg-white">
                             <span className="text-[10px] text-gray-500 uppercase font-semibold">1. Request by</span>
                             <div className="my-auto">
                                 {requestData.requester_signature ? (
@@ -380,32 +425,32 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                         </div>
 
                         {/* 2. Menyetujui (Approve by: HOD Housekeeping) */}
-                        <div className="flex flex-col justify-between h-36 p-3 rounded-lg border border-gray-200">
+                        <div className="flex flex-col justify-between h-40 p-3 rounded-lg border border-gray-200 bg-white">
                             <span className="text-[10px] text-gray-500 uppercase font-semibold">2. Approve by (HOD Housekeeping)</span>
                             <div className="my-auto">
-                                {requestData.approver_signature ? (
+                                {requestData.hod_signature || requestData.approver_signature ? (
                                     <div className="h-16 flex flex-col items-center justify-center p-1">
                                         <img
-                                            src={requestData.approver_signature}
-                                            alt="Approver Signature"
+                                            src={requestData.hod_signature || requestData.approver_signature}
+                                            alt="HOD HK Signature"
                                             className="max-h-12 max-w-full object-contain"
                                         />
                                         <div className="text-[7.5px] font-mono text-emerald-700 bg-emerald-50 px-1 rounded mt-0.5">
-                                            E-Sign: {formatDate(requestData.done_at)}
+                                            E-Sign: {formatDate(requestData.approved_at || requestData.done_at)}
                                         </div>
                                     </div>
-                                ) : requestData.status === 'Done' ? (
+                                ) : ['Approved', 'Created', 'Updated', 'Done'].includes(requestData.status) ? (
                                     <div className="inline-block px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded border border-emerald-200">
-                                        APPROVED
-                                        <div className="text-[8px] font-mono text-gray-400">{formatDate(requestData.done_at)}</div>
+                                        APPROVED (HOD HK)
+                                        <div className="text-[8px] font-mono text-gray-400">{formatDate(requestData.approved_at || requestData.done_at)}</div>
                                     </div>
                                 ) : (
-                                    <div className="text-[9px] text-gray-400 italic mb-1">[Physical Signature]</div>
+                                    <div className="text-[9px] text-amber-600 font-medium italic mb-1">[Pending HOD HK Approval]</div>
                                 )}
                             </div>
                             <div className="border-t border-gray-300 pt-1.5">
                                 <p className="font-bold text-gray-900 leading-tight truncate">
-                                    {hodHK?.user?.name || 'Dewi Kartika'}
+                                    {requestData.approved_by_username || hodHK?.user?.name || 'Executive Housekeeper'}
                                 </p>
                                 <span className="text-[10px] text-gray-500">
                                     {hodHK?.position?.name || 'Executive Housekeeper'}
@@ -414,25 +459,34 @@ export default function MasterKeyPrint({ requestData, hodHK, itStaff }: Props) {
                         </div>
 
                         {/* 3. Dibuat oleh (Create by: Department IT) */}
-                        <div className="flex flex-col justify-between h-36 p-3 rounded-lg border border-gray-200">
+                        <div className="flex flex-col justify-between h-40 p-3 rounded-lg border border-gray-200 bg-white">
                             <span className="text-[10px] text-gray-500 uppercase font-semibold">3. Create by (Department IT)</span>
                             <div className="my-auto">
-                                {requestData.status === 'Done' ? (
+                                {requestData.it_signature ? (
+                                    <div className="h-16 flex flex-col items-center justify-center p-1">
+                                        <img
+                                            src={requestData.it_signature}
+                                            alt="IT Signature"
+                                            className="max-h-12 max-w-full object-contain"
+                                        />
+                                        <div className="text-[7.5px] font-mono text-blue-700 bg-blue-50 px-1 rounded mt-0.5">
+                                            E-Sign IT: {formatDate(requestData.done_at)}
+                                        </div>
+                                    </div>
+                                ) : ['Created', 'Updated', 'Done'].includes(requestData.status) ? (
                                     <div className="flex flex-col items-center justify-center p-1">
                                         <div className="inline-block px-2.5 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded border border-blue-200">
-                                            KEY CREATED & ENCODED
+                                            {requestData.status === 'Created' ? 'KEY CREATED' : 'KEY UPDATED'}
                                             <div className="text-[8px] font-mono text-gray-500">{formatDate(requestData.done_at)}</div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-[9px] text-gray-400 italic mb-1">[Key Programming & Issuance]</div>
+                                    <div className="text-[9px] text-gray-400 italic mb-1">[Pending IT Card Creation]</div>
                                 )}
                             </div>
                             <div className="border-t border-gray-300 pt-1.5">
                                 <p className="font-bold text-gray-900 leading-tight truncate">
-                                    {requestData.status === 'Done' && requestData.done_by_username
-                                        ? requestData.done_by_username
-                                        : (itStaff?.user?.name || '(...................................)')}
+                                    {itStaff?.user?.name || (['Created', 'Updated', 'Done'].includes(requestData.status) && itStaff ? itStaff.user?.name : null) || '(Pending IT Officer)'}
                                 </p>
                                 <span className="text-[10px] text-gray-500">
                                     {itStaff?.position?.name || 'IT Support Staff / Department IT'}

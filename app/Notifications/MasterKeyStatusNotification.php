@@ -51,7 +51,16 @@ class MasterKeyStatusNotification extends Notification
 
         if ($this->type === 'NEW_REQUEST') {
             $title = 'New Master Key Request';
-            $message = "Key request for {$keyNum} ({$reqNum}) by {$staffName} requires your approval.";
+            $message = "Key request for {$keyNum} ({$reqNum}) by {$staffName} requires HOD Housekeeping approval.";
+        } elseif ($this->type === 'HOD_APPROVED') {
+            $title = 'Master Key Approved by HOD HK';
+            $message = "Master key request {$reqNum} ({$keyNum}) has been approved by HOD Housekeeping and is ready for Department IT card creation / update.";
+        } elseif ($this->type === 'KEY_CREATED') {
+            $title = 'Master Key Created & Issued (IT)';
+            $message = "Master key card {$keyNum} ({$reqNum}) has been created, RFID-encoded & issued by Department IT.";
+        } elseif ($this->type === 'KEY_UPDATED') {
+            $title = 'Master Key Updated & Issued (IT)';
+            $message = "Master key card {$keyNum} ({$reqNum}) has been updated, re-encoded & issued by Department IT.";
         } elseif ($this->type === 'EXPIRING_SOON') {
             $days = $this->masterKeyRequest->days_remaining;
             $title = 'Notice: Master Key Expiring Soon';
@@ -60,9 +69,11 @@ class MasterKeyStatusNotification extends Notification
             // STATUS_UPDATED
             $status = $this->masterKeyRequest->status;
             $statusText = match ($status) {
-                'Approved' => 'has been approved for a 3-month period',
-                'Rejected' => 'has been rejected',
-                'Revoked' => 'has been revoked / returned',
+                'Approved' => 'has been approved by HOD Housekeeping and sent to Department IT',
+                'Created' => 'has been created & issued by Department IT',
+                'Updated' => 'has been updated & issued by Department IT',
+                'Done' => 'has been completed by Department IT',
+                'Rejected' => 'has been rejected by HOD Housekeeping',
                 default => 'has been updated',
             };
             $title = "Master Key Access: {$status}";

@@ -130,6 +130,7 @@ class MasterKeyRequestController extends Controller
             'employee.department',
             'employee.position',
             'requestedBy',
+            'approvedBy',
             'doneBy',
             'previousRequest',
             'auditLogs.user',
@@ -149,6 +150,7 @@ class MasterKeyRequestController extends Controller
                     ->orWhere('room_range_access', 'like', "%{$search}%")
                     ->orWhere('request_by', 'like', "%{$search}%")
                     ->orWhere('requested_by_username', 'like', "%{$search}%")
+                    ->orWhere('approved_by_username', 'like', "%{$search}%")
                     ->orWhere('done_by_username', 'like', "%{$search}%")
                     ->orWhereHas('employee.user', function ($sub) use ($search) {
                         $sub->where('name', 'like', "%{$search}%");
@@ -169,21 +171,25 @@ class MasterKeyRequestController extends Controller
             $query->where('request_type', $requestType);
         }
 
-        // Tab status filter: all, on_request, done, expiring, expired
+        // Tab status filter: all, on_request, approved, done (created/updated/done), rejected, expiring, expired
         $tab = $request->input('tab', 'all');
         $today = Carbon::today()->toDateString();
         $fourteenDaysLater = Carbon::today()->addDays(14)->toDateString();
 
         if ($tab === 'on_request') {
             $query->where('status', 'On Request');
+        } elseif ($tab === 'approved') {
+            $query->where('status', 'Approved');
         } elseif ($tab === 'done') {
-            $query->where('status', 'Done');
+            $query->whereIn('status', ['Created', 'Updated', 'Done']);
+        } elseif ($tab === 'rejected') {
+            $query->where('status', 'Rejected');
         } elseif ($tab === 'expiring') {
-            $query->where('status', 'Done')
+            $query->whereIn('status', ['Created', 'Updated', 'Done'])
                 ->where('valid_until', '>=', $today)
                 ->where('valid_until', '<=', $fourteenDaysLater);
         } elseif ($tab === 'expired') {
-            $query->where('status', 'Done')
+            $query->whereIn('status', ['Created', 'Updated', 'Done'])
                 ->where('valid_until', '<', $today);
         }
 
@@ -199,9 +205,11 @@ class MasterKeyRequestController extends Controller
         $stats = fn () => [
             'total' => (clone $statsBaseQuery)->count(),
             'on_request' => (clone $statsBaseQuery)->where('status', 'On Request')->count(),
-            'done' => (clone $statsBaseQuery)->where('status', 'Done')->count(),
-            'expiring_soon' => (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater)->count(),
-            'expired' => (clone $statsBaseQuery)->where('status', 'Done')->where('valid_until', '<', $today)->count(),
+            'approved' => (clone $statsBaseQuery)->where('status', 'Approved')->count(),
+            'done' => (clone $statsBaseQuery)->whereIn('status', ['Created', 'Updated', 'Done'])->count(),
+            'rejected' => (clone $statsBaseQuery)->where('status', 'Rejected')->count(),
+            'expiring_soon' => (clone $statsBaseQuery)->whereIn('status', ['Created', 'Updated', 'Done'])->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater)->count(),
+            'expired' => (clone $statsBaseQuery)->whereIn('status', ['Created', 'Updated', 'Done'])->where('valid_until', '<', $today)->count(),
         ];
 
         // Housekeeping employees list for selection (lazy closure)
@@ -216,6 +224,34 @@ class MasterKeyRequestController extends Controller
             ->latest()
             ->take(30)
             ->get();
+
+        // Detect current HOD HK & IT Department officer for dynamic signing references
+        $hodHK = fn () => Employee::with(['user', 'position', 'department'])
+            ->where('department_id', $hkDepartment?->id)
+            ->where(function ($q) {
+                $q->whereHas('user.roles', function ($r) {
+                    $r->where('name', 'Head of Department');
+                })->orWhereHas('position', function ($p) {
+                    $p->where('name', 'like', '%Executive Housekeeper%')
+                      ->orWhere('name', 'like', '%Head of Department%')
+                      ->orWhere('name', 'like', '%HOD%')
+                      ->orWhere('name', 'like', '%EHK%');
+                });
+            })
+            ->whereDoesntHave('user.roles', function ($r) {
+                $r->where('name', 'Super Admin');
+            })
+            ->first();
+
+        $itDepartment = Department::where('name', 'IT')->orWhere('name', 'like', '%Information Technology%')->first();
+        $itStaff = fn () => Employee::with(['user', 'position', 'department'])
+            ->where('department_id', $itDepartment?->id)
+            ->whereDoesntHave('user.roles', function ($r) {
+                $r->where('name', 'Super Admin');
+            })
+            ->first() ?? Employee::with(['user', 'position', 'department'])
+            ->where('department_id', $itDepartment?->id)
+            ->first();
 
         return Inertia::render('MasterKey/Index', [
             'requests' => $requests,
@@ -233,6 +269,8 @@ class MasterKeyRequestController extends Controller
             'currentUser' => $user,
             'hkEmployees' => $hkEmployees,
             'existingKeys' => $existingKeys,
+            'hodHK' => $hodHK,
+            'itStaff' => $itStaff,
             'defaultKeyTypes' => [
                 'Grand Master Key',
                 'Master Key',
@@ -365,6 +403,170 @@ class MasterKeyRequestController extends Controller
     }
 
     /**
+     * HOD Housekeeping approval / rejection handler.
+     * Only Head of Department Housekeeping (or Super Admin) can approve.
+     * Once Approved, it transitions to Stage 3 for Department IT to create/update.
+     */
+    public function approve(Request $request, MasterKeyRequest $masterKeyRequest)
+    {
+        if (!$this->canAccessMasterKey()) {
+            abort(403, 'Akses Ditolak: Modul Housekeeping hanya dapat diakses oleh Departemen Housekeeping, HOD Housekeeping, Departemen IT, dan manajemen yang berwenang.');
+        }
+
+        if (!$this->ensureTableExists()) {
+            return back()->with('error', 'Tabel master_key_requests belum tersedia di database. Silakan jalankan "php artisan migrate" di server terlebih dahulu.');
+        }
+
+        $user = Auth::user();
+        $isSuperAdmin = $user->hasRole('Super Admin');
+        $isHOD = $user->hasRole('Head of Department');
+        $isHK = $user->employee?->department?->name === 'Housekeeping';
+
+        $canApprove = $isSuperAdmin || ($isHOD && $isHK);
+        if (!$canApprove) {
+            return back()->with('error', 'Akses Ditolak: Hanya Head of Department (HOD) Housekeeping atau Super Admin yang berwenang menyetujui request master key ini.');
+        }
+
+        $validated = $request->validate([
+            'action' => 'required|in:Approved,Rejected',
+            'approval_notes' => 'nullable|string|max:1000',
+            'hod_signature' => 'nullable|string',
+        ]);
+
+        $oldStatus = $masterKeyRequest->status;
+        $newStatus = $validated['action'];
+        $now = Carbon::now();
+
+        $updateData = [
+            'status' => $newStatus,
+            'approved_by_user_id' => $user->id,
+            'approved_by_username' => $user->name,
+            'approved_at' => $now,
+            'approval_notes' => $validated['approval_notes'] ?? null,
+            'hod_signature' => $validated['hod_signature'] ?? null,
+            'approver_signature' => $validated['hod_signature'] ?? null,
+        ];
+
+        $masterKeyRequest->update($updateData);
+
+        // Record to Audit Log with HOD details
+        AuditLog::log([
+            'action' => $newStatus === 'Approved' ? 'HOD_APPROVED_MASTER_KEY' : 'HOD_REJECTED_MASTER_KEY',
+            'model_type' => MasterKeyRequest::class,
+            'model_id' => $masterKeyRequest->id,
+            'description' => "Permintaan master key {$masterKeyRequest->request_number} ({$masterKeyRequest->key_number}) telah di-{$newStatus} oleh HOD Housekeeping '{$user->name}' pada " . $now->format('Y-m-d H:i:s') . ". Catatan: " . ($validated['approval_notes'] ?? '-'),
+            'old_values' => ['status' => $oldStatus],
+            'new_values' => [
+                'status' => $newStatus,
+                'approved_by_username' => $user->name,
+                'approved_at' => $now->toDateTimeString(),
+                'approval_notes' => $validated['approval_notes'] ?? null,
+            ],
+        ]);
+
+        // Send In-App Notification to Requester Employee
+        if ($masterKeyRequest->employee?->user) {
+            try {
+                $masterKeyRequest->employee->user->notify(
+                    new MasterKeyStatusNotification($masterKeyRequest, $newStatus === 'Approved' ? 'HOD_APPROVED' : 'STATUS_UPDATED')
+                );
+            } catch (\Throwable $e) {}
+        }
+
+        // If Approved, Notify IT Department to create / update the physical/RFID card
+        if ($newStatus === 'Approved') {
+            $this->notifyITDept($masterKeyRequest);
+        }
+
+        $msg = $newStatus === 'Approved'
+            ? "Permintaan master key {$masterKeyRequest->request_number} berhasil disetujui (Approved) oleh HOD Housekeeping. Diteruskan ke Departemen IT untuk pembuatan kartu."
+            : "Permintaan master key {$masterKeyRequest->request_number} ditolak (Rejected) oleh HOD Housekeeping.";
+
+        return back()->with('success', $msg);
+    }
+
+    /**
+     * Department IT card creation, RFID programming & issuance handler.
+     * Department IT can ONLY process after HOD Housekeeping has Approved the request.
+     * Sets status to 'Created' (for new keys) or 'Updated' (for extensions/replacements).
+     */
+    public function processKey(Request $request, MasterKeyRequest $masterKeyRequest)
+    {
+        if (!$this->canAccessMasterKey()) {
+            abort(403, 'Akses Ditolak.');
+        }
+
+        if (!$this->ensureTableExists()) {
+            return back()->with('error', 'Tabel master_key_requests belum tersedia di database.');
+        }
+
+        $user = Auth::user();
+        $isSuperAdmin = $user->hasRole('Super Admin');
+        $isIT = $user->employee?->department?->name === 'IT';
+
+        $canCreateKey = $isSuperAdmin || $isIT;
+        if (!$canCreateKey) {
+            return back()->with('error', 'Akses Ditolak: Hanya Departemen IT atau Super Admin yang berwenang menerbitkan atau memperbarui kartu master key.');
+        }
+
+        // Strict workflow check: must be Approved by HOD HK first
+        if ($masterKeyRequest->status !== 'Approved' && !$isSuperAdmin) {
+            return back()->with('error', 'Departemen IT hanya dapat memproses kartu setelah disetujui (Approved) oleh HOD Housekeeping.');
+        }
+
+        $validated = $request->validate([
+            'status' => 'nullable|in:Created,Updated,Done',
+            'done_notes' => 'nullable|string|max:1000',
+            'it_signature' => 'required|string',
+        ]);
+
+        // Automatically determine status based on request_type if not explicitly set
+        $newStatus = $validated['status'] ?? null;
+        if (!$newStatus || $newStatus === 'Done') {
+            $newStatus = ($masterKeyRequest->request_type === 'create_new') ? 'Created' : 'Updated';
+        }
+
+        $oldStatus = $masterKeyRequest->status;
+        $now = Carbon::now();
+
+        $masterKeyRequest->update([
+            'status' => $newStatus,
+            'done_by_user_id' => $user->id,
+            'done_by_username' => $user->name,
+            'done_at' => $now,
+            'done_notes' => $validated['done_notes'] ?? "Kartu master key {$newStatus} & RFID diprogram oleh Departemen IT ({$user->name}).",
+            'it_signature' => $validated['it_signature'],
+        ]);
+
+        // Audit Log
+        AuditLog::log([
+            'action' => "IT_{$newStatus}_MASTER_KEY",
+            'model_type' => MasterKeyRequest::class,
+            'model_id' => $masterKeyRequest->id,
+            'description' => "Kartu Master Key {$masterKeyRequest->key_number} ({$masterKeyRequest->request_number}) berhasil di-{$newStatus} dan diprogram oleh IT Officer '{$user->name}' pada " . $now->format('Y-m-d H:i:s') . ". Catatan: " . ($validated['done_notes'] ?? '-'),
+            'old_values' => ['status' => $oldStatus],
+            'new_values' => [
+                'status' => $newStatus,
+                'done_by_username' => $user->name,
+                'done_at' => $now->toDateTimeString(),
+                'done_notes' => $validated['done_notes'] ?? null,
+            ],
+        ]);
+
+        // Send In-App Notification to Requester Employee
+        if ($masterKeyRequest->employee?->user) {
+            try {
+                $notifType = $newStatus === 'Created' ? 'KEY_CREATED' : ($newStatus === 'Updated' ? 'KEY_UPDATED' : 'STATUS_UPDATED');
+                $masterKeyRequest->employee->user->notify(
+                    new MasterKeyStatusNotification($masterKeyRequest, $notifType)
+                );
+            } catch (\Throwable $e) {}
+        }
+
+        return back()->with('success', "Kartu master key {$masterKeyRequest->key_number} berhasil diproses dengan status [{$newStatus}] oleh Departemen IT.");
+    }
+
+    /**
      * Mark master key request as DONE or update status.
      * Records username, done timestamp, notes, and audit log.
      */
@@ -382,7 +584,7 @@ class MasterKeyRequestController extends Controller
 
         // Approvals strictly handled by HOD Housekeeping (or Super Admin)
         $canApprove = $isSuperAdmin || ($isHOD && $isHK);
-        // Master key creation, RFID programming & issuance strictly performed by Department IT (or Super Admin)
+        // Master key creation strictly performed by Department IT (or Super Admin)
         $canCreateKey = $isSuperAdmin || $isIT;
 
         if (!$canApprove && !$canCreateKey) {
@@ -390,9 +592,11 @@ class MasterKeyRequestController extends Controller
         }
 
         $validated = $request->validate([
-            'status' => 'required|in:Done,On Request',
+            'status' => 'required|in:Done,Created,Updated,Approved,Rejected,On Request',
             'done_notes' => 'nullable|string|max:1000',
             'approver_signature' => 'nullable|string',
+            'it_signature' => 'nullable|string',
+            'hod_signature' => 'nullable|string',
         ]);
 
         $oldStatus = $masterKeyRequest->status;
@@ -403,14 +607,22 @@ class MasterKeyRequestController extends Controller
             'status' => $newStatus,
         ];
 
-        if ($newStatus === 'Done') {
+        if (in_array($newStatus, ['Done', 'Created', 'Updated'])) {
             $updateData['done_by_user_id'] = $user->id;
             $updateData['done_by_username'] = $user->name;
             $updateData['done_at'] = $now;
             $deptName = $user->employee?->department?->name ?? ($isSuperAdmin ? 'IT / Admin' : 'Staff');
-            $updateData['done_notes'] = $validated['done_notes'] ?? "Master key created, programmed & issued by Department {$deptName}.";
-            if (!empty($validated['approver_signature'])) {
-                $updateData['approver_signature'] = $validated['approver_signature'];
+            $updateData['done_notes'] = $validated['done_notes'] ?? "Master key {$newStatus}, programmed & issued by Department {$deptName}.";
+            if (!empty($validated['it_signature'])) {
+                $updateData['it_signature'] = $validated['it_signature'];
+            }
+        } elseif ($newStatus === 'Approved') {
+            $updateData['approved_by_user_id'] = $user->id;
+            $updateData['approved_by_username'] = $user->name;
+            $updateData['approved_at'] = $now;
+            if (!empty($validated['hod_signature'])) {
+                $updateData['hod_signature'] = $validated['hod_signature'];
+                $updateData['approver_signature'] = $validated['hod_signature'];
             }
         } else {
             // Revert back to On Request
@@ -418,18 +630,20 @@ class MasterKeyRequestController extends Controller
             $updateData['done_by_username'] = null;
             $updateData['done_at'] = null;
             $updateData['done_notes'] = null;
+            $updateData['approved_by_user_id'] = null;
+            $updateData['approved_by_username'] = null;
+            $updateData['approved_at'] = null;
+            $updateData['approval_notes'] = null;
         }
 
         $masterKeyRequest->update($updateData);
 
         // Record to Audit Log with completed-by username and timestamp
         AuditLog::log([
-            'action' => $newStatus === 'Done' ? 'DONE_MASTER_KEY' : 'REVERT_MASTER_KEY_STATUS',
+            'action' => in_array($newStatus, ['Done', 'Created', 'Updated']) ? 'DONE_MASTER_KEY' : 'UPDATE_MASTER_KEY_STATUS',
             'model_type' => MasterKeyRequest::class,
             'model_id' => $masterKeyRequest->id,
-            'description' => $newStatus === 'Done'
-                ? "Master key request {$masterKeyRequest->request_number} created & issued [DONE] by user '{$user->name}' (" . ($user->employee?->department?->name ?? 'IT') . ") on " . $now->format('Y-m-d H:i:s') . ". Notes: " . ($validated['done_notes'] ?? '-')
-                : "Request status for {$masterKeyRequest->request_number} reverted to [On Request] by user '{$user->name}' on " . $now->format('Y-m-d H:i:s') . ".",
+            'description' => "Request status for {$masterKeyRequest->request_number} updated to [{$newStatus}] by user '{$user->name}' on " . $now->format('Y-m-d H:i:s') . ".",
             'old_values' => ['status' => $oldStatus],
             'new_values' => [
                 'status' => $newStatus,
@@ -439,22 +653,7 @@ class MasterKeyRequestController extends Controller
             ],
         ]);
 
-        // Send In-App Notification to Requester Employee
-        if ($masterKeyRequest->employee?->user) {
-            try {
-                $masterKeyRequest->employee->user->notify(
-                    new MasterKeyStatusNotification($masterKeyRequest, 'STATUS_UPDATED')
-                );
-            } catch (\Throwable $e) {
-                // Continue gracefully
-            }
-        }
-
-        $msg = $newStatus === 'Done'
-            ? "Master key request {$masterKeyRequest->request_number} marked as completed (Status: Done)."
-            : "Master key request {$masterKeyRequest->request_number} status reverted to On Request.";
-
-        return back()->with('success', $msg);
+        return back()->with('success', "Master key request {$masterKeyRequest->request_number} status updated to {$newStatus}.");
     }
 
     /**
@@ -488,6 +687,7 @@ class MasterKeyRequestController extends Controller
             'employee.department',
             'employee.position',
             'requestedBy',
+            'approvedBy',
             'doneBy',
             'previousRequest',
             'auditLogs.user',
@@ -505,6 +705,7 @@ class MasterKeyRequestController extends Controller
                     ->orWhere('room_range_access', 'like', "%{$search}%")
                     ->orWhere('request_by', 'like', "%{$search}%")
                     ->orWhere('requested_by_username', 'like', "%{$search}%")
+                    ->orWhere('approved_by_username', 'like', "%{$search}%")
                     ->orWhere('done_by_username', 'like', "%{$search}%")
                     ->orWhereHas('employee.user', function ($sub) use ($search) {
                         $sub->where('name', 'like', "%{$search}%");
@@ -529,12 +730,16 @@ class MasterKeyRequestController extends Controller
 
         if ($tab === 'on_request') {
             $query->where('status', 'On Request');
+        } elseif ($tab === 'approved') {
+            $query->where('status', 'Approved');
         } elseif ($tab === 'done') {
-            $query->where('status', 'Done');
+            $query->whereIn('status', ['Created', 'Updated', 'Done']);
+        } elseif ($tab === 'rejected') {
+            $query->where('status', 'Rejected');
         } elseif ($tab === 'expiring') {
-            $query->where('status', 'Done')->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater);
+            $query->whereIn('status', ['Created', 'Updated', 'Done'])->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater);
         } elseif ($tab === 'expired') {
-            $query->where('status', 'Done')->where('valid_until', '<', $today);
+            $query->whereIn('status', ['Created', 'Updated', 'Done'])->where('valid_until', '<', $today);
         }
 
         $records = $query->get();
@@ -555,9 +760,12 @@ class MasterKeyRequestController extends Controller
                 'Requested By',
                 'Requester Account Username',
                 'Request Date & Time',
-                'Completed By (Username)',
-                'Completion Date & Time',
-                'Completion Notes',
+                'Approved By (HOD HK)',
+                'Approval Date & Time',
+                'Approval Notes',
+                'Card Created / Updated By (IT)',
+                'IT Issuance Date & Time',
+                'IT Notes',
                 'Key Holder Employee ID',
                 'Department',
                 'Position',
@@ -578,6 +786,9 @@ class MasterKeyRequestController extends Controller
                     $r->request_by ?? ($r->employee?->user?->name ?? '-'),
                     $r->requested_by_username ?? ($r->requestedBy?->name ?? '-'),
                     $r->requested_at ? $r->requested_at->format('Y-m-d H:i:s') : $r->created_at->format('Y-m-d H:i:s'),
+                    $r->approved_by_username ?? ($r->approvedBy?->name ?? '-'),
+                    $r->approved_at ? $r->approved_at->format('Y-m-d H:i:s') : '-',
+                    $r->approval_notes ?? '-',
                     $r->done_by_username ?? ($r->doneBy?->name ?? '-'),
                     $r->done_at ? $r->done_at->format('Y-m-d H:i:s') : '-',
                     $r->done_notes ?? '-',
@@ -589,7 +800,7 @@ class MasterKeyRequestController extends Controller
                     $r->room_range_access,
                     $r->valid_from->format('Y-m-d'),
                     $r->valid_until->format('Y-m-d'),
-                    $r->status === 'Done' ? $r->days_remaining . ' days' : '-',
+                    in_array($r->status, ['Created', 'Updated', 'Done']) ? $r->days_remaining . ' days' : '-',
                 ]);
             }
 
@@ -638,7 +849,10 @@ class MasterKeyRequestController extends Controller
             'employee.supervisor.user',
             'employee.supervisor.position',
             'requestedBy',
-            'doneBy',
+            'approvedBy.department',
+            'approvedBy.position',
+            'doneBy.department',
+            'doneBy.position',
             'previousRequest',
             'auditLogs.user',
         ]);
@@ -649,8 +863,17 @@ class MasterKeyRequestController extends Controller
             ->first();
 
         $hodHK = null;
-        if ($hkDept) {
-            $hodHK = Employee::with(['user', 'position'])
+        if ($masterKeyRequest->approved_by_user_id) {
+            $approvedUserEmployee = Employee::with(['user', 'position', 'department'])
+                ->where('user_id', $masterKeyRequest->approved_by_user_id)
+                ->first();
+            if ($approvedUserEmployee) {
+                $hodHK = $approvedUserEmployee;
+            }
+        }
+
+        if (!$hodHK && $hkDept) {
+            $hodHK = Employee::with(['user', 'position', 'department'])
                 ->where('department_id', $hkDept->id)
                 ->where(function ($q) {
                     $q->whereHas('user.roles', function ($r) {
@@ -674,7 +897,7 @@ class MasterKeyRequestController extends Controller
             ->first();
 
         $itStaff = null;
-        // If request has been marked Done by a specific user, check if that user is from IT
+        // If request has been marked Created/Updated/Done by a user, check if that user is ACTUALLY from IT or Super Admin
         if ($masterKeyRequest->done_by_user_id) {
             $doneUserEmployee = Employee::with(['user', 'position', 'department'])
                 ->where('user_id', $masterKeyRequest->done_by_user_id)
@@ -684,9 +907,9 @@ class MasterKeyRequestController extends Controller
             }
         }
 
-        // Fallback: pick IT Support Staff / IT Officer
+        // Fallback: pick IT Support Staff / IT Officer from IT department
         if (!$itStaff && $itDept) {
-            $itStaff = Employee::with(['user', 'position'])
+            $itStaff = Employee::with(['user', 'position', 'department'])
                 ->where('department_id', $itDept->id)
                 ->whereDoesntHave('user.roles', function ($r) {
                     $r->where('name', 'Super Admin');
@@ -694,7 +917,7 @@ class MasterKeyRequestController extends Controller
                 ->first();
 
             if (!$itStaff) {
-                $itStaff = Employee::with(['user', 'position'])
+                $itStaff = Employee::with(['user', 'position', 'department'])
                     ->where('department_id', $itDept->id)
                     ->first();
             }
@@ -755,6 +978,27 @@ class MasterKeyRequestController extends Controller
 
             foreach ($approvers as $approver) {
                 $approver->notify(new MasterKeyStatusNotification($request, 'NEW_REQUEST'));
+            }
+        } catch (\Throwable $e) {
+            // Silently continue
+        }
+    }
+
+    /**
+     * Helper to notify Department IT staff when a request is approved by HOD HK.
+     */
+    protected function notifyITDept(MasterKeyRequest $request): void
+    {
+        try {
+            $itDept = Department::where('name', 'IT')->orWhere('name', 'like', '%Information Technology%')->first();
+
+            $itStaffUsers = User::where(function ($q) use ($itDept) {
+                $q->whereHas('employee', fn ($e) => $e->where('department_id', $itDept?->id))
+                  ->orWhereHas('roles', fn ($r) => $r->where('name', 'Super Admin'));
+            })->get();
+
+            foreach ($itStaffUsers as $itUser) {
+                $itUser->notify(new MasterKeyStatusNotification($request, 'HOD_APPROVED'));
             }
         } catch (\Throwable $e) {
             // Silently continue

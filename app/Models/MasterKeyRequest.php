@@ -30,10 +30,16 @@ class MasterKeyRequest extends Model
         'requested_by_user_id',
         'requested_by_username',
         'requested_at',
+        'approved_by_user_id',
+        'approved_by_username',
+        'approved_at',
+        'approval_notes',
+        'hod_signature',
         'done_by_user_id',
         'done_by_username',
         'done_at',
         'done_notes',
+        'it_signature',
         'previous_request_id',
         'requester_signature',
         'approver_signature',
@@ -43,6 +49,7 @@ class MasterKeyRequest extends Model
         'valid_from' => 'date:Y-m-d',
         'valid_until' => 'date:Y-m-d',
         'requested_at' => 'datetime',
+        'approved_at' => 'datetime',
         'done_at' => 'datetime',
         'renewal_cycle_months' => 'integer',
     ];
@@ -68,6 +75,11 @@ class MasterKeyRequest extends Model
     public function requestedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by_user_id');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by_user_id');
     }
 
     public function doneBy(): BelongsTo
@@ -106,9 +118,14 @@ class MasterKeyRequest extends Model
         };
     }
 
+    public function isKeyActive(): bool
+    {
+        return in_array($this->status, ['Created', 'Updated', 'Done']);
+    }
+
     public function getIsExpiredAttribute(): bool
     {
-        if ($this->status !== 'Done') {
+        if (!$this->isKeyActive()) {
             return false;
         }
 
@@ -117,7 +134,7 @@ class MasterKeyRequest extends Model
 
     public function getIsExpiringSoonAttribute(): bool
     {
-        if ($this->status !== 'Done') {
+        if (!$this->isKeyActive()) {
             return false;
         }
 
@@ -135,7 +152,7 @@ class MasterKeyRequest extends Model
 
     public function getDaysRemainingAttribute(): int
     {
-        if ($this->status !== 'Done') {
+        if (!$this->isKeyActive()) {
             return 0;
         }
 
@@ -151,14 +168,22 @@ class MasterKeyRequest extends Model
 
     public function getComputedStatusAttribute(): string
     {
-        if ($this->status === 'Done') {
+        if ($this->isKeyActive()) {
             if ($this->is_expired) {
                 return 'Expired';
             }
             if ($this->is_expiring_soon) {
                 return 'Expiring Soon';
             }
-            return 'Done';
+            return $this->status;
+        }
+
+        if ($this->status === 'Approved') {
+            return 'Approved';
+        }
+
+        if ($this->status === 'Rejected') {
+            return 'Rejected';
         }
 
         return 'On Request';

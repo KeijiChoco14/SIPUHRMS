@@ -57,14 +57,20 @@ interface MasterKeyRequestItem {
     renewal_cycle_months: number;
     remark?: string;
     purpose?: string;
-    status: 'On Request' | 'Done';
+    status: 'On Request' | 'Approved' | 'Created' | 'Updated' | 'Done' | 'Rejected';
     requested_by_user_id?: number;
     requested_by_username?: string;
     requested_at?: string;
+    approved_by_user_id?: number;
+    approved_by_username?: string;
+    approved_at?: string;
+    approval_notes?: string;
+    hod_signature?: string;
     done_by_user_id?: number;
     done_by_username?: string;
     done_at?: string;
     done_notes?: string;
+    it_signature?: string;
     requester_signature?: string;
     approver_signature?: string;
     previous_request_id?: number;
@@ -75,6 +81,10 @@ interface MasterKeyRequestItem {
     computed_status: string;
     employee?: Employee;
     requested_by?: {
+        id: number;
+        name: string;
+    };
+    approved_by?: {
         id: number;
         name: string;
     };
@@ -124,7 +134,9 @@ interface Props {
     stats: {
         total: number;
         on_request: number;
+        approved: number;
         done: number;
+        rejected: number;
         expiring_soon: number;
         expired: number;
     };
@@ -139,6 +151,8 @@ interface Props {
     };
     hkEmployees: Employee[];
     existingKeys: ExistingKeySummary[];
+    hodHK?: Employee | null;
+    itStaff?: Employee | null;
     defaultKeyTypes: string[];
     commonRoomRanges: string[];
     migrationNotice?: string;
@@ -155,6 +169,8 @@ export default function MasterKeyIndex({
     currentUser,
     hkEmployees,
     existingKeys,
+    hodHK,
+    itStaff,
     defaultKeyTypes,
     commonRoomRanges,
     migrationNotice,
@@ -165,7 +181,8 @@ export default function MasterKeyIndex({
 
     // Modals
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-    const [isDoneModalOpen, setIsDoneModalOpen] = useState(false);
+    const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+    const [isItModalOpen, setIsItModalOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     // Selected item for action
@@ -194,17 +211,28 @@ export default function MasterKeyIndex({
         requester_signature: '',
     });
 
-    // Mark as Done Hook
+    // HOD HK Approval Hook
     const {
-        data: doneData,
-        setData: setDoneData,
-        patch: patchDone,
-        processing: doneProcessing,
-        reset: resetDone,
+        data: approveData,
+        setData: setApproveData,
+        processing: approveProcessing,
+        reset: resetApprove,
     } = useForm({
-        status: 'Done' as 'Done' | 'On Request',
+        action: 'Approved' as 'Approved' | 'Rejected',
+        approval_notes: '',
+        hod_signature: '',
+    });
+
+    // Department IT Card Creation / Update Hook
+    const {
+        data: itData,
+        setData: setItData,
+        processing: itProcessing,
+        reset: resetIt,
+    } = useForm({
+        status: 'Created' as 'Created' | 'Updated',
         done_notes: '',
-        approver_signature: '',
+        it_signature: '',
     });
 
     const handleSearchSubmit = (e: React.FormEvent) => {
@@ -368,29 +396,82 @@ export default function MasterKeyIndex({
         });
     };
 
-    // Open Mark as Done Modal
-    const openDoneModal = (item: MasterKeyRequestItem) => {
+    // Open HOD HK Approval Modal
+    const openApproveModal = (item: MasterKeyRequestItem) => {
         setActiveItem(item);
-        setDoneData({
-            status: 'Done',
-            done_notes: `Physical master key ${item.key_number} has been issued and access activated.`,
-            approver_signature: '',
+        setApproveData({
+            action: 'Approved',
+            approval_notes: '',
+            hod_signature: item.hod_signature || item.approver_signature || '',
         });
-        setIsDoneModalOpen(true);
+        setIsApproveModalOpen(true);
     };
 
-    // Submit Mark as Done
-    const handleDoneSubmit = (e: React.FormEvent) => {
+    // Submit HOD Approval (Approved or Rejected)
+    const handleApproveSubmit = (action: 'Approved' | 'Rejected') => {
+        if (!activeItem) return;
+        if (action === 'Approved' && !approveData.hod_signature) {
+            alert('Mohon bubuhkan tanda tangan digital HOD Housekeeping terlebih dahulu sebelum menyetujui request.');
+            return;
+        }
+
+        router.patch(
+            route('master-keys.approve', activeItem.id),
+            {
+                action,
+                approval_notes: approveData.approval_notes,
+                hod_signature: approveData.hod_signature,
+            },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsApproveModalOpen(false);
+                    setActiveItem(null);
+                    resetApprove();
+                },
+            }
+        );
+    };
+
+    // Open Department IT Key Processing Modal
+    const openItModal = (item: MasterKeyRequestItem) => {
+        setActiveItem(item);
+        const suggestedStatus = item.request_type === 'create_new' ? 'Created' : 'Updated';
+        setItData({
+            status: suggestedStatus,
+            done_notes: item.request_type === 'create_new'
+                ? `Kartu Master Key RFID (${item.key_number}) telah diprogram & diterbitkan oleh Departemen IT.`
+                : `Kartu Master Key RFID (${item.key_number}) telah diperbarui/di-update masa berlakunya oleh Departemen IT.`,
+            it_signature: item.it_signature || '',
+        });
+        setIsItModalOpen(true);
+    };
+
+    // Submit IT Card Processing (Created or Updated)
+    const handleItSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!activeItem) return;
+        if (!itData.it_signature) {
+            alert('Petugas Departemen IT wajib membubuhkan tanda tangan digital sebelum menerbitkan kartu.');
+            return;
+        }
 
-        patchDone(route('master-keys.status', activeItem.id), {
-            onSuccess: () => {
-                setIsDoneModalOpen(false);
-                setActiveItem(null);
-                resetDone();
+        router.patch(
+            route('master-keys.process-key', activeItem.id),
+            {
+                status: itData.status,
+                done_notes: itData.done_notes,
+                it_signature: itData.it_signature,
             },
-        });
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsItModalOpen(false);
+                    setActiveItem(null);
+                    resetIt();
+                },
+            }
+        );
     };
 
     // Open Detail & Log Modal
@@ -475,9 +556,10 @@ export default function MasterKeyIndex({
         }
     };
 
-    // Helper badge for status: On Request vs Done
+    // Helper badge for status: On Request, Approved, Created, Updated, Done, Rejected
     const renderStatusBadge = (status: string, item: MasterKeyRequestItem) => {
-        if (status === 'Done') {
+        if (['Created', 'Updated', 'Done'].includes(status)) {
+            const label = status === 'Created' ? 'Created • Active' : (status === 'Updated' ? 'Updated • Active' : 'Done • Active');
             if (item.is_expired) {
                 return (
                     <div className="flex flex-col gap-0.5">
@@ -504,9 +586,33 @@ export default function MasterKeyIndex({
                 <div className="flex flex-col gap-0.5">
                     <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        Done • Active
+                        {label}
                     </span>
                     <span className="text-[10px] text-gray-500 whitespace-nowrap">{item.days_remaining} days remaining</span>
+                </div>
+            );
+        }
+
+        if (status === 'Approved') {
+            return (
+                <div className="flex flex-col gap-0.5">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-blue-50 text-blue-700 border border-blue-300 shadow-2xs">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                        Approved (HOD HK)
+                    </span>
+                    <span className="text-[10px] text-blue-600 whitespace-nowrap font-medium">Ready for Department IT</span>
+                </div>
+            );
+        }
+
+        if (status === 'Rejected') {
+            return (
+                <div className="flex flex-col gap-0.5">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold whitespace-nowrap bg-rose-50 text-rose-700 border border-rose-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        Rejected
+                    </span>
+                    <span className="text-[10px] text-rose-500 whitespace-nowrap">Rejected by HOD HK</span>
                 </div>
             );
         }
@@ -518,7 +624,7 @@ export default function MasterKeyIndex({
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                     On Request
                 </span>
-                <span className="text-[10px] text-gray-500 whitespace-nowrap">Pending review</span>
+                <span className="text-[10px] text-gray-500 whitespace-nowrap">Waiting HOD approval</span>
             </div>
         );
     };
@@ -606,69 +712,86 @@ export default function MasterKeyIndex({
                 </div>
 
                 {/* KPI Statistics Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     {/* Total */}
-                    <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-gray-100 flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="bg-white p-4 rounded-2xl shadow-xs border border-gray-100 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                             </svg>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Requests</span>
-                            <div className="text-2xl font-black text-gray-900 mt-0.5">{stats.total}</div>
-                            <span className="text-[11px] text-gray-400">All registration history</span>
+                            <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Total</span>
+                            <div className="text-xl font-black text-gray-900">{stats.total}</div>
+                            <span className="text-[10px] text-gray-400">All submissions</span>
                         </div>
                     </div>
 
                     {/* On Request */}
                     <div
                         onClick={() => handleTabChange('on_request')}
-                        className="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-amber-200/80 hover:border-amber-400 flex items-center gap-4 cursor-pointer transition-all hover:shadow-md"
+                        className="bg-white p-4 rounded-2xl shadow-xs border border-amber-200/80 hover:border-amber-400 flex items-center gap-3 cursor-pointer transition-all hover:shadow-md"
                     >
-                        <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">On Request</span>
-                            <div className="text-2xl font-black text-amber-800 mt-0.5">{stats.on_request}</div>
-                            <span className="text-[11px] text-amber-600 font-medium">Pending completion</span>
+                            <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">1. On Request</span>
+                            <div className="text-xl font-black text-amber-800">{stats.on_request}</div>
+                            <span className="text-[10px] text-amber-600 font-medium">Pending HOD approval</span>
                         </div>
                     </div>
 
-                    {/* Done */}
+                    {/* Approved by HOD HK */}
+                    <div
+                        onClick={() => handleTabChange('approved')}
+                        className="bg-white p-4 rounded-2xl shadow-xs border border-blue-200/80 hover:border-blue-400 flex items-center gap-3 cursor-pointer transition-all hover:shadow-md"
+                    >
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span className="text-[11px] font-semibold text-blue-700 uppercase tracking-wider">2. Approved</span>
+                            <div className="text-xl font-black text-blue-800">{stats.approved}</div>
+                            <span className="text-[10px] text-blue-600 font-medium">Ready for IT card issue</span>
+                        </div>
+                    </div>
+
+                    {/* Done / Created / Updated */}
                     <div
                         onClick={() => handleTabChange('done')}
-                        className="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-emerald-200/80 hover:border-emerald-400 flex items-center gap-4 cursor-pointer transition-all hover:shadow-md"
+                        className="bg-white p-4 rounded-2xl shadow-xs border border-emerald-200/80 hover:border-emerald-400 flex items-center gap-3 cursor-pointer transition-all hover:shadow-md"
                     >
-                        <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Done (Completed)</span>
-                            <div className="text-2xl font-black text-emerald-800 mt-0.5">{stats.done}</div>
-                            <span className="text-[11px] text-emerald-600 font-medium">Active operational access</span>
+                            <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">3. Created / Updated</span>
+                            <div className="text-xl font-black text-emerald-800">{stats.done}</div>
+                            <span className="text-[10px] text-emerald-600 font-medium">Active master keys</span>
                         </div>
                     </div>
 
-                    {/* Expiring Soon (3 Bulan) */}
+                    {/* Needs Renewal (3 Bulan) */}
                     <div
                         onClick={() => handleTabChange('expiring')}
-                        className="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-rose-200/80 hover:border-rose-400 flex items-center gap-4 cursor-pointer transition-all hover:shadow-md"
+                        className="bg-white p-4 rounded-2xl shadow-xs border border-rose-200/80 hover:border-rose-400 flex items-center gap-3 cursor-pointer transition-all hover:shadow-md"
                     >
-                        <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
                         </div>
                         <div>
-                            <span className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Needs Extension</span>
-                            <div className="text-2xl font-black text-rose-700 mt-0.5">{stats.expiring_soon + stats.expired}</div>
-                            <span className="text-[11px] text-rose-600 font-medium">3-month cycle expiring soon</span>
+                            <span className="text-[11px] font-semibold text-rose-700 uppercase tracking-wider">Needs Renewal</span>
+                            <div className="text-xl font-black text-rose-700">{stats.expiring_soon + stats.expired}</div>
+                            <span className="text-[10px] text-rose-600 font-medium">Cycle expiring soon</span>
                         </div>
                     </div>
                 </div>
@@ -681,7 +804,8 @@ export default function MasterKeyIndex({
                             {[
                                 { key: 'all', label: 'All' },
                                 { key: 'on_request', label: 'On Request', count: stats.on_request },
-                                { key: 'done', label: 'Done', count: stats.done },
+                                { key: 'approved', label: 'Approved (HOD HK)', count: stats.approved },
+                                { key: 'done', label: 'Created / Updated (IT)', count: stats.done },
                                 { key: 'expiring', label: 'Expiring Soon (≤14 Days)', count: stats.expiring_soon },
                                 { key: 'expired', label: 'Expired', count: stats.expired },
                             ].map(tab => (
@@ -848,11 +972,12 @@ export default function MasterKeyIndex({
                                                 </div>
                                             </td>
 
-                                            {/* Riwayat Log (Requested + Done) */}
+                                            {/* Riwayat Log (3 Stages: Request, Approval, IT Issuance) */}
                                             <td className="py-4 px-4 align-top">
                                                 <div className="space-y-1.5 text-[11px]">
+                                                    {/* Request */}
                                                     <div className="flex items-start gap-1.5">
-                                                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+                                                        <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" title="Stage 1: Requested"></span>
                                                         <div className="min-w-0">
                                                             <div className="font-semibold text-gray-800 truncate">
                                                                 {item.requested_by_username || item.requested_by?.name || '-'}
@@ -862,15 +987,32 @@ export default function MasterKeyIndex({
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    {item.status === 'Done' && (
+
+                                                    {/* HOD HK Approval */}
+                                                    {(item.approved_by_username || item.approved_at) && (
                                                         <div className="flex items-start gap-1.5">
-                                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" title="Stage 2: Approved by HOD HK"></span>
                                                             <div className="min-w-0">
-                                                                <div className="font-semibold text-gray-800 truncate">
-                                                                    {item.done_by_username || item.done_by?.name || '-'}
+                                                                <div className="font-semibold text-emerald-800 truncate">
+                                                                    {item.approved_by_username || 'HOD Housekeeping'}
                                                                 </div>
-                                                                <div className="text-[10px] text-gray-400 whitespace-nowrap">
-                                                                    Done • {formatDateTime(item.done_at)}
+                                                                <div className="text-[10px] text-emerald-600 whitespace-nowrap">
+                                                                    Approved • {formatDateTime(item.approved_at)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Department IT Issuance */}
+                                                    {['Created', 'Updated', 'Done'].includes(item.status) && (
+                                                        <div className="flex items-start gap-1.5">
+                                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" title="Stage 3: Issued by IT"></span>
+                                                            <div className="min-w-0">
+                                                                <div className="font-semibold text-blue-800 truncate">
+                                                                    {item.done_by_username || 'Department IT'}
+                                                                </div>
+                                                                <div className="text-[10px] text-blue-600 whitespace-nowrap">
+                                                                    {item.status === 'Created' ? 'Created' : 'Updated'} • {formatDateTime(item.done_at)}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -881,21 +1023,34 @@ export default function MasterKeyIndex({
                                             {/* Aksi */}
                                             <td className="py-4 px-4 align-top">
                                                 <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                                                    {/* Create & Issue Key button (for IT Department or Approver if On Request) */}
-                                                    {item.status === 'On Request' && (canCreateKey || canApprove) && (
+                                                    {/* Stage 2: HOD HK Approval button (Only for HOD HK / Admin when status is On Request) */}
+                                                    {item.status === 'On Request' && canApprove && (
                                                         <button
-                                                            onClick={() => openDoneModal(item)}
-                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors cursor-pointer"
-                                                            title="Create & Issue Key (Department IT)"
+                                                            onClick={() => openApproveModal(item)}
+                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors cursor-pointer"
+                                                            title="Review & Approve (HOD Housekeeping)"
                                                         >
                                                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                                             </svg>
                                                         </button>
                                                     )}
 
-                                                    {/* Quick Perpanjang (Extension) button if Done */}
-                                                    {item.status === 'Done' && (
+                                                    {/* Stage 3: Department IT Card Creation / Update button (Only for IT / Admin when status is Approved) */}
+                                                    {item.status === 'Approved' && canCreateKey && (
+                                                        <button
+                                                            onClick={() => openItModal(item)}
+                                                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors cursor-pointer"
+                                                            title={item.request_type === 'create_new' ? "Create RFID Key Card (Department IT)" : "Update & Reprogram RFID Key Card (Department IT)"}
+                                                        >
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                                            </svg>
+                                                        </button>
+                                                    )}
+
+                                                    {/* Quick Perpanjang (Extension) button if Active */}
+                                                    {['Created', 'Updated', 'Done'].includes(item.status) && (
                                                         <button
                                                             onClick={() => openFormModal('extension', item)}
                                                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-teal-600 hover:bg-teal-50 hover:border-teal-200 transition-colors cursor-pointer"
@@ -907,8 +1062,8 @@ export default function MasterKeyIndex({
                                                         </button>
                                                     )}
 
-                                                    {/* Quick Replacement button if Done */}
-                                                    {item.status === 'Done' && (
+                                                    {/* Quick Replacement button if Active */}
+                                                    {['Created', 'Updated', 'Done'].includes(item.status) && (
                                                         <button
                                                             onClick={() => openFormModal('replacement', item)}
                                                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white text-orange-600 hover:bg-orange-50 hover:border-orange-200 transition-colors cursor-pointer"
@@ -1294,23 +1449,23 @@ export default function MasterKeyIndex({
             </Modal>
 
             {/* ========================================================================= */}
-            {/* MARK AS DONE MODAL (Point C & D: Selesaikan & Catat Username / Waktu Done) */}
+            {/* STAGE 2: HOD HOUSEKEEPING APPROVAL MODAL                                   */}
             {/* ========================================================================= */}
-            <Modal show={isDoneModalOpen} onClose={() => setIsDoneModalOpen(false)} maxWidth="lg">
+            <Modal show={isApproveModalOpen} onClose={() => setIsApproveModalOpen(false)} maxWidth="lg">
                 {activeItem && (
-                    <form onSubmit={handleDoneSubmit} className="flex flex-col max-h-[90vh]">
+                    <div className="flex flex-col max-h-[90vh]">
                         <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
                             <div>
                                 <h2 className="text-base font-bold text-gray-900">
-                                    Create & Issue Master Key (Department IT)
+                                    HOD Housekeeping Request Approval
                                 </h2>
                                 <p className="text-xs text-gray-500 mt-0.5">
-                                    Master key programming, RFID encoding & key issuance by Department IT
+                                    Review master key request from staff, provide approval remarks & digital signature
                                 </p>
                             </div>
                             <button
                                 type="button"
-                                onClick={() => setIsDoneModalOpen(false)}
+                                onClick={() => setIsApproveModalOpen(false)}
                                 className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                                 aria-label="Close"
                             >
@@ -1321,7 +1476,7 @@ export default function MasterKeyIndex({
                         </div>
 
                         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-                            {/* Request Summary */}
+                            {/* Request Summary Box */}
                             <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-2">
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-500">Registration No.:</span>
@@ -1336,6 +1491,10 @@ export default function MasterKeyIndex({
                                     <span className="font-mono font-bold text-gray-900 bg-gray-100 px-2 py-0.5 rounded">{activeItem.key_number} ({activeItem.key_type})</span>
                                 </div>
                                 <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Room Coverage:</span>
+                                    <span className="font-semibold text-gray-900">{activeItem.room_range_access}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
                                     <span className="text-gray-500">Requested by:</span>
                                     <span className="font-semibold text-gray-900">{activeItem.request_by || activeItem.employee?.user?.name || '-'}</span>
                                 </div>
@@ -1345,51 +1504,197 @@ export default function MasterKeyIndex({
                                 </div>
                             </div>
 
+                            {/* HOD Approval Notes */}
+                            <div>
+                                <InputLabel htmlFor="approval_notes" value="Approval Notes / Catatan HOD (Optional)" />
+                                <textarea
+                                    id="approval_notes"
+                                    rows={3}
+                                    value={approveData.approval_notes}
+                                    onChange={(e) => setApproveData('approval_notes', e.target.value)}
+                                    placeholder="E.g., Disetujui untuk perpanjangan berkala operasional kamar lantai 3. Diteruskan ke IT untuk programming RFID."
+                                    className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-amber-500 focus:ring-amber-500 leading-relaxed"
+                                />
+                            </div>
+
+                            {/* Digital Signature HOD HK */}
+                            <div>
+                                <SignaturePad
+                                    title="HOD Housekeeping Digital Signature *"
+                                    value={approveData.hod_signature}
+                                    onChange={(sig) => setApproveData('hod_signature', sig || '')}
+                                />
+                            </div>
+
+                            {/* Signer Identification */}
+                            <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200 text-xs space-y-1">
+                                <div className="flex justify-between items-center text-amber-900">
+                                    <span className="font-semibold">Signing as HOD HK:</span>
+                                    <span className="font-mono font-bold">{currentUser.name} ({hodHK?.position?.name || 'Executive Housekeeper'})</span>
+                                </div>
+                                <div className="text-[11px] text-amber-800">
+                                    Setelah disetujui (Approved), status kartu otomatis diteruskan ke Departemen IT untuk pembuatan/update kartu RFID.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="shrink-0 flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+                            <DangerButton
+                                type="button"
+                                onClick={() => handleApproveSubmit('Rejected')}
+                                disabled={approveProcessing}
+                                className="text-xs"
+                            >
+                                Reject Request
+                            </DangerButton>
+
+                            <div className="flex items-center gap-2">
+                                <SecondaryButton type="button" onClick={() => setIsApproveModalOpen(false)}>
+                                    Cancel
+                                </SecondaryButton>
+                                <PrimaryButton
+                                    type="button"
+                                    onClick={() => handleApproveSubmit('Approved')}
+                                    disabled={approveProcessing}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-xs font-bold"
+                                >
+                                    {approveProcessing ? 'Processing...' : 'Approve & Forward to IT'}
+                                </PrimaryButton>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+
+            {/* ========================================================================= */}
+            {/* STAGE 3: DEPARTMENT IT CARD CREATION / UPDATE MODAL                        */}
+            {/* ========================================================================= */}
+            <Modal show={isItModalOpen} onClose={() => setIsItModalOpen(false)} maxWidth="lg">
+                {activeItem && (
+                    <form onSubmit={handleItSubmit} className="flex flex-col max-h-[90vh]">
+                        <div className="shrink-0 flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200 bg-white">
+                            <div>
+                                <h2 className="text-base font-bold text-gray-900">
+                                    {activeItem.request_type === 'create_new'
+                                        ? 'Create & Issue Master Key (Department IT)'
+                                        : 'Update & Re-program Master Key (Department IT)'}
+                                </h2>
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                    RFID card programming, physical key encoding & issuance by Department IT
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsItModalOpen(false)}
+                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                                aria-label="Close"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+                            {/* Request & HOD Approval Confirmation */}
+                            <div className="p-3.5 bg-blue-50/50 rounded-xl border border-blue-200 text-xs space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Registration No.:</span>
+                                    <span className="font-mono font-bold text-gray-900">{activeItem.request_number}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Master Key:</span>
+                                    <span className="font-mono font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-blue-200">
+                                        {activeItem.key_number} ({activeItem.key_type})
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Coverage Area:</span>
+                                    <span className="font-semibold text-gray-900">{activeItem.room_range_access}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-500">Key Holder / Requester:</span>
+                                    <span className="font-semibold text-gray-900">{activeItem.request_by || activeItem.employee?.user?.name || '-'}</span>
+                                </div>
+                                <div className="pt-2 border-t border-blue-200 flex justify-between items-center">
+                                    <span className="text-emerald-700 font-bold flex items-center gap-1">
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        HOD HK Approval:
+                                    </span>
+                                    <span className="font-medium text-emerald-800">
+                                        {activeItem.approved_by_username || hodHK?.user?.name || 'HOD HK'} ({formatDate(activeItem.approved_at)})
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Status to be Set */}
+                            <div>
+                                <InputLabel value="Action & Resulting Status" />
+                                <div className="mt-1.5 p-3 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between">
+                                    <div>
+                                        <span className="block text-xs font-bold text-gray-900">
+                                            {activeItem.request_type === 'create_new' ? 'New Key Card Creation' : 'Key Card Update / Extension'}
+                                        </span>
+                                        <span className="text-[11px] text-gray-500">
+                                            Status will be set to:
+                                        </span>
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                                        activeItem.request_type === 'create_new' ? 'bg-emerald-100 text-emerald-800' : 'bg-teal-100 text-teal-800'
+                                    }`}>
+                                        <span className="w-2 h-2 rounded-full bg-current"></span>
+                                        {activeItem.request_type === 'create_new' ? 'Created' : 'Updated'}
+                                    </span>
+                                </div>
+                            </div>
+
                             {/* Catatan Pembuatan & Selesai */}
                             <div>
-                                <InputLabel htmlFor="done_notes" value="Key Creation & Programming Notes (Done Notes)" />
+                                <InputLabel htmlFor="it_notes" value="IT Programming & Issuance Notes" />
                                 <textarea
-                                    id="done_notes"
+                                    id="it_notes"
                                     rows={3}
-                                    value={doneData.done_notes}
-                                    onChange={(e) => setDoneData('done_notes', e.target.value)}
-                                    placeholder="E.g., Master RFID card encoded for designated floor range with 3-month validity. Key verified active and handed over."
-                                    className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-emerald-500 focus:ring-emerald-500 leading-relaxed"
+                                    value={itData.done_notes}
+                                    onChange={(e) => setItData('done_notes', e.target.value)}
+                                    placeholder="E.g., RFID master key card programmed with 3-month validity for Room 201-210. Card tested and handed over to Housekeeping staff."
+                                    className="mt-1 block w-full text-xs rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 leading-relaxed"
                                 />
                             </div>
 
                             {/* Digital Signature IT Officer / Petugas Pembuat */}
                             <div>
                                 <SignaturePad
-                                    title="IT Officer Signature / Sign-off (Create by IT)"
-                                    value={doneData.approver_signature}
-                                    onChange={(sig) => setDoneData('approver_signature', sig || '')}
+                                    title="Department IT Officer Digital Signature (Create by IT) *"
+                                    value={itData.it_signature}
+                                    onChange={(sig) => setItData('it_signature', sig || '')}
                                 />
                             </div>
 
-                            {/* Info Logging Point D */}
-                            <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs space-y-1">
-                                <div className="flex justify-between items-center text-blue-900">
-                                    <span className="font-semibold">Created & Issued by:</span>
-                                    <span className="font-mono font-bold">{currentUser.name} (Department IT)</span>
+                            {/* Info Logging IT */}
+                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-1">
+                                <div className="flex justify-between items-center text-gray-900">
+                                    <span className="font-semibold">IT Officer Account:</span>
+                                    <span className="font-mono font-bold text-blue-700">{currentUser.name} (Department IT)</span>
                                 </div>
-                                <div className="flex justify-between items-center text-blue-800 text-[11px]">
-                                    <span>Completion Time (Done At):</span>
-                                    <span>{new Date().toLocaleString('en-US')} (Automatically recorded in log)</span>
+                                <div className="flex justify-between items-center text-gray-600 text-[11px]">
+                                    <span>Issuance Timestamp:</span>
+                                    <span>{new Date().toLocaleString('en-US')} (Automatically logged)</span>
                                 </div>
                             </div>
                         </div>
 
                         <div className="shrink-0 flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-                            <SecondaryButton type="button" onClick={() => setIsDoneModalOpen(false)}>
+                            <SecondaryButton type="button" onClick={() => setIsItModalOpen(false)}>
                                 Cancel
                             </SecondaryButton>
                             <PrimaryButton
                                 type="submit"
-                                disabled={doneProcessing}
-                                className="bg-emerald-600 hover:bg-emerald-700"
+                                disabled={itProcessing}
+                                className="bg-blue-600 hover:bg-blue-700 text-xs font-bold"
                             >
-                                {doneProcessing ? 'Saving...' : 'Confirm Key Creation & Issue (Done)'}
+                                {itProcessing ? 'Processing...' : (activeItem.request_type === 'create_new' ? 'Confirm & Set Status: Created' : 'Confirm & Set Status: Updated')}
                             </PrimaryButton>
                         </div>
                     </form>
@@ -1397,7 +1702,7 @@ export default function MasterKeyIndex({
             </Modal>
 
             {/* ========================================================================= */}
-            {/* DETAIL & AUDIT ACTIVITY LOG MODAL (Point D)                                */}
+            {/* DETAIL & AUDIT ACTIVITY LOG MODAL                                          */}
             {/* ========================================================================= */}
             <Modal show={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} maxWidth="2xl">
                 {activeItem && (
@@ -1459,7 +1764,7 @@ export default function MasterKeyIndex({
                                 </p>
                             </div>
 
-                            {/* Section 3: Visual Timeline (3 Stages: Request by, Approve by, Create by) */}
+                            {/* Section 3: Visual Timeline (3 Stages: Request, Approve, Create) */}
                             <div className="border border-gray-200 rounded-xl p-4 bg-white">
                                 <span className="text-xs font-bold uppercase tracking-wider text-gray-500 block mb-3">
                                     Activity Log & System Trail (3 Stages: Request, Approve, Create)
@@ -1485,7 +1790,11 @@ export default function MasterKeyIndex({
                                     {/* Step 2: Approve by (HOD Housekeeping) */}
                                     <div className="relative">
                                         <div className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                                            activeItem.status === 'Done' ? 'bg-amber-500 text-white' : 'bg-amber-100 text-amber-700'
+                                            activeItem.approved_at || ['Approved', 'Created', 'Updated', 'Done'].includes(activeItem.status)
+                                                ? 'bg-emerald-600 text-white'
+                                                : activeItem.status === 'Rejected'
+                                                ? 'bg-rose-600 text-white'
+                                                : 'bg-amber-100 text-amber-700'
                                         }`}>
                                             2
                                         </div>
@@ -1493,44 +1802,59 @@ export default function MasterKeyIndex({
                                             2. Approve by (HOD Housekeeping)
                                         </div>
                                         <div className="text-[11px] text-gray-600 mt-0.5">
-                                            Approval Authority: <span className="font-semibold text-gray-900">Executive Housekeeper (Dewi Kartika)</span>
+                                            HOD Authority: <span className="font-semibold text-gray-900">{activeItem.approved_by_username || hodHK?.user?.name || 'Executive Housekeeper'}</span>
                                         </div>
                                         <div className="text-[10px] text-gray-500">
-                                            Status: {activeItem.status === 'Done' ? (
-                                                <span className="font-semibold text-emerald-700">Approved by HOD Housekeeping</span>
+                                            {activeItem.approved_at || ['Approved', 'Created', 'Updated', 'Done'].includes(activeItem.status) ? (
+                                                <span className="font-semibold text-emerald-700">
+                                                    Approved by HOD Housekeeping ({formatDateTime(activeItem.approved_at)})
+                                                </span>
+                                            ) : activeItem.status === 'Rejected' ? (
+                                                <span className="font-semibold text-rose-600">Rejected by HOD Housekeeping</span>
                                             ) : (
                                                 <span className="font-semibold text-amber-600">Pending Review & Approval</span>
                                             )}
                                         </div>
+                                        {activeItem.approval_notes && (
+                                            <div className="text-[11px] text-gray-700 mt-1 p-2 bg-emerald-50 rounded-lg border border-emerald-100">
+                                                HOD Notes: {activeItem.approval_notes}
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Step 3: Create by (Department IT) */}
                                     <div className="relative">
                                         <div className={`absolute -left-6 top-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                                            activeItem.status === 'Done' ? 'bg-emerald-600 text-white' : 'bg-gray-300 text-gray-600'
+                                            ['Created', 'Updated', 'Done'].includes(activeItem.status)
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-gray-300 text-gray-600'
                                         }`}>
                                             3
                                         </div>
                                         <div className="text-xs font-bold text-gray-900">
                                             3. Create by (Department IT)
                                         </div>
-                                        {activeItem.status === 'Done' ? (
+                                        {['Created', 'Updated', 'Done'].includes(activeItem.status) ? (
                                             <>
                                                 <div className="text-[11px] text-gray-600 mt-0.5">
-                                                    Created & Issued by: <span className="font-mono font-bold text-blue-700">{activeItem.done_by_username || activeItem.done_by?.name || 'Department IT'}</span> (Department IT)
+                                                    Created & Issued by: <span className="font-mono font-bold text-blue-700">{itStaff?.user?.name || activeItem.done_by_username || 'Department IT'}</span> (Department IT)
                                                 </div>
                                                 <div className="text-[10px] text-gray-400">
-                                                    Completed At (Done At): {formatDateTime(activeItem.done_at)}
+                                                    Completed At: {formatDateTime(activeItem.done_at)}
                                                 </div>
                                                 {activeItem.done_notes && (
                                                     <div className="text-[11px] text-gray-700 mt-1.5 p-2 bg-blue-50 rounded-lg border border-blue-100">
-                                                        Notes: {activeItem.done_notes}
+                                                        IT Notes: {activeItem.done_notes}
                                                     </div>
                                                 )}
                                             </>
+                                        ) : activeItem.status === 'Approved' ? (
+                                            <div className="text-[11px] text-blue-600 font-semibold mt-0.5">
+                                                Request approved by HOD HK. Waiting for Department IT card programming & issuance.
+                                            </div>
                                         ) : (
                                             <div className="text-[11px] text-gray-500 italic mt-0.5">
-                                                Awaiting RFID programming and physical key creation by Department IT.
+                                                Awaiting HOD HK approval before Department IT can issue the master key.
                                             </div>
                                         )}
                                     </div>
@@ -1563,7 +1887,7 @@ export default function MasterKeyIndex({
 
                             {/* Signatures Preview: 3 Sign-offs (Request by, Approve by, Create by) */}
                             <div className="grid grid-cols-3 gap-3 text-xs">
-                                <div className="p-3 border border-gray-200 rounded-xl text-center">
+                                <div className="p-3 border border-gray-200 rounded-xl text-center bg-white">
                                     <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
                                         1. Request by
                                     </span>
@@ -1583,45 +1907,55 @@ export default function MasterKeyIndex({
                                     </div>
                                 </div>
 
-                                <div className="p-3 border border-gray-200 rounded-xl text-center">
+                                <div className="p-3 border border-gray-200 rounded-xl text-center bg-white">
                                     <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
                                         2. Approve by (HOD HK)
                                     </span>
-                                    {activeItem.status === 'Done' ? (
+                                    {activeItem.hod_signature || activeItem.approver_signature ? (
+                                        <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
+                                            <img
+                                                src={activeItem.hod_signature || activeItem.approver_signature}
+                                                alt="HOD HK Signature"
+                                                className="max-h-full max-w-full object-contain"
+                                            />
+                                        </div>
+                                    ) : ['Approved', 'Created', 'Updated', 'Done'].includes(activeItem.status) ? (
                                         <div className="h-16 flex flex-col items-center justify-center p-1 bg-emerald-50 rounded border border-emerald-100">
                                             <span className="text-emerald-700 font-bold text-[11px]">APPROVED</span>
-                                            <span className="text-[9px] text-emerald-600">Executive Housekeeper</span>
+                                            <span className="text-[9px] text-emerald-600">HOD Housekeeping</span>
                                         </div>
                                     ) : (
                                         <span className="text-gray-400 italic text-[11px] block py-4">[Pending Approval]</span>
                                     )}
                                     <div className="mt-1 text-[10px] text-gray-600 truncate font-semibold">
-                                        Dewi Kartika (HOD HK)
+                                        {activeItem.approved_by_username || hodHK?.user?.name || 'Executive Housekeeper'}
                                     </div>
                                 </div>
 
-                                <div className="p-3 border border-gray-200 rounded-xl text-center">
+                                <div className="p-3 border border-gray-200 rounded-xl text-center bg-white">
                                     <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
                                         3. Create by (Dept IT)
                                     </span>
-                                    {activeItem.approver_signature ? (
+                                    {activeItem.it_signature ? (
                                         <div className="h-16 flex items-center justify-center p-1 bg-gray-50 rounded">
                                             <img
-                                                src={activeItem.approver_signature}
+                                                src={activeItem.it_signature}
                                                 alt="IT Sign-off"
                                                 className="max-h-full max-w-full object-contain"
                                             />
                                         </div>
-                                    ) : activeItem.status === 'Done' ? (
+                                    ) : ['Created', 'Updated', 'Done'].includes(activeItem.status) ? (
                                         <div className="h-16 flex flex-col items-center justify-center p-1 bg-blue-50 rounded border border-blue-100">
-                                            <span className="text-blue-700 font-bold text-[11px]">CREATED & ISSUED</span>
+                                            <span className="text-blue-700 font-bold text-[11px]">
+                                                {activeItem.status === 'Created' ? 'KEY CREATED' : 'KEY UPDATED'}
+                                            </span>
                                             <span className="text-[9px] text-blue-600">Department IT</span>
                                         </div>
                                     ) : (
                                         <span className="text-gray-400 italic text-[11px] block py-4">[Pending IT Creation]</span>
                                     )}
                                     <div className="mt-1 text-[10px] text-gray-600 truncate font-semibold">
-                                        {activeItem.done_by_username || (activeItem.status === 'Done' ? 'Department IT' : '-')}
+                                        {itStaff?.user?.name || (['Created', 'Updated', 'Done'].includes(activeItem.status) && itStaff ? itStaff.user?.name : null) || '(Pending IT Officer)'}
                                     </div>
                                 </div>
                             </div>
