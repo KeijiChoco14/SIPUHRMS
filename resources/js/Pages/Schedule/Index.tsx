@@ -150,11 +150,11 @@ export default function ScheduleIndex({
 
     // Format helpers
     const getDayName = (date: Date) => {
-        return date.toLocaleDateString('id-ID', { weekday: 'short' });
+        return date.toLocaleDateString('en-US', { weekday: 'short' });
     };
 
     const getDisplayDate = (date: Date) => {
-        return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+        return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
     };
 
     const getScheduleForCell = (employeeId: number, dateStr: string) => {
@@ -249,7 +249,7 @@ export default function ScheduleIndex({
     // Quick delete directly from cell
     const handleQuickDeleteCell = (e: React.MouseEvent, scheduleId: number) => {
         e.stopPropagation();
-        if (confirm('Hapus jadwal shift ini?')) {
+        if (confirm('Delete this shift schedule?')) {
             router.delete(route('schedules.destroy', scheduleId), {
                 preserveScroll: true,
             });
@@ -283,15 +283,15 @@ export default function ScheduleIndex({
     const handleBulkSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!bulkSelectedShiftId) {
-            alert('Silakan pilih shift terlebih dahulu.');
+            alert('Please select a shift first.');
             return;
         }
         if (bulkSelectedEmployeeIds.length === 0) {
-            alert('Silakan pilih minimal 1 karyawan.');
+            alert('Please select at least 1 employee.');
             return;
         }
         if (bulkSelectedDates.length === 0) {
-            alert('Silakan pilih minimal 1 hari.');
+            alert('Please select at least 1 working day.');
             return;
         }
 
@@ -459,7 +459,7 @@ export default function ScheduleIndex({
                             </span>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                            Atur dan jadwalkan shift kerja mingguan karyawan dengan cepat, massal, atau salin dari minggu lalu.
+                            Manage and schedule weekly employee work shifts quickly, in bulk, or copy from the previous week.
                         </p>
                     </div>
 
@@ -473,7 +473,7 @@ export default function ScheduleIndex({
                             <svg className="w-4 h-4 mr-1.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                             </svg>
-                            Salin Minggu Lalu
+                            Copy Previous Week
                         </SecondaryButton>
 
                         {/* Bulk Assign Button */}
@@ -485,7 +485,7 @@ export default function ScheduleIndex({
                             <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            Penugasan Massal
+                            Bulk Assignment
                         </PrimaryButton>
 
                         {/* Manage Shifts */}
@@ -497,7 +497,7 @@ export default function ScheduleIndex({
                             <svg className="w-4 h-4 mr-1.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                             </svg>
-                            Kelola Shift
+                            Manage Shifts
                         </SecondaryButton>
                     </div>
                 </div>
@@ -539,24 +539,24 @@ export default function ScheduleIndex({
                                     type="button"
                                     onClick={() => changeWeek(-7)}
                                     className="px-3 py-1.5 hover:bg-white hover:shadow-2xs rounded-lg text-slate-700 font-semibold text-xs transition-all flex items-center gap-1"
-                                    title="Minggu Sebelumnya"
+                                    title="Previous Week"
                                 >
-                                    &larr; <span className="hidden sm:inline">Minggu Lalu</span>
+                                    &larr; <span className="hidden sm:inline">Previous Week</span>
                                 </button>
                                 <button
                                     type="button"
                                     onClick={goToCurrentWeek}
                                     className="px-3 py-1.5 hover:bg-white hover:shadow-2xs rounded-lg text-slate-700 font-semibold text-xs transition-all"
                                 >
-                                    Minggu Ini
+                                    This Week
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => changeWeek(7)}
                                     className="px-3 py-1.5 hover:bg-white hover:shadow-2xs rounded-lg text-slate-700 font-semibold text-xs transition-all flex items-center gap-1"
-                                    title="Minggu Berikutnya"
+                                    title="Next Week"
                                 >
-                                    <span className="hidden sm:inline">Minggu Depan</span> &rarr;
+                                    <span className="hidden sm:inline">Next Week</span> &rarr;
                                 </button>
                             </div>
 
@@ -579,7 +579,7 @@ export default function ScheduleIndex({
                                     onChange={(e) => handleDepartmentChange(e.target.value)}
                                     className="w-full rounded-xl border-slate-300 text-xs text-slate-900 shadow-2xs focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2 px-3 font-medium"
                                 >
-                                    <option value="">Semua Departemen ({departments.length})</option>
+                                    <option value="">All Departments ({departments.length})</option>
                                     {departments.map((dept) => (
                                         <option key={dept.id} value={dept.id}>
                                             {dept.name}
@@ -594,7 +594,7 @@ export default function ScheduleIndex({
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Cari karyawan / jabatan..."
+                                    placeholder="Search employee / designation..."
                                     className="w-full rounded-xl border-slate-300 text-xs text-slate-900 pl-8 pr-3 py-2 shadow-2xs focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23]"
                                 />
                                 <svg className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -616,9 +616,9 @@ export default function ScheduleIndex({
                                 type="button"
                                 onClick={() => openClearModal()}
                                 className="px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors border border-transparent hover:border-rose-200"
-                                title="Hapus seluruh jadwal pada minggu ini"
+                                title="Clear all schedules for this week"
                             >
-                                Kosongkan Jadwal
+                                Clear Week Schedule
                             </button>
                         </div>
                     </div>
@@ -633,8 +633,8 @@ export default function ScheduleIndex({
                                     {/* Sticky Employee column header */}
                                     <th className="px-4 py-3.5 w-64 border-r border-slate-200 sticky left-0 bg-slate-50 z-20 text-xs uppercase tracking-wider text-slate-500">
                                         <div className="flex items-center justify-between">
-                                            <span>Karyawan ({filteredEmployees.length})</span>
-                                            <span className="text-[10px] lowercase font-normal text-slate-400">klik baris utk aksi</span>
+                                            <span>Employees ({filteredEmployees.length})</span>
+                                            <span className="text-[10px] lowercase font-normal text-slate-400">click row for actions</span>
                                         </div>
                                     </th>
 
@@ -663,7 +663,7 @@ export default function ScheduleIndex({
                                                         </span>
                                                         {isToday && (
                                                             <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#E31B23] text-white">
-                                                                Hari ini
+                                                                Today
                                                             </span>
                                                         )}
                                                     </div>
@@ -671,7 +671,7 @@ export default function ScheduleIndex({
                                                         {getDisplayDate(date)}
                                                     </div>
                                                     <div className="mt-1 text-[10px] font-medium text-slate-400">
-                                                        {scheduledCount} shift
+                                                        {scheduledCount} shift{scheduledCount === 1 ? '' : 's'}
                                                     </div>
                                                 </div>
                                             </th>
@@ -687,8 +687,8 @@ export default function ScheduleIndex({
                                             <svg className="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                             </svg>
-                                            <p className="font-semibold text-slate-600">Tidak ada karyawan yang sesuai filter.</p>
-                                            <p className="text-xs text-slate-400 mt-1">Coba ubah departemen atau kata kunci pencarian.</p>
+                                            <p className="font-semibold text-slate-600">No employees found matching the filters.</p>
+                                            <p className="text-xs text-slate-400 mt-1">Try selecting a different department or adjusting your search keyword.</p>
                                         </td>
                                     </tr>
                                 ) : (
@@ -719,7 +719,7 @@ export default function ScheduleIndex({
                                                             type="button"
                                                             onClick={() => openBulkModal(employee.id)}
                                                             className="p-1.5 hover:bg-red-50 text-slate-500 hover:text-[#E31B23] rounded-lg transition-colors"
-                                                            title="Isi jadwal seminggu untuk karyawan ini"
+                                                            title="Bulk schedule week for this employee"
                                                         >
                                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -729,7 +729,7 @@ export default function ScheduleIndex({
                                                             type="button"
                                                             onClick={() => openClearModal(employee)}
                                                             className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
-                                                            title="Kosongkan jadwal minggu ini untuk karyawan ini"
+                                                            title="Clear weekly schedule for this employee"
                                                         >
                                                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -782,7 +782,7 @@ export default function ScheduleIndex({
                                                                     type="button"
                                                                     onClick={(e) => handleQuickDeleteCell(e, schedule.id)}
                                                                     className="absolute top-1 right-1 w-4 h-4 rounded-full bg-white/80 hover:bg-rose-600 hover:text-white text-slate-400 text-[10px] flex items-center justify-center shadow-xs opacity-0 group-hover/cell:opacity-100 transition-opacity"
-                                                                    title="Hapus jadwal ini"
+                                                                    title="Delete this schedule"
                                                                 >
                                                                     &times;
                                                                 </button>
@@ -808,17 +808,17 @@ export default function ScheduleIndex({
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
                         <div>
                             <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                Legenda & Ringkasan Shift Minggu Ini
+                                Weekly Shift Legend & Summary
                             </h4>
                             <p className="text-xs text-slate-500 mt-0.5">
-                                Total {schedules.length} slot shift terjadwal untuk {filteredEmployees.length} karyawan aktif
+                                Total {schedules.length} scheduled shift slot{schedules.length === 1 ? '' : 's'} for {filteredEmployees.length} active employee{filteredEmployees.length === 1 ? '' : 's'}
                             </p>
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <span className="text-xs text-slate-500 font-medium">Tips:</span>
+                            <span className="text-xs text-slate-500 font-medium">Tip:</span>
                             <span className="text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200">
-                                Gunakan <strong>Penugasan Massal</strong> atau <strong>Salin Minggu Lalu</strong> agar tidak mengisi satu per satu.
+                                Use <strong>Bulk Assignment</strong> or <strong>Copy Previous Week</strong> to populate shifts rapidly.
                             </span>
                         </div>
                     </div>
@@ -844,8 +844,8 @@ export default function ScheduleIndex({
                                         {shift.start_time.substring(0, 5)} - {shift.end_time.substring(0, 5)}
                                     </div>
                                     <div className="text-xs font-bold text-slate-700 mt-2 flex items-center justify-between pt-1.5 border-t border-slate-100">
-                                        <span className="text-[10px] font-normal text-slate-400">Digunakan:</span>
-                                        <span>{count} kali</span>
+                                        <span className="text-[10px] font-normal text-slate-400">Used:</span>
+                                        <span>{count} time{count === 1 ? '' : 's'}</span>
                                     </div>
                                 </div>
                             );
@@ -858,7 +858,7 @@ export default function ScheduleIndex({
             <Modal show={isSingleModalOpen} onClose={closeSingleModal} maxWidth="md">
                 <form onSubmit={submitSingle} className="p-6">
                     <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-base font-bold text-slate-900">Tugaskan Shift Karyawan</h2>
+                        <h2 className="text-base font-bold text-slate-900">Assign Employee Shift</h2>
                         <button
                             type="button"
                             onClick={closeSingleModal}
@@ -874,13 +874,13 @@ export default function ScheduleIndex({
                             {selectedEmployee?.designation} &bull; {selectedEmployee?.department?.name}
                         </div>
                         <div className="text-xs font-semibold text-[#E31B23] mt-1">
-                            Tanggal: {selectedDate}
+                            Date: {selectedDate}
                         </div>
                     </div>
 
                     <div className="space-y-4">
                         <div>
-                            <InputLabel htmlFor="single_shift_id" value="Pilih Shift Kerja" />
+                            <InputLabel htmlFor="single_shift_id" value="Select Work Shift" />
                             {shifts.length > 0 ? (
                                 <>
                                     {/* Quick shift selection chips */}
@@ -917,7 +917,7 @@ export default function ScheduleIndex({
                                         onChange={(e) => setSingleData('shift_id', e.target.value)}
                                         required
                                     >
-                                        <option value="" disabled>-- Atau Pilih dari Dropdown --</option>
+                                        <option value="" disabled>-- Or Select from Dropdown --</option>
                                         {shifts.map((shift) => (
                                             <option key={shift.id} value={shift.id}>
                                                 {shift.name} ({shift.code}) &bull; {shift.start_time.substring(0, 5)} - {shift.end_time.substring(0, 5)}
@@ -927,7 +927,7 @@ export default function ScheduleIndex({
                                 </>
                             ) : (
                                 <div className="mt-1.5 p-3 bg-amber-50 text-amber-700 rounded-xl border border-amber-200 text-xs">
-                                    Belum ada shift aktif. Silakan tambahkan shift di menu Kelola Shift terlebih dahulu.
+                                    No active shifts available. Please create shifts in Manage Shifts first.
                                 </div>
                             )}
                             <InputError message={singleErrors.shift_id} className="mt-1.5" />
@@ -949,16 +949,16 @@ export default function ScheduleIndex({
                                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
-                                Hapus Shift
+                                Delete Shift
                             </button>
                         ) : (
                             <SecondaryButton type="button" onClick={closeSingleModal} className="text-xs py-2 px-3">
-                                Batal
+                                Cancel
                             </SecondaryButton>
                         )}
 
                         <PrimaryButton disabled={singleProcessing || shifts.length === 0} className="text-xs py-2 px-4">
-                            {singleProcessing ? 'Menyimpan...' : 'Simpan Jadwal'}
+                            {singleProcessing ? 'Saving...' : 'Save Schedule'}
                         </PrimaryButton>
                     </div>
                 </form>
@@ -975,10 +975,10 @@ export default function ScheduleIndex({
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
                                 </span>
-                                Penugasan Shift Massal (Bulk Scheduling)
+                                Bulk Shift Scheduling
                             </h2>
                             <p className="text-xs text-slate-500 mt-1">
-                                Jadwalkan shift untuk banyak karyawan dan beberapa hari kerja sekaligus dalam 1 kali klik.
+                                Schedule shifts for multiple employees and working days at once with a single click.
                             </p>
                         </div>
                         <button
@@ -991,10 +991,10 @@ export default function ScheduleIndex({
                     </div>
 
                     <div className="mt-5 space-y-6 max-h-[68vh] overflow-y-auto px-1">
-                        {/* Step 1: Pilih Shift */}
+                        {/* Step 1: Select Shift */}
                         <div>
                             <label className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 block">
-                                1. Pilih Shift Kerja
+                                1. Select Work Shift
                             </label>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                                 {shifts.map((shift) => (
@@ -1030,11 +1030,11 @@ export default function ScheduleIndex({
                             </div>
                         </div>
 
-                        {/* Step 2: Pilih Hari Kerja */}
+                        {/* Step 2: Select Working Days */}
                         <div>
                             <div className="flex items-center justify-between mb-2">
                                 <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                    2. Pilih Hari Kerja ({bulkSelectedDates.length} Hari Terpilih)
+                                    2. Select Working Days ({bulkSelectedDates.length} Selected)
                                 </label>
                                 <div className="flex items-center gap-1.5 text-xs">
                                     <button
@@ -1042,21 +1042,21 @@ export default function ScheduleIndex({
                                         onClick={() => setQuickDays('all')}
                                         className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
                                     >
-                                        Semua 7 Hari
+                                        All 7 Days
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setQuickDays('weekdays')}
                                         className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
                                     >
-                                        Senin - Jumat
+                                        Mon - Fri
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setQuickDays('weekend')}
                                         className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium"
                                     >
-                                        Sabtu - Minggu
+                                        Sat - Sun
                                     </button>
                                 </div>
                             </div>
@@ -1091,11 +1091,11 @@ export default function ScheduleIndex({
                             </div>
                         </div>
 
-                        {/* Step 3: Pilih Karyawan */}
+                        {/* Step 3: Select Employees */}
                         <div>
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                                 <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                    3. Pilih Karyawan ({bulkSelectedEmployeeIds.length} Terpilih)
+                                    3. Select Employees ({bulkSelectedEmployeeIds.length} Selected)
                                 </label>
 
                                 <div className="flex items-center gap-2">
@@ -1105,7 +1105,7 @@ export default function ScheduleIndex({
                                         onChange={(e) => setBulkDeptFilter(e.target.value)}
                                         className="rounded-lg border-slate-300 text-xs py-1 px-2.5 font-medium shadow-2xs"
                                     >
-                                        <option value="">Semua Departemen</option>
+                                        <option value="">All Departments</option>
                                         {departments.map((d) => (
                                             <option key={d.id} value={d.id}>{d.name}</option>
                                         ))}
@@ -1114,7 +1114,7 @@ export default function ScheduleIndex({
                                     {/* Search input inside modal */}
                                     <input
                                         type="text"
-                                        placeholder="Cari nama..."
+                                        placeholder="Search name..."
                                         value={bulkEmployeeSearch}
                                         onChange={(e) => setBulkEmployeeSearch(e.target.value)}
                                         className="rounded-lg border-slate-300 text-xs py-1 px-2.5 w-32 sm:w-40 shadow-2xs"
@@ -1126,7 +1126,7 @@ export default function ScheduleIndex({
                                         onClick={toggleSelectAllBulkEmployees}
                                         className="text-xs font-semibold text-[#E31B23] hover:underline whitespace-nowrap"
                                     >
-                                        Pilih Semua ({bulkFilteredEmployees.length})
+                                        Select All ({bulkFilteredEmployees.length})
                                     </button>
                                 </div>
                             </div>
@@ -1134,7 +1134,7 @@ export default function ScheduleIndex({
                             <div className="border border-slate-200 rounded-xl p-2 max-h-48 overflow-y-auto divide-y divide-slate-100 bg-slate-50/50">
                                 {bulkFilteredEmployees.length === 0 ? (
                                     <div className="p-4 text-center text-xs text-slate-400">
-                                        Tidak ada karyawan ditemukan dengan filter saat ini.
+                                        No employees found matching the current filters.
                                     </div>
                                 ) : (
                                     bulkFilteredEmployees.map((emp) => {
@@ -1188,10 +1188,10 @@ export default function ScheduleIndex({
                                 />
                                 <div>
                                     <span className="text-xs font-bold text-amber-900">
-                                        Timpa jadwal yang sudah ada (Overwrite)
+                                        Overwrite existing schedules
                                     </span>
                                     <p className="text-[11px] text-amber-700 mt-0.5">
-                                        Jika dicentang, shift pada hari yang dipilih akan langsung diperbarui. Jika tidak dicentang, hanya hari yang masih kosong yang akan diisi.
+                                        If checked, shifts on selected days will be updated directly. If unchecked, only empty days will be scheduled.
                                     </p>
                                 </div>
                             </label>
@@ -1201,17 +1201,17 @@ export default function ScheduleIndex({
                     {/* Footer Actions */}
                     <div className="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <div className="text-xs text-slate-600">
-                            Ringkasan:{' '}
-                            <strong className="text-slate-900">{bulkSelectedEmployeeIds.length}</strong> karyawan &times;{' '}
-                            <strong className="text-slate-900">{bulkSelectedDates.length}</strong> hari ={' '}
+                            Summary:{' '}
+                            <strong className="text-slate-900">{bulkSelectedEmployeeIds.length}</strong> employees &times;{' '}
+                            <strong className="text-slate-900">{bulkSelectedDates.length}</strong> days ={' '}
                             <span className="text-[#E31B23] font-bold">
-                                {bulkSelectedEmployeeIds.length * bulkSelectedDates.length} slot shift
+                                {bulkSelectedEmployeeIds.length * bulkSelectedDates.length} shift slots
                             </span>
                         </div>
 
                         <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                             <SecondaryButton type="button" onClick={closeBulkModal} className="text-xs py-2 px-3">
-                                Batal
+                                Cancel
                             </SecondaryButton>
                             <PrimaryButton
                                 disabled={
@@ -1222,7 +1222,7 @@ export default function ScheduleIndex({
                                 }
                                 className="text-xs py-2 px-4"
                             >
-                                {bulkProcessing ? 'Menerapkan...' : 'Terapkan Penugasan Massal'}
+                                {bulkProcessing ? 'Applying...' : 'Apply Bulk Schedule'}
                             </PrimaryButton>
                         </div>
                     </div>
@@ -1240,9 +1240,9 @@ export default function ScheduleIndex({
                                 </svg>
                             </div>
                             <div>
-                                <h2 className="text-base font-bold text-slate-900">Salin Jadwal dari Minggu Lalu</h2>
+                                <h2 className="text-base font-bold text-slate-900">Copy Schedule from Previous Week</h2>
                                 <p className="text-xs text-slate-500 mt-0.5">
-                                    Duplikasi seluruh pola shift kerja dari 1 minggu sebelumnya.
+                                    Duplicate the entire work shift pattern from the preceding week.
                                 </p>
                             </div>
                         </div>
@@ -1256,7 +1256,7 @@ export default function ScheduleIndex({
                         <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-center">
                             <div>
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                                    Sumber (Minggu Lalu)
+                                    Source (Previous Week)
                                 </span>
                                 <span className="text-xs font-bold text-slate-700 mt-1 block">
                                     {prevWeekLabels.start} — {prevWeekLabels.end}
@@ -1264,7 +1264,7 @@ export default function ScheduleIndex({
                             </div>
                             <div className="border-l border-slate-200 pl-3">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#E31B23] block">
-                                    Target (Minggu Ini)
+                                    Target (Current Week)
                                 </span>
                                 <span className="text-xs font-bold text-slate-900 mt-1 block">
                                     {getDisplayDate(weekDates[0])} — {getDisplayDate(weekDates[weekDates.length - 1])}
@@ -1274,14 +1274,14 @@ export default function ScheduleIndex({
 
                         {/* Department Scope */}
                         <div>
-                            <InputLabel htmlFor="copy_department_id" value="Cakupan Departemen" />
+                            <InputLabel htmlFor="copy_department_id" value="Department Scope" />
                             <select
                                 id="copy_department_id"
                                 value={copyDeptId}
                                 onChange={(e) => setCopyDeptId(e.target.value)}
                                 className="mt-1 block w-full rounded-xl border-slate-300 text-xs text-slate-900 shadow-2xs focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] py-2.5 px-3"
                             >
-                                <option value="">Semua Departemen ({departments.length})</option>
+                                <option value="">All Departments ({departments.length})</option>
                                 {departments.map((dept) => (
                                     <option key={dept.id} value={dept.id}>
                                         {dept.name}
@@ -1289,7 +1289,7 @@ export default function ScheduleIndex({
                                 ))}
                             </select>
                             <p className="text-[11px] text-slate-400 mt-1">
-                                Anda dapat menyalin untuk seluruh hotel atau hanya departemen tertentu.
+                                You can duplicate for all hotel staff or filter by a specific department.
                             </p>
                         </div>
 
@@ -1303,10 +1303,10 @@ export default function ScheduleIndex({
                                 />
                                 <div>
                                     <span className="text-xs font-bold text-amber-900">
-                                        Timpa jadwal minggu ini jika sudah ada
+                                        Overwrite existing schedules in target week
                                     </span>
                                     <p className="text-[11px] text-amber-700 mt-0.5">
-                                        Bila tidak dicentang, jadwal yang sudah diisi manual di minggu ini akan tetap dipertahankan.
+                                        If unchecked, previously populated shifts in this target week will be preserved.
                                     </p>
                                 </div>
                             </label>
@@ -1315,10 +1315,10 @@ export default function ScheduleIndex({
 
                     <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
                         <SecondaryButton type="button" onClick={closeCopyModal} className="text-xs py-2 px-3">
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <PrimaryButton disabled={copyProcessing} className="text-xs py-2 px-4">
-                            {copyProcessing ? 'Menyalin Jadwal...' : 'Salin Jadwal Sekarang'}
+                            {copyProcessing ? 'Copying Schedule...' : 'Copy Schedule Now'}
                         </PrimaryButton>
                     </div>
                 </form>
@@ -1334,40 +1334,40 @@ export default function ScheduleIndex({
                             </svg>
                         </div>
                         <div>
-                            <h2 className="text-base font-bold text-slate-900">Kosongkan Jadwal Roster</h2>
+                            <h2 className="text-base font-bold text-slate-900">Clear Roster Schedule</h2>
                             <p className="text-xs text-slate-500 mt-0.5">
-                                Tindakan ini akan menghapus penugasan shift pada rentang minggu terpilih.
+                                This action will remove all shift assignments within the selected week range.
                             </p>
                         </div>
                     </div>
 
                     <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5 mb-5">
                         <div className="flex justify-between">
-                            <span className="text-slate-500">Rentang Waktu:</span>
-                            <span className="font-bold text-slate-800">{startDate} s/d {endDate}</span>
+                            <span className="text-slate-500">Time Range:</span>
+                            <span className="font-bold text-slate-800">{startDate} to {endDate}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-slate-500">Target Hapus:</span>
+                            <span className="text-slate-500">Target Scope:</span>
                             <span className="font-bold text-slate-900">
                                 {clearTargetEmployee
-                                    ? `Karyawan: ${clearTargetEmployee.user?.name}`
+                                    ? `Employee: ${clearTargetEmployee.user?.name}`
                                     : activeDeptFilter
-                                    ? `Departemen Terpilih`
-                                    : 'Seluruh Karyawan (Semua Departemen)'}
+                                    ? `Selected Department`
+                                    : 'All Employees (All Departments)'}
                             </span>
                         </div>
                     </div>
 
                     <p className="text-xs text-rose-600 font-semibold mb-6">
-                        Peringatan: Jadwal yang sudah dihapus tidak dapat dipulihkan secara otomatis.
+                        Warning: Deleted shift schedules cannot be automatically restored.
                     </p>
 
                     <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
                         <SecondaryButton type="button" onClick={closeClearModal} className="text-xs py-2 px-3">
-                            Batal
+                            Cancel
                         </SecondaryButton>
                         <DangerButton disabled={clearProcessing} className="text-xs py-2 px-4">
-                            {clearProcessing ? 'Menghapus...' : 'Ya, Hapus Jadwal'}
+                            {clearProcessing ? 'Deleting...' : 'Yes, Delete Schedule'}
                         </DangerButton>
                     </div>
                 </form>

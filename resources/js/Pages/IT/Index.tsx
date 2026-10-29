@@ -515,6 +515,16 @@ export default function ItIndex({
                                     <span>PowerPro ID Requests</span>
                                 </Link>
 
+                                <Link
+                                    href={route('master-keys.index')}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"
+                                >
+                                    <svg className="w-4 h-4 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                    </svg>
+                                    <span>Master Key Programming</span>
+                                </Link>
+
                                 <button
                                     onClick={openCreateAsset}
                                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-red-700 hover:text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 shadow-2xs transition-all hover:scale-102 cursor-pointer"

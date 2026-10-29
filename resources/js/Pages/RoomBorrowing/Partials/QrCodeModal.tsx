@@ -59,13 +59,13 @@ export default function QrCodeModal({ show, onClose, qrUrl }: QrCodeModalProps) 
                         </div>
                         <p style="font-size: 12px; font-family: monospace; color: #E31B23; font-weight: bold; margin: 0;">${qrUrl}</p>
                         <div class="steps">
-                            <strong style="display: block; margin-bottom: 8px; color: #0F172A;">Alur Peminjaman & Pengembalian Kunci:</strong>
+                            <strong style="display: block; margin-bottom: 8px; color: #0F172A;">Key Borrowing & Return Procedure:</strong>
                             <ol>
-                                <li><strong>Pindai QR Code</strong> dengan kamera ponsel dan login ke sistem SIPU.</li>
-                                <li>Pilih ruangan pada <strong>Formulir Peminjaman</strong> (pastikan status <strong>Tersedia</strong>).</li>
-                                <li>Tentukan durasi dan keperluan peminjaman, lalu klik <strong>Ajukan Peminjaman Kunci</strong>.</li>
-                                <li>Tunjukkan layar konfirmasi ke petugas Security untuk serah terima fisik kunci.</li>
-                                <li>Setelah kegiatan selesai, klik <strong>Request Return</strong> dan serahkan kembali kunci ke Pos Security.</li>
+                                <li><strong>Scan the QR Code</strong> with your phone camera and log in to the SIPU system.</li>
+                                <li>Select your desired room on the <strong>Borrowing Form</strong> (ensure status is <strong>Available</strong>).</li>
+                                <li>Specify duration and purpose, then tap <strong>Confirm & Submit Key Loan Request</strong>.</li>
+                                <li>Present the confirmation screen to the Security officer to collect the physical key.</li>
+                                <li>After your session concludes, tap <strong>Request Key Return</strong> in My Borrowings and return the physical key to Security.</li>
                             </ol>
                         </div>
                         <div class="footer">
@@ -139,10 +139,10 @@ export default function QrCodeModal({ show, onClose, qrUrl }: QrCodeModalProps) 
                             <svg className="w-4 h-4 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            Panduan QR Code Pos Security:
+                            Security Post QR Code Guide:
                         </div>
                         <p>
-                            QR Code ini dicetak dan ditempatkan pada meja Pos Security. Karyawan cukup memindai QR code ini dengan ponsel untuk langsung membuka <strong>Formulir Peminjaman Ruangan & Kunci</strong> secara instan tanpa perlu menavigasi menu.
+                            Print and place this QR code on the Security desk stand. Staff members can quickly scan this QR code with their mobile device to open the <strong>Room & Key Borrowing Form</strong> instantly without manual menu navigation.
                         </p>
                     </div>
                 </div>

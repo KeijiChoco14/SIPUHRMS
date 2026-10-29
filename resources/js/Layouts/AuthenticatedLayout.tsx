@@ -47,7 +47,9 @@ const icons: Record<string, JSX.Element> = {
     'Roles & Permissions': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
     'Audit Logs': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>,
     'System Settings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+    Settings: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
     'Master Key Access': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
+    'Master Key Programming': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
     'Master Key Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
     'Overview & Stats': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
     'IT Helpdesk Tickets': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>,
@@ -60,6 +62,7 @@ const icons: Record<string, JSX.Element> = {
     'PowerPro ID Requests': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>,
     'Profile Settings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
     'Form Peminjaman': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
+    'Borrowing Form': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>,
     'Room Catalog': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>,
     'My Borrowings': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" /></svg>,
     'Security Queue': <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
@@ -179,6 +182,7 @@ export default function Authenticated({
     // Hak akses level manajemen / HRD (Super Admin, HRD / Admin, General Manager)
     const isAdmin = isSuperAdmin || isHRD || isManager;
     const isItStaff = isSuperAdmin || isManager || (user.employee?.department?.name?.toLowerCase() === 'it');
+    const canAccessMasterKey = isSuperAdmin || isHRD || isManager || isSupervisor || (user.employee?.department?.name === 'Housekeeping') || (user.employee?.department?.name?.toLowerCase() === 'it');
     const canViewPerformance = isAdmin;
     const canViewProjects = isAdmin || isSupervisor;
 
@@ -212,25 +216,6 @@ export default function Authenticated({
             };
         }
 
-        // B. Housekeeping
-        if (route().current('master-keys.*') || currentUrl.includes('/master-keys')) {
-            return {
-                key: 'housekeeping',
-                title: 'Housekeeping',
-                subtitle: 'Master Key Custody',
-                badgeBg: 'bg-amber-50',
-                badgeBorder: 'border-amber-200',
-                dotColor: 'bg-amber-500',
-                sections: [
-                    {
-                        title: 'Master Key Operations',
-                        items: [
-                            { name: 'Master Key Requests', route: 'master-keys.index', pattern: 'master-keys.*' },
-                        ],
-                    },
-                ],
-            };
-        }
 
         // E. Room & Key Management (Cross-department service)
         if (route().current('room-borrowing.*') || currentUrl.includes('/room-borrowing')) {
@@ -248,7 +233,7 @@ export default function Authenticated({
                     {
                         title: 'Room Services',
                         items: [
-                            { name: 'Form Peminjaman', route: 'room-borrowing.index', params: { tab: 'borrow' }, pattern: 'room-borrowing.*' },
+                            { name: 'Borrowing Form', route: 'room-borrowing.index', params: { tab: 'borrow' }, pattern: 'room-borrowing.*' },
                             isItStaff ? { name: 'Room Catalog', route: 'room-borrowing.index', params: { tab: 'catalog' }, pattern: 'room-borrowing.*' } : null,
                             { name: 'My Borrowings', route: 'room-borrowing.index', params: { tab: 'my-borrowings' }, pattern: 'room-borrowing.*' },
                         ].filter(Boolean) as any[],
@@ -379,7 +364,9 @@ export default function Authenticated({
         if (
             route().current('it.*') ||
             route().current('power-pro.*') ||
-            currentUrl.includes('/it')
+            route().current('master-keys.*') ||
+            currentUrl.includes('/it') ||
+            currentUrl.includes('/master-keys')
         ) {
             return {
                 key: 'it',
@@ -412,14 +399,14 @@ export default function Authenticated({
                         items: [
                             ...(isItStaff ? [{ name: 'Registration Approvals', route: 'it.registrations.index', pattern: 'it.registrations.*' }] : []),
                             { name: 'PowerPro ID Requests', route: 'power-pro.index', pattern: 'power-pro.*' },
-                            ...(isItStaff ? [{ name: 'Master Key Programming', route: 'master-keys.index', pattern: 'master-keys.*' }] : []),
+                            ...(canAccessMasterKey ? [{ name: 'Master Key Programming', route: 'master-keys.index', pattern: 'master-keys.*' }] : []),
                         ],
                     },
                 ].filter(Boolean) as any[],
             };
         }
 
-        // G. System Settings
+        // G. Settings
         if (
             route().current('roles.*') ||
             route().current('audit-logs.*') ||
@@ -430,18 +417,22 @@ export default function Authenticated({
         ) {
             return {
                 key: 'admin',
-                title: 'System Settings',
-                subtitle: 'Super Admin Center',
+                title: 'Settings',
+                subtitle: isSuperAdmin ? 'System Configuration & Security' : 'Application Settings',
                 badgeBg: 'bg-slate-100',
                 badgeBorder: 'border-slate-200',
                 dotColor: 'bg-slate-700',
                 sections: [
                     {
-                        title: 'System Settings',
+                        title: 'Settings',
                         items: [
-                            { name: 'Roles & Permissions', route: 'roles.index', pattern: 'roles.*' },
-                            { name: 'Audit Logs', route: 'audit-logs.index', pattern: 'audit-logs.*' },
-                            { name: 'System Settings', route: 'settings.index', pattern: 'settings.*' },
+                            ...(isSuperAdmin ? [
+                                { name: 'System Settings', route: 'settings.index', pattern: 'settings.*' },
+                                { name: 'Roles & Permissions', route: 'roles.index', pattern: 'roles.*' },
+                                { name: 'Audit Logs', route: 'audit-logs.index', pattern: 'audit-logs.*' },
+                            ] : [
+                                { name: 'Profile Settings', route: 'profile.edit', pattern: 'profile.*' },
+                            ]),
                         ],
                     },
                 ],
@@ -492,7 +483,7 @@ export default function Authenticated({
                 },
             ],
         };
-    }, [currentUrl, isAdmin, isManager, isSupervisor, canViewPerformance, canViewProjects, isItStaff]);
+    }, [currentUrl, isAdmin, isManager, isSupervisor, canViewPerformance, canViewProjects, isItStaff, canAccessMasterKey, isSuperAdmin]);
 
     const getItemHref = (item: any): string => {
         return (item.params ? route(item.route, item.params) : route(item.route)) as unknown as string;
@@ -643,6 +634,28 @@ export default function Authenticated({
                                     </div>
                                 );
                             })}
+                        </div>
+
+                        {/* Persistent Settings Link at bottom of Sidebar */}
+                        <div className="shrink-0 px-3 py-2 border-t border-slate-100">
+                            <Link
+                                href={isSuperAdmin ? route('settings.index') : route('profile.edit')}
+                                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
+                                    (route().current('settings.*') || route().current('roles.*') || route().current('audit-logs.*'))
+                                        ? 'bg-red-50 text-[#E31B23] shadow-xs ring-1 ring-red-100 font-semibold'
+                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-0.5'
+                                }`}
+                            >
+                                <span className={`transition-colors shrink-0 ${(route().current('settings.*') || route().current('roles.*') || route().current('audit-logs.*')) ? 'text-[#E31B23]' : 'text-slate-400'}`}>
+                                    {icons['Settings']}
+                                </span>
+                                <span className="truncate">Settings</span>
+                                {isSuperAdmin && (
+                                    <span className="ml-auto text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                                        Admin
+                                    </span>
+                                )}
+                            </Link>
                         </div>
 
                         {/* User Profile & Collapse Sidebar Footer */}
@@ -988,6 +1001,9 @@ export default function Authenticated({
                                 </div>
                             </div>
                             <div className="mt-3 space-y-1">
+                                <ResponsiveNavLink href={isSuperAdmin ? route('settings.index') : route('profile.edit')}>
+                                    Settings
+                                </ResponsiveNavLink>
                                 <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
                                 <ResponsiveNavLink method="post" href={route('logout')} as="button">Log Out</ResponsiveNavLink>
                             </div>

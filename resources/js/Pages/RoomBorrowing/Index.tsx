@@ -120,10 +120,10 @@ interface RoomBorrowingProps {
 }
 
 const PRESET_DURATIONS = [
-    { label: '1 Jam', hours: 1, sub: 'Sesi Cepat' },
-    { label: '2 Jam', hours: 2, sub: 'Standar' },
-    { label: '4 Jam', hours: 4, sub: 'Setengah Hari' },
-    { label: '8 Jam', hours: 8, sub: 'Satu Shift' },
+    { label: '1 Hour', hours: 1, sub: 'Quick Session' },
+    { label: '2 Hours', hours: 2, sub: 'Standard' },
+    { label: '4 Hours', hours: 4, sub: 'Half Day' },
+    { label: '8 Hours', hours: 8, sub: 'Full Shift' },
 ];
 
 export default function Index({
@@ -507,7 +507,7 @@ export default function Index({
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span>Form Peminjaman</span>
+                        <span>Borrowing Form</span>
                     </button>
 
                     {isItStaff && (
@@ -524,7 +524,7 @@ export default function Index({
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                             </svg>
                             <span>Room Catalog</span>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700">Khusus IT</span>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700">IT Only</span>
                         </button>
                     )}
 
@@ -603,9 +603,9 @@ export default function Index({
                                     </svg>
                                     Single-Step Key Custody Loan
                                 </span>
-                                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Formulir Peminjaman Ruangan & Kunci</h2>
+                                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Room & Key Borrowing Form</h2>
                                 <p className="mt-1.5 text-xs sm:text-sm text-red-100 leading-relaxed">
-                                    Pilih ruangan hotel, periksa status ketersediaan fisik kunci secara real-time, dan tentukan durasi peminjaman dalam satu formulir cepat.
+                                    Select a hotel room, verify physical key availability in real-time, and specify borrowing duration in one seamless form.
                                 </p>
                             </div>
                         </div>
@@ -615,7 +615,7 @@ export default function Index({
                             {/* Main Form (8 Cols) */}
                             <div className="lg:col-span-8 space-y-6">
                                 <form onSubmit={handleBorrowSubmit} className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-6 sm:p-7 space-y-6">
-                                    {/* STEP 1: Pemilihan Ruangan & Detail Ketersediaan */}
+                                    {/* STEP 1: Room Selection & Availability Details */}
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2.5">
@@ -624,10 +624,10 @@ export default function Index({
                                                 </span>
                                                 <div>
                                                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                                                        Pilih Ruangan & Status Kunci
+                                                        Select Room & Key Status
                                                     </h3>
                                                     <p className="text-xs text-slate-500">
-                                                        Pastikan ruangan yang dipilih berstatus Tersedia (kunci siap dipinjam di Pos Security).
+                                                        Ensure the selected room is Available (key ready for pickup at Security Post).
                                                     </p>
                                                 </div>
                                             </div>
@@ -642,7 +642,7 @@ export default function Index({
                                                         : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                                                 }`}
                                             >
-                                                {roomPickerFilterAvailableOnly ? '✓ Hanya Tersedia' : 'Semua Ruangan'}
+                                                {roomPickerFilterAvailableOnly ? '✓ Available Only' : 'All Rooms'}
                                             </button>
                                         </div>
 
@@ -658,7 +658,7 @@ export default function Index({
                                                     type="text"
                                                     value={roomPickerSearch}
                                                     onChange={(e) => setRoomPickerSearch(e.target.value)}
-                                                    placeholder="Ketik untuk memfilter nama ruangan, nomor, lokasi..."
+                                                    placeholder="Type to filter room name, number, location..."
                                                     className="block w-full pl-9 pr-8 py-2 rounded-xl border-slate-200 text-xs sm:text-sm focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] placeholder:text-slate-400"
                                                 />
                                                 {roomPickerSearch && (
@@ -685,13 +685,13 @@ export default function Index({
                                                     {selectableRooms.map((r) => {
                                                         const statusLabel =
                                                             r.status === 'AVAILABLE'
-                                                                ? '✅ Tersedia'
+                                                                ? '✅ Available'
                                                                 : r.status === 'BORROWED'
-                                                                ? '🔴 Sedang Dipinjam'
-                                                                : '⏳ Verifikasi Return';
+                                                                ? '🔴 Borrowed'
+                                                                : '⏳ Awaiting Verification';
                                                         return (
                                                             <option key={r.id} value={r.id}>
-                                                                #{r.room_number} - {r.name} [{statusLabel}] - {r.location || 'Area Hotel'}
+                                                                #{r.room_number} - {r.name} [{statusLabel}] - {r.location || 'Hotel Area'}
                                                             </option>
                                                         );
                                                     })}
@@ -733,7 +733,7 @@ export default function Index({
                                             </div>
                                         </div>
 
-                                        {/* DETAIL RUANGAN & STATUS KUNCI CARD */}
+                                        {/* ROOM DETAILS & KEY STATUS CARD */}
                                         {selectedRoom && (
                                             <div
                                                 className={`rounded-2xl border p-4 sm:p-5 transition-all ${
@@ -762,17 +762,17 @@ export default function Index({
                                                     <div>
                                                         {selectedRoom.status === 'AVAILABLE' && (
                                                             <Badge variant="success" dot size="md">
-                                                                Tersedia (Siap Dipinjam)
+                                                                Available (Ready for Pickup)
                                                             </Badge>
                                                         )}
                                                         {selectedRoom.status === 'BORROWED' && (
                                                             <Badge variant="danger" dot size="md">
-                                                                Sedang Dipinjam
+                                                                Currently Borrowed
                                                             </Badge>
                                                         )}
                                                         {selectedRoom.status === 'PENDING_RETURN' && (
                                                             <Badge variant="warning" dot size="md">
-                                                                Menunggu Verifikasi Security
+                                                                Awaiting Security Verification
                                                             </Badge>
                                                         )}
                                                     </div>
@@ -781,32 +781,32 @@ export default function Index({
                                                 {/* Room Specifications */}
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-slate-700 py-3 border-b border-slate-200/60">
                                                     <div>
-                                                        <span className="text-slate-400 block text-[11px] font-medium">Lokasi / Area:</span>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Location / Area:</span>
                                                         <span className="font-semibold text-slate-800">{selectedRoom.location || '-'}</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-slate-400 block text-[11px] font-medium">Kapasitas:</span>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Capacity:</span>
                                                         <span className="font-semibold text-slate-800 tabular-nums">
-                                                            {selectedRoom.capacity ? `${selectedRoom.capacity} Pax` : 'Fleksibel'}
+                                                            {selectedRoom.capacity ? `${selectedRoom.capacity} Pax` : 'Flexible'}
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-slate-400 block text-[11px] font-medium">Kode Kunci Fisik:</span>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Physical Key Code:</span>
                                                         <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-200 inline-block mt-0.5">
                                                             {selectedRoom.key_code || '-'}
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-slate-400 block text-[11px] font-medium">Total Peminjaman:</span>
+                                                        <span className="text-slate-400 block text-[11px] font-medium">Total Borrowings:</span>
                                                         <span className="font-semibold text-slate-800 tabular-nums">
-                                                            {selectedRoom.transactions_count || 0} Kali
+                                                            {selectedRoom.transactions_count || 0} Time{selectedRoom.transactions_count === 1 ? '' : 's'}
                                                         </span>
                                                     </div>
                                                 </div>
 
                                                 {selectedRoom.description && (
                                                     <div className="pt-2 text-xs text-slate-600">
-                                                        <span className="text-slate-400 font-medium">Fasilitas / Deskripsi: </span>
+                                                        <span className="text-slate-400 font-medium">Facilities / Description: </span>
                                                         <span>{selectedRoom.description}</span>
                                                     </div>
                                                 )}
@@ -818,22 +818,22 @@ export default function Index({
                                                             <svg className="w-4 h-4 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                                             </svg>
-                                                            Kunci Fisik Sedang Dipakai
+                                                            Physical Key Currently In Use
                                                         </div>
 
                                                         {selectedRoom.active_transaction ? (
                                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-slate-700 bg-rose-50/60 p-2.5 rounded-lg border border-rose-100">
                                                                 <div>
-                                                                    <span className="text-slate-400 block text-[11px]">Peminjam:</span>
+                                                                    <span className="text-slate-400 block text-[11px]">Borrower:</span>
                                                                     <span className="font-bold text-slate-900">
-                                                                        {selectedRoom.active_transaction.borrower?.user?.name || 'Staff Hotel'}
+                                                                        {selectedRoom.active_transaction.borrower?.user?.name || 'Hotel Staff'}
                                                                     </span>
                                                                     <span className="block text-[11px] text-slate-500">
                                                                         {selectedRoom.active_transaction.borrower?.department?.name || 'Dept'} • {selectedRoom.active_transaction.borrower?.employee_number}
                                                                     </span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-slate-400 block text-[11px]">Waktu Pinjam:</span>
+                                                                    <span className="text-slate-400 block text-[11px]">Borrowed At:</span>
                                                                     <span className="font-semibold text-slate-800 tabular-nums">
                                                                         {formatDateTime(selectedRoom.active_transaction.borrowed_at)}
                                                                     </span>
@@ -842,30 +842,30 @@ export default function Index({
                                                                     </span>
                                                                 </div>
                                                                 <div>
-                                                                    <span className="text-slate-400 block text-[11px]">Batas Pengembalian:</span>
+                                                                    <span className="text-slate-400 block text-[11px]">Due Return Time:</span>
                                                                     <span className="font-semibold text-slate-800 tabular-nums">
                                                                         {selectedRoom.active_transaction.expected_return_at ? formatDateTime(selectedRoom.active_transaction.expected_return_at) : '-'}
                                                                     </span>
                                                                     <span className="block text-[11px] text-slate-500">
-                                                                        Durasi: {selectedRoom.active_transaction.expected_duration_hours || 2} Jam
+                                                                        Duration: {selectedRoom.active_transaction.expected_duration_hours || 2} Hour(s)
                                                                     </span>
                                                                 </div>
                                                                 {selectedRoom.active_transaction.purpose && (
                                                                     <div className="sm:col-span-3 text-[11px] pt-1 border-t border-rose-200/50 text-slate-600">
-                                                                        <span className="text-slate-400">Keperluan: </span>
+                                                                        <span className="text-slate-400">Purpose: </span>
                                                                         <span className="italic">"{selectedRoom.active_transaction.purpose}"</span>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         ) : (
                                                             <p className="text-xs text-rose-700">
-                                                                Kunci ruangan ini sedang tercatat dipinjam oleh staf hotel dan belum dikembalikan ke Pos Security.
+                                                                This room key is currently recorded as borrowed by hotel staff and has not yet been returned to the Security Post.
                                                             </p>
                                                         )}
 
                                                         <div className="flex items-center justify-between pt-1">
                                                             <p className="text-xs text-rose-700">
-                                                                Anda tidak dapat meminjam ruangan ini sekarang. Silakan pilih ruangan lain.
+                                                                You cannot borrow this room right now. Please select another available room.
                                                             </p>
                                                             {firstAvailableRoom && (
                                                                 <button
@@ -873,7 +873,7 @@ export default function Index({
                                                                     onClick={() => setBorrowData('room_id', firstAvailableRoom.id)}
                                                                     className="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 transition-colors shrink-0"
                                                                 >
-                                                                    Pilih Ruangan Tersedia (#{firstAvailableRoom.room_number})
+                                                                    Select Available Room (#{firstAvailableRoom.room_number})
                                                                 </button>
                                                             )}
                                                         </div>
@@ -886,10 +886,10 @@ export default function Index({
                                                             <svg className="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                             </svg>
-                                                            Dalam Proses Verifikasi Pengembalian di Security
+                                                            Return Verification in Progress at Security
                                                         </div>
                                                         <p className="text-xs text-amber-700 leading-relaxed">
-                                                            Peminjam telah mengajukan serah terima kunci. Kunci sedang dalam proses pemeriksaan fisik oleh petugas Pos Security. Ruangan akan kembali <strong>Tersedia</strong> begitu verifikasi selesai.
+                                                            The borrower has initiated key return. The physical key is being inspected by Security personnel. The room will become <strong>Available</strong> once verified.
                                                         </p>
                                                     </div>
                                                 )}
@@ -902,7 +902,7 @@ export default function Index({
                                                             </svg>
                                                         </div>
                                                         <div>
-                                                            <span className="font-bold">Kunci Fisik Siap Dipinjam!</span> Kunci berada di Key Cabinet Pos Security dan siap diserahkan setelah pengajuan form ini.
+                                                            <span className="font-bold">Physical Key Ready for Pickup!</span> The key is secured in the Security Key Cabinet and ready to be issued upon form submission.
                                                         </div>
                                                     </div>
                                                 )}
@@ -910,7 +910,7 @@ export default function Index({
                                         )}
                                     </div>
 
-                                    {/* STEP 2: Estimasi Durasi Peminjaman */}
+                                    {/* STEP 2: Estimated Borrowing Duration */}
                                     <div className="space-y-3 pt-4 border-t border-slate-100">
                                         <div className="flex items-center gap-2.5">
                                             <span className="w-6 h-6 rounded-full bg-[#E31B23] text-white text-xs font-bold flex items-center justify-center shrink-0">
@@ -918,10 +918,10 @@ export default function Index({
                                             </span>
                                             <div>
                                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                                                    Estimasi Durasi Peminjaman
+                                                    Estimated Borrowing Duration
                                                 </h3>
                                                 <p className="text-xs text-slate-500">
-                                                    Pilih perkiraan lama pemakaian untuk menentukan jadwal pengembalian kunci ke Pos Security.
+                                                    Select estimated duration to determine the key return deadline to Security Post.
                                                 </p>
                                             </div>
                                         </div>
@@ -959,7 +959,7 @@ export default function Index({
                                                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                                                 }`}
                                             >
-                                                Atur Jam Kustom (Manual)
+                                                Custom Hours (Manual)
                                             </button>
 
                                             {selectedDurationPreset === 'custom' && (
@@ -972,7 +972,7 @@ export default function Index({
                                                         onChange={(e) => setBorrowData('expected_duration_hours', parseInt(e.target.value) || 1)}
                                                         className="w-20 rounded-xl border-slate-200 text-xs sm:text-sm font-semibold text-center focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23]"
                                                     />
-                                                    <span className="text-xs text-slate-600 font-medium">Jam</span>
+                                                    <span className="text-xs text-slate-600 font-medium">Hours</span>
                                                 </div>
                                             )}
                                         </div>
@@ -987,10 +987,10 @@ export default function Index({
                                                     </svg>
                                                 </div>
                                                 <div>
-                                                    <span className="text-slate-400 block text-[11px]">Batas Pengembalian Kunci:</span>
+                                                    <span className="text-slate-400 block text-[11px]">Key Return Deadline:</span>
                                                     <span className="font-bold text-slate-900">{projectedReturnTime} WIB</span>
                                                     <span className="text-slate-500 text-[11px] ml-1">
-                                                        ({borrowData.expected_duration_hours} jam dari sekarang)
+                                                        ({borrowData.expected_duration_hours} hours from now)
                                                     </span>
                                                 </div>
                                             </div>
@@ -1005,10 +1005,10 @@ export default function Index({
                                             </span>
                                             <div>
                                                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                                                    Keperluan / Agenda Penggunaan
+                                                    Purpose / Usage Agenda
                                                 </h3>
                                                 <p className="text-xs text-slate-500">
-                                                    Tuliskan peruntukan ruangan untuk kelengkapan administrasi dan verifikasi Security.
+                                                    State room usage details for administrative records and Security verification.
                                                 </p>
                                             </div>
                                         </div>
@@ -1018,7 +1018,7 @@ export default function Index({
                                             rows={3}
                                             value={borrowData.purpose}
                                             onChange={(e) => setBorrowData('purpose', e.target.value)}
-                                            placeholder="Contoh: Rapat koordinasi mingguan tim Front Office, presentasi proposal ke klien VIP, atau pelatihan staf..."
+                                            placeholder="e.g. Front Office weekly coordination meeting, VIP client presentation, or staff training session..."
                                             className="block w-full rounded-2xl border-slate-200 text-xs sm:text-sm focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23] placeholder:text-slate-400"
                                         />
                                         <InputError message={borrowErrors.purpose} className="mt-1" />
@@ -1033,10 +1033,10 @@ export default function Index({
                                                     disabled={true}
                                                     className="w-full justify-center bg-slate-300 text-slate-500 cursor-not-allowed py-3 text-sm font-bold"
                                                 >
-                                                    Ruangan Tidak Tersedia (Sedang Dipinjam)
+                                                    Room Unavailable (Currently Borrowed)
                                                 </PrimaryButton>
                                                 <p className="text-center text-xs text-rose-600 mt-2 font-medium">
-                                                    Pilih ruangan yang berstatus Tersedia di atas untuk melanjutkan pengajuan.
+                                                    Select an available room above to proceed with your request.
                                                 </p>
                                             </div>
                                         ) : (
@@ -1051,14 +1051,14 @@ export default function Index({
                                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                         </svg>
-                                                        Memproses Pengajuan...
+                                                        Processing Request...
                                                     </span>
                                                 ) : (
                                                     <span className="flex items-center gap-2">
                                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                                         </svg>
-                                                        Konfirmasi & Ajukan Peminjaman Kunci
+                                                        Confirm & Submit Key Loan Request
                                                     </span>
                                                 )}
                                             </PrimaryButton>
@@ -1073,10 +1073,10 @@ export default function Index({
                                 <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
                                     <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                                         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                                            Identitas Peminjam
+                                            Borrower Identity
                                         </span>
                                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                            Akun Aktif
+                                            Active Account
                                         </span>
                                     </div>
 
@@ -1100,15 +1100,15 @@ export default function Index({
                                             </h4>
                                             <p className="text-xs text-slate-500 truncate">{currentUser?.email}</p>
                                             <span className="inline-block mt-0.5 text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-                                                {currentUser?.employee?.department?.name || 'Hotel Staff'} • NIP: {currentUser?.employee?.employee_number || '-'}
+                                                {currentUser?.employee?.department?.name || 'Hotel Staff'} • ID: {currentUser?.employee?.employee_number || '-'}
                                             </span>
                                         </div>
                                     </div>
 
                                     <div className="rounded-xl border border-slate-200/60 bg-slate-50/70 p-3 text-xs text-slate-600 space-y-1">
-                                        <div className="text-[11px] text-slate-400 font-medium">Catatan Otomatis:</div>
+                                        <div className="text-[11px] text-slate-400 font-medium">Automatic Notice:</div>
                                         <p className="text-[11px] leading-relaxed">
-                                            Peminjaman akan secara sah tercatat atas nama Anda. Anda bertanggung jawab penuh atas keamanan fisik kunci dan ketertiban ruangan hingga diserahterimakan kembali ke Pos Security.
+                                            This loan will be officially logged under your account. You hold full responsibility for the physical key security and room conduct until handed back to the Security Post.
                                         </p>
                                     </div>
                                 </div>
@@ -1119,24 +1119,24 @@ export default function Index({
                                         <svg className="w-4 h-4 text-[#E31B23]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
-                                        Prosedur Peminjaman Kunci
+                                        Key Borrowing Procedure
                                     </h4>
                                     <ol className="space-y-2.5 text-xs text-slate-600">
                                         <li className="flex items-start gap-2">
                                             <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
-                                            <span>Pilih ruangan yang berstatus <strong>Tersedia</strong> di formulir.</span>
+                                            <span>Select a room with <strong>Available</strong> status in the form.</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-                                            <span>Tentukan durasi & peruntukan, lalu klik <strong>Ajukan Peminjaman</strong>.</span>
+                                            <span>Specify duration & purpose, then click <strong>Submit Request</strong>.</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
-                                            <span>Datangi <strong>Pos Security</strong> untuk pengambilan fisik kunci.</span>
+                                            <span>Proceed to the <strong>Security Post</strong> to pick up the physical key.</span>
                                         </li>
                                         <li className="flex items-start gap-2">
                                             <span className="w-4 h-4 rounded-full bg-red-50 text-[#E31B23] text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
-                                            <span>Selesai acara, ajukan <strong>Request Return</strong> di menu My Borrowings dan kembalikan kunci ke Security.</span>
+                                            <span>Once completed, submit a <strong>Return Request</strong> in My Borrowings and return the key to Security.</span>
                                         </li>
                                     </ol>
                                 </div>
@@ -1144,23 +1144,23 @@ export default function Index({
                                 {/* Hotel Key Stats Summary */}
                                 <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-3">
                                     <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                                        Ringkasan Kunci Hotel
+                                        Hotel Keys Summary
                                     </h4>
                                     <div className="space-y-2 text-xs">
                                         <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50">
-                                            <span className="text-slate-600">Total Ruangan Terdaftar</span>
+                                            <span className="text-slate-600">Total Registered Rooms</span>
                                             <span className="font-bold text-slate-900 tabular-nums">{stats.total}</span>
                                         </div>
                                         <div className="flex items-center justify-between p-2 rounded-xl bg-emerald-50 text-emerald-800">
-                                            <span>Kunci Tersedia di Pos</span>
+                                            <span>Keys Available at Post</span>
                                             <span className="font-bold tabular-nums">{stats.available}</span>
                                         </div>
                                         <div className="flex items-center justify-between p-2 rounded-xl bg-rose-50 text-rose-800">
-                                            <span>Kunci Sedang Dipinjam</span>
+                                            <span>Keys Currently Borrowed</span>
                                             <span className="font-bold tabular-nums">{stats.borrowed}</span>
                                         </div>
                                         <div className="flex items-center justify-between p-2 rounded-xl bg-amber-50 text-amber-800">
-                                            <span>Menunggu Verifikasi</span>
+                                            <span>Awaiting Verification</span>
                                             <span className="font-bold tabular-nums">{stats.pending_return}</span>
                                         </div>
                                     </div>
@@ -1184,9 +1184,9 @@ export default function Index({
                                     </svg>
                                 </div>
                                 <div>
-                                    <span className="text-xs font-bold uppercase tracking-wider block">Mode Khusus Tim IT</span>
+                                    <span className="text-xs font-bold uppercase tracking-wider block">IT Department Exclusive View</span>
                                     <span className="text-xs text-purple-800">
-                                        Katalog direktori ini ditampilkan khusus untuk tim IT. Pengguna staf umum langsung diarahkan ke <strong>Form Peminjaman</strong>.
+                                        This directory catalog is exclusively for the IT Team. General staff members are routed directly to the <strong>Borrowing Form</strong>.
                                     </span>
                                 </div>
                             </div>
@@ -1195,7 +1195,7 @@ export default function Index({
                                 onClick={() => switchTab('borrow')}
                                 className="px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors shrink-0"
                             >
-                                Buka Form Peminjaman →
+                                Open Borrowing Form →
                             </button>
                         </div>
 
@@ -1419,7 +1419,7 @@ export default function Index({
                                                         <svg className="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                                         </svg>
-                                                        Pinjam di Form
+                                                        Borrow in Form
                                                     </PrimaryButton>
                                                 ) : isBorrowed ? (
                                                     <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/60">

@@ -1,11 +1,25 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import Modal from '@/Components/Modal';
 import EmployeeDashboard from './Dashboard/Partials/EmployeeDashboard';
 import SupervisorDashboard from './Dashboard/Partials/SupervisorDashboard';
 import HRDashboard from './Dashboard/Partials/HRDashboard';
 import ManagerDashboard from './Dashboard/Partials/ManagerDashboard';
 import EmployeeHRDashboard from './Dashboard/Partials/EmployeeHRDashboard';
+
+interface ShortcutOption {
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    icon: string;
+    href: string;
+    badge?: string | number | null;
+    badgeColor?: string;
+    colorClasses: string;
+    visible?: boolean;
+}
 
 interface LauncherStats {
     activeTasks?: number;
@@ -93,6 +107,24 @@ export default function Dashboard({
     const canAccessHousekeeping = isAdmin || isHOD || isHousekeeping || isItStaff;
     const isSecurityUser = user.roles?.some((r: any) => r.name === 'Security') || isAdmin;
 
+    // Custom Quick Shortcuts state (localStorage per user)
+    const storageKey = `user_quick_shortcuts_${user.id}`;
+    const [savedShortcutIds, setSavedShortcutIds] = useState<string[]>(() => {
+        try {
+            const raw = localStorage.getItem(storageKey);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) return parsed;
+            }
+        } catch (e) {
+            // ignore
+        }
+        return []; // starts empty by default as requested!
+    });
+    const [isCustomizingShortcuts, setIsCustomizingShortcuts] = useState(false);
+    const [shortcutModalSearch, setShortcutModalSearch] = useState('');
+    const [tempSelectedIds, setTempSelectedIds] = useState<string[]>([]);
+
     // Listen for Ctrl+K / Cmd+K shortcut
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -126,22 +158,6 @@ export default function Dashboard({
             icon: (
                 <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-            ),
-        },
-        {
-            id: 'housekeeping-key',
-            name: 'Housekeeping (HK)',
-            description: 'Hotel master key access requests, logs, and extensions',
-            category: 'Hotel Operations',
-            href: route('master-keys.index'),
-            gradient: 'from-amber-500 to-orange-600',
-            badge: launcherStats.masterKeyOnRequest && launcherStats.masterKeyOnRequest > 0 ? `${launcherStats.masterKeyOnRequest} Requests` : null,
-            badgeColor: 'bg-amber-500',
-            visible: canAccessHousekeeping,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                 </svg>
             ),
         },
@@ -222,21 +238,6 @@ export default function Dashboard({
             ),
         },
         {
-            id: 'settings',
-            name: 'System Settings',
-            description: 'System configurations, roles & permissions, and audit logs',
-            category: 'Administration',
-            href: route('settings.index'),
-            gradient: 'from-zinc-700 to-slate-900',
-            visible: isSuperAdmin,
-            icon: (
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            ),
-        },
-        {
             id: 'my-overview',
             name: 'Personal Dashboard',
             description: 'Personal work stats, individual attendance, and account performance',
@@ -250,7 +251,240 @@ export default function Dashboard({
                 </svg>
             ),
         },
-    ].filter(a => a.visible !== false), [launcherStats, pendingHrCount, isAdmin, isSuperAdmin, isSupervisor, canAccessHousekeeping, isItStaff, isSecurityUser]);
+    ].filter(a => a.visible !== false), [launcherStats, pendingHrCount, isAdmin, isSupervisor, isItStaff, isSecurityUser]);
+
+    // All available shortcut options that user can pin to their Quick Shortcuts bar
+    const availableShortcutOptions: ShortcutOption[] = useMemo(() => [
+        {
+            id: 'attendance',
+            title: isAdmin ? 'Attendance Logs' : 'My Attendance',
+            description: isAdmin ? 'View all staff attendance records & time logs' : 'View personal daily attendance records',
+            category: 'Human Capital',
+            icon: '🕒',
+            href: isAdmin ? route('attendance.index') : route('attendance.my'),
+            colorClasses: 'text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/90 border-emerald-200/60',
+            visible: true,
+        },
+        {
+            id: 'schedules',
+            title: 'Shift Roster (Scheduler)',
+            description: 'Weekly employee shift scheduling and assignment roster',
+            category: 'Human Capital',
+            icon: '📅',
+            href: route('schedules.index'),
+            colorClasses: 'text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100/90 border-indigo-200/60',
+            visible: isAdmin,
+        },
+        {
+            id: 'shifts',
+            title: 'Work Shift Master',
+            description: 'Manage hotel operational shift hours & grace periods',
+            category: 'Human Capital',
+            icon: '⏰',
+            href: route('shifts.index'),
+            colorClasses: 'text-purple-700 bg-purple-50/70 hover:bg-purple-100/90 border-purple-200/60',
+            visible: isAdmin,
+        },
+        {
+            id: 'leave',
+            title: 'Leave Requests',
+            description: 'Apply for leave, check balance, or review team leave requests',
+            category: 'Human Capital',
+            icon: '🏖️',
+            href: route('leave.index'),
+            badge: launcherStats.pendingLeaves && launcherStats.pendingLeaves > 0 ? `${launcherStats.pendingLeaves}` : null,
+            badgeColor: 'bg-sky-600',
+            colorClasses: 'text-sky-700 bg-sky-50/70 hover:bg-sky-100/90 border-sky-200/60',
+            visible: true,
+        },
+        {
+            id: 'overtime',
+            title: 'Overtime (SPKL)',
+            description: 'Overtime request submissions and supervisor approvals',
+            category: 'Human Capital',
+            icon: '⚡',
+            href: route('overtime.index'),
+            badge: launcherStats.pendingOvertime && launcherStats.pendingOvertime > 0 ? `${launcherStats.pendingOvertime}` : null,
+            badgeColor: 'bg-rose-600',
+            colorClasses: 'text-rose-700 bg-rose-50/70 hover:bg-rose-100/90 border-rose-200/60',
+            visible: true,
+        },
+        {
+            id: 'payroll',
+            title: isAdmin ? 'Payroll Management' : 'My Payslips',
+            description: isAdmin ? 'Process monthly payroll batches and salary records' : 'Download and view monthly salary slips',
+            category: 'Human Capital',
+            icon: '💵',
+            href: isAdmin ? route('payroll.index') : route('payroll.my'),
+            colorClasses: 'text-teal-700 bg-teal-50/70 hover:bg-teal-100/90 border-teal-200/60',
+            visible: true,
+        },
+        {
+            id: 'employees',
+            title: 'Employee Records',
+            description: 'Employee profiles, job contracts, and department assignments',
+            category: 'Human Capital',
+            icon: '👥',
+            href: route('employees.index'),
+            colorClasses: 'text-fuchsia-700 bg-fuchsia-50/70 hover:bg-fuchsia-100/90 border-fuchsia-200/60',
+            visible: isAdmin,
+        },
+        {
+            id: 'tasks',
+            title: 'Task List',
+            description: 'Team task management, kanban board, and task tracking',
+            category: 'Operations',
+            icon: '📋',
+            href: route('tasks.index'),
+            badge: launcherStats.activeTasks && launcherStats.activeTasks > 0 ? `${launcherStats.activeTasks}` : null,
+            badgeColor: 'bg-[#E31B23]',
+            colorClasses: 'text-slate-700 hover:text-[#E31B23] bg-red-50/70 hover:bg-red-100/90 border-red-200/60',
+            visible: true,
+        },
+        {
+            id: 'tasks-kanban',
+            title: 'My Kanban Board',
+            description: 'Visual task stages and personal workflow board',
+            category: 'Operations',
+            icon: '📌',
+            href: route('tasks.kanban'),
+            colorClasses: 'text-blue-700 bg-blue-50/70 hover:bg-blue-100/90 border-blue-200/60',
+            visible: true,
+        },
+        {
+            id: 'tasks-calendar',
+            title: 'Task Calendar',
+            description: 'View project deadlines and task milestones on calendar',
+            category: 'Operations',
+            icon: '🗓️',
+            href: route('tasks.calendar'),
+            colorClasses: 'text-amber-700 bg-amber-50/70 hover:bg-amber-100/90 border-amber-200/60',
+            visible: true,
+        },
+        {
+            id: 'projects',
+            title: 'Team Projects',
+            description: 'Manage departmental project initiatives and milestones',
+            category: 'Operations',
+            icon: '📁',
+            href: route('projects.index'),
+            colorClasses: 'text-violet-700 bg-violet-50/70 hover:bg-violet-100/90 border-violet-200/60',
+            visible: canViewProjects,
+        },
+        {
+            id: 'it-support',
+            title: 'IT Helpdesk Support',
+            description: 'Report technical issue or check technician resolution status',
+            category: 'IT & Facilities',
+            icon: '🛠️',
+            href: route('it.index', { tab: 'tickets' }),
+            badge: launcherStats.openItTickets && launcherStats.openItTickets > 0 ? `${launcherStats.openItTickets}` : null,
+            badgeColor: 'bg-amber-500',
+            colorClasses: 'text-slate-700 hover:text-red-700 bg-red-50/70 hover:bg-red-100/90 border-red-200/60',
+            visible: true,
+        },
+        {
+            id: 'it-assets',
+            title: 'IT Asset Inventory',
+            description: 'Hotel computer, server, and networking hardware assets',
+            category: 'IT & Facilities',
+            icon: '💻',
+            href: route('it.index', { tab: 'assets' }),
+            colorClasses: 'text-rose-700 bg-rose-50/70 hover:bg-rose-100/90 border-rose-200/60',
+            visible: isItStaff,
+        },
+        {
+            id: 'power-pro',
+            title: 'PowerPro ID Requests',
+            description: 'Request or approve PowerPro Hotel PMS system access IDs',
+            category: 'IT & Facilities',
+            icon: '🔑',
+            href: route('power-pro.index'),
+            colorClasses: 'text-cyan-700 bg-cyan-50/70 hover:bg-cyan-100/90 border-cyan-200/60',
+            visible: true,
+        },
+        {
+            id: 'master-keys',
+            title: 'Master Key Programming',
+            description: 'Access cards programming & RFID key security custody',
+            category: 'IT & Facilities',
+            icon: '🗝️',
+            href: route('master-keys.index'),
+            badge: launcherStats.masterKeyOnRequest && launcherStats.masterKeyOnRequest > 0 ? `${launcherStats.masterKeyOnRequest}` : null,
+            badgeColor: 'bg-amber-500',
+            colorClasses: 'text-amber-700 bg-amber-50/70 hover:bg-amber-100/90 border-amber-200/60',
+            visible: isItStaff || canAccessHousekeeping,
+        },
+        {
+            id: 'room-borrowing',
+            title: 'Room & Key Management',
+            description: 'Hotel room access custody and physical key return tracking',
+            category: 'Facilities & Security',
+            icon: '🚪',
+            href: route('room-borrowing.index'),
+            colorClasses: 'text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/90 border-emerald-200/60',
+            visible: true,
+        },
+        {
+            id: 'announcements',
+            title: 'Announcements',
+            description: 'Company-wide notices, management memos, and hotel news',
+            category: 'Knowledge & Information',
+            icon: '📢',
+            href: route('announcements.index'),
+            colorClasses: 'text-pink-700 bg-pink-50/70 hover:bg-pink-100/90 border-pink-200/60',
+            visible: true,
+        },
+        {
+            id: 'documents',
+            title: 'Hotel SOP Documents',
+            description: 'Standard operating procedures, forms, and documentation',
+            category: 'Knowledge & Information',
+            icon: '📄',
+            href: route('documents.index'),
+            colorClasses: 'text-slate-700 bg-slate-50/70 hover:bg-slate-100/90 border-slate-200/60',
+            visible: true,
+        },
+        {
+            id: 'performance',
+            title: 'Performance & KPI (EPI)',
+            description: 'Staff performance evaluations and metric analytics',
+            category: 'Human Capital',
+            icon: '📈',
+            href: route('performance.index'),
+            colorClasses: 'text-amber-700 bg-amber-50/70 hover:bg-amber-100/90 border-amber-200/60',
+            visible: canViewPerformance,
+        },
+    ].filter(item => item.visible !== false), [isAdmin, isSupervisor, isItStaff, canAccessHousekeeping, canViewProjects, canViewPerformance, launcherStats]);
+
+    // Active shortcuts customized by the user
+    const userShortcuts = useMemo(() => {
+        return savedShortcutIds
+            .map(id => availableShortcutOptions.find(opt => opt.id === id))
+            .filter(Boolean) as ShortcutOption[];
+    }, [savedShortcutIds, availableShortcutOptions]);
+
+    const openCustomizeShortcutsModal = () => {
+        setTempSelectedIds([...savedShortcutIds]);
+        setShortcutModalSearch('');
+        setIsCustomizingShortcuts(true);
+    };
+
+    const handleSaveShortcuts = () => {
+        setSavedShortcutIds(tempSelectedIds);
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(tempSelectedIds));
+        } catch (e) {
+            // ignore
+        }
+        setIsCustomizingShortcuts(false);
+    };
+
+    const toggleShortcutSelection = (id: string) => {
+        setTempSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+        );
+    };
 
     // Full catalog for Ctrl+K search (includes both core suites and all specific sub-modules)
     const allSearchableItems: AppItem[] = useMemo(() => [
@@ -474,7 +708,50 @@ export default function Dashboard({
                 </svg>
             ),
         },
-    ].filter(a => a.visible !== false), [coreApps, launcherStats, isAdmin, canViewPerformance, canViewProjects, isItStaff]);
+        {
+            id: 'master-keys',
+            name: 'Master Key Programming',
+            description: 'RFID hotel master key programming, access authorization, and security custody',
+            category: 'IT & Facilities',
+            href: route('master-keys.index'),
+            gradient: 'from-amber-500 to-orange-600',
+            visible: canAccessHousekeeping || isItStaff,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'settings',
+            name: 'System Settings',
+            description: 'Application parameters, roles, permissions, and security audit logs',
+            category: 'Administration',
+            href: route('settings.index'),
+            gradient: 'from-zinc-700 to-slate-900',
+            visible: isSuperAdmin,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            ),
+        },
+        {
+            id: 'schedules',
+            name: 'Shift Roster (Scheduler)',
+            description: 'Weekly employee work shift scheduler and assignment roster',
+            category: 'Human Capital',
+            href: route('schedules.index'),
+            gradient: 'from-indigo-600 to-violet-600',
+            visible: isAdmin,
+            icon: (
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            ),
+        },
+    ].filter(a => a.visible !== false), [coreApps, launcherStats, isAdmin, canViewPerformance, canViewProjects, isItStaff, canAccessHousekeeping, isSuperAdmin]);
 
     // Filter apps based on search query (search searches allCatalog, default displays coreApps)
     const filteredApps = useMemo(() => {
@@ -886,82 +1163,78 @@ export default function Dashboard({
                     </div>
                 )}
 
-                {/* Quick Actions Bar (Aksi Cepat Rutin) */}
+                {/* Custom Quick Shortcuts Bar */}
                 {!searchQuery && (
                     <div className="max-w-4xl mx-auto px-2 sm:px-0">
-                        <div className="bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-xs rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2.5">
-                            <div className="flex items-center gap-1.5 px-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#E31B23]"></span>
-                                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                    Quick Shortcuts
-                                </span>
+                        {userShortcuts.length === 0 ? (
+                            <div className="bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-xs rounded-2xl p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-slate-300">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-red-50 text-[#E31B23] flex items-center justify-center shrink-0 border border-red-100/80">
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-slate-900">Custom Quick Shortcuts</span>
+                                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Personalized</span>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-0.5">
+                                            Pin your most frequent tools & routines here for instant 1-click access.
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={openCustomizeShortcutsModal}
+                                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-[#E31B23] hover:bg-[#c4141b] shadow-xs hover:shadow transition-all active:scale-95 shrink-0 cursor-pointer"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span>Customize Shortcuts</span>
+                                </button>
                             </div>
-                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 justify-center sm:justify-end flex-1">
-                                <Link
-                                    href={isAdmin ? route('attendance.index') : route('attendance.my')}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/90 border border-emerald-200/60 transition-all hover:scale-102"
-                                    title="Access daily attendance records"
-                                >
-                                    <span>🕒</span>
-                                    <span>{isAdmin ? 'Attendance Logs' : 'My Attendance'}</span>
-                                </Link>
-                                <Link
-                                    href={route('leave.index')}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-sky-700 bg-sky-50/70 hover:bg-sky-100/90 border border-sky-200/60 transition-all hover:scale-102"
-                                    title="Leave requests and approvals"
-                                >
-                                    <span>🏖️</span>
-                                    <span>Leave Requests</span>
-                                    {launcherStats.pendingLeaves && launcherStats.pendingLeaves > 0 && (
-                                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-sky-600 text-white">
-                                            {launcherStats.pendingLeaves}
-                                        </span>
-                                    )}
-                                </Link>
-                                <Link
-                                    href={route('overtime.index')}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-rose-700 bg-rose-50/70 hover:bg-rose-100/90 border border-rose-200/60 transition-all hover:scale-102"
-                                    title="Overtime requests and approvals"
-                                >
-                                    <span>⚡</span>
-                                    <span>Overtime (SPKL)</span>
-                                    {launcherStats.pendingOvertime && launcherStats.pendingOvertime > 0 && (
-                                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-600 text-white">
-                                            {launcherStats.pendingOvertime}
-                                        </span>
-                                    )}
-                                </Link>
-                                <Link
-                                    href={isAdmin ? route('payroll.index') : route('payroll.my')}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-gray-700 hover:text-teal-700 bg-teal-50/70 hover:bg-teal-100/90 border border-teal-200/60 transition-all hover:scale-102"
-                                    title="Payslips or manage payroll batch"
-                                >
-                                    <span>💵</span>
-                                    <span>{isAdmin ? 'Payroll Management' : 'My Payslips'}</span>
-                                </Link>
-                                <Link
-                                    href={route('tasks.index')}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-[#E31B23] bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
-                                    title="Active work tasks list"
-                                >
-                                    <span>📋</span>
-                                    <span>List Task</span>
-                                </Link>
-                                <Link
-                                    href={route('it.index', { tab: 'tickets' })}
-                                    className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-red-700 bg-red-50/70 hover:bg-red-100/90 border border-red-200/60 transition-all hover:scale-102"
-                                    title="Report hotel IT issues or monitor ticket status"
-                                >
-                                    <span>🛠️</span>
-                                    <span>IT Support</span>
-                                    {launcherStats.openItTickets && launcherStats.openItTickets > 0 && (
-                                        <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
-                                            {launcherStats.openItTickets}
-                                        </span>
-                                    )}
-                                </Link>
+                        ) : (
+                            <div className="bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-xs rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2.5">
+                                <div className="flex items-center gap-2 px-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#E31B23]"></span>
+                                    <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                                        Quick Shortcuts
+                                    </span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 justify-center sm:justify-end flex-1">
+                                    {userShortcuts.map((shortcut) => (
+                                        <Link
+                                            key={shortcut.id}
+                                            href={shortcut.href}
+                                            className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all hover:scale-102 ${shortcut.colorClasses || 'bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200'}`}
+                                            title={shortcut.description}
+                                        >
+                                            <span>{shortcut.icon}</span>
+                                            <span>{shortcut.title}</span>
+                                            {shortcut.badge && (
+                                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold text-white ${shortcut.badgeColor || 'bg-[#E31B23]'}`}>
+                                                    {shortcut.badge}
+                                                </span>
+                                            )}
+                                        </Link>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={openCustomizeShortcutsModal}
+                                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-800 bg-slate-100/70 hover:bg-slate-200/70 border border-slate-200/60 transition-all cursor-pointer"
+                                        title="Configure your quick shortcuts"
+                                    >
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span>Customize</span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
 
@@ -1061,6 +1334,133 @@ export default function Dashboard({
                     </div>
                 </div>
             </div>
+
+            {/* Customize Quick Shortcuts Modal */}
+            <Modal show={isCustomizingShortcuts} onClose={() => setIsCustomizingShortcuts(false)} maxWidth="2xl">
+                <div className="p-6">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                        <div>
+                            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <span className="p-1.5 rounded-xl bg-red-50 text-[#E31B23]">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </span>
+                                Customize Quick Shortcuts
+                            </h2>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                Select which routines and features to display on your personal quick shortcuts bar.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsCustomizingShortcuts(false)}
+                            className="text-slate-400 hover:text-slate-600 text-xl leading-none cursor-pointer"
+                        >
+                            &times;
+                        </button>
+                    </div>
+
+                    {/* Search & Selection count */}
+                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="relative flex-1">
+                            <input
+                                type="text"
+                                value={shortcutModalSearch}
+                                onChange={(e) => setShortcutModalSearch(e.target.value)}
+                                placeholder="Search available shortcuts..."
+                                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:border-[#E31B23] focus:ring-1 focus:ring-[#E31B23]"
+                            />
+                            <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs">
+                            <span className="font-semibold text-slate-600">
+                                <strong className="text-[#E31B23]">{tempSelectedIds.length}</strong> selected
+                            </span>
+                            {tempSelectedIds.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setTempSelectedIds([])}
+                                    className="text-xs text-rose-600 hover:underline font-medium cursor-pointer"
+                                >
+                                    Clear all
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Grid of shortcut options */}
+                    <div className="mt-4 max-h-[50vh] overflow-y-auto space-y-2 pr-1">
+                        {availableShortcutOptions
+                            .filter(opt =>
+                                !shortcutModalSearch ||
+                                opt.title.toLowerCase().includes(shortcutModalSearch.toLowerCase()) ||
+                                opt.description.toLowerCase().includes(shortcutModalSearch.toLowerCase()) ||
+                                opt.category.toLowerCase().includes(shortcutModalSearch.toLowerCase())
+                            )
+                            .map((opt) => {
+                                const isChecked = tempSelectedIds.includes(opt.id);
+                                return (
+                                    <div
+                                        key={opt.id}
+                                        onClick={() => toggleShortcutSelection(opt.id)}
+                                        className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-3 ${
+                                            isChecked
+                                                ? 'bg-red-50/40 border-[#E31B23] ring-1 ring-[#E31B23]/40'
+                                                : 'bg-white hover:bg-slate-50 border-slate-200'
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <span className="text-xl shrink-0">{opt.icon}</span>
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-bold text-xs text-slate-900 truncate">
+                                                        {opt.title}
+                                                    </span>
+                                                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 text-slate-500 shrink-0">
+                                                        {opt.category}
+                                                    </span>
+                                                </div>
+                                                <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                                                    {opt.description}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="shrink-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => {}} // handled by row click
+                                                className="w-4 h-4 rounded border-slate-300 text-[#E31B23] focus:ring-[#E31B23] cursor-pointer"
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="mt-6 pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setIsCustomizingShortcuts(false)}
+                            className="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSaveShortcuts}
+                            className="px-4 py-2 text-xs font-semibold text-white bg-[#E31B23] hover:bg-[#c4141b] rounded-xl shadow-xs transition-colors cursor-pointer"
+                        >
+                            Save Shortcuts ({tempSelectedIds.length})
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }
