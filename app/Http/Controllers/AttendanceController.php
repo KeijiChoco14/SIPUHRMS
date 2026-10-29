@@ -163,12 +163,11 @@ class AttendanceController extends Controller
         $endDate = $request->query('end_date', $startDate);
 
         $query = Attendance::with([
-            'employee.user',
-            'employee.department',
-            'shift',
-            'location',
-            'correctedByUser',
-            'events' => fn($q) => $q->latest('created_at')->take(10),
+            'employee.user:id,name,email,profile_photo_path',
+            'employee.department:id,name',
+            'shift:id,name,code,start_time,end_time,color,is_overnight',
+            'location:id,name,latitude,longitude,radius_meters',
+            'correctedByUser:id,name',
         ])
         ->whereDate('date', '>=', $startDate)
         ->whereDate('date', '<=', $endDate);
@@ -266,8 +265,8 @@ class AttendanceController extends Controller
             },
         ])->get();
 
-        $departments = Department::select('id', 'name')->orderBy('name')->get();
-        $shifts = Shift::select('id', 'name', 'code', 'start_time', 'end_time', 'color', 'is_overnight')->get();
+        $departments = Department::getCachedList();
+        $shifts = Shift::getCachedActiveList();
         $employees = Employee::with(['user:id,name', 'department:id,name', 'position:id,name'])
             ->where('employment_status', 'Active')
             ->get(['id', 'user_id', 'department_id', 'position_id', 'employee_number']);

@@ -19,14 +19,14 @@ class TaskController extends Controller
         }
 
         $query = Task::with([
-            'project', 
-            'assignees.user', 
-            'assignees.department', 
-            'creator',
-            'comments.employee.user', 
-            'attachments.employee.user', 
+            'project:id,name,status', 
+            'assignees.user:id,name,email,profile_photo_path', 
+            'assignees.department:id,name', 
+            'creator:id,name',
+            'comments.employee.user:id,name,profile_photo_path', 
+            'attachments.employee.user:id,name', 
             'checklists', 
-            'activities.employee.user'
+            'activities.employee.user:id,name'
         ]);
 
         // "My Tasks" should only show tasks assigned to the user or created by the user,
@@ -59,7 +59,7 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Index', [
             'tasks' => $tasks,
             'filters' => $request->only(['filter', 'status']),
-            'employees' => fn () => \App\Models\Employee::with(['user', 'department'])->get(),
+            'employees' => fn () => \App\Models\Employee::with(['user:id,name,email', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
             'projects' => fn () => \App\Models\Project::select('id', 'name', 'status')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
@@ -74,14 +74,14 @@ class TaskController extends Controller
         }
 
         $query = Task::with([
-            'project', 
-            'assignees.user', 
-            'assignees.department', 
-            'creator', 
-            'comments.employee.user', 
-            'attachments.employee.user', 
+            'project:id,name,status', 
+            'assignees.user:id,name,email,profile_photo_path', 
+            'assignees.department:id,name', 
+            'creator:id,name', 
+            'comments.employee.user:id,name,profile_photo_path', 
+            'attachments.employee.user:id,name', 
             'checklists', 
-            'activities.employee.user'
+            'activities.employee.user:id,name'
         ]);
 
         if (! $user->hasRole('Super Admin')) {
@@ -99,8 +99,8 @@ class TaskController extends Controller
 
         return Inertia::render('Tasks/Kanban', [
             'tasks' => $tasks,
-            'employees' => \App\Models\Employee::with(['user', 'department'])->get(),
-            'projects' => \App\Models\Project::select('id', 'name', 'status')->get(),
+            'employees' => fn () => \App\Models\Employee::with(['user:id,name,email', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
+            'projects' => fn () => \App\Models\Project::select('id', 'name', 'status')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);
@@ -114,14 +114,14 @@ class TaskController extends Controller
         }
 
         $query = Task::with([
-            'project', 
-            'assignees.user', 
-            'assignees.department', 
-            'creator', 
-            'comments.employee.user', 
-            'attachments.employee.user', 
+            'project:id,name,status', 
+            'assignees.user:id,name,email,profile_photo_path', 
+            'assignees.department:id,name', 
+            'creator:id,name', 
+            'comments.employee.user:id,name,profile_photo_path', 
+            'attachments.employee.user:id,name', 
             'checklists', 
-            'activities.employee.user'
+            'activities.employee.user:id,name'
         ]);
 
         if ($request->filled('project_id')) {

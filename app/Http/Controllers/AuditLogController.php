@@ -13,7 +13,7 @@ class AuditLogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = AuditLog::with('user')->latest();
+        $query = AuditLog::with('user:id,name,email')->latest();
 
         if ($search = $request->input('search')) {
             $query->where('description', 'like', "%{$search}%")

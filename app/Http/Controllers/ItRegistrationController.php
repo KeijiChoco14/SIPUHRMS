@@ -64,12 +64,19 @@ class ItRegistrationController extends Controller
 
         $registrations = $query->paginate(15)->withQueryString();
 
-        // Calculate summary counts
+        // Calculate summary counts using single aggregation query
+        $rawStats = User::selectRaw("
+            COUNT(*) as total,
+            COUNT(CASE WHEN status IN ('pending', 'pending_approval') THEN 1 END) as pending,
+            COUNT(CASE WHEN status IN ('approved', 'active') THEN 1 END) as approved,
+            COUNT(CASE WHEN status = 'rejected' THEN 1 END) as rejected
+        ")->first();
+
         $stats = [
-            'pending' => User::whereIn('status', ['pending', 'pending_approval'])->count(),
-            'approved' => User::whereIn('status', ['approved', 'active'])->count(),
-            'rejected' => User::where('status', 'rejected')->count(),
-            'total' => User::count(),
+            'pending' => (int) ($rawStats?->pending ?? 0),
+            'approved' => (int) ($rawStats?->approved ?? 0),
+            'rejected' => (int) ($rawStats?->rejected ?? 0),
+            'total' => (int) ($rawStats?->total ?? 0),
         ];
 
         return Inertia::render('IT/Registrations', [

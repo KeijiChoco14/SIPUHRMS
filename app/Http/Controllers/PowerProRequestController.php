@@ -130,23 +130,33 @@ class PowerProRequestController extends Controller
             }
         }
 
-        // Stats summary calculation (lazy closure)
-        $stats = fn () => [
-            'total' => (clone $statsQuery)->count(),
-            'on_request' => (clone $statsQuery)->where('status', 'On Request')->count(),
-            'approved' => (clone $statsQuery)->where('status', 'Approved')->count(),
-            'done' => (clone $statsQuery)->where('status', 'Done')->count(),
-            'rejected' => (clone $statsQuery)->where('status', 'Rejected')->count(),
-        ];
+        // Stats summary calculation (lazy closure with single aggregate query)
+        $stats = fn () => (function () use ($statsQuery) {
+            $raw = (clone $statsQuery)->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'On Request' THEN 1 END) as on_request,
+                COUNT(CASE WHEN status = 'Approved' THEN 1 END) as approved,
+                COUNT(CASE WHEN status = 'Done' THEN 1 END) as done,
+                COUNT(CASE WHEN status = 'Rejected' THEN 1 END) as rejected
+            ")->first();
+
+            return [
+                'total' => (int) ($raw?->total ?? 0),
+                'on_request' => (int) ($raw?->on_request ?? 0),
+                'approved' => (int) ($raw?->approved ?? 0),
+                'done' => (int) ($raw?->done ?? 0),
+                'rejected' => (int) ($raw?->rejected ?? 0),
+            ];
+        })();
 
         $requests = $query->latest()->paginate(15)->withQueryString();
 
         // Data for request form modal (lazy closures)
-        $departments = fn () => Department::orderBy('name')->get();
-        $employees = fn () => Employee::with(['user', 'department', 'position'])
+        $departments = fn () => Department::getCachedList();
+        $employees = fn () => Employee::with(['user:id,name', 'department:id,name', 'position:id,name'])
             ->whereNotNull('user_id')
             ->orderBy('id', 'desc')
-            ->get();
+            ->get(['id', 'user_id', 'department_id', 'position_id', 'employee_number']);
 
         return Inertia::render('IT/PowerPro/Index', [
             'requests' => $requests,

@@ -3,8 +3,20 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 
 export default function DirectoryIndex({ employees, departments, filters }: any) {
+    const searchTimeoutRef = React.useRef<any>(null);
+
     const handleSearch = (e: any) => {
-        router.get(route('directory.index'), { ...filters, search: e.target.value }, { preserveState: true, preserveScroll: true, replace: true });
+        const val = e.target.value;
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        searchTimeoutRef.current = setTimeout(() => {
+            router.get(
+                route('directory.index'),
+                { ...filters, search: val },
+                { preserveState: true, preserveScroll: true, replace: true }
+            );
+        }, 300);
     };
 
     const handleDepartmentChange = (e: any) => {

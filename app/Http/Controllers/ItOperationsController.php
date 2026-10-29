@@ -71,24 +71,40 @@ class ItOperationsController extends Controller
 
             $assets = $assetsQuery->paginate(15)->withQueryString();
 
+            $rawAssetStats = ItAsset::selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'In Use' THEN 1 END) as in_use,
+                COUNT(CASE WHEN status = 'Available' THEN 1 END) as available,
+                COUNT(CASE WHEN status = 'Maintenance' THEN 1 END) as maintenance,
+                COUNT(CASE WHEN status = 'Disposed' THEN 1 END) as disposed
+            ")->first();
+
             $assetStats = [
-                'total' => ItAsset::count(),
-                'in_use' => ItAsset::where('status', 'In Use')->count(),
-                'available' => ItAsset::where('status', 'Available')->count(),
-                'maintenance' => ItAsset::where('status', 'Maintenance')->count(),
-                'disposed' => ItAsset::where('status', 'Disposed')->count(),
+                'total' => (int) ($rawAssetStats?->total ?? 0),
+                'in_use' => (int) ($rawAssetStats?->in_use ?? 0),
+                'available' => (int) ($rawAssetStats?->available ?? 0),
+                'maintenance' => (int) ($rawAssetStats?->maintenance ?? 0),
+                'disposed' => (int) ($rawAssetStats?->disposed ?? 0),
             ];
+
+            $rawTicketStats = ItTicket::selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'Open' THEN 1 END) as open,
+                COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as in_progress,
+                COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as resolved,
+                COUNT(CASE WHEN status = 'Closed' THEN 1 END) as closed
+            ")->first();
 
             $ticketStats = [
-                'open' => ItTicket::where('status', 'Open')->count(),
-                'in_progress' => ItTicket::where('status', 'In Progress')->count(),
-                'resolved' => ItTicket::where('status', 'Resolved')->count(),
-                'closed' => ItTicket::where('status', 'Closed')->count(),
-                'total' => ItTicket::count(),
+                'open' => (int) ($rawTicketStats?->open ?? 0),
+                'in_progress' => (int) ($rawTicketStats?->in_progress ?? 0),
+                'resolved' => (int) ($rawTicketStats?->resolved ?? 0),
+                'closed' => (int) ($rawTicketStats?->closed ?? 0),
+                'total' => (int) ($rawTicketStats?->total ?? 0),
             ];
 
-            $employees = Employee::with(['user', 'department'])
-                ->get()
+            $employees = Employee::with(['user:id,name', 'department:id,name'])
+                ->get(['id', 'user_id', 'department_id', 'employee_number'])
                 ->map(function ($emp) {
                     return [
                         'id' => $emp->id,
@@ -114,12 +130,21 @@ class ItOperationsController extends Controller
             ];
 
             $currentEmployeeId = $user->employee ? $user->employee->id : 0;
+            $rawTicketStats = ItTicket::where('reported_by_employee_id', $currentEmployeeId)
+                ->selectRaw("
+                    COUNT(*) as total,
+                    COUNT(CASE WHEN status = 'Open' THEN 1 END) as open,
+                    COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as in_progress,
+                    COUNT(CASE WHEN status = 'Resolved' THEN 1 END) as resolved,
+                    COUNT(CASE WHEN status = 'Closed' THEN 1 END) as closed
+                ")->first();
+
             $ticketStats = [
-                'open' => ItTicket::where('reported_by_employee_id', $currentEmployeeId)->where('status', 'Open')->count(),
-                'in_progress' => ItTicket::where('reported_by_employee_id', $currentEmployeeId)->where('status', 'In Progress')->count(),
-                'resolved' => ItTicket::where('reported_by_employee_id', $currentEmployeeId)->where('status', 'Resolved')->count(),
-                'closed' => ItTicket::where('reported_by_employee_id', $currentEmployeeId)->where('status', 'Closed')->count(),
-                'total' => ItTicket::where('reported_by_employee_id', $currentEmployeeId)->count(),
+                'open' => (int) ($rawTicketStats?->open ?? 0),
+                'in_progress' => (int) ($rawTicketStats?->in_progress ?? 0),
+                'resolved' => (int) ($rawTicketStats?->resolved ?? 0),
+                'closed' => (int) ($rawTicketStats?->closed ?? 0),
+                'total' => (int) ($rawTicketStats?->total ?? 0),
             ];
 
             $employees = [];
@@ -137,12 +162,12 @@ class ItOperationsController extends Controller
         }
 
         $ticketsQuery = ItTicket::with([
-            'reporter.user',
-            'reporter.department',
-            'assignedUser',
+            'reporter.user:id,name',
+            'reporter.department:id,name',
+            'assignedUser:id,name,email',
             'assignedUsers:id,name,email',
-            'asset',
-            'updates.user',
+            'asset:id,asset_code,name',
+            'updates.user:id,name',
         ])->latest();
 
         // If not IT staff / admin, STRICTLY filter to tickets reported by this employee

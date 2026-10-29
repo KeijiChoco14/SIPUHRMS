@@ -19,7 +19,7 @@ class OvertimeRequestController extends Controller
 
         // Personal overtime requests of authenticated user
         $myRequests = $employee
-            ? OvertimeRequest::with(['approver'])
+            ? OvertimeRequest::with(['approver:id,name'])
                 ->where('employee_id', $employee->id)
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -27,7 +27,11 @@ class OvertimeRequestController extends Controller
 
         // All employee overtime requests for authorized approvers
         $allRequests = $isApprover
-            ? OvertimeRequest::with(['employee.user', 'employee.department', 'approver'])
+            ? OvertimeRequest::with([
+                'employee.user:id,name,email',
+                'employee.department:id,name',
+                'approver:id,name',
+            ])
                 ->orderBy('created_at', 'desc')
                 ->get()
             : collect([]);

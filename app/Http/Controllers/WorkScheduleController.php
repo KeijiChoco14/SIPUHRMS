@@ -32,24 +32,31 @@ class WorkScheduleController extends Controller
             $deptId = (string) $user->employee->department_id;
         }
 
-        $employeesQuery = Employee::with(['user', 'department', 'position'])
+        $employeesQuery = Employee::with([
+            'user:id,name,email',
+            'department:id,name',
+            'position:id,name',
+        ])
             ->where('employment_status', 'Active');
 
         if ($deptId) {
             $employeesQuery->where('department_id', $deptId);
         }
 
-        $employees = $employeesQuery->orderBy('department_id')->orderBy('id')->get();
+        $employees = $employeesQuery->orderBy('department_id')->orderBy('id')->get(['id', 'user_id', 'department_id', 'position_id', 'employee_number']);
 
         $employeeIds = $employees->pluck('id');
 
-        $schedules = WorkSchedule::with(['employee.user', 'shift'])
+        $schedules = WorkSchedule::with([
+            'employee.user:id,name',
+            'shift:id,name,code,start_time,end_time,color,is_overnight',
+        ])
             ->whereBetween('date', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
             ->whereIn('employee_id', $employeeIds)
             ->get();
             
-        $departments = Department::select('id', 'name')->orderBy('name')->get();
-        $shifts = Shift::where('is_active', true)->get();
+        $departments = Department::getCachedList();
+        $shifts = Shift::getCachedActiveList();
 
         return Inertia::render('Schedule/Index', [
             'schedules' => $schedules,

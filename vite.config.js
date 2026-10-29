@@ -10,4 +10,28 @@ export default defineConfig({
         }),
         react(),
     ],
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('recharts') || id.includes('react-is')) {
+                            return 'vendor-charts';
+                        }
+                        if (id.includes('react/') || id.includes('react-dom/')) {
+                            return 'vendor-react';
+                        }
+                        if (id.includes('@inertiajs')) {
+                            return 'vendor-inertia';
+                        }
+                        if (id.includes('@headlessui')) {
+                            return 'vendor-ui';
+                        }
+                    }
+                },
+            },
+        },
+        chunkSizeWarningLimit: 1000,
+    },
 });
+

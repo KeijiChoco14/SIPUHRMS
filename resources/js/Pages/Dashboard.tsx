@@ -1,12 +1,22 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense, lazy } from 'react';
 import Modal from '@/Components/Modal';
-import EmployeeDashboard from './Dashboard/Partials/EmployeeDashboard';
-import SupervisorDashboard from './Dashboard/Partials/SupervisorDashboard';
-import HRDashboard from './Dashboard/Partials/HRDashboard';
-import ManagerDashboard from './Dashboard/Partials/ManagerDashboard';
-import EmployeeHRDashboard from './Dashboard/Partials/EmployeeHRDashboard';
+
+const EmployeeDashboard = lazy(() => import('./Dashboard/Partials/EmployeeDashboard'));
+const SupervisorDashboard = lazy(() => import('./Dashboard/Partials/SupervisorDashboard'));
+const HRDashboard = lazy(() => import('./Dashboard/Partials/HRDashboard'));
+const ManagerDashboard = lazy(() => import('./Dashboard/Partials/ManagerDashboard'));
+const EmployeeHRDashboard = lazy(() => import('./Dashboard/Partials/EmployeeHRDashboard'));
+
+const DashboardLoadingFallback = () => (
+    <div className="flex items-center justify-center p-12 min-h-[300px]">
+        <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-3 border-red-200 border-t-[#E31B23] rounded-full animate-spin" />
+            <span className="text-xs text-gray-500 font-medium">Loading dashboard...</span>
+        </div>
+    </div>
+);
 
 interface ShortcutOption {
     id: string;
@@ -1003,11 +1013,13 @@ export default function Dashboard({
                 <Head title="Human Resources (HR) - Swiss-Belinn" />
 
                 <div className="space-y-6">
-                    {isAdmin && adminHrTab === 'management' ? (
-                        <HRDashboard data={{ ...hrData, announcements }} />
-                    ) : (
-                        <EmployeeHRDashboard data={{ ...employeeHrData, supervisorData: isSupervisor ? supervisorData : null, announcements, role, user }} />
-                    )}
+                    <Suspense fallback={<DashboardLoadingFallback />}>
+                        {isAdmin && adminHrTab === 'management' ? (
+                            <HRDashboard data={{ ...hrData, announcements }} />
+                        ) : (
+                            <EmployeeHRDashboard data={{ ...employeeHrData, supervisorData: isSupervisor ? supervisorData : null, announcements, role, user }} />
+                        )}
+                    </Suspense>
                 </div>
             </AuthenticatedLayout>
         );
@@ -1062,7 +1074,9 @@ export default function Dashboard({
                 }
             >
                 <Head title="Personal Dashboard - Swiss-Belinn" />
-                {renderRoleDashboard()}
+                <Suspense fallback={<DashboardLoadingFallback />}>
+                    {renderRoleDashboard()}
+                </Suspense>
             </AuthenticatedLayout>
         );
     }

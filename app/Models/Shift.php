@@ -55,4 +55,24 @@ class Shift extends Model
 
         return false;
     }
+
+    public static function getCachedActiveList()
+    {
+        return \Illuminate\Support\Facades\Cache::remember('shifts_cached_active_list', 3600, function () {
+            return static::where('is_active', true)
+                ->select('id', 'name', 'code', 'start_time', 'end_time', 'color', 'is_overnight')
+                ->get();
+        });
+    }
+
+    public static function clearCache(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('shifts_cached_active_list');
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => static::clearCache());
+        static::deleted(fn () => static::clearCache());
+    }
 }

@@ -48,13 +48,22 @@ class RoomBorrowingController extends Controller
             $tab = 'borrow';
         }
 
-        // Overview statistics (lightweight count queries on indexed columns)
-        $stats = fn () => [
-            'total' => Room::where('is_active', true)->count(),
-            'available' => Room::where('is_active', true)->where('status', Room::STATUS_AVAILABLE)->count(),
-            'borrowed' => Room::where('is_active', true)->where('status', Room::STATUS_BORROWED)->count(),
-            'pending_return' => Room::where('is_active', true)->where('status', Room::STATUS_PENDING_RETURN)->count(),
-        ];
+        // Overview statistics (single aggregation query on indexed columns)
+        $stats = fn () => (function () {
+            $raw = Room::where('is_active', true)->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = ? THEN 1 END) as available,
+                COUNT(CASE WHEN status = ? THEN 1 END) as borrowed,
+                COUNT(CASE WHEN status = ? THEN 1 END) as pending_return
+            ", [Room::STATUS_AVAILABLE, Room::STATUS_BORROWED, Room::STATUS_PENDING_RETURN])->first();
+
+            return [
+                'total' => (int) ($raw?->total ?? 0),
+                'available' => (int) ($raw?->available ?? 0),
+                'borrowed' => (int) ($raw?->borrowed ?? 0),
+                'pending_return' => (int) ($raw?->pending_return ?? 0),
+            ];
+        })();
 
         // 1. Rooms for Borrow Form & Catalog
         // Only queried when on 'borrow' or 'catalog' tab, avoiding eager-loading borrowers and large payloads on other tabs

@@ -19,7 +19,7 @@ class LeaveRequestController extends Controller
 
         // Personal leave requests of authenticated user
         $myRequests = $employee
-            ? LeaveRequest::with(['approver'])
+            ? LeaveRequest::with(['approver:id,name'])
                 ->where('employee_id', $employee->id)
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -27,7 +27,11 @@ class LeaveRequestController extends Controller
 
         // All employee leave requests for authorized approvers
         $allRequests = $isApprover
-            ? LeaveRequest::with(['employee.user', 'employee.department', 'approver'])
+            ? LeaveRequest::with([
+                'employee.user:id,name,email',
+                'employee.department:id,name',
+                'approver:id,name',
+            ])
                 ->orderBy('created_at', 'desc')
                 ->get()
             : collect([]);

@@ -109,15 +109,15 @@ class ProjectController extends Controller
         $this->checkAccess($project);
 
         $project->load([
-            'owner.user',
-            'department',
-            'members.user',
-            'tasks.assignees.user',
-            'tasks.assignees.department',
-            'tasks.comments.employee.user',
-            'tasks.attachments.employee.user',
+            'owner.user:id,name,email',
+            'department:id,name',
+            'members.user:id,name,email',
+            'tasks.assignees.user:id,name,email,profile_photo_path',
+            'tasks.assignees.department:id,name',
+            'tasks.comments.employee.user:id,name,profile_photo_path',
+            'tasks.attachments.employee.user:id,name',
             'tasks.checklists',
-            'tasks.activities.employee.user',
+            'tasks.activities.employee.user:id,name',
         ]);
 
         $user = Auth::user();
@@ -131,8 +131,8 @@ class ProjectController extends Controller
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
             'projectStatuses' => ProjectStatus::cases(),
-            'departments' => Department::all(),
-            'employees' => Employee::with(['user', 'department'])->get(),
+            'departments' => fn () => Department::getCachedList(),
+            'employees' => fn () => Employee::with(['user:id,name', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
         ]);
     }
 

@@ -22,14 +22,11 @@ class EmployeeController extends Controller
         $query = Employee::with(['user', 'department', 'position', 'supervisor.user']);
 
         if ($search = $request->input('search')) {
-            $hasUsernameCol = \Illuminate\Support\Facades\Schema::hasColumn('users', 'username');
-            $query->where(function ($sub) use ($search, $hasUsernameCol) {
-                $sub->whereHas('user', function ($q) use ($search, $hasUsernameCol) {
+            $query->where(function ($sub) use ($search) {
+                $sub->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                    if ($hasUsernameCol) {
-                        $q->orWhere('username', 'like', "%{$search}%");
-                    }
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('username', 'like', "%{$search}%");
                 })->orWhere('employee_number', 'like', "%{$search}%");
             });
         }
@@ -46,8 +43,8 @@ class EmployeeController extends Controller
 
         return Inertia::render('Organization/Employees/Index', [
             'employees' => $employees,
-            'departments' => Department::all(),
-            'positions' => Position::all(),
+            'departments' => Department::getCachedList(),
+            'positions' => Position::getCachedList(),
             'roles' => Role::pluck('name'),
             'filters' => $request->only(['search', 'department', 'status']),
         ]);
@@ -71,10 +68,10 @@ class EmployeeController extends Controller
 
         return Inertia::render('Organization/Employees/Form', [
             'suggestedEmployeeNumber' => $suggestedEmployeeNumber,
-            'departments' => Department::all(),
-            'positions' => Position::all(),
+            'departments' => Department::getCachedList(),
+            'positions' => Position::getCachedList(),
             'roles' => Role::pluck('name'),
-            'supervisors' => Employee::with('user')->get()->map(fn ($e) => [
+            'supervisors' => Employee::with('user:id,name')->get(['id', 'user_id', 'employee_number'])->map(fn ($e) => [
                 'id' => $e->id,
                 'name' => $e->user?->name ?? 'Unknown',
             ]),
@@ -156,12 +153,12 @@ class EmployeeController extends Controller
         return Inertia::render('Organization/Employees/Form', [
             'employee' => $employee,
             'currentRole' => $employee->user?->getRoleNames()->first(),
-            'departments' => Department::all(),
-            'positions' => Position::all(),
+            'departments' => Department::getCachedList(),
+            'positions' => Position::getCachedList(),
             'roles' => Role::pluck('name'),
-            'supervisors' => Employee::with('user')
+            'supervisors' => Employee::with('user:id,name')
                 ->where('id', '!=', $employee->id)
-                ->get()
+                ->get(['id', 'user_id', 'employee_number'])
                 ->map(fn ($e) => [
                     'id' => $e->id,
                     'name' => $e->user?->name ?? 'Unknown',

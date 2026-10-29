@@ -20,4 +20,22 @@ class Position extends Model
     {
         return $this->hasMany(Employee::class);
     }
+
+    public static function getCachedList()
+    {
+        return \Illuminate\Support\Facades\Cache::remember('positions_cached_list', 3600, function () {
+            return static::select('id', 'name', 'department_id')->orderBy('name')->get();
+        });
+    }
+
+    public static function clearCache(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('positions_cached_list');
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => static::clearCache());
+        static::deleted(fn () => static::clearCache());
+    }
 }

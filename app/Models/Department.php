@@ -20,4 +20,22 @@ class Department extends Model
     {
         return $this->hasMany(Employee::class);
     }
+
+    public static function getCachedList()
+    {
+        return \Illuminate\Support\Facades\Cache::remember('departments_cached_list', 3600, function () {
+            return static::select('id', 'name')->orderBy('name')->get();
+        });
+    }
+
+    public static function clearCache(): void
+    {
+        \Illuminate\Support\Facades\Cache::forget('departments_cached_list');
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => static::clearCache());
+        static::deleted(fn () => static::clearCache());
+    }
 }

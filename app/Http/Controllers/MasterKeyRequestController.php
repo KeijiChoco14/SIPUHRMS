@@ -201,16 +201,28 @@ class MasterKeyRequestController extends Controller
             $statsBaseQuery->where('employee_id', $userEmployee?->id);
         }
 
-        // Statistics (lazy closure)
-        $stats = fn () => [
-            'total' => (clone $statsBaseQuery)->count(),
-            'on_request' => (clone $statsBaseQuery)->where('status', 'On Request')->count(),
-            'approved' => (clone $statsBaseQuery)->where('status', 'Approved')->count(),
-            'done' => (clone $statsBaseQuery)->whereIn('status', ['Created', 'Updated', 'Done'])->count(),
-            'rejected' => (clone $statsBaseQuery)->where('status', 'Rejected')->count(),
-            'expiring_soon' => (clone $statsBaseQuery)->whereIn('status', ['Created', 'Updated', 'Done'])->where('valid_until', '>=', $today)->where('valid_until', '<=', $fourteenDaysLater)->count(),
-            'expired' => (clone $statsBaseQuery)->whereIn('status', ['Created', 'Updated', 'Done'])->where('valid_until', '<', $today)->count(),
-        ];
+        // Statistics (lazy closure with single aggregation query)
+        $stats = fn () => (function () use ($statsBaseQuery, $today, $fourteenDaysLater) {
+            $raw = (clone $statsBaseQuery)->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'On Request' THEN 1 END) as on_request,
+                COUNT(CASE WHEN status = 'Approved' THEN 1 END) as approved,
+                COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') THEN 1 END) as done,
+                COUNT(CASE WHEN status = 'Rejected' THEN 1 END) as rejected,
+                COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') AND valid_until >= ? AND valid_until <= ? THEN 1 END) as expiring_soon,
+                COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') AND valid_until < ? THEN 1 END) as expired
+            ", [$today, $fourteenDaysLater, $today])->first();
+
+            return [
+                'total' => (int) ($raw?->total ?? 0),
+                'on_request' => (int) ($raw?->on_request ?? 0),
+                'approved' => (int) ($raw?->approved ?? 0),
+                'done' => (int) ($raw?->done ?? 0),
+                'rejected' => (int) ($raw?->rejected ?? 0),
+                'expiring_soon' => (int) ($raw?->expiring_soon ?? 0),
+                'expired' => (int) ($raw?->expired ?? 0),
+            ];
+        })();
 
         // Housekeeping employees list for selection (lazy closure)
         $hkDepartment = Department::where('name', 'Housekeeping')->first();

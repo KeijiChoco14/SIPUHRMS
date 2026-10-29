@@ -162,21 +162,32 @@ class DashboardController extends Controller
 
         $myRecentServiceRequests = $this->getMyServiceRequests($user, $employeeId, $canAccessHousekeeping);
 
+        $nowStr = now()->toDateTimeString();
+        $taskCounts = Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))
+            ->selectRaw("
+                COUNT(CASE WHEN status = 'To Do' THEN 1 END) as todo,
+                COUNT(CASE WHEN status = 'In Progress' THEN 1 END) as in_progress,
+                COUNT(CASE WHEN status = 'Done' THEN 1 END) as done,
+                COUNT(CASE WHEN status = 'Approved' THEN 1 END) as approved,
+                COUNT(CASE WHEN deadline < ? AND status NOT IN ('Approved', 'Cancelled') THEN 1 END) as overdue
+            ", [$nowStr])
+            ->first();
+
         return [
             'tasksSummary' => [
-                'todo' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'To Do')->count(),
-                'in_progress' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'In Progress')->count(),
-                'review' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'Done')->count(),
-                'done' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'Done')->count(),
-                'approved' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('status', 'Approved')->count(),
-                'overdue' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))->where('deadline', '<', now())->whereNotIn('status', ['Approved', 'Cancelled'])->count(),
+                'todo' => (int) ($taskCounts?->todo ?? 0),
+                'in_progress' => (int) ($taskCounts?->in_progress ?? 0),
+                'review' => (int) ($taskCounts?->done ?? 0),
+                'done' => (int) ($taskCounts?->done ?? 0),
+                'approved' => (int) ($taskCounts?->approved ?? 0),
+                'overdue' => (int) ($taskCounts?->overdue ?? 0),
             ],
             'upcomingTasks' => Task::whereHas('assignees', fn ($q) => $q->where('employee_id', $employeeId))
                 ->whereNotIn('status', ['Approved', 'Cancelled'])
                 ->whereNotNull('deadline')
                 ->orderBy('deadline', 'asc')
                 ->limit(5)
-                ->get(),
+                ->get(['id', 'title', 'priority', 'status', 'deadline', 'project_id']),
             'latestPerformanceScore' => $latestScore,
             'leaveStats' => $leaveStats,
             'recentActivities' => $recentActivities,
@@ -192,13 +203,15 @@ class DashboardController extends Controller
         $teamEmployeeIds = Employee::where('supervisor_id', $user->employee?->id)->pluck('id');
         $teamAttendanceToday = Attendance::whereIn('employee_id', $teamEmployeeIds)
             ->where('date', $today->format('Y-m-d'))
-            ->get();
+            ->get(['id', 'employee_id', 'status']);
 
+        $teamCount = $teamEmployeeIds->count();
+        $presentCount = $teamAttendanceToday->whereIn('status', ['Present', 'Late'])->count();
         $teamAttendanceSummary = [
-            'total' => $teamEmployeeIds->count(),
-            'present' => $teamAttendanceToday->whereIn('status', ['Present', 'Late'])->count(),
+            'total' => $teamCount,
+            'present' => $presentCount,
             'late' => $teamAttendanceToday->where('status', 'Late')->count(),
-            'absent' => $teamEmployeeIds->count() - $teamAttendanceToday->whereIn('status', ['Present', 'Late'])->count(),
+            'absent' => max(0, $teamCount - $presentCount),
         ];
 
         $pendingLeaves = LeaveRequest::whereIn('employee_id', $teamEmployeeIds)
@@ -208,21 +221,32 @@ class DashboardController extends Controller
         $projectProgress = Project::where('status', 'Active')
             ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                 $query->where('status', 'Approved');
-            }])->get()->map(function ($project) {
+            }])->get(['id', 'name', 'status'])->map(function ($project) {
                 $project->progress = $project->total_tasks > 0 ? round(($project->completed_tasks / $project->total_tasks) * 100) : 0;
                 return $project;
             });
 
+        $nowStr = now()->toDateTimeString();
+        $taskStats = Task::selectRaw("
+            COUNT(*) as total,
+            COUNT(CASE WHEN status = 'Approved' THEN 1 END) as completed,
+            COUNT(CASE WHEN deadline < ? AND status NOT IN ('Approved', 'Cancelled') THEN 1 END) as overdue,
+            COUNT(CASE WHEN status = 'Done' THEN 1 END) as pending
+        ", [$nowStr])->first();
+
         return [
             'activeProjects' => Project::where('status', 'Active')->count(),
-            'totalTasks' => Task::count(),
-            'completedTasks' => Task::where('status', 'Approved')->count(),
-            'overdueTasks' => Task::where('deadline', '<', now())->whereNotIn('status', ['Approved', 'Cancelled'])->count(),
-            'pendingReview' => Task::where('status', 'Done')->count(),
-            'pendingApproval' => Task::where('status', 'Done')->count(),
-            'teamWorkload' => Employee::with('user')->withCount(['tasks as active_tasks_count' => function ($query) {
-                $query->whereNotIn('status', ['Approved', 'Cancelled']);
-            }])->get(),
+            'totalTasks' => (int) ($taskStats?->total ?? 0),
+            'completedTasks' => (int) ($taskStats?->completed ?? 0),
+            'overdueTasks' => (int) ($taskStats?->overdue ?? 0),
+            'pendingReview' => (int) ($taskStats?->pending ?? 0),
+            'pendingApproval' => (int) ($taskStats?->pending ?? 0),
+            'teamWorkload' => Employee::with('user:id,name,email')
+                ->whereIn('id', $teamEmployeeIds)
+                ->withCount(['tasks as active_tasks_count' => function ($query) {
+                    $query->whereNotIn('status', ['Approved', 'Cancelled']);
+                }])
+                ->get(['id', 'user_id', 'department_id', 'position_id', 'employee_number']),
             'teamAttendanceSummary' => $teamAttendanceSummary,
             'pendingLeaves' => $pendingLeaves,
             'projectProgress' => $projectProgress,
@@ -234,27 +258,29 @@ class DashboardController extends Controller
      */
     private function getHrData($today, $totalEmployees)
     {
-        $attendanceToday = Attendance::where('date', $today->format('Y-m-d'))->get();
+        $attendanceToday = Attendance::where('date', $today->format('Y-m-d'))->get(['id', 'status']);
+        $presentCount = $attendanceToday->where('status', 'Present')->count();
+        $lateCount = $attendanceToday->where('status', 'Late')->count();
 
         $attendanceTodaySummary = [
             'total' => $totalEmployees,
-            'present' => $attendanceToday->where('status', 'Present')->count(),
-            'late' => $attendanceToday->where('status', 'Late')->count(),
-            'absent' => $totalEmployees - $attendanceToday->whereIn('status', ['Present', 'Late'])->count(),
+            'present' => $presentCount,
+            'late' => $lateCount,
+            'absent' => max(0, $totalEmployees - ($presentCount + $lateCount)),
         ];
 
         $recentHires = Employee::with(['user:id,name,email', 'department:id,name', 'position:id,name'])
             ->orderBy('join_date', 'desc')
             ->limit(5)
-            ->get();
+            ->get(['id', 'user_id', 'department_id', 'position_id', 'join_date']);
 
         return [
             'employeeCount' => $totalEmployees,
             'departmentCount' => Department::count(),
-            'employeeWorkload' => Employee::with('user')->withCount(['tasks as active_tasks_count' => function ($query) {
+            'employeeWorkload' => Employee::with('user:id,name,email')->withCount(['tasks as active_tasks_count' => function ($query) {
                 $query->where('status', '!=', 'Done');
-            }])->orderByDesc('active_tasks_count')->limit(5)->get(),
-            'departmentDistribution' => Department::withCount('employees')->get(),
+            }])->orderByDesc('active_tasks_count')->limit(5)->get(['id', 'user_id', 'department_id', 'position_id', 'employee_number']),
+            'departmentDistribution' => Department::withCount('employees')->get(['id', 'name']),
             'attendanceTodaySummary' => $attendanceTodaySummary,
             'pendingLeaves' => LeaveRequest::where('status', 'Pending')->count(),
             'pendingOvertime' => OvertimeRequest::where('status', 'Pending')->count(),
@@ -277,7 +303,8 @@ class DashboardController extends Controller
 
         $departmentPerformance = Department::withCount('employees')
             ->with(['employees' => function ($q) {
-                $q->withCount([
+                $q->select('id', 'department_id')
+                  ->withCount([
                     'tasks as active_tasks_count' => function ($query) {
                         $query->where('status', '!=', 'Done');
                     },
@@ -286,7 +313,7 @@ class DashboardController extends Controller
                     },
                 ]);
             }])
-            ->get()
+            ->get(['id', 'name'])
             ->map(function ($dept) {
                 $dept->total_active_tasks = $dept->employees->sum('active_tasks_count');
                 $dept->total_completed_tasks = $dept->employees->sum('completed_tasks_count');
@@ -297,7 +324,7 @@ class DashboardController extends Controller
         $projectProgress = Project::where('status', 'Active')
             ->withCount(['tasks as total_tasks', 'tasks as completed_tasks' => function ($query) {
                 $query->where('status', 'Done');
-            }])->get()->map(function ($project) {
+            }])->get(['id', 'name', 'status'])->map(function ($project) {
                 $project->progress = $project->total_tasks > 0 ? round(($project->completed_tasks / $project->total_tasks) * 100) : 0;
                 return $project;
             });
@@ -343,15 +370,21 @@ class DashboardController extends Controller
                 ->where('date', $today->format('Y-m-d'))
                 ->first();
 
-            $monthAttendances = Attendance::where('employee_id', $employeeId)
-                ->where('date', 'like', $today->format('Y-m') . '%')
-                ->get();
+            $monthPattern = $today->format('Y-m') . '%';
+            $monthlyStats = Attendance::where('employee_id', $employeeId)
+                ->where('date', 'like', $monthPattern)
+                ->selectRaw("
+                    COUNT(*) as total,
+                    COUNT(CASE WHEN status = 'Present' THEN 1 END) as present,
+                    COUNT(CASE WHEN status = 'Late' THEN 1 END) as late,
+                    COUNT(CASE WHEN status = 'Absent' THEN 1 END) as absent
+                ")->first();
 
             $myMonthlyAttendance = [
-                'present' => $monthAttendances->where('status', 'Present')->count(),
-                'late' => $monthAttendances->where('status', 'Late')->count(),
-                'absent' => $monthAttendances->where('status', 'Absent')->count(),
-                'total' => $monthAttendances->count(),
+                'present' => (int) ($monthlyStats?->present ?? 0),
+                'late' => (int) ($monthlyStats?->late ?? 0),
+                'absent' => (int) ($monthlyStats?->absent ?? 0),
+                'total' => (int) ($monthlyStats?->total ?? 0),
             ];
 
             if (Schema::hasTable('payrolls')) {
