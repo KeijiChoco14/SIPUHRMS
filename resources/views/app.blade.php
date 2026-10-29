@@ -9,6 +9,7 @@
         <link rel="manifest" href="/manifest.json">
         <meta name="theme-color" content="#E31B23">
         <link rel="apple-touch-icon" href="/logo/logoswissbell.jpg">
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -24,13 +25,23 @@
         @inertia
         
         <script>
+            // Clean up and unregister any legacy service workers that cause fetch event rejections
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    }, function(err) {
-                        console.log('ServiceWorker registration failed: ', err);
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for (let registration of registrations) {
+                            registration.unregister().then(function(boolean) {
+                                console.log('Legacy ServiceWorker unregistered: ', boolean);
+                            });
+                        }
                     });
+                    if (window.caches) {
+                        caches.keys().then(function(names) {
+                            for (let name of names) {
+                                caches.delete(name);
+                            }
+                        });
+                    }
                 });
             }
         </script>

@@ -662,7 +662,14 @@ export default function Authenticated({
                         <div className="shrink-0 border-t border-slate-100 p-3 bg-white/50">
                             <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
                                 <div className="h-8 w-8 rounded-full overflow-hidden border border-slate-200 shadow-xs shrink-0">
-                                    <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
+                                    <img
+                                        src={user.profile_photo_url}
+                                        alt={user.name}
+                                        className="h-full w-full object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&color=7F9CF5&background=EBF4FF`;
+                                        }}
+                                    />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-semibold text-slate-800 truncate">{user.name}</p>
@@ -906,7 +913,14 @@ export default function Authenticated({
                                 <Dropdown.Trigger>
                                     <button className="flex items-center gap-2.5 text-sm font-medium text-slate-500 hover:text-slate-900 focus:outline-none transition-all duration-300 rounded-xl px-2 py-1.5 hover:bg-slate-100/50 hover:shadow-xs">
                                         <div className="h-9 w-9 rounded-full overflow-hidden shadow-xs ring-2 ring-white shrink-0">
-                                            <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
+                                            <img
+                                                src={user.profile_photo_url}
+                                                alt={user.name}
+                                                className="h-full w-full object-cover"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&color=7F9CF5&background=EBF4FF`;
+                                                }}
+                                            />
                                         </div>
                                         <span className="hidden sm:inline-block text-slate-700 font-medium">{user.name}</span>
                                         <svg className="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -993,7 +1007,14 @@ export default function Authenticated({
                         <div className="border-t border-gray-200 px-4 py-3">
                             <div className="flex items-center gap-3">
                                 <div className="h-9 w-9 rounded-full overflow-hidden border border-gray-200 shrink-0">
-                                    <img src={user.profile_photo_url} alt={user.name} className="h-full w-full object-cover" />
+                                    <img
+                                        src={user.profile_photo_url}
+                                        alt={user.name}
+                                        className="h-full w-full object-cover"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&color=7F9CF5&background=EBF4FF`;
+                                        }}
+                                    />
                                 </div>
                                 <div>
                                     <div className="text-sm font-semibold text-gray-800">{user.name}</div>

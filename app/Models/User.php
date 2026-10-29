@@ -169,9 +169,16 @@ class User extends Authenticatable
     {
         return Attribute::make(
             get: function () {
-                return $this->profile_photo_path
-                    ? Storage::url($this->profile_photo_path)
-                    : $this->defaultProfilePhotoUrl();
+                if ($this->profile_photo_path) {
+                    try {
+                        if (Storage::disk('public')->exists($this->profile_photo_path)) {
+                            return Storage::url($this->profile_photo_path);
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore and fallback to default
+                    }
+                }
+                return $this->defaultProfilePhotoUrl();
             },
         );
     }

@@ -1,42 +1,22 @@
-const CACHE_NAME = 'hrms-pwa-cache-v1';
-const urlsToCache = [
-  '/',
-  '/manifest.json',
-  '/logo/logoswissbell.jpg'
-];
-
-// Install event
+// Self-destroying service worker: unregisters itself and purges all old caches
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
-  );
+  self.skipWaiting();
 });
 
-// Fetch event (Network falling back to cache strategy)
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request)
-      .catch(() => {
-        return caches.match(event.request);
-      })
-  );
-});
-
-// Activate event (Clear old caches)
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
+    caches.keys()
+      .then(keys => Promise.all(keys.map(key => caches.delete(key))))
+      .then(() => self.registration.unregister())
+      .then(() => self.clients.matchAll())
+      .then(clients => {
+        clients.forEach(client => {
+          if (client.url && 'navigate' in client) {
+            client.navigate(client.url);
           }
-        })
-      );
-    })
+        });
+      })
   );
 });
+
+// NO fetch listener: Never intercept dynamic requests or Inertia SPA navigation
