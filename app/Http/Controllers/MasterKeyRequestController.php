@@ -201,44 +201,42 @@ class MasterKeyRequestController extends Controller
             $statsBaseQuery->where('employee_id', $userEmployee?->id);
         }
 
-        // Statistics (lazy closure with single aggregation query)
-        $stats = fn () => (function () use ($statsBaseQuery, $today, $fourteenDaysLater) {
-            $raw = (clone $statsBaseQuery)->selectRaw("
-                COUNT(*) as total,
-                COUNT(CASE WHEN status = 'On Request' THEN 1 END) as on_request,
-                COUNT(CASE WHEN status = 'Approved' THEN 1 END) as approved,
-                COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') THEN 1 END) as done,
-                COUNT(CASE WHEN status = 'Rejected' THEN 1 END) as rejected,
-                COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') AND valid_until >= ? AND valid_until <= ? THEN 1 END) as expiring_soon,
-                COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') AND valid_until < ? THEN 1 END) as expired
-            ", [$today, $fourteenDaysLater, $today])->first();
+        // Statistics (single aggregation query)
+        $raw = (clone $statsBaseQuery)->selectRaw("
+            COUNT(*) as total,
+            COUNT(CASE WHEN status = 'On Request' THEN 1 END) as on_request,
+            COUNT(CASE WHEN status = 'Approved' THEN 1 END) as approved,
+            COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') THEN 1 END) as done,
+            COUNT(CASE WHEN status = 'Rejected' THEN 1 END) as rejected,
+            COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') AND valid_until >= ? AND valid_until <= ? THEN 1 END) as expiring_soon,
+            COUNT(CASE WHEN status IN ('Created', 'Updated', 'Done') AND valid_until < ? THEN 1 END) as expired
+        ", [$today, $fourteenDaysLater, $today])->first();
 
-            return [
-                'total' => (int) ($raw?->total ?? 0),
-                'on_request' => (int) ($raw?->on_request ?? 0),
-                'approved' => (int) ($raw?->approved ?? 0),
-                'done' => (int) ($raw?->done ?? 0),
-                'rejected' => (int) ($raw?->rejected ?? 0),
-                'expiring_soon' => (int) ($raw?->expiring_soon ?? 0),
-                'expired' => (int) ($raw?->expired ?? 0),
-            ];
-        })();
+        $stats = [
+            'total' => (int) ($raw?->total ?? 0),
+            'on_request' => (int) ($raw?->on_request ?? 0),
+            'approved' => (int) ($raw?->approved ?? 0),
+            'done' => (int) ($raw?->done ?? 0),
+            'rejected' => (int) ($raw?->rejected ?? 0),
+            'expiring_soon' => (int) ($raw?->expiring_soon ?? 0),
+            'expired' => (int) ($raw?->expired ?? 0),
+        ];
 
-        // Housekeeping employees list for selection (lazy closure)
+        // Housekeeping employees list for selection
         $hkDepartment = Department::where('name', 'Housekeeping')->first();
-        $hkEmployees = fn () => Employee::with(['user', 'position'])
+        $hkEmployees = Employee::with(['user', 'position'])
             ->where('department_id', $hkDepartment?->id)
             ->get();
 
-        // Recent / Active keys list for Quick Select when creating Extension / Replacement (lazy closure)
-        $existingKeys = fn () => MasterKeyRequest::with(['employee.user'])
+        // Recent / Active keys list for Quick Select when creating Extension / Replacement
+        $existingKeys = MasterKeyRequest::with(['employee.user'])
             ->select('id', 'request_number', 'key_number', 'key_type', 'room_range_access', 'valid_until', 'employee_id', 'request_by')
             ->latest()
             ->take(30)
             ->get();
 
         // Detect current HOD HK & IT Department officer for dynamic signing references
-        $hodHK = fn () => Employee::with(['user', 'position', 'department'])
+        $hodHK = Employee::with(['user', 'position', 'department'])
             ->where('department_id', $hkDepartment?->id)
             ->where(function ($q) {
                 $q->whereHas('user.roles', function ($r) {
@@ -256,7 +254,7 @@ class MasterKeyRequestController extends Controller
             ->first();
 
         $itDepartment = Department::where('name', 'IT')->orWhere('name', 'like', '%Information Technology%')->first();
-        $itStaff = fn () => Employee::with(['user', 'position', 'department'])
+        $itStaff = Employee::with(['user', 'position', 'department'])
             ->where('department_id', $itDepartment?->id)
             ->whereHas('position', function ($p) {
                 $p->where('name', 'like', '%Staff%')

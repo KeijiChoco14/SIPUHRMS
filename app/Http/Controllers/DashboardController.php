@@ -130,11 +130,11 @@ class DashboardController extends Controller
             'role' => $role,
             'launcherStats' => $launcherStats,
             'announcements' => $latestAnnouncements,
-            'employeeData' => fn () => in_array($view, ['tasks', 'overview']) ? $this->getEmployeeData($user, $employeeId, $today, $canAccessHousekeeping) : null,
-            'supervisorData' => fn () => (in_array($view, ['tasks', 'hr', 'overview']) && ($isAdmin || $isSupervisor)) ? $this->getSupervisorData($user, $today) : null,
-            'hrData' => fn () => (in_array($view, ['hr', 'overview']) && $isAdmin) ? $this->getHrData($today, $employeeTotalCount) : null,
-            'managerData' => fn () => ($view === 'overview' && ($isSuperAdmin || $isGM)) ? $this->getManagerData($today, $employeeTotalCount) : null,
-            'employeeHrData' => fn () => in_array($view, ['hr', 'overview']) ? $this->getEmployeeHrData($user, $employeeId, $today, $pendingOvertimeCount) : null,
+            'employeeData' => in_array($view, ['tasks', 'overview']) ? $this->getEmployeeData($user, $employeeId, $today, $canAccessHousekeeping) : null,
+            'supervisorData' => (in_array($view, ['tasks', 'hr', 'overview']) && ($isAdmin || $isSupervisor)) ? $this->getSupervisorData($user, $today) : null,
+            'hrData' => (in_array($view, ['hr', 'overview']) && $isAdmin) ? $this->getHrData($today, $employeeTotalCount) : null,
+            'managerData' => ($view === 'overview' && ($isSuperAdmin || $isGM)) ? $this->getManagerData($today, $employeeTotalCount) : null,
+            'employeeHrData' => in_array($view, ['hr', 'overview']) ? $this->getEmployeeHrData($user, $employeeId, $today, $pendingOvertimeCount) : null,
         ];
 
         return Inertia::render('Dashboard', $data);

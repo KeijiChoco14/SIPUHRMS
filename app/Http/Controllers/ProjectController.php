@@ -131,8 +131,8 @@ class ProjectController extends Controller
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
             'projectStatuses' => ProjectStatus::cases(),
-            'departments' => fn () => Department::getCachedList(),
-            'employees' => fn () => Employee::with(['user:id,name', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
+            'departments' => Department::getCachedList(),
+            'employees' => Employee::with(['user:id,name', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
         ]);
     }
 

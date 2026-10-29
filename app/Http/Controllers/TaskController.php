@@ -59,8 +59,8 @@ class TaskController extends Controller
         return Inertia::render('Tasks/Index', [
             'tasks' => $tasks,
             'filters' => $request->only(['filter', 'status']),
-            'employees' => fn () => \App\Models\Employee::with(['user:id,name,email', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
-            'projects' => fn () => \App\Models\Project::select('id', 'name', 'status')->get(),
+            'employees' => \App\Models\Employee::with(['user:id,name,email', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
+            'projects' => \App\Models\Project::select('id', 'name', 'status')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);
@@ -99,8 +99,8 @@ class TaskController extends Controller
 
         return Inertia::render('Tasks/Kanban', [
             'tasks' => $tasks,
-            'employees' => fn () => \App\Models\Employee::with(['user:id,name,email', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
-            'projects' => fn () => \App\Models\Project::select('id', 'name', 'status')->get(),
+            'employees' => \App\Models\Employee::with(['user:id,name,email', 'department:id,name'])->get(['id', 'user_id', 'department_id', 'employee_number']),
+            'projects' => \App\Models\Project::select('id', 'name', 'status')->get(),
             'statuses' => TaskStatus::cases(),
             'priorities' => TaskPriority::cases(),
         ]);

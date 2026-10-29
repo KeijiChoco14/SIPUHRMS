@@ -49,25 +49,22 @@ class RoomBorrowingController extends Controller
         }
 
         // Overview statistics (single aggregation query on indexed columns)
-        $stats = fn () => (function () {
-            $raw = Room::where('is_active', true)->selectRaw("
-                COUNT(*) as total,
-                COUNT(CASE WHEN status = ? THEN 1 END) as available,
-                COUNT(CASE WHEN status = ? THEN 1 END) as borrowed,
-                COUNT(CASE WHEN status = ? THEN 1 END) as pending_return
-            ", [Room::STATUS_AVAILABLE, Room::STATUS_BORROWED, Room::STATUS_PENDING_RETURN])->first();
+        $raw = Room::where('is_active', true)->selectRaw("
+            COUNT(*) as total,
+            COUNT(CASE WHEN status = ? THEN 1 END) as available,
+            COUNT(CASE WHEN status = ? THEN 1 END) as borrowed,
+            COUNT(CASE WHEN status = ? THEN 1 END) as pending_return
+        ", [Room::STATUS_AVAILABLE, Room::STATUS_BORROWED, Room::STATUS_PENDING_RETURN])->first();
 
-            return [
-                'total' => (int) ($raw?->total ?? 0),
-                'available' => (int) ($raw?->available ?? 0),
-                'borrowed' => (int) ($raw?->borrowed ?? 0),
-                'pending_return' => (int) ($raw?->pending_return ?? 0),
-            ];
-        })();
+        $stats = [
+            'total' => (int) ($raw?->total ?? 0),
+            'available' => (int) ($raw?->available ?? 0),
+            'borrowed' => (int) ($raw?->borrowed ?? 0),
+            'pending_return' => (int) ($raw?->pending_return ?? 0),
+        ];
 
         // 1. Rooms for Borrow Form & Catalog
-        // Only queried when on 'borrow' or 'catalog' tab, avoiding eager-loading borrowers and large payloads on other tabs
-        $rooms = fn () => in_array($tab, ['borrow', 'catalog']) ? (
+        $rooms = in_array($tab, ['borrow', 'catalog']) ? (
             Room::query()
                 ->with([
                     'activeTransaction.borrower.user:id,name,email',
@@ -89,8 +86,8 @@ class RoomBorrowingController extends Controller
                 ->get()
         ) : [];
 
-        // 2. My Active Borrowing Transactions (needed for active borrowings badge and My Borrowings tab)
-        $myActiveBorrowings = fn () => $employee ? RoomBorrowingTransaction::with(['room'])
+        // 2. My Active Borrowing Transactions
+        $myActiveBorrowings = $employee ? RoomBorrowingTransaction::with(['room'])
             ->where('borrower_employee_id', $employee->id)
             ->whereIn('status', [
                 RoomBorrowingTransaction::STATUS_BORROWED,
@@ -99,8 +96,8 @@ class RoomBorrowingController extends Controller
             ->orderBy('borrowed_at', 'desc')
             ->get() : [];
 
-        // 3. My History (HEAVY: 20 returned transactions with security user) - ONLY evaluated when tab is 'my-borrowings'
-        $myHistory = fn () => ($employee && $tab === 'my-borrowings') ? RoomBorrowingTransaction::with([
+        // 3. My History
+        $myHistory = ($employee && $tab === 'my-borrowings') ? RoomBorrowingTransaction::with([
             'room',
             'securityUser:id,name',
         ])
@@ -111,7 +108,7 @@ class RoomBorrowingController extends Controller
             ->get() : [];
 
         // 4. Pending Returns Queue (for Security and Administrators)
-        $pendingReturns = fn () => $canApproveReturn ? RoomBorrowingTransaction::with([
+        $pendingReturns = $canApproveReturn ? RoomBorrowingTransaction::with([
             'room',
             'borrower.user:id,name,email',
             'borrower.department:id,name',
@@ -121,8 +118,8 @@ class RoomBorrowingController extends Controller
             ->orderBy('return_requested_at', 'asc')
             ->get() : [];
 
-        // 5. Recent Audit Transactions (HEAVY: 15 records with 4 relations) - ONLY evaluated when tab is 'pending-returns'
-        $recentAuditTransactions = fn () => ($canApproveReturn && $tab === 'pending-returns') ? RoomBorrowingTransaction::with([
+        // 5. Recent Audit Transactions
+        $recentAuditTransactions = ($canApproveReturn && $tab === 'pending-returns') ? RoomBorrowingTransaction::with([
             'room',
             'borrower.user:id,name',
             'borrower.department:id,name',
@@ -133,8 +130,8 @@ class RoomBorrowingController extends Controller
             ->limit(15)
             ->get() : [];
 
-        // 6. All Rooms list for management tab (HEAVY: all rooms with count) - ONLY evaluated when tab is 'manage-rooms'
-        $allRoomsForAdmin = fn () => ($canManageRooms && $tab === 'manage-rooms') ? Room::withCount('transactions')
+        // 6. All Rooms list for management tab
+        $allRoomsForAdmin = ($canManageRooms && $tab === 'manage-rooms') ? Room::withCount('transactions')
             ->orderBy('room_number', 'asc')
             ->get() : [];
 

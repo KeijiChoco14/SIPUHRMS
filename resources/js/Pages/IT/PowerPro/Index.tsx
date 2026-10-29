@@ -153,18 +153,23 @@ const AVAILABLE_PRIVILEGES = [
 ];
 
 export default function PowerProIndex({
-    requests,
-    stats,
-    departments,
-    employees,
-    filters,
-    permissions,
-    currentUser,
+    requests = { data: [], current_page: 1, last_page: 1, total: 0, links: [] },
+    stats = { total: 0, on_request: 0, approved: 0, done: 0, rejected: 0 },
+    departments = [],
+    employees = [],
+    filters = { search: '', status: 'all', request_type: 'all', department_id: 'all' },
+    permissions = { isAdmin: false, isItStaff: false, isHod: false, isSupervisor: false },
+    currentUser = { id: 0, name: '' },
 }: Props) {
-    const [searchTerm, setSearchTerm] = useState(filters.search || '');
-    const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
-    const [typeFilter, setTypeFilter] = useState(filters.request_type || 'all');
-    const [deptFilter, setDeptFilter] = useState(filters.department_id || 'all');
+    const safeDepartments = Array.isArray(departments) ? departments : [];
+    const safeEmployees = Array.isArray(employees) ? employees : [];
+    const safeStats = stats || { total: 0, on_request: 0, approved: 0, done: 0, rejected: 0 };
+    const safeRequests = requests && Array.isArray(requests?.data) ? requests : { data: [], current_page: 1, last_page: 1, total: 0, links: [] };
+
+    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+    const [statusFilter, setStatusFilter] = useState(filters?.status || 'all');
+    const [typeFilter, setTypeFilter] = useState(filters?.request_type || 'all');
+    const [deptFilter, setDeptFilter] = useState(filters?.department_id || 'all');
 
     // Modals state
     const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -176,7 +181,7 @@ export default function PowerProIndex({
 
     // Create Form
     const createForm = useForm({
-        employee_id: currentUser.employee_id ? String(currentUser.employee_id) : '',
+        employee_id: currentUser?.employee_id ? String(currentUser.employee_id) : '',
         request_type: 'create_new',
         employment_status: 'Permanent',
         power_pro_modules: ['Front Office'],
@@ -248,8 +253,8 @@ export default function PowerProIndex({
 
     // Auto update selected employee department & position
     const selectedEmployee = useMemo(() => {
-        return employees.find((e) => String(e.id) === String(createForm.data.employee_id));
-    }, [createForm.data.employee_id, employees]);
+        return safeEmployees.find((e) => String(e.id) === String(createForm.data.employee_id));
+    }, [createForm.data.employee_id, safeEmployees]);
 
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -409,16 +414,16 @@ export default function PowerProIndex({
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-50 text-slate-700 border border-slate-200">
-                            Total: {stats.total} Requests
+                            Total: {safeStats.total} Requests
                         </span>
-                        {stats.on_request > 0 && (
+                        {safeStats.on_request > 0 && (
                             <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
-                                {stats.on_request} Awaiting HOD
+                                {safeStats.on_request} Awaiting HOD
                             </span>
                         )}
-                        {stats.approved > 0 && (
+                        {safeStats.approved > 0 && (
                             <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200">
-                                {stats.approved} Awaiting IT
+                                {safeStats.approved} Awaiting IT
                             </span>
                         )}
                     </div>
@@ -435,7 +440,7 @@ export default function PowerProIndex({
                         }`}
                     >
                         <span className="text-xs font-semibold text-gray-500 block">Total Requests</span>
-                        <span className="text-2xl font-black text-gray-900 mt-1 block">{stats.total}</span>
+                        <span className="text-2xl font-black text-gray-900 mt-1 block">{safeStats.total}</span>
                         <span className="text-[11px] text-gray-400 mt-0.5 block">All submission history</span>
                     </div>
 
@@ -451,7 +456,7 @@ export default function PowerProIndex({
                             <span className="text-xs font-semibold text-amber-700">On Request</span>
                             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                         </div>
-                        <span className="text-2xl font-black text-amber-900 mt-1 block">{stats.on_request}</span>
+                        <span className="text-2xl font-black text-amber-900 mt-1 block">{safeStats.on_request}</span>
                         <span className="text-[11px] text-amber-600 mt-0.5 block">Awaiting HOD review</span>
                     </div>
 
@@ -467,7 +472,7 @@ export default function PowerProIndex({
                             <span className="text-xs font-semibold text-blue-700">Approved</span>
                             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                         </div>
-                        <span className="text-2xl font-black text-blue-900 mt-1 block">{stats.approved}</span>
+                        <span className="text-2xl font-black text-blue-900 mt-1 block">{safeStats.approved}</span>
                         <span className="text-[11px] text-blue-600 mt-0.5 block">Ready for IT execution</span>
                     </div>
 
@@ -483,7 +488,7 @@ export default function PowerProIndex({
                             <span className="text-xs font-semibold text-emerald-700">Completed (Done)</span>
                             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                         </div>
-                        <span className="text-2xl font-black text-emerald-900 mt-1 block">{stats.done}</span>
+                        <span className="text-2xl font-black text-emerald-900 mt-1 block">{safeStats.done}</span>
                         <span className="text-[11px] text-emerald-600 mt-0.5 block">User ID has been issued</span>
                     </div>
 
@@ -496,7 +501,7 @@ export default function PowerProIndex({
                         }`}
                     >
                         <span className="text-xs font-semibold text-rose-700 block">Rejected</span>
-                        <span className="text-2xl font-black text-rose-900 mt-1 block">{stats.rejected}</span>
+                        <span className="text-2xl font-black text-rose-900 mt-1 block">{safeStats.rejected}</span>
                         <span className="text-[11px] text-rose-600 mt-0.5 block">Needs revision / cancelled</span>
                     </div>
                 </div>
@@ -507,6 +512,8 @@ export default function PowerProIndex({
                         <div className="relative flex-1">
                             <input
                                 type="text"
+                                id="power_pro_search"
+                                name="power_pro_search"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 placeholder="Search request no., employee name, employee number, or User ID..."
@@ -519,6 +526,8 @@ export default function PowerProIndex({
 
                         <div className="flex flex-wrap sm:flex-nowrap gap-2">
                             <select
+                                id="power_pro_dept_filter"
+                                name="power_pro_dept_filter"
                                 value={deptFilter}
                                 onChange={(e) => {
                                     setDeptFilter(e.target.value);
@@ -527,7 +536,7 @@ export default function PowerProIndex({
                                 className="px-3 py-2.5 rounded-xl border border-gray-200 text-xs font-medium text-gray-700 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                             >
                                 <option value="all">All Departments</option>
-                                {departments.map((dept) => (
+                                {safeDepartments.map((dept) => (
                                     <option key={dept.id} value={dept.id}>
                                         {dept.name}
                                     </option>
@@ -535,6 +544,8 @@ export default function PowerProIndex({
                             </select>
 
                             <select
+                                id="power_pro_type_filter"
+                                name="power_pro_type_filter"
                                 value={typeFilter}
                                 onChange={(e) => {
                                     setTypeFilter(e.target.value);
@@ -575,7 +586,7 @@ export default function PowerProIndex({
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                                {requests.data.length === 0 ? (
+                                {safeRequests.data.length === 0 ? (
                                     <tr>
                                         <td colSpan={7} className="py-12 text-center text-gray-400">
                                             <div className="max-w-xs mx-auto space-y-2">
@@ -590,7 +601,7 @@ export default function PowerProIndex({
                                         </td>
                                     </tr>
                                 ) : (
-                                    requests.data.map((item) => {
+                                    safeRequests.data.map((item) => {
                                         const isMyDept = permissions.departmentId === item.department_id;
                                         const canApprove = (permissions.isAdmin || (permissions.isHod && isMyDept)) && item.status === 'On Request';
                                         const canProcess = (permissions.isAdmin || permissions.isItStaff) && (item.status === 'Approved' || item.status === 'On Request');
@@ -767,13 +778,13 @@ export default function PowerProIndex({
                     </div>
 
                     {/* Pagination */}
-                    {requests.last_page > 1 && (
+                    {safeRequests.last_page > 1 && (
                         <div className="py-3 px-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
                             <div>
-                                Showing page <span className="font-semibold text-gray-800">{requests.current_page}</span> of <span className="font-semibold text-gray-800">{requests.last_page}</span> ({requests.total} results)
+                                Showing page <span className="font-semibold text-gray-800">{safeRequests.current_page}</span> of <span className="font-semibold text-gray-800">{safeRequests.last_page}</span> ({safeRequests.total} results)
                             </div>
                             <div className="flex gap-1">
-                                {requests.links.map((link, idx) => (
+                                {(safeRequests.links || []).map((link, idx) => (
                                     <button
                                         key={idx}
                                         disabled={!link.url || link.active}
@@ -837,13 +848,14 @@ export default function PowerProIndex({
                                 <InputLabel htmlFor="employee_id" value="Employee Requiring Account *" />
                                 <select
                                     id="employee_id"
+                                    name="employee_id"
                                     value={createForm.data.employee_id}
                                     onChange={(e) => createForm.setData('employee_id', e.target.value)}
                                     className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 shadow-xs"
                                     required
                                 >
                                     <option value="">-- Select Employee --</option>
-                                    {employees.map((emp) => (
+                                    {safeEmployees.map((emp) => (
                                         <option key={emp.id} value={emp.id}>
                                             {emp.user?.name} ({emp.employee_number}) - {emp.department?.name} ({emp.position?.name || 'Staff'})
                                         </option>
@@ -891,6 +903,7 @@ export default function PowerProIndex({
                                     <InputLabel htmlFor="request_type" value="Request Type *" />
                                     <select
                                         id="request_type"
+                                        name="request_type"
                                         value={createForm.data.request_type}
                                         onChange={(e) => createForm.setData('request_type', e.target.value as any)}
                                         className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
@@ -908,6 +921,7 @@ export default function PowerProIndex({
                                     <InputLabel htmlFor="employment_status" value="Employment Status" />
                                     <select
                                         id="employment_status"
+                                        name="employment_status"
                                         value={createForm.data.employment_status}
                                         onChange={(e) => createForm.setData('employment_status', e.target.value)}
                                         className="mt-1 w-full rounded-xl border border-gray-200 text-xs sm:text-sm text-gray-800 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
@@ -924,6 +938,7 @@ export default function PowerProIndex({
                                     <InputLabel htmlFor="access_level" value="System Role / Access Level *" />
                                     <TextInput
                                         id="access_level"
+                                        name="access_level"
                                         value={createForm.data.access_level}
                                         onChange={(e) => createForm.setData('access_level', e.target.value)}
                                         placeholder="e.g. Receptionist, Cashier, Supervisor, Night Audit"
@@ -938,6 +953,7 @@ export default function PowerProIndex({
                                     <InputLabel htmlFor="proposed_username" value="Proposed User ID (Optional)" />
                                     <TextInput
                                         id="proposed_username"
+                                        name="proposed_username"
                                         value={createForm.data.proposed_username}
                                         onChange={(e) => createForm.setData('proposed_username', e.target.value.toUpperCase())}
                                         placeholder="e.g. FO_RUDI, POS_SINTA"
@@ -967,6 +983,7 @@ export default function PowerProIndex({
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 {AVAILABLE_MODULES.map((mod) => {
                                     const checked = createForm.data.power_pro_modules.includes(mod.id);
+                                    const modInputId = `mod_${mod.id.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
                                     return (
                                         <div
                                             key={mod.id}
@@ -979,6 +996,8 @@ export default function PowerProIndex({
                                         >
                                             <input
                                                 type="checkbox"
+                                                id={modInputId}
+                                                name="power_pro_modules[]"
                                                 checked={checked}
                                                 onChange={() => {}}
                                                 className="mt-0.5 rounded text-red-600 focus:ring-red-500 h-4 w-4 pointer-events-none"
@@ -1020,6 +1039,7 @@ export default function PowerProIndex({
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                 {AVAILABLE_PRIVILEGES.map((priv) => {
                                     const checked = createForm.data.special_privileges.includes(priv.id);
+                                    const privInputId = `priv_${priv.id.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
                                     return (
                                         <div
                                             key={priv.id}
@@ -1032,6 +1052,8 @@ export default function PowerProIndex({
                                         >
                                             <input
                                                 type="checkbox"
+                                                id={privInputId}
+                                                name="special_privileges[]"
                                                 checked={checked}
                                                 onChange={() => {}}
                                                 className="rounded text-amber-600 focus:ring-amber-500 h-4 w-4 pointer-events-none"
@@ -1056,6 +1078,7 @@ export default function PowerProIndex({
                                 <InputLabel htmlFor="reason" value="Purpose / Justification" />
                                 <textarea
                                     id="reason"
+                                    name="reason"
                                     rows={2}
                                     value={createForm.data.reason}
                                     onChange={(e) => createForm.setData('reason', e.target.value)}
@@ -1149,6 +1172,7 @@ export default function PowerProIndex({
                             <InputLabel htmlFor="approval_notes" value="HOD Approval Notes (Optional)" />
                             <textarea
                                 id="approval_notes"
+                                name="approval_notes"
                                 rows={2}
                                 value={approveForm.data.approval_notes}
                                 onChange={(e) => approveForm.setData('approval_notes', e.target.value)}
@@ -1233,6 +1257,7 @@ export default function PowerProIndex({
                             <InputLabel htmlFor="created_user_id" value="Official Power Pro User ID Created *" />
                             <TextInput
                                 id="created_user_id"
+                                name="created_user_id"
                                 value={processForm.data.created_user_id}
                                 onChange={(e) => processForm.setData('created_user_id', e.target.value.toUpperCase())}
                                 placeholder="e.g. FO_RUDI_01"
@@ -1249,6 +1274,7 @@ export default function PowerProIndex({
                             <InputLabel htmlFor="it_notes" value="IT Notes / Remarks (Optional)" />
                             <textarea
                                 id="it_notes"
+                                name="it_notes"
                                 rows={2}
                                 value={processForm.data.it_notes}
                                 onChange={(e) => processForm.setData('it_notes', e.target.value)}
@@ -1336,7 +1362,7 @@ export default function PowerProIndex({
                                     <span className="text-gray-400 block font-bold uppercase tracking-wider text-[10px]">Power Pro System Access</span>
                                     <p className="font-semibold text-gray-800">Access Level: {activeItem.access_level}</p>
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                        {activeItem.power_pro_modules?.map((m, i) => (
+                                        {Array.isArray(activeItem.power_pro_modules) && activeItem.power_pro_modules.map((m, i) => (
                                             <span key={i} className="px-2 py-0.5 rounded bg-red-50 text-red-700 text-[10px] font-semibold border border-red-200">
                                                 {m}
                                             </span>
@@ -1353,7 +1379,7 @@ export default function PowerProIndex({
                                 </div>
                             </div>
 
-                            {activeItem.special_privileges && activeItem.special_privileges.length > 0 && (
+                            {Array.isArray(activeItem.special_privileges) && activeItem.special_privileges.length > 0 && (
                                 <div>
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1.5">
                                         Authorized Special Rights / Privileges
@@ -1467,6 +1493,7 @@ export default function PowerProIndex({
                         <InputLabel htmlFor="rejection_reason" value="Rejection Reason *" />
                         <textarea
                             id="rejection_reason"
+                            name="rejection_reason"
                             rows={3}
                             value={rejectForm.data.rejection_reason}
                             onChange={(e) => rejectForm.setData('rejection_reason', e.target.value)}
